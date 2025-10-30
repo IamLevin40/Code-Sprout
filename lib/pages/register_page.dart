@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import '../services/firestore_service.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -10,6 +11,7 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
+  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -22,6 +24,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   void dispose() {
+    _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -44,6 +47,25 @@ class _RegisterPageState extends State<RegisterPage> {
       _errorMessage = null;
     });
 
+    // Check if username already exists
+    try {
+      final usernameExists = await FirestoreService.usernameExists(_usernameController.text.trim());
+      if (usernameExists) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'Username already exists. Please choose another.';
+        });
+        return;
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Failed to verify username. Please try again.';
+      });
+      return;
+    }
+
+    // Register user with Firebase Authentication
     final error = await _authService.register(
       email: _emailController.text,
       password: _passwordController.text,
@@ -52,8 +74,35 @@ class _RegisterPageState extends State<RegisterPage> {
     if (!mounted) return;
 
     if (error == null) {
-      // Success - Show success dialog and navigate to Home when user continues
-      _showSuccessDialog();
+      // Get the newly created user's UID
+      final uid = _authService.currentUser?.uid;
+
+      if (uid != null) {
+        // Stop loading and show success dialog; user will continue to Home
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+          _showSuccessDialog();
+        }
+
+        // Create Firestore document in background. If it fails, show a non-blocking SnackBar.
+        FirestoreService.createUserDocument(
+          uid: uid,
+          username: _usernameController.text.trim(),
+        ).then((_) {
+          // Optionally we could inform the user that profile saved successfully.
+        }).catchError((e) {
+          // Background write failed - log for now. If you want, we can surface
+          // this to the user via an in-app banner on Home instead of a global SnackBar.
+          debugPrint('Failed to save profile: ${e.toString()}');
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'Registration succeeded but failed to get user info.';
+        });
+      }
     } else {
       setState(() {
         _isLoading = false;
@@ -112,7 +161,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).pop();
-                    // Immediately navigate to Home for faster UX and clear previous routes
+                    // Navigate to Home when user continues
                     Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
                   },
                   style: ElevatedButton.styleFrom(
@@ -139,6 +188,8 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
     );
   }
+
+  // Success dialog is shown on registration completion; Firestore write runs in background.
 
   @override
   Widget build(BuildContext context) {
@@ -227,6 +278,45 @@ class _RegisterPageState extends State<RegisterPage> {
                         ],
                       ),
                     ),
+
+                  // Username Field
+                  TextFormField(
+                    controller: _usernameController,
+                    keyboardType: TextInputType.text,
+                    decoration: InputDecoration(
+                      labelText: 'Username',
+                      hintText: 'Enter your username',
+                      prefixIcon: Icon(Icons.account_circle_outlined, color: Colors.green.shade600),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.green.shade600, width: 2),
+                      ),
+                      filled: true,
+                      fillColor: const Color(0xFFF7FAFC),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a username';
+                      }
+                      if (value.length < 8) {
+                        return 'Username must be at least 8 characters';
+                      }
+                      // Check if alphanumeric (letters and numbers only, no spaces)
+                      if (!RegExp(r'^[a-zA-Z0-9]+$').hasMatch(value)) {
+                        return 'Username must be alphanumeric (letters and numbers only)';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
 
                   // Email Field
                   TextFormField(
