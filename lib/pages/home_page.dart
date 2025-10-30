@@ -56,36 +56,36 @@ class _HomePageState extends State<HomePage> {
         Scaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
-        title: const Text(
-          'Code Sprout',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        centerTitle: true,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Colors.green.shade600,
-                Colors.purple.shade600,
-              ],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
+            title: const Text(
+              'Code Sprout',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
+            centerTitle: true,
+            flexibleSpace: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.green.shade600,
+                    Colors.purple.shade600,
+                  ],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+              ),
+            ),
+            elevation: 0,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.logout, color: Colors.white),
+                tooltip: 'Logout',
+                onPressed: () => _showLogoutDialog(context, authService),
+              ),
+            ],
           ),
-        ),
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
-            tooltip: 'Logout',
-            onPressed: () => _showLogoutDialog(context, authService),
-          ),
-        ],
-      ),
-      body: Center(
+          body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
