@@ -60,6 +60,26 @@ class UserData {
     };
   }
 
+  /// Convert UserData to JSON for local storage
+  Map<String, dynamic> toJson() {
+    return {
+      'uid': uid,
+      'username': username,
+      'hasPlayedTutorial': hasPlayedTutorial,
+      'hasLearnedModule': hasLearnedModule,
+    };
+  }
+
+  /// Create UserData from JSON (for local storage)
+  factory UserData.fromJson(Map<String, dynamic> json) {
+    return UserData(
+      uid: json['uid'] as String,
+      username: json['username'] as String? ?? '',
+      hasPlayedTutorial: json['hasPlayedTutorial'] as bool? ?? false,
+      hasLearnedModule: json['hasLearnedModule'] as bool? ?? false,
+    );
+  }
+
   /// Save user data to Firestore (creates or updates document)
   Future<void> save() async {
     try {
@@ -136,6 +156,7 @@ class UserData {
   }
 
   /// Update username
+  /// Note: Use FirestoreService.updateUserData() for automatic cache syncing
   Future<void> updateUsername(String newUsername) async {
     try {
       await _usersCollection.doc(uid).update({
@@ -147,6 +168,7 @@ class UserData {
   }
 
   /// Update hasPlayedTutorial status
+  /// Note: Use FirestoreService.updateUserData() for automatic cache syncing
   Future<void> updateHasPlayedTutorial(bool value) async {
     try {
       await _usersCollection.doc(uid).update({
@@ -158,6 +180,7 @@ class UserData {
   }
 
   /// Update hasLearnedModule status
+  /// Note: Use FirestoreService.updateUserData() for automatic cache syncing
   Future<void> updateHasLearnedModule(bool value) async {
     try {
       await _usersCollection.doc(uid).update({
