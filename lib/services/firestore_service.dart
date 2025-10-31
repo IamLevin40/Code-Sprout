@@ -18,11 +18,13 @@ class FirestoreService {
     required String username,
   }) async {
     try {
-      final userData = UserData(
+      final userData = await UserData.create(
         uid: uid,
-        username: username,
-        hasPlayedTutorial: false,
-        hasLearnedModule: false,
+        initialData: {
+          'accountInformation': {
+            'username': username,
+          },
+        },
       );
 
       await userData.save();
@@ -48,9 +50,6 @@ class FirestoreService {
 
       return querySnapshot.docs.isNotEmpty;
     } catch (e) {
-      // Log the full error for debugging
-      print('Error checking username existence: $e');
-      print('Error type: ${e.runtimeType}');
       throw Exception('Failed to check username existence: $e');
     }
   }
@@ -59,17 +58,25 @@ class FirestoreService {
   /// 1. First checks local cache
   /// 2. If not cached, fetches from Firestore and caches result
   /// 3. If forceRefresh is true, always fetches from Firestore
+  /// 4. Automatically migrates data if schema has changed
   static Future<UserData?> getUserData(String uid, {bool forceRefresh = false}) async {
     try {
       // If not forcing refresh, try to get from cache first
       if (!forceRefresh) {
         final cachedData = await _localStorage.getUserData();
         if (cachedData != null && cachedData.uid == uid) {
-          return cachedData;
+          // Check if cached data needs migration
+          final errors = await cachedData.validate();
+          if (errors.isNotEmpty) {
+            // Cached data is outdated, fetch from Firestore
+            forceRefresh = true;
+          } else {
+            return cachedData;
+          }
         }
       }
 
-      // Fetch from Firestore
+      // Fetch from Firestore (this will automatically migrate if needed)
       final userData = await UserData.load(uid);
       
       // Cache the result if successful
@@ -87,6 +94,34 @@ class FirestoreService {
         }
       }
       throw Exception('Failed to get user data: $e');
+    }
+  }
+
+  /// Force schema migration for a user
+  /// Useful when schema has been updated and you want to ensure all users are migrated
+  static Future<void> migrateUserData(String uid) async {
+    try {
+      final userData = await UserData.load(uid);
+      if (userData != null) {
+        final migratedData = await userData.migrate();
+        await migratedData.save();
+        await _localStorage.saveUserData(migratedData);
+      }
+    } catch (e) {
+      throw Exception('Failed to migrate user data: $e');
+    }
+  }
+
+  /// Reload schema and migrate all cached data
+  static Future<void> reloadSchemaAndMigrate(String uid) async {
+    try {
+      // Reload the schema
+      await UserData.reloadSchema();
+      
+      // Migrate the user data
+      await migrateUserData(uid);
+    } catch (e) {
+      throw Exception('Failed to reload schema and migrate: $e');
     }
   }
 

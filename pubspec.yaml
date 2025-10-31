@@ -24,5 +24,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  # assets:
-  #   - assets/images/
+  assets:
+    - assets/schemas/user_data_schema.txt
+    # - assets/images/
