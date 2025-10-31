@@ -160,24 +160,13 @@ class UserDataSchema {
     schemaToProcess.forEach((key, value) {
       final path = prefix.isEmpty ? key : '$prefix.$key';
       
-      if (value is Map<String, dynamic>) {
-        // Check if this is a field definition or nested structure
-        // Field definitions have string values, nested structures have map values
-        final firstValue = value.values.isNotEmpty ? value.values.first : null;
-        
-        if (firstValue is String) {
-          // This is a nested structure with field definitions
-          _flattenSchema(path, value);
-        } else if (firstValue is Map) {
-          // This is a parent map, continue traversing
-          _flattenSchema(path, value);
-        } else {
-          // Edge case: empty map or unexpected structure
-          _flattenSchema(path, value);
-        }
-      } else if (value is String) {
-        // This is a field definition
+      if (value is String) {
+        // This is a field definition (e.g., "string (null) [required]")
         _flattenedFields[path] = SchemaField.parse(value);
+      } else if (value is Map<String, dynamic>) {
+        // This is a nested structure (map within map)
+        // Recursively flatten it
+        _flattenSchema(path, value);
       }
     });
   }
@@ -206,28 +195,13 @@ class UserDataSchema {
     final result = <String, dynamic>{};
     
     schema.forEach((key, value) {
-      if (value is Map<String, dynamic>) {
-        // Check if this contains field definitions or more nesting
-        final firstValue = value.values.isNotEmpty ? value.values.first : null;
-        
-        if (firstValue is String) {
-          // This map contains field definitions
-          final nestedMap = <String, dynamic>{};
-          value.forEach((nestedKey, fieldDef) {
-            if (fieldDef is String) {
-              final field = SchemaField.parse(fieldDef);
-              nestedMap[nestedKey] = field.getDefaultValue();
-            }
-          });
-          result[key] = nestedMap;
-        } else {
-          // Continue nesting
-          result[key] = _buildNestedMap(value);
-        }
-      } else if (value is String) {
-        // Direct field definition
+      if (value is String) {
+        // This is a field definition
         final field = SchemaField.parse(value);
         result[key] = field.getDefaultValue();
+      } else if (value is Map<String, dynamic>) {
+        // This is a nested map, recursively build it
+        result[key] = _buildNestedMap(value);
       }
     });
     
@@ -331,6 +305,56 @@ class UserDataSchema {
   /// Get the structure of a specific section
   Map<String, dynamic>? getSectionStructure(String section) {
     return _schema[section] as Map<String, dynamic>?;
+  }
+
+  /// Get all fields in a path (including nested maps)
+  /// Returns a map where keys are field names and values are either:
+  /// - SchemaField for actual fields
+  /// - Map<String, dynamic> for nested structures
+  Map<String, dynamic> getStructureAtPath(String path) {
+    final result = <String, dynamic>{};
+    final parts = path.split('.');
+    dynamic current = _schema;
+    
+    // Navigate to the target path
+    for (final part in parts) {
+      if (current is Map<String, dynamic> && current.containsKey(part)) {
+        current = current[part];
+      } else {
+        return {};
+      }
+    }
+    
+    // Process the current level
+    if (current is Map<String, dynamic>) {
+      current.forEach((key, value) {
+        if (value is String) {
+          // It's a field definition
+          result[key] = SchemaField.parse(value);
+        } else if (value is Map<String, dynamic>) {
+          // It's a nested structure
+          result[key] = value;
+        }
+      });
+    }
+    
+    return result;
+  }
+
+  /// Check if a path represents a nested map structure
+  bool isNestedMap(String path) {
+    final parts = path.split('.');
+    dynamic current = _schema;
+    
+    for (final part in parts) {
+      if (current is Map<String, dynamic> && current.containsKey(part)) {
+        current = current[part];
+      } else {
+        return false;
+      }
+    }
+    
+    return current is Map<String, dynamic> && current.values.any((v) => v is Map || v is String);
   }
 
   /// Convert schema to a readable string format

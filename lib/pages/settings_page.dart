@@ -61,21 +61,21 @@ class _SettingsPageState extends State<SettingsPage> {
       final userData = await FirestoreService.getUserData(_uid!);
       if (!mounted) return;
       
-      // Initialize field values and controllers
-      for (final section in _sections) {
-        final fields = _schema!.getFieldsInSection(section);
-        fields.forEach((fieldName, schemaField) {
-          final path = '$section.$fieldName';
+      // Initialize field values and controllers for all fields (including nested)
+      final allFieldPaths = _schema!.getFieldPaths();
+      for (final path in allFieldPaths) {
+        final field = _schema!.getField(path);
+        if (field != null) {
           final value = userData?.get(path);
-          _fieldValues[path] = value ?? schemaField.getDefaultValue();
+          _fieldValues[path] = value ?? field.getDefaultValue();
           
           // Create text controllers for string and number fields
-          if (schemaField.dataType == 'string' || schemaField.dataType == 'number') {
+          if (field.dataType == 'string' || field.dataType == 'number') {
             _controllers[path] = TextEditingController(
-              text: value?.toString() ?? schemaField.getDefaultValue()?.toString() ?? '',
+              text: value?.toString() ?? field.getDefaultValue()?.toString() ?? '',
             );
           }
-        });
+        }
       }
       
       setState(() {
@@ -469,23 +469,9 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildSectionCard(String section, Map<String, SchemaField> fields) {
-    final fieldWidgets = <Widget>[];
-    final fieldNames = fields.keys.toList()..sort();
-    
-    for (int i = 0; i < fieldNames.length; i++) {
-      final fieldName = fieldNames[i];
-      final field = fields[fieldName]!;
-      final path = '$section.$fieldName';
-      
-      fieldWidgets.add(_buildField(fieldName, field, path));
-      
-      if (i < fieldNames.length - 1) {
-        fieldWidgets.add(Divider(
-          height: 32,
-          color: Colors.grey.shade200,
-        ));
-      }
-    }
+    // Get the full structure including nested maps
+    final structure = _schema!.getStructureAtPath(section);
+    final fieldWidgets = _buildStructureWidgets(section, structure);
     
     return Container(
       margin: const EdgeInsets.only(left: 16),
@@ -511,19 +497,128 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _buildField(String fieldName, SchemaField field, String path) {
+  /// Recursively build widgets for a structure (handles nested maps)
+  List<Widget> _buildStructureWidgets(String parentPath, Map<String, dynamic> structure, [int depth = 0]) {
+    final widgets = <Widget>[];
+    final keys = structure.keys.toList()..sort();
+    
+    for (int i = 0; i < keys.length; i++) {
+      final key = keys[i];
+      final value = structure[key];
+      final currentPath = '$parentPath.$key';
+      
+      if (value is SchemaField) {
+        // It's an actual field
+        widgets.add(_buildField(key, value, currentPath, depth));
+      } else if (value is Map<String, dynamic>) {
+        // It's a nested map structure
+        widgets.add(_buildNestedMapHeader(key, depth));
+        widgets.add(const SizedBox(height: 12));
+        
+        // Recursively build nested structure
+        final nestedStructure = _schema!.getStructureAtPath(currentPath);
+        final nestedWidgets = _buildStructureWidgets(currentPath, nestedStructure, depth + 1);
+        
+        widgets.add(Container(
+          margin: EdgeInsets.only(left: (depth + 1) * 16.0),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade50,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: Colors.grey.shade200,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: nestedWidgets,
+          ),
+        ));
+      }
+      
+      if (i < keys.length - 1) {
+        widgets.add(Divider(
+          height: 24,
+          color: Colors.grey.shade200,
+        ));
+      }
+    }
+    
+    return widgets;
+  }
+
+  Widget _buildNestedMapHeader(String name, int depth) {
+    return Padding(
+      padding: EdgeInsets.only(left: depth * 16.0),
+      child: Row(
+        children: [
+          Icon(
+            Icons.folder_outlined,
+            size: 18,
+            color: Colors.orange.shade600,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            _camelCaseToTitle(name),
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.orange.shade800,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.orange.shade50,
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(
+                color: Colors.orange.shade200,
+              ),
+            ),
+            child: Text(
+              'map',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+                color: Colors.orange.shade700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildField(String fieldName, SchemaField field, String path, [int depth = 0]) {
+    Widget fieldWidget;
+    
     switch (field.dataType.toLowerCase()) {
       case 'string':
-        return _buildStringField(fieldName, field, path);
+        fieldWidget = _buildStringField(fieldName, field, path);
+        break;
       case 'number':
-        return _buildNumberField(fieldName, field, path);
+        fieldWidget = _buildNumberField(fieldName, field, path);
+        break;
       case 'boolean':
-        return _buildBooleanField(fieldName, field, path);
+        fieldWidget = _buildBooleanField(fieldName, field, path);
+        break;
       case 'timestamp':
-        return _buildTimestampField(fieldName, field, path);
+        fieldWidget = _buildTimestampField(fieldName, field, path);
+        break;
       default:
-        return _buildGenericField(fieldName, field, path);
+        fieldWidget = _buildGenericField(fieldName, field, path);
     }
+    
+    // Add left padding based on depth
+    if (depth > 0) {
+      return Padding(
+        padding: EdgeInsets.only(left: depth * 16.0),
+        child: fieldWidget,
+      );
+    }
+    
+    return fieldWidget;
   }
 
   Widget _buildStringField(String fieldName, SchemaField field, String path) {
