@@ -11,7 +11,7 @@ A comprehensive **data-driven architecture** for managing user data in Code Spro
 ## 📋 Key Deliverables
 
 ### 1. **Schema Definition System**
-   - **File:** `assets/user_data_schema.txt`
+   - **File:** `assets/schemas/user_data_schema.txt`
    - **Purpose:** Single source of truth for user data structure
    - **Format:** JSON with type annotations and default values
    - **Example Schema Format:**
@@ -145,7 +145,7 @@ await userData.updateFields(updates)
 
 ```
 ┌─────────────────────────────────────────────────┐
-│     assets/user_data_schema.txt                 │
+│     assets/schemas/user_data_schema.txt                 │
 │     (Single Source of Truth)                    │
 └─────────────────┬───────────────────────────────┘
                   │
@@ -228,7 +228,7 @@ await userData.updateFields(updates)
 ### After (Data-Driven)
 ```dart
 // Adding a new field requires:
-1. Update assets/user_data_schema.txt
+1. Update assets/schemas/user_data_schema.txt
 2. Hot restart app
 3. Click refresh in Settings
 // That's it! 🎉
@@ -322,7 +322,7 @@ The Settings page automatically adapts:
 ## 📦 Files Created/Modified
 
 ### New Files Created:
-1. `assets/user_data_schema.txt` - Schema definition
+1. `assets/schemas/user_data_schema.txt` - Schema definition
 2. `lib/models/user_data_schema.dart` - Parser & validator
 3. `assets/user_data_schema_extended_example.txt` - Example
 4. `DATA_DRIVEN_SYSTEM.md` - System documentation

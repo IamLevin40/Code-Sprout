@@ -6,7 +6,7 @@ This implementation provides a fully **data-driven approach** to user data manag
 
 ## Key Components
 
-### 1. Schema Definition (`assets/user_data_schema.txt`)
+### 1. Schema Definition (`assets/schemas/user_data_schema.txt`)
 
 The schema file defines the structure of all user data. It uses a simple, human-readable format:
 
@@ -291,7 +291,7 @@ flutter test test/user_data_schema_test.dart
 5. Verify data persistence
 
 ### Schema Update Testing
-1. Modify `assets/user_data_schema.txt`
+1. Modify `assets/schemas/user_data_schema.txt`
 2. Hot restart the app
 3. Click refresh icon in Settings
 4. Verify UI updates correctly
@@ -302,7 +302,7 @@ See `TESTING_GUIDE.md` for detailed testing scenarios.
 ## Troubleshooting
 
 ### "Schema file not found"
-- Ensure `assets/user_data_schema.txt` exists
+ - Ensure `assets/schemas/user_data_schema.txt` exists
 - Check `pubspec.yaml` includes the asset
 - Run `flutter pub get`
 

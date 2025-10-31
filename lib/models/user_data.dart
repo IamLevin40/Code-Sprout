@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'user_data_schema.dart';
 
 /// UserData model class that represents user information stored in Firestore.
-/// This class is dynamically driven by the schema defined in assets/user_data_schema.txt
+/// This class is dynamically driven by the schema defined in assets/schemas/user_data_schema.txt
 /// 
 /// The structure automatically adapts to changes in the schema file, allowing
 /// for flexible data management without code changes.

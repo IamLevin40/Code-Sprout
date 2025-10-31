@@ -398,7 +398,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              'UI is generated from schema. Update assets/user_data_schema.txt to modify structure.',
+                              'UI is generated from schema. Update assets/schemas/user_data_schema.txt to modify structure.',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.blue.shade900,
