@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'firestore_service.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -69,6 +70,8 @@ class AuthService {
 
   // Sign out
   Future<void> signOut() async {
+    // Clear cached user data before signing out
+    await FirestoreService.clearCache();
     await _auth.signOut();
   }
 }

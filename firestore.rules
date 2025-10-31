@@ -1,0 +1,21 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Rules for users collection
+    match /users/{userId} {
+      // Allow authenticated users to read any user document
+      // This is needed for username existence checks during registration
+      allow read: if request.auth != null;
+      
+      // Allow authenticated users to create their own document during registration
+      allow create: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow users to update their own document only
+      allow update: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow users to delete their own document only
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

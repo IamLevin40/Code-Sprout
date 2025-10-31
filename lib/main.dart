@@ -4,7 +4,7 @@ import 'firebase_options.dart';
 import 'services/auth_service.dart';
 import 'pages/register_page.dart';
 import 'pages/login_page.dart';
-import 'pages/home_page.dart';
+import 'pages/main_navigation_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/register': (context) => const RegisterPage(),
         '/login': (context) => const LoginPage(),
-        '/home': (context) => const HomePage(),
+        '/home': (context) => const MainNavigationPage(),
       },
     );
   }
@@ -62,9 +62,9 @@ class AuthWrapper extends StatelessWidget {
           );
         }
 
-        // If user is logged in, show home page
+        // If user is logged in, show main navigation page
         if (snapshot.hasData) {
-          return const HomePage();
+          return const MainNavigationPage();
         }
 
         // If user is not logged in, show login page

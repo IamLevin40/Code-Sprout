@@ -1,47 +1,91 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import '../services/firestore_service.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  String? _username;
+  bool _loadingUsername = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUsername();
+  }
+
+  Future<void> _loadUsername() async {
+    final authService = AuthService();
+    final uid = authService.currentUser?.uid;
+    if (uid == null) {
+      // Not logged in - navigate to login
+      if (mounted) {
+        Navigator.of(context).pushNamedAndRemoveUntil('/login', (r) => false);
+      }
+      return;
+    }
+
+    try {
+      final userData = await FirestoreService.getUserData(uid);
+      if (!mounted) return;
+      setState(() {
+        _username = userData?.username ?? '';
+        _loadingUsername = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _username = null;
+        _loadingUsername = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final authService = AuthService();
     final user = authService.currentUser;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text(
-          'Code Sprout',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        centerTitle: true,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Colors.green.shade600,
-                Colors.purple.shade600,
-              ],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
+    return Stack(
+      children: [
+        Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            title: const Text(
+              'Code Sprout',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
+            centerTitle: true,
+            flexibleSpace: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.green.shade600,
+                    Colors.purple.shade600,
+                  ],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+              ),
+            ),
+            elevation: 0,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.logout, color: Colors.white),
+                tooltip: 'Logout',
+                onPressed: () => _showLogoutDialog(context, authService),
+              ),
+            ],
           ),
-        ),
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
-            tooltip: 'Logout',
-            onPressed: () => _showLogoutDialog(context, authService),
-          ),
-        ],
-      ),
-      body: Center(
+          body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
@@ -77,15 +121,28 @@ class HomePage extends StatelessWidget {
               const SizedBox(height: 40),
 
               // Welcome Text
-              const Text(
-                'Welcome to Code Sprout!',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D3748),
-                ),
-                textAlign: TextAlign.center,
-              ),
+              _loadingUsername
+                  ? const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                      child: SizedBox(
+                        height: 28,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.green,
+                          ),
+                        ),
+                      ),
+                    )
+                  : Text(
+                      'Welcome${_username != null && _username!.isNotEmpty ? ', ${_username!}' : ''}!',
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2D3748),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
               const SizedBox(height: 16),
 
               // User Email
@@ -170,6 +227,64 @@ class HomePage extends StatelessWidget {
           ),
         ),
       ),
+        ),
+        // Loading Overlay
+        if (_loadingUsername)
+          Container(
+            color: Colors.white.withOpacity(0.8),
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.all(32),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.green.shade400,
+                      Colors.purple.shade400,
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      strokeWidth: 3,
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Loading...',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Preparing your workspace',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.9),
+                        fontSize: 14,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 
