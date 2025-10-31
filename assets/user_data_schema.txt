@@ -8,19 +8,31 @@
 /// - default_value: The default value when instantiating user data. If null, omit the value.
 /// - [required]: Optional marker. If present, the field cannot be null when creating user data.
 ///
+/// Enum Fields (string type only):
+/// - Format: string (|Value1|Value2|Value3|) [required]
+/// - Must start and end with | separator
+/// - Values are separated by |
+/// - Default value will be the first enum value
+/// - Only specified values are allowed
+/// - Example: "string (|Easy|Normal|Hard|)" or "string (|Offline|Online|)"
+///
 /// Rules:
 /// 1. Nested objects use "map" as the data_type and contain nested key-value pairs
 /// 2. Arrays must specify the element type: array<data_type>
 /// 3. When a field is moved, the system will preserve its value
 /// 4. When a field is removed, it will be deleted from the database
 /// 5. When a field is added, it will use the default value
+/// 6. Enum fields will be rendered as dropdowns in the UI
+/// 7. Values not matching enum options will fail validation
 
 {
     "accountInformation": {
-        "username": "string (null) [required]"
+        "username": "string (null) [required]",
+        "theme": "string (|light|dark|auto|)"
     },
     "interaction": {
         "hasPlayedTutorial": "boolean (false)",
-        "hasLearnedModule": "boolean (false)"
+        "hasLearnedModule": "boolean (false)",
+        "difficulty": "string (|easy|normal|hard|)"
     }
 }

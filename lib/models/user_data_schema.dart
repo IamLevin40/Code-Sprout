@@ -9,6 +9,7 @@ class SchemaField {
   final bool isRequired;
   final bool isMap;
   final Map<String, SchemaField>? nestedFields;
+  final List<String>? enumValues;
 
   SchemaField({
     required this.dataType,
@@ -16,10 +17,15 @@ class SchemaField {
     this.isRequired = false,
     this.isMap = false,
     this.nestedFields,
+    this.enumValues,
   });
+
+  /// Check if this field is an enum-based field
+  bool get isEnum => enumValues != null && enumValues!.isNotEmpty;
 
   /// Parse a field definition string
   /// Format: "data_type (default_value) [required]"
+  /// For enum: "string (|Value1|Value2|Value3|) [required]"
   factory SchemaField.parse(String definition) {
     final trimmed = definition.trim();
     
@@ -30,24 +36,35 @@ class SchemaField {
     // Extract default value (inside parentheses)
     dynamic defaultValue;
     String dataType;
+    List<String>? enumValues;
     
     final defaultValueMatch = RegExp(r'\(([^)]*)\)').firstMatch(working);
     if (defaultValueMatch != null) {
       final defaultStr = defaultValueMatch.group(1)!.trim();
       working = working.replaceAll(defaultValueMatch.group(0)!, '').trim();
       
-      // Parse default value based on type
-      if (defaultStr == 'null' || defaultStr.isEmpty) {
-        defaultValue = null;
-      } else if (defaultStr == 'true') {
-        defaultValue = true;
-      } else if (defaultStr == 'false') {
-        defaultValue = false;
-      } else if (double.tryParse(defaultStr) != null) {
-        defaultValue = num.parse(defaultStr);
+      // Check if this is an enum definition (starts and ends with |)
+      if (defaultStr.startsWith('|') && defaultStr.endsWith('|')) {
+        // Parse enum values
+        final enumStr = defaultStr.substring(1, defaultStr.length - 1);
+        enumValues = enumStr.split('|').where((s) => s.isNotEmpty).toList();
+        
+        // Default value is the first enum value
+        defaultValue = enumValues.isNotEmpty ? enumValues.first : null;
       } else {
-        // String value
-        defaultValue = defaultStr;
+        // Parse default value based on type
+        if (defaultStr == 'null' || defaultStr.isEmpty) {
+          defaultValue = null;
+        } else if (defaultStr == 'true') {
+          defaultValue = true;
+        } else if (defaultStr == 'false') {
+          defaultValue = false;
+        } else if (double.tryParse(defaultStr) != null) {
+          defaultValue = num.parse(defaultStr);
+        } else {
+          // String value
+          defaultValue = defaultStr;
+        }
       }
     }
     
@@ -57,6 +74,7 @@ class SchemaField {
       dataType: dataType,
       defaultValue: defaultValue,
       isRequired: isRequired,
+      enumValues: enumValues,
     );
   }
 
@@ -72,6 +90,12 @@ class SchemaField {
   bool validateValue(dynamic value) {
     if (value == null) {
       return !isRequired;
+    }
+
+    // Check enum values first if this is an enum field
+    if (isEnum) {
+      if (value is! String) return false;
+      return enumValues!.contains(value);
     }
 
     switch (dataType.toLowerCase()) {

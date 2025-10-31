@@ -593,21 +593,26 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _buildField(String fieldName, SchemaField field, String path, [int depth = 0]) {
     Widget fieldWidget;
     
-    switch (field.dataType.toLowerCase()) {
-      case 'string':
-        fieldWidget = _buildStringField(fieldName, field, path);
-        break;
-      case 'number':
-        fieldWidget = _buildNumberField(fieldName, field, path);
-        break;
-      case 'boolean':
-        fieldWidget = _buildBooleanField(fieldName, field, path);
-        break;
-      case 'timestamp':
-        fieldWidget = _buildTimestampField(fieldName, field, path);
-        break;
-      default:
-        fieldWidget = _buildGenericField(fieldName, field, path);
+    // Check if this is an enum field first
+    if (field.isEnum) {
+      fieldWidget = _buildEnumField(fieldName, field, path);
+    } else {
+      switch (field.dataType.toLowerCase()) {
+        case 'string':
+          fieldWidget = _buildStringField(fieldName, field, path);
+          break;
+        case 'number':
+          fieldWidget = _buildNumberField(fieldName, field, path);
+          break;
+        case 'boolean':
+          fieldWidget = _buildBooleanField(fieldName, field, path);
+          break;
+        case 'timestamp':
+          fieldWidget = _buildTimestampField(fieldName, field, path);
+          break;
+        default:
+          fieldWidget = _buildGenericField(fieldName, field, path);
+      }
     }
     
     // Add left padding based on depth
@@ -867,6 +872,76 @@ class _SettingsPageState extends State<SettingsPage> {
             fontSize: 11,
             color: Colors.orange.shade700,
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEnumField(String fieldName, SchemaField field, String path) {
+    final currentValue = _fieldValues[path] ?? field.defaultValue;
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildFieldLabel(fieldName, '${field.dataType} (enum)', field.isRequired),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          value: field.enumValues!.contains(currentValue) ? currentValue : field.enumValues!.first,
+          decoration: InputDecoration(
+            prefixIcon: Icon(
+              _getIconForField(fieldName),
+              color: Colors.grey.shade600,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Colors.grey.shade300,
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Colors.grey.shade300,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Colors.green.shade600,
+                width: 2,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Colors.red.shade400,
+              ),
+            ),
+            filled: true,
+            fillColor: Colors.grey.shade50,
+          ),
+          items: field.enumValues!.map((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+          validator: (value) {
+            if (field.isRequired && value == null) {
+              return '${_camelCaseToTitle(fieldName)} is required';
+            }
+            if (value != null && !field.enumValues!.contains(value)) {
+              return 'Invalid value. Must be one of: ${field.enumValues!.join(", ")}';
+            }
+            return null;
+          },
+          onChanged: (String? newValue) {
+            if (newValue != null) {
+              setState(() {
+                _fieldValues[path] = newValue;
+              });
+            }
+          },
         ),
       ],
     );
