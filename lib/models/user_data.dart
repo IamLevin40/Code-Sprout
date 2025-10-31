@@ -25,6 +25,7 @@ class UserData {
   });
 
   // Reference to Firestore users collection
+  // Using the default database instance (standard edition)
   static CollectionReference get _usersCollection =>
       FirebaseFirestore.instance.collection('users');
 

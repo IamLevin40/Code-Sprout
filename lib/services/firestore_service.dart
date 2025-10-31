@@ -5,6 +5,7 @@ import 'local_storage_service.dart';
 /// Service class to handle Firestore operations for user data
 /// Implements cache-first strategy using secure local storage
 class FirestoreService {
+  // Use the default Firestore database (standard edition uses "(default)" as the database ID)
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   static final CollectionReference _usersCollection =
       _firestore.collection('users');
@@ -33,13 +34,23 @@ class FirestoreService {
   /// Check if a username already exists in the database
   static Future<bool> usernameExists(String username) async {
     try {
+      // Add timeout to prevent hanging
       final querySnapshot = await _usersCollection
           .where('accountInformation.username', isEqualTo: username)
           .limit(1)
-          .get();
+          .get()
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () {
+              throw Exception('Request timed out - check your internet connection and Firestore rules');
+            },
+          );
 
       return querySnapshot.docs.isNotEmpty;
     } catch (e) {
+      // Log the full error for debugging
+      print('Error checking username existence: $e');
+      print('Error type: ${e.runtimeType}');
       throw Exception('Failed to check username existence: $e');
     }
   }

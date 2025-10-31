@@ -47,25 +47,7 @@ class _RegisterPageState extends State<RegisterPage> {
       _errorMessage = null;
     });
 
-    // Check if username already exists
-    try {
-      final usernameExists = await FirestoreService.usernameExists(_usernameController.text.trim());
-      if (usernameExists) {
-        setState(() {
-          _isLoading = false;
-          _errorMessage = 'Username already exists. Please choose another.';
-        });
-        return;
-      }
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = 'Failed to verify username. Please try again.';
-      });
-      return;
-    }
-
-    // Register user with Firebase Authentication
+    // Register user with Firebase Authentication first
     final error = await _authService.register(
       email: _emailController.text,
       password: _passwordController.text,
@@ -78,25 +60,62 @@ class _RegisterPageState extends State<RegisterPage> {
       final uid = _authService.currentUser?.uid;
 
       if (uid != null) {
-        // Stop loading and show success dialog; user will continue to Home
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-          _showSuccessDialog();
+        // Now that user is authenticated, check if username exists
+        try {
+          final usernameExists = await FirestoreService.usernameExists(_usernameController.text.trim());
+          if (usernameExists) {
+            // Username exists - delete the auth user and show error
+            await _authService.currentUser?.delete();
+            await _authService.signOut();
+            
+            if (mounted) {
+              setState(() {
+                _isLoading = false;
+                _errorMessage = 'Username already exists. Please choose another.';
+              });
+            }
+            return;
+          }
+        } catch (e) {
+          // Failed to check username - delete auth user and show error
+          await _authService.currentUser?.delete();
+          await _authService.signOut();
+          
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+              _errorMessage = 'Failed to verify username. Please try again.';
+            });
+          }
+          return;
         }
 
-        // Create Firestore document in background. If it fails, show a non-blocking SnackBar.
-        FirestoreService.createUserDocument(
-          uid: uid,
-          username: _usernameController.text.trim(),
-        ).then((_) {
-          // Optionally we could inform the user that profile saved successfully.
-        }).catchError((e) {
-          // Background write failed - log for now. If you want, we can surface
-          // this to the user via an in-app banner on Home instead of a global SnackBar.
-          debugPrint('Failed to save profile: ${e.toString()}');
-        });
+        // Username is available - create Firestore document
+        try {
+          await FirestoreService.createUserDocument(
+            uid: uid,
+            username: _usernameController.text.trim(),
+          );
+
+          // Success!
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+            });
+            _showSuccessDialog();
+          }
+        } catch (e) {
+          // Failed to create user document - delete auth user
+          await _authService.currentUser?.delete();
+          await _authService.signOut();
+          
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+              _errorMessage = 'Failed to create user profile. Please try again.';
+            });
+          }
+        }
       } else {
         setState(() {
           _isLoading = false;
