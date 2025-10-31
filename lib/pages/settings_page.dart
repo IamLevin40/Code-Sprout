@@ -113,7 +113,11 @@ class _SettingsPageState extends State<SettingsPage> {
       });
       
       // Create updated user data
-      final updatedUserData = _currentUserData!.copyWith(updates);
+      var updatedUserData = _currentUserData!.copyWith(updates);
+      
+      // IMPORTANT: Migrate to ensure schema structure is enforced
+      // This removes obsolete fields and ensures the data matches current schema
+      updatedUserData = await updatedUserData.migrate();
       
       // Validate before saving
       final errors = await updatedUserData.validate();

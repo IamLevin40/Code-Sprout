@@ -21,9 +21,6 @@
     },
     "interaction": {
         "hasPlayedTutorial": "boolean (false)",
-        "hasLearnedModule": "boolean (false)",
-        "gameplay": {
-            "completedLessons": "number (0)"
-        }
+        "hasLearnedModule": "boolean (false)"
     }
 }
