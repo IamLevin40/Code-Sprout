@@ -1,0 +1,29 @@
+/// User Data Schema Definition
+/// 
+/// This file defines the structure of user data stored in Firestore.
+/// The schema follows a specific format for defining fields:
+///
+/// Format: data_type (default_value) [required]
+/// - data_type: string, number, boolean, array, null, timestamp, geopoint, reference, or map (for nested objects)
+/// - default_value: The default value when instantiating user data. If null, omit the value.
+/// - [required]: Optional marker. If present, the field cannot be null when creating user data.
+///
+/// Rules:
+/// 1. Nested objects use "map" as the data_type and contain nested key-value pairs
+/// 2. Arrays must specify the element type: array<data_type>
+/// 3. When a field is moved, the system will preserve its value
+/// 4. When a field is removed, it will be deleted from the database
+/// 5. When a field is added, it will use the default value
+
+{
+    "accountInformation": {
+        "username": "string (null) [required]"
+    },
+    "interaction": {
+        "hasPlayedTutorial": "boolean (false)",
+        "hasLearnedModule": "boolean (false)",
+        "gameplay": {
+            "completedLessons": "number (0)"
+        }
+    }
+}

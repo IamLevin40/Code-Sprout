@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
 import '../models/user_data.dart';
+import '../models/user_data_schema.dart';
 
 /// Settings page for user data manipulation and testing
+/// Dynamically renders UI based on the schema definition
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
@@ -13,29 +16,32 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
+  final Map<String, TextEditingController> _controllers = {};
+  final Map<String, dynamic> _fieldValues = {};
   
-  bool _hasPlayedTutorial = false;
-  bool _hasLearnedModule = false;
   bool _isLoading = true;
   bool _isSaving = false;
   
   UserData? _currentUserData;
+  UserDataSchema? _schema;
   String? _uid;
+  List<String> _sections = [];
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    _loadSchemaAndData();
   }
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    for (final controller in _controllers.values) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
-  Future<void> _loadUserData() async {
+  Future<void> _loadSchemaAndData() async {
     final authService = AuthService();
     _uid = authService.currentUser?.uid;
     
@@ -47,14 +53,33 @@ class _SettingsPageState extends State<SettingsPage> {
     }
 
     try {
+      // Load schema first
+      _schema = await UserData.getSchema();
+      _sections = _schema!.getSections();
+      
+      // Load user data
       final userData = await FirestoreService.getUserData(_uid!);
       if (!mounted) return;
       
+      // Initialize field values and controllers
+      for (final section in _sections) {
+        final fields = _schema!.getFieldsInSection(section);
+        fields.forEach((fieldName, schemaField) {
+          final path = '$section.$fieldName';
+          final value = userData?.get(path);
+          _fieldValues[path] = value ?? schemaField.getDefaultValue();
+          
+          // Create text controllers for string and number fields
+          if (schemaField.dataType == 'string' || schemaField.dataType == 'number') {
+            _controllers[path] = TextEditingController(
+              text: value?.toString() ?? schemaField.getDefaultValue()?.toString() ?? '',
+            );
+          }
+        });
+      }
+      
       setState(() {
         _currentUserData = userData;
-        _usernameController.text = userData?.username ?? '';
-        _hasPlayedTutorial = userData?.hasPlayedTutorial ?? false;
-        _hasLearnedModule = userData?.hasLearnedModule ?? false;
         _isLoading = false;
       });
     } catch (e) {
@@ -69,11 +94,9 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _saveUserData() async {
     if (!_formKey.currentState!.validate()) return;
 
-    // Prevent concurrent saves
     if (_isSaving) return;
 
-    // Ensure we have a user to save. If not, show an error and don't enter saving state.
-    if (_uid == null || _currentUserData == null) {
+    if (_uid == null || _currentUserData == null || _schema == null) {
       _showErrorSnackBar('No user loaded to save. Please reload the page.');
       return;
     }
@@ -83,41 +106,43 @@ class _SettingsPageState extends State<SettingsPage> {
     });
 
     try {
+      // Build update map from current field values
+      final updates = <String, dynamic>{};
+      _fieldValues.forEach((path, value) {
+        updates[path] = value;
+      });
+      
       // Create updated user data
-      final updatedUserData = UserData(
-        uid: _uid!,
-        username: _usernameController.text.trim(),
-        hasPlayedTutorial: _hasPlayedTutorial,
-        hasLearnedModule: _hasLearnedModule,
-      );
+      final updatedUserData = _currentUserData!.copyWith(updates);
+      
+      // Validate before saving
+      final errors = await updatedUserData.validate();
+      if (errors.isNotEmpty) {
+        throw Exception('Validation failed: ${errors.join(", ")}');
+      }
 
-      // Update using FirestoreService (updates cache + Firestore)
+      // Update using FirestoreService
       await FirestoreService.updateUserData(updatedUserData);
 
       if (!mounted) return;
       
-      // Update state and show success dialog
       setState(() {
         _currentUserData = updatedUserData;
         _isSaving = false;
       });
       
-      // Wait a brief moment to ensure setState completes before showing dialog
       await Future.delayed(const Duration(milliseconds: 50));
       
       if (!mounted) return;
       
-      // Show a success overlay dialog similar to registration flow
       _showSaveSuccessDialog();
     } catch (e) {
       if (!mounted) return;
       
-      // Ensure we always reset the saving state on error
       setState(() {
         _isSaving = false;
       });
       
-      // Show error message
       _showErrorSnackBar('Failed to save user data: $e');
     }
   }
@@ -237,6 +262,26 @@ class _SettingsPageState extends State<SettingsPage> {
         elevation: 0,
         actions: [
           IconButton(
+            icon: const Icon(Icons.refresh, color: Colors.white),
+            tooltip: 'Reload Schema',
+            onPressed: () async {
+              setState(() {
+                _isLoading = true;
+              });
+              await UserData.reloadSchema();
+              await _loadSchemaAndData();
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text('Schema reloaded successfully'),
+                    backgroundColor: Colors.green.shade600,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
             tooltip: 'Logout',
             onPressed: () => _showLogoutDialog(context, authService),
@@ -267,7 +312,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Edit and test user data fields',
+                      'Dynamically generated from schema',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey.shade600,
@@ -275,105 +320,9 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     const SizedBox(height: 32),
 
-                    // Account Information Section
-                    _buildSectionHeader('Account Information'),
-                    const SizedBox(height: 16),
-                    
-                    _buildIndentedCard(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildFieldLabel('username', 'string'),
-                          const SizedBox(height: 8),
-                          TextFormField(
-                            controller: _usernameController,
-                            decoration: InputDecoration(
-                              hintText: 'Enter username',
-                              prefixIcon: Icon(
-                                Icons.person_outline,
-                                color: Colors.grey.shade600,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade300,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade300,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.green.shade600,
-                                  width: 2,
-                                ),
-                              ),
-                              errorBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.red.shade400,
-                                ),
-                              ),
-                              filled: true,
-                              fillColor: Colors.grey.shade50,
-                            ),
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Username is required';
-                              }
-                              if (value.trim().length < 3) {
-                                return 'Username must be at least 3 characters';
-                              }
-                              if (value.trim().length > 30) {
-                                return 'Username must be less than 30 characters';
-                              }
-                              return null;
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 32),
+                    // Dynamically build sections
+                    ..._buildSections(),
 
-                    // Interaction Section
-                    _buildSectionHeader('Interaction'),
-                    const SizedBox(height: 16),
-                    
-                    _buildIndentedCard(
-                      child: Column(
-                        children: [
-                          // Has Played Tutorial
-                          _buildBooleanField(
-                            label: 'hasPlayedTutorial',
-                            value: _hasPlayedTutorial,
-                            onChanged: (value) {
-                              setState(() {
-                                _hasPlayedTutorial = value;
-                              });
-                            },
-                          ),
-                          Divider(
-                            height: 32,
-                            color: Colors.grey.shade200,
-                          ),
-                          
-                          // Has Learned Module
-                          _buildBooleanField(
-                            label: 'hasLearnedModule',
-                            value: _hasLearnedModule,
-                            onChanged: (value) {
-                              setState(() {
-                                _hasLearnedModule = value;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
                     const SizedBox(height: 40),
 
                     // Save Button
@@ -445,7 +394,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              'Changes are saved to cache first, then synced to Firestore.',
+                              'UI is generated from schema. Update assets/user_data_schema.txt to modify structure.',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.blue.shade900,
@@ -462,7 +411,29 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  List<Widget> _buildSections() {
+    final widgets = <Widget>[];
+    
+    for (int i = 0; i < _sections.length; i++) {
+      final section = _sections[i];
+      final fields = _schema!.getFieldsInSection(section);
+      
+      widgets.add(_buildSectionHeader(section));
+      widgets.add(const SizedBox(height: 16));
+      widgets.add(_buildSectionCard(section, fields));
+      
+      if (i < _sections.length - 1) {
+        widgets.add(const SizedBox(height: 32));
+      }
+    }
+    
+    return widgets;
+  }
+
   Widget _buildSectionHeader(String title) {
+    // Convert camelCase to Title Case
+    final displayTitle = _camelCaseToTitle(title);
+    
     return Row(
       children: [
         Container(
@@ -482,7 +453,7 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
         const SizedBox(width: 12),
         Text(
-          title,
+          displayTitle,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -493,7 +464,25 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _buildIndentedCard({required Widget child}) {
+  Widget _buildSectionCard(String section, Map<String, SchemaField> fields) {
+    final fieldWidgets = <Widget>[];
+    final fieldNames = fields.keys.toList()..sort();
+    
+    for (int i = 0; i < fieldNames.length; i++) {
+      final fieldName = fieldNames[i];
+      final field = fields[fieldName]!;
+      final path = '$section.$fieldName';
+      
+      fieldWidgets.add(_buildField(fieldName, field, path));
+      
+      if (i < fieldNames.length - 1) {
+        fieldWidgets.add(Divider(
+          height: 32,
+          color: Colors.grey.shade200,
+        ));
+      }
+    }
+    
     return Container(
       margin: const EdgeInsets.only(left: 16),
       padding: const EdgeInsets.all(20),
@@ -511,11 +500,280 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
         ],
       ),
-      child: child,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: fieldWidgets,
+      ),
     );
   }
 
-  Widget _buildFieldLabel(String fieldName, String dataType) {
+  Widget _buildField(String fieldName, SchemaField field, String path) {
+    switch (field.dataType.toLowerCase()) {
+      case 'string':
+        return _buildStringField(fieldName, field, path);
+      case 'number':
+        return _buildNumberField(fieldName, field, path);
+      case 'boolean':
+        return _buildBooleanField(fieldName, field, path);
+      case 'timestamp':
+        return _buildTimestampField(fieldName, field, path);
+      default:
+        return _buildGenericField(fieldName, field, path);
+    }
+  }
+
+  Widget _buildStringField(String fieldName, SchemaField field, String path) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildFieldLabel(fieldName, field.dataType, field.isRequired),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: _controllers[path],
+          decoration: InputDecoration(
+            hintText: 'Enter ${_camelCaseToTitle(fieldName).toLowerCase()}',
+            prefixIcon: Icon(
+              _getIconForField(fieldName),
+              color: Colors.grey.shade600,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Colors.grey.shade300,
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Colors.grey.shade300,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Colors.green.shade600,
+                width: 2,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Colors.red.shade400,
+              ),
+            ),
+            filled: true,
+            fillColor: Colors.grey.shade50,
+          ),
+          validator: (value) {
+            if (field.isRequired && (value == null || value.trim().isEmpty)) {
+              return '${_camelCaseToTitle(fieldName)} is required';
+            }
+            return null;
+          },
+          onChanged: (value) {
+            _fieldValues[path] = value;
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNumberField(String fieldName, SchemaField field, String path) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildFieldLabel(fieldName, field.dataType, field.isRequired),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: _controllers[path],
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+            hintText: 'Enter ${_camelCaseToTitle(fieldName).toLowerCase()}',
+            prefixIcon: Icon(
+              Icons.numbers,
+              color: Colors.grey.shade600,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Colors.grey.shade300,
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Colors.grey.shade300,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Colors.green.shade600,
+                width: 2,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Colors.red.shade400,
+              ),
+            ),
+            filled: true,
+            fillColor: Colors.grey.shade50,
+          ),
+          validator: (value) {
+            if (field.isRequired && (value == null || value.trim().isEmpty)) {
+              return '${_camelCaseToTitle(fieldName)} is required';
+            }
+            if (value != null && value.isNotEmpty && num.tryParse(value) == null) {
+              return 'Please enter a valid number';
+            }
+            return null;
+          },
+          onChanged: (value) {
+            final numValue = num.tryParse(value);
+            _fieldValues[path] = numValue ?? value;
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBooleanField(String fieldName, SchemaField field, String path) {
+    final value = _fieldValues[path] as bool? ?? false;
+    
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildFieldLabel(fieldName, field.dataType, field.isRequired),
+              const SizedBox(height: 4),
+              Text(
+                value ? 'true' : 'false',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Switch(
+          value: value,
+          onChanged: (newValue) {
+            setState(() {
+              _fieldValues[path] = newValue;
+            });
+          },
+          activeTrackColor: Colors.green.shade600,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTimestampField(String fieldName, SchemaField field, String path) {
+    final value = _fieldValues[path];
+    DateTime? dateTime;
+    
+    if (value is Timestamp) {
+      dateTime = value.toDate();
+    } else if (value is DateTime) {
+      dateTime = value;
+    }
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildFieldLabel(fieldName, field.dataType, field.isRequired),
+        const SizedBox(height: 8),
+        InkWell(
+          onTap: () async {
+            final picked = await showDatePicker(
+              context: context,
+              initialDate: dateTime ?? DateTime.now(),
+              firstDate: DateTime(2000),
+              lastDate: DateTime(2100),
+            );
+            
+            if (picked != null) {
+              setState(() {
+                _fieldValues[path] = Timestamp.fromDate(picked);
+              });
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.grey.shade300,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.calendar_today,
+                  color: Colors.grey.shade600,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  dateTime != null
+                      ? '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}'
+                      : 'Select date',
+                  style: TextStyle(
+                    color: dateTime != null ? Colors.grey.shade800 : Colors.grey.shade500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGenericField(String fieldName, SchemaField field, String path) {
+    final value = _fieldValues[path];
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildFieldLabel(fieldName, field.dataType, field.isRequired),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade50,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: Colors.grey.shade300,
+            ),
+          ),
+          child: Text(
+            value?.toString() ?? 'null',
+            style: TextStyle(
+              color: Colors.grey.shade700,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Type "${field.dataType}" is not editable in this UI',
+          style: TextStyle(
+            fontSize: 11,
+            color: Colors.orange.shade700,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFieldLabel(String fieldName, String dataType, bool isRequired) {
     return Row(
       children: [
         Text(
@@ -545,41 +803,55 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
         ),
+        if (isRequired) ...[
+          const SizedBox(width: 4),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.red.shade50,
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(
+                color: Colors.red.shade200,
+              ),
+            ),
+            child: Text(
+              'required',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+                color: Colors.red.shade700,
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }
 
-  Widget _buildBooleanField({
-    required String label,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-  }) {
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildFieldLabel(label, 'boolean'),
-              const SizedBox(height: 4),
-              Text(
-                value ? 'true' : 'false',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade600,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ],
-          ),
-        ),
-        Switch(
-          value: value,
-          onChanged: onChanged,
-          activeTrackColor: Colors.green.shade600,
-        ),
-      ],
-    );
+  String _camelCaseToTitle(String text) {
+    // Convert camelCase to Title Case
+    final result = text.replaceAllMapped(
+      RegExp(r'([A-Z])'),
+      (match) => ' ${match.group(0)}',
+    ).trim();
+    return result[0].toUpperCase() + result.substring(1);
+  }
+
+  IconData _getIconForField(String fieldName) {
+    final lower = fieldName.toLowerCase();
+    if (lower.contains('username') || lower.contains('name')) {
+      return Icons.person_outline;
+    } else if (lower.contains('email')) {
+      return Icons.email_outlined;
+    } else if (lower.contains('phone')) {
+      return Icons.phone_outlined;
+    } else if (lower.contains('address')) {
+      return Icons.location_on_outlined;
+    } else if (lower.contains('age')) {
+      return Icons.cake_outlined;
+    } else {
+      return Icons.text_fields;
+    }
   }
 
   void _showLogoutDialog(BuildContext context, AuthService authService) {

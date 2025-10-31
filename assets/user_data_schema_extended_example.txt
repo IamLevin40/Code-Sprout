@@ -1,0 +1,46 @@
+/// Extended User Data Schema - Example for Testing
+/// 
+/// This is an example of an extended schema with more fields.
+/// To test the data-driven system:
+/// 1. Copy the content between the curly braces below
+/// 2. Replace the content in assets/user_data_schema.txt
+/// 3. Hot restart the app
+/// 4. Navigate to Settings and click the refresh icon
+/// 5. Observe how the UI automatically adapts to show new fields
+///
+/// Note: Existing data will be automatically migrated!
+
+{
+  "accountInformation": {
+    "username": "string (null) [required]",
+    "email": "string (null)",
+    "displayName": "string (null)",
+    "bio": "string (Hello, I'm a Code Sprout user!)",
+    "age": "number (0)"
+  },
+  "interaction": {
+    "hasPlayedTutorial": "boolean (false)",
+    "hasLearnedModule": "boolean (false)",
+    "completedLessons": "number (0)",
+    "lastActiveDate": "timestamp (null)"
+  },
+  "preferences": {
+    "theme": "string (light)",
+    "language": "string (en)",
+    "notificationsEnabled": "boolean (true)",
+    "soundEnabled": "boolean (true)",
+    "difficulty": "string (medium)"
+  },
+  "statistics": {
+    "totalGamesPlayed": "number (0)",
+    "totalTimeSpent": "number (0)",
+    "highScore": "number (0)",
+    "currentLevel": "number (1)",
+    "achievementsUnlocked": "number (0)"
+  },
+  "social": {
+    "friendsCount": "number (0)",
+    "publicProfile": "boolean (false)",
+    "allowMessages": "boolean (true)"
+  }
+}
