@@ -500,7 +500,7 @@ class _SettingsPageState extends State<SettingsPage> {
   /// Recursively build widgets for a structure (handles nested maps)
   List<Widget> _buildStructureWidgets(String parentPath, Map<String, dynamic> structure, [int depth = 0]) {
     final widgets = <Widget>[];
-    final keys = structure.keys.toList()..sort();
+    final keys = structure.keys.toList();
     
     for (int i = 0; i < keys.length; i++) {
       final key = keys[i];

@@ -127,7 +127,7 @@ class SchemaField {
 /// Represents the complete user data schema
 class UserDataSchema {
   final Map<String, dynamic> _schema;
-  final Map<String, SchemaField> _flattenedFields = {};
+  final Map<String, SchemaField> _flattenedFields = <String, SchemaField>{};
   
   UserDataSchema(this._schema) {
     _flattenSchema();
@@ -171,9 +171,9 @@ class UserDataSchema {
     });
   }
 
-  /// Get all field paths in dot notation
+  /// Get all field paths in dot notation (in schema order)
   List<String> getFieldPaths() {
-    return _flattenedFields.keys.toList()..sort();
+    return _flattenedFields.keys.toList();
   }
 
   /// Get field definition by path
@@ -292,9 +292,9 @@ class UserDataSchema {
     return fields;
   }
 
-  /// Get all top-level sections
+  /// Get all top-level sections (in schema order)
   List<String> getSections() {
-    return _schema.keys.toList()..sort();
+    return _schema.keys.toList();
   }
 
   /// Check if a section exists
