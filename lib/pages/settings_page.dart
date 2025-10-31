@@ -69,6 +69,9 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _saveUserData() async {
     if (!_formKey.currentState!.validate()) return;
 
+    // Prevent concurrent saves
+    if (_isSaving) return;
+
     // Ensure we have a user to save. If not, show an error and don't enter saving state.
     if (_uid == null || _currentUserData == null) {
       _showErrorSnackBar('No user loaded to save. Please reload the page.');
@@ -93,17 +96,28 @@ class _SettingsPageState extends State<SettingsPage> {
 
       if (!mounted) return;
       
+      // Update state and show success dialog
       setState(() {
         _currentUserData = updatedUserData;
         _isSaving = false;
       });
+      
+      // Wait a brief moment to ensure setState completes before showing dialog
+      await Future.delayed(const Duration(milliseconds: 50));
+      
+      if (!mounted) return;
+      
       // Show a success overlay dialog similar to registration flow
       _showSaveSuccessDialog();
     } catch (e) {
       if (!mounted) return;
+      
+      // Ensure we always reset the saving state on error
       setState(() {
         _isSaving = false;
       });
+      
+      // Show error message
       _showErrorSnackBar('Failed to save user data: $e');
     }
   }
@@ -366,7 +380,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: _isSaving ? null : _saveUserData,
+                        onPressed: _saveUserData,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green.shade600,
                           foregroundColor: Colors.white,
@@ -375,26 +389,14 @@ class _SettingsPageState extends State<SettingsPage> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           elevation: 0,
-                          disabledBackgroundColor: Colors.grey.shade300,
                         ),
-                        child: _isSaving
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white,
-                                  ),
-                                ),
-                              )
-                            : const Text(
-                                'Save Changes',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
+                        child: const Text(
+                          'Save Changes',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
