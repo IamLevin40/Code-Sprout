@@ -176,7 +176,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: Icon(
                   Icons.check_circle,
                   color: styles.getColor('register_page.success_dialog.icon.color'),
-                  size: 60,
+                  size: styles.getWidth('settings_page.success_dialog.icon.width'),
                 ),
               ),
               const SizedBox(height: 20),
@@ -288,6 +288,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ? Center(
               child: CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(styles.getColor('appbar.background.linear_gradient.begin.color')),
+                strokeWidth: styles.getStrokeWeight('settings_page.loading_indicator.stroke_weight'),
               ),
             )
           : SingleChildScrollView(
@@ -310,8 +311,9 @@ class _SettingsPageState extends State<SettingsPage> {
                     Text(
                       'Dynamically generated from schema',
                       style: TextStyle(
-                        fontSize: styles.getFontSize('common.text.secondary.font_size'),
-                        color: styles.getColor('common.text.secondary.color'),
+                        fontSize: styles.getFontSize('settings_page.subtitle.font_size'),
+                        fontWeight: styles.getFontWeight('settings_page.subtitle.font_weight'),
+                        color: styles.getColor('settings_page.subtitle.color'),
                       ),
                     ),
                     const SizedBox(height: 32),
@@ -341,29 +343,29 @@ class _SettingsPageState extends State<SettingsPage> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   SizedBox(
-                                    width: 18,
-                                    height: 18,
+                                    width: styles.getWidth('settings_page.save_button.progress_indicator.width'),
+                                    height: styles.getHeight('settings_page.save_button.progress_indicator.height'),
                                     child: CircularProgressIndicator(
-                                      strokeWidth: 2.0,
+                                      strokeWidth: styles.getStrokeWeight('settings_page.save_button.progress_indicator.stroke_weight'),
                                       valueColor: AlwaysStoppedAnimation<Color>(
                                           styles.getColor('settings_page.save_button.text.color')),
                                     ),
                                   ),
-                                  SizedBox(width: 12),
+                                  const SizedBox(width: 12),
                                   Text(
                                     'Saving...',
                                     style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
+                                      fontSize: styles.getFontSize('settings_page.save_button.text.font_size'),
+                                      fontWeight: styles.getFontWeight('settings_page.save_button.text.font_weight'),
                                     ),
                                   ),
                                 ],
                               )
-                            : const Text(
+                            : Text(
                                 'Save Changes',
                                 style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
+                                  fontSize: styles.getFontSize('settings_page.save_button.text.font_size'),
+                                  fontWeight: styles.getFontWeight('settings_page.save_button.text.font_weight'),
                                 ),
                               ),
                       ),
@@ -374,26 +376,27 @@ class _SettingsPageState extends State<SettingsPage> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.blue.shade50,
-                        borderRadius: BorderRadius.circular(12),
+                        color: styles.getColor('settings_page.info_container.background.color'),
+                        borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.info_container.border_radius')),
                         border: Border.all(
-                          color: Colors.blue.shade200,
+                          color: styles.getColor('settings_page.info_container.border.color'),
+                          width: styles.getWidth('settings_page.info_container.border.width'),
                         ),
                       ),
                       child: Row(
                         children: [
                           Icon(
                             Icons.info_outline,
-                            color: Colors.blue.shade700,
-                            size: 20,
+                            color: styles.getColor('settings_page.info_container.icon.color'),
+                            size: styles.getWidth('settings_page.info_container.icon.width'),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
                               'UI is generated from schema. Update assets/schemas/user_data_schema.txt to modify structure.',
                               style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.blue.shade900,
+                                fontSize: styles.getFontSize('settings_page.info_container.text.font_size'),
+                                color: styles.getColor('settings_page.info_container.text.color'),
                               ),
                             ),
                           ),
@@ -427,33 +430,27 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildSectionHeader(String title) {
+    final styles = AppStyles();
     // Convert camelCase to Title Case
     final displayTitle = _camelCaseToTitle(title);
     
     return Row(
       children: [
         Container(
-          width: 4,
-          height: 24,
+          width: styles.getWidth('settings_page.section_header.indicator.width'),
+          height: styles.getHeight('settings_page.section_header.indicator.height'),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Colors.green.shade600,
-                Colors.purple.shade600,
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-            borderRadius: BorderRadius.circular(2),
+            gradient: styles.getLinearGradient('settings_page.section_header.indicator.linear_gradient'),
+            borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.section_header.indicator.border_radius')),
           ),
         ),
         const SizedBox(width: 12),
         Text(
           displayTitle,
           style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.grey.shade800,
+            fontSize: styles.getFontSize('settings_page.section_header.title.font_size'),
+            fontWeight: styles.getFontWeight('settings_page.section_header.title.font_weight'),
+            color: styles.getColor('settings_page.section_header.title.color'),
           ),
         ),
       ],
@@ -461,6 +458,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildSectionCard(String section, Map<String, SchemaField> fields) {
+    final styles = AppStyles();
     // Get the full structure including nested maps
     final structure = _schema!.getStructureAtPath(section);
     final fieldWidgets = _buildStructureWidgets(section, structure);
@@ -469,15 +467,19 @@ class _SettingsPageState extends State<SettingsPage> {
       margin: const EdgeInsets.only(left: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: styles.getColor('settings_page.section_card.background.color'),
+        borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.section_card.border_radius')),
         border: Border.all(
-          color: Colors.grey.shade200,
+          color: styles.getColor('settings_page.section_card.border.color'),
+          width: styles.getWidth('settings_page.section_card.border.width'),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
+            color: styles.getColorWithOpacity(
+              'settings_page.section_card.shadow.color',
+              opacityPath: 'settings_page.section_card.shadow.opacity',
+            ),
+            blurRadius: styles.getBlurRadius('settings_page.section_card.shadow.blur_radius'),
             offset: const Offset(0, 2),
           ),
         ],
@@ -511,14 +513,16 @@ class _SettingsPageState extends State<SettingsPage> {
         final nestedStructure = _schema!.getStructureAtPath(currentPath);
         final nestedWidgets = _buildStructureWidgets(currentPath, nestedStructure, depth + 1);
         
+        final styles = AppStyles();
         widgets.add(Container(
           margin: EdgeInsets.only(left: (depth + 1) * 16.0),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.grey.shade50,
-            borderRadius: BorderRadius.circular(12),
+            color: styles.getColor('settings_page.nested_container.background.color'),
+            borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.nested_container.border_radius')),
             border: Border.all(
-              color: Colors.grey.shade200,
+              color: styles.getColor('settings_page.nested_container.border.color'),
+              width: styles.getWidth('settings_page.nested_container.border.width'),
             ),
           ),
           child: Column(
@@ -529,9 +533,10 @@ class _SettingsPageState extends State<SettingsPage> {
       }
       
       if (i < keys.length - 1) {
+        final styles = AppStyles();
         widgets.add(Divider(
-          height: 24,
-          color: Colors.grey.shade200,
+          height: styles.getHeight('settings_page.divider.height'),
+          color: styles.getColor('settings_page.divider.color'),
         ));
       }
     }
@@ -540,40 +545,42 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildNestedMapHeader(String name, int depth) {
+    final styles = AppStyles();
     return Padding(
       padding: EdgeInsets.only(left: depth * 16.0),
       child: Row(
         children: [
           Icon(
             Icons.folder_outlined,
-            size: 18,
-            color: Colors.orange.shade600,
+            size: styles.getWidth('settings_page.nested_map_header.icon.width'),
+            color: styles.getColor('settings_page.nested_map_header.icon.color'),
           ),
           const SizedBox(width: 8),
           Text(
             _camelCaseToTitle(name),
             style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Colors.orange.shade800,
+              fontSize: styles.getFontSize('settings_page.nested_map_header.title.font_size'),
+              fontWeight: styles.getFontWeight('settings_page.nested_map_header.title.font_weight'),
+              color: styles.getColor('settings_page.nested_map_header.title.color'),
             ),
           ),
           const SizedBox(width: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: Colors.orange.shade50,
-              borderRadius: BorderRadius.circular(4),
+              color: styles.getColor('settings_page.nested_map_header.badge.background.color'),
+              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.nested_map_header.badge.border_radius')),
               border: Border.all(
-                color: Colors.orange.shade200,
+                color: styles.getColor('settings_page.nested_map_header.badge.border.color'),
+                width: styles.getWidth('settings_page.nested_map_header.badge.border.width'),
               ),
             ),
             child: Text(
               'map',
               style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w500,
-                color: Colors.orange.shade700,
+                fontSize: styles.getFontSize('settings_page.nested_map_header.badge.text.font_size'),
+                fontWeight: styles.getFontWeight('settings_page.nested_map_header.badge.text.font_weight'),
+                color: styles.getColor('settings_page.nested_map_header.badge.text.color'),
               ),
             ),
           ),
@@ -619,6 +626,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildStringField(String fieldName, SchemaField field, String path) {
+    final styles = AppStyles();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -630,35 +638,38 @@ class _SettingsPageState extends State<SettingsPage> {
             hintText: 'Enter ${_camelCaseToTitle(fieldName).toLowerCase()}',
             prefixIcon: Icon(
               _getIconForField(fieldName),
-              color: Colors.grey.shade600,
+              color: styles.getColor('settings_page.text_field.icon.color'),
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.text_field.border_radius')),
               borderSide: BorderSide(
-                color: Colors.grey.shade300,
+                color: styles.getColor('settings_page.text_field.border.color'),
+                width: styles.getWidth('settings_page.text_field.border.width'),
               ),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.text_field.border_radius')),
               borderSide: BorderSide(
-                color: Colors.grey.shade300,
+                color: styles.getColor('settings_page.text_field.border.color'),
+                width: styles.getWidth('settings_page.text_field.border.width'),
               ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.text_field.border_radius')),
               borderSide: BorderSide(
-                color: Colors.green.shade600,
-                width: 2,
+                color: styles.getColor('settings_page.text_field.focused_border.color'),
+                width: styles.getWidth('settings_page.text_field.focused_border.width'),
               ),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.text_field.border_radius')),
               borderSide: BorderSide(
-                color: Colors.red.shade400,
+                color: styles.getColor('settings_page.text_field.error_border.color'),
+                width: styles.getWidth('settings_page.text_field.error_border.width'),
               ),
             ),
             filled: true,
-            fillColor: Colors.grey.shade50,
+            fillColor: styles.getColor('settings_page.text_field.background.color'),
           ),
           validator: (value) {
             if (field.isRequired && (value == null || value.trim().isEmpty)) {
@@ -675,6 +686,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildNumberField(String fieldName, SchemaField field, String path) {
+    final styles = AppStyles();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -687,35 +699,38 @@ class _SettingsPageState extends State<SettingsPage> {
             hintText: 'Enter ${_camelCaseToTitle(fieldName).toLowerCase()}',
             prefixIcon: Icon(
               Icons.numbers,
-              color: Colors.grey.shade600,
+              color: styles.getColor('settings_page.text_field.icon.color'),
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.text_field.border_radius')),
               borderSide: BorderSide(
-                color: Colors.grey.shade300,
+                color: styles.getColor('settings_page.text_field.border.color'),
+                width: styles.getWidth('settings_page.text_field.border.width'),
               ),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.text_field.border_radius')),
               borderSide: BorderSide(
-                color: Colors.grey.shade300,
+                color: styles.getColor('settings_page.text_field.border.color'),
+                width: styles.getWidth('settings_page.text_field.border.width'),
               ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.text_field.border_radius')),
               borderSide: BorderSide(
-                color: Colors.green.shade600,
-                width: 2,
+                color: styles.getColor('settings_page.text_field.focused_border.color'),
+                width: styles.getWidth('settings_page.text_field.focused_border.width'),
               ),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.text_field.border_radius')),
               borderSide: BorderSide(
-                color: Colors.red.shade400,
+                color: styles.getColor('settings_page.text_field.error_border.color'),
+                width: styles.getWidth('settings_page.text_field.error_border.width'),
               ),
             ),
             filled: true,
-            fillColor: Colors.grey.shade50,
+            fillColor: styles.getColor('settings_page.text_field.background.color'),
           ),
           validator: (value) {
             if (field.isRequired && (value == null || value.trim().isEmpty)) {
@@ -736,6 +751,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildBooleanField(String fieldName, SchemaField field, String path) {
+    final styles = AppStyles();
     final value = _fieldValues[path] as bool? ?? false;
     
     return Row(
@@ -749,8 +765,8 @@ class _SettingsPageState extends State<SettingsPage> {
               Text(
                 value ? 'true' : 'false',
                 style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade600,
+                  fontSize: styles.getFontSize('settings_page.switch_field.value_text.font_size'),
+                  color: styles.getColor('settings_page.switch_field.value_text.color'),
                   fontStyle: FontStyle.italic,
                 ),
               ),
@@ -764,13 +780,14 @@ class _SettingsPageState extends State<SettingsPage> {
               _fieldValues[path] = newValue;
             });
           },
-          activeTrackColor: Colors.green.shade600,
+          activeTrackColor: styles.getColor('settings_page.switch_field.active_track_color'),
         ),
       ],
     );
   }
 
   Widget _buildTimestampField(String fieldName, SchemaField field, String path) {
+    final styles = AppStyles();
     final value = _fieldValues[path];
     DateTime? dateTime;
     
@@ -801,27 +818,32 @@ class _SettingsPageState extends State<SettingsPage> {
             }
           },
           child: Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(styles.getBorderRadius('settings_page.timestamp_field.padding')),
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
-              borderRadius: BorderRadius.circular(12),
+              color: styles.getColor('settings_page.timestamp_field.background.color'),
+              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.timestamp_field.border_radius')),
               border: Border.all(
-                color: Colors.grey.shade300,
+                color: styles.getColor('settings_page.timestamp_field.border.color'),
+                width: styles.getWidth('settings_page.timestamp_field.border.width'),
               ),
             ),
             child: Row(
               children: [
                 Icon(
                   Icons.calendar_today,
-                  color: Colors.grey.shade600,
+                  color: styles.getColor('settings_page.timestamp_field.icon.color'),
+                  size: styles.getWidth('settings_page.timestamp_field.icon.size'),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 4),
                 Text(
                   dateTime != null
                       ? '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}'
                       : 'Select date',
                   style: TextStyle(
-                    color: dateTime != null ? Colors.grey.shade800 : Colors.grey.shade500,
+                    fontSize: styles.getFontSize('settings_page.timestamp_field.text.font_size'),
+                    color: dateTime != null 
+                        ? styles.getColor('settings_page.timestamp_field.text.color') 
+                        : styles.getColor('settings_page.timestamp_field.text.placeholder_color'),
                   ),
                 ),
               ],
@@ -833,6 +855,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildGenericField(String fieldName, SchemaField field, String path) {
+    final styles = AppStyles();
     final value = _fieldValues[path];
     
     return Column(
@@ -841,28 +864,30 @@ class _SettingsPageState extends State<SettingsPage> {
         _buildFieldLabel(fieldName, field.dataType, field.isRequired),
         const SizedBox(height: 8),
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(styles.getBorderRadius('settings_page.generic_field.padding')),
           decoration: BoxDecoration(
-            color: Colors.grey.shade50,
-            borderRadius: BorderRadius.circular(12),
+            color: styles.getColor('settings_page.generic_field.background.color'),
+            borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.generic_field.border_radius')),
             border: Border.all(
-              color: Colors.grey.shade300,
+              color: styles.getColor('settings_page.generic_field.border.color'),
+              width: styles.getWidth('settings_page.generic_field.border.width'),
             ),
           ),
           child: Text(
             value?.toString() ?? 'null',
             style: TextStyle(
-              color: Colors.grey.shade700,
+              fontSize: styles.getFontSize('settings_page.generic_field.value_text.font_size'),
+              color: styles.getColor('settings_page.generic_field.value_text.color'),
               fontStyle: FontStyle.italic,
             ),
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 8),
         Text(
           'Type "${field.dataType}" is not editable in this UI',
           style: TextStyle(
-            fontSize: 11,
-            color: Colors.orange.shade700,
+            fontSize: styles.getFontSize('settings_page.generic_field.note_text.font_size'),
+            color: styles.getColor('settings_page.generic_field.note_text.color'),
           ),
         ),
       ],
@@ -870,6 +895,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildEnumField(String fieldName, SchemaField field, String path) {
+    final styles = AppStyles();
     final currentValue = _fieldValues[path] ?? field.defaultValue;
     
     return Column(
@@ -882,35 +908,38 @@ class _SettingsPageState extends State<SettingsPage> {
           decoration: InputDecoration(
             prefixIcon: Icon(
               _getIconForField(fieldName),
-              color: Colors.grey.shade600,
+              color: styles.getColor('settings_page.dropdown_field.icon.color'),
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.dropdown_field.border_radius')),
               borderSide: BorderSide(
-                color: Colors.grey.shade300,
+                color: styles.getColor('settings_page.dropdown_field.border.color'),
+                width: styles.getWidth('settings_page.dropdown_field.border.width'),
               ),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.dropdown_field.border_radius')),
               borderSide: BorderSide(
-                color: Colors.grey.shade300,
+                color: styles.getColor('settings_page.dropdown_field.border.color'),
+                width: styles.getWidth('settings_page.dropdown_field.border.width'),
               ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.dropdown_field.border_radius')),
               borderSide: BorderSide(
-                color: Colors.green.shade600,
-                width: 2,
+                color: styles.getColor('settings_page.dropdown_field.focused_border.color'),
+                width: styles.getWidth('settings_page.dropdown_field.focused_border.width'),
               ),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.dropdown_field.border_radius')),
               borderSide: BorderSide(
-                color: Colors.red.shade400,
+                color: styles.getColor('settings_page.dropdown_field.error_border.color'),
+                width: styles.getWidth('settings_page.dropdown_field.error_border.width'),
               ),
             ),
             filled: true,
-            fillColor: Colors.grey.shade50,
+            fillColor: styles.getColor('settings_page.dropdown_field.background.color'),
           ),
           items: field.enumValues!.map((String value) {
             return DropdownMenuItem<String>(
@@ -940,32 +969,34 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildFieldLabel(String fieldName, String dataType, bool isRequired) {
+    final styles = AppStyles();
     return Row(
       children: [
         Text(
           fieldName,
           style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Colors.grey.shade700,
+            fontSize: styles.getFontSize('settings_page.field_label.text.font_size'),
+            fontWeight: styles.getFontWeight('settings_page.field_label.text.font_weight'),
+            color: styles.getColor('settings_page.field_label.text.color'),
           ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 4),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           decoration: BoxDecoration(
-            color: Colors.purple.shade50,
-            borderRadius: BorderRadius.circular(4),
+            color: styles.getColor('settings_page.field_label.type_badge.background.color'),
+            borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.field_label.type_badge.border_radius')),
             border: Border.all(
-              color: Colors.purple.shade200,
+              color: styles.getColor('settings_page.field_label.type_badge.border.color'),
+              width: styles.getWidth('settings_page.field_label.type_badge.border.width'),
             ),
           ),
           child: Text(
             dataType,
             style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-              color: Colors.purple.shade700,
+              fontSize: styles.getFontSize('settings_page.field_label.type_badge.text.font_size'),
+              fontWeight: styles.getFontWeight('settings_page.field_label.type_badge.text.font_weight'),
+              color: styles.getColor('settings_page.field_label.type_badge.text.color'),
             ),
           ),
         ),
@@ -974,18 +1005,19 @@ class _SettingsPageState extends State<SettingsPage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: Colors.red.shade50,
-              borderRadius: BorderRadius.circular(4),
+              color: styles.getColor('settings_page.field_label.required_badge.background.color'),
+              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.field_label.required_badge.border_radius')),
               border: Border.all(
-                color: Colors.red.shade200,
+                color: styles.getColor('settings_page.field_label.required_badge.border.color'),
+                width: styles.getWidth('settings_page.field_label.required_badge.border.width'),
               ),
             ),
             child: Text(
               'required',
               style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w500,
-                color: Colors.red.shade700,
+                fontSize: styles.getFontSize('settings_page.field_label.required_badge.text.font_size'),
+                fontWeight: styles.getFontWeight('settings_page.field_label.required_badge.text.font_weight'),
+                color: styles.getColor('settings_page.field_label.required_badge.text.color'),
               ),
             ),
           ),
@@ -1021,23 +1053,26 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void _showLogoutDialog(BuildContext context, AuthService authService) {
+    final styles = AppStyles();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.logout_dialog.border_radius')),
         ),
-        title: const Text(
+        title: Text(
           'Logout',
           style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF2D3748),
+            fontSize: styles.getFontSize('settings_page.logout_dialog.title.font_size'),
+            fontWeight: styles.getFontWeight('settings_page.logout_dialog.title.font_weight'),
+            color: styles.getColor('settings_page.logout_dialog.title.color'),
           ),
         ),
-        content: const Text(
+        content: Text(
           'Are you sure you want to logout?',
           style: TextStyle(
-            color: Color(0xFF718096),
+            fontSize: styles.getFontSize('settings_page.logout_dialog.content.font_size'),
+            color: styles.getColor('settings_page.logout_dialog.content.color'),
           ),
         ),
         actions: [
@@ -1046,8 +1081,9 @@ class _SettingsPageState extends State<SettingsPage> {
             child: Text(
               'Cancel',
               style: TextStyle(
-                color: Colors.grey.shade600,
-                fontWeight: FontWeight.w600,
+                fontSize: styles.getFontSize('settings_page.logout_dialog.cancel_button.font_size'),
+                color: styles.getColor('settings_page.logout_dialog.cancel_button.color'),
+                fontWeight: styles.getFontWeight('settings_page.logout_dialog.cancel_button.font_weight'),
               ),
             ),
           ),
@@ -1060,17 +1096,18 @@ class _SettingsPageState extends State<SettingsPage> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red.shade500,
-              foregroundColor: Colors.white,
+              backgroundColor: styles.getColor('settings_page.logout_dialog.logout_button.background.color'),
+              foregroundColor: styles.getColor('settings_page.logout_dialog.logout_button.text.color'),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.logout_dialog.logout_button.border_radius')),
               ),
               elevation: 0,
             ),
-            child: const Text(
+            child: Text(
               'Logout',
               style: TextStyle(
-                fontWeight: FontWeight.w600,
+                fontSize: styles.getFontSize('settings_page.logout_dialog.logout_button.font_size'),
+                fontWeight: styles.getFontWeight('settings_page.logout_dialog.logout_button.font_weight'),
               ),
             ),
           ),
