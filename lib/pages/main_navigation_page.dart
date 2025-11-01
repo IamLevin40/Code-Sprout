@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'home_page.dart';
 import 'settings_page.dart';
-import '../services/app_styles_service.dart';
+import '../models/styles_schema.dart';
 
 /// Main scaffold with bottom navigation for Home and Settings
 class MainNavigationPage extends StatefulWidget {

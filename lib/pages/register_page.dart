@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
-import '../services/app_styles_service.dart';
+import '../models/styles_schema.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
