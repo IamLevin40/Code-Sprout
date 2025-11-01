@@ -475,8 +475,8 @@ class AppStyles {
     
     if (opacityPath != null) {
       try {
-  final opacity = getOpacity(opacityPath);
-  return color.withValues(alpha: opacity);
+        final opacity = getOpacity(opacityPath);
+        return color.withValues(alpha: opacity);
       } catch (e) {
         return color;
       }
@@ -488,8 +488,8 @@ class AppStyles {
       pathParts.removeLast(); // Remove 'color'
       pathParts.add('opacity');
       final defaultOpacityPath = pathParts.join('.');
-  final opacity = getOpacity(defaultOpacityPath);
-  return color.withValues(alpha: opacity);
+      final opacity = getOpacity(defaultOpacityPath);
+      return color.withValues(alpha: opacity);
     } catch (e) {
       return color;
     }
