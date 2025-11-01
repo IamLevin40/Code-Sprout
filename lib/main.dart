@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'services/auth_service.dart';
+import 'models/styles_schema.dart';
 import 'pages/register_page.dart';
 import 'pages/login_page.dart';
 import 'pages/main_navigation_page.dart';
@@ -11,6 +12,10 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  
+  // Load app styles from schema
+  await AppStyles().loadStyles();
+  
   runApp(const MyApp());
 }
 
