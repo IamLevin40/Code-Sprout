@@ -27,6 +27,8 @@ class AppStyles {
 
   /// Get a value from the styles schema using a dot-notation path
   /// Example: "login_page.title.color" or "appbar.background.linear_gradient"
+  /// Supports constant value resolution: if value is a string starting with "--",
+  /// it will be resolved from the constant_values map
   dynamic getValue(String path) {
     if (_stylesData == null) {
       throw Exception('Styles not loaded. Call loadStyles() first.');
@@ -40,6 +42,40 @@ class AppStyles {
         current = current[key];
       } else {
         throw Exception('Style path "$path" not found in schema');
+      }
+    }
+
+    // Resolve constant values if the result is a string starting with "--"
+    if (current is String && current.startsWith('--')) {
+      return _resolveConstantValue(current);
+    }
+
+    return current;
+  }
+
+  /// Resolve constant value reference (e.g., "--colors.white")
+  /// from the constant_values map in the schema
+  dynamic _resolveConstantValue(String reference) {
+    if (_stylesData == null) {
+      throw Exception('Styles not loaded. Call loadStyles() first.');
+    }
+
+    // Remove the "--" prefix to get the path
+    final path = reference.substring(2);
+    final keys = path.split('.');
+    
+    // Start from constant_values
+    if (!_stylesData!.containsKey('constant_values')) {
+      throw Exception('constant_values not found in schema');
+    }
+
+    dynamic current = _stylesData!['constant_values'];
+
+    for (final key in keys) {
+      if (current is Map<String, dynamic> && current.containsKey(key)) {
+        current = current[key];
+      } else {
+        throw Exception('Constant value path "$reference" not found in constant_values');
       }
     }
 
@@ -247,6 +283,10 @@ class AppStyles {
 
   /// Parse color from a value (can be hex, rgb/rgba, or hsl/hsla string)
   Color _parseColorFromValue(dynamic value) {
+    if (value is String && value.startsWith('--')) {
+      value = _resolveConstantValue(value);
+    }
+
     if (value is String) {
       if (value.startsWith('#')) {
         return _parseHexColor(value);
@@ -256,6 +296,7 @@ class AppStyles {
         return _parseRgbColor(value);
       }
     }
+
     throw Exception('Invalid color value: $value');
   }
 
@@ -426,7 +467,7 @@ class AppStyles {
     
     throw Exception('Invalid image_path format at path "$path": $value');
   }
-  
+
   /// Get a Color with opacity applied
   /// First tries to get opacity from "{path}.opacity", then falls back to full opacity
   Color getColorWithOpacity(String colorPath, {String? opacityPath}) {
@@ -434,8 +475,8 @@ class AppStyles {
     
     if (opacityPath != null) {
       try {
-        final opacity = getOpacity(opacityPath);
-        return color.withValues(alpha: opacity);
+  final opacity = getOpacity(opacityPath);
+  return color.withValues(alpha: opacity);
       } catch (e) {
         return color;
       }
@@ -447,8 +488,8 @@ class AppStyles {
       pathParts.removeLast(); // Remove 'color'
       pathParts.add('opacity');
       final defaultOpacityPath = pathParts.join('.');
-      final opacity = getOpacity(defaultOpacityPath);
-      return color.withValues(alpha: opacity);
+  final opacity = getOpacity(defaultOpacityPath);
+  return color.withValues(alpha: opacity);
     } catch (e) {
       return color;
     }

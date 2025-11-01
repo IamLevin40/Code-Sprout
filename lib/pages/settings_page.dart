@@ -975,9 +975,9 @@ class _SettingsPageState extends State<SettingsPage> {
         Text(
           fieldName,
           style: TextStyle(
-            fontSize: styles.getFontSize('settings_page.field_label.text.font_size'),
-            fontWeight: styles.getFontWeight('settings_page.field_label.text.font_weight'),
-            color: styles.getColor('settings_page.field_label.text.color'),
+            fontSize: styles.getFontSize('settings_page.field_label.font_size'),
+            fontWeight: styles.getFontWeight('settings_page.field_label.font_weight'),
+            color: styles.getColor('settings_page.field_label.color'),
           ),
         ),
         const SizedBox(width: 4),
