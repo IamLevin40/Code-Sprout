@@ -346,27 +346,6 @@ class UserData {
     return await _getSchema();
   }
 
-  // Convenience getters for commonly used fields (backwards compatibility)
-  String? get username => get('accountInformation.username') as String?;
-  bool get hasPlayedTutorial => get('interaction.hasPlayedTutorial') as bool? ?? false;
-  bool get hasLearnedModule => get('interaction.hasLearnedModule') as bool? ?? false;
-
-  // Convenience methods for commonly used updates (backwards compatibility)
-  Future<void> updateUsername(String value) => updateField('accountInformation.username', value);
-  Future<void> updateHasPlayedTutorial(bool value) => updateField('interaction.hasPlayedTutorial', value);
-  Future<void> updateHasLearnedModule(bool value) => updateField('interaction.hasLearnedModule', value);
-
-  // Static convenience methods (backwards compatibility)
-  static Future<String?> getUsername(String uid) => getField(uid, 'accountInformation.username') as Future<String?>;
-  static Future<bool> getHasPlayedTutorial(String uid) async {
-    final value = await getField(uid, 'interaction.hasPlayedTutorial');
-    return value as bool? ?? false;
-  }
-  static Future<bool> getHasLearnedModule(String uid) async {
-    final value = await getField(uid, 'interaction.hasLearnedModule');
-    return value as bool? ?? false;
-  }
-
   @override
   String toString() {
     return 'UserData(uid: $uid, data: $_data)';

@@ -34,7 +34,7 @@ class _HomePageState extends State<HomePage> {
       final userData = await FirestoreService.getUserData(uid);
       if (!mounted) return;
       setState(() {
-        _username = userData?.username ?? '';
+        _username = (userData?.get('accountInformation.username') as String?) ?? '';
         _loadingUsername = false;
       });
     } catch (e) {
