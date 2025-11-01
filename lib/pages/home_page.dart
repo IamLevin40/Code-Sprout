@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
+import '../services/app_styles_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -50,36 +51,31 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final authService = AuthService();
     final user = authService.currentUser;
+    final styles = AppStyles();
 
     return Stack(
       children: [
         Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: styles.getColor('common.background.color'),
           appBar: AppBar(
-            title: const Text(
+            title: Text(
               'Code Sprout',
               style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+                fontWeight: styles.getFontWeight('appbar.title.font_weight'),
+                color: styles.getColor('appbar.title.color'),
+                fontSize: styles.getFontSize('appbar.title.font_size'),
               ),
             ),
             centerTitle: true,
             flexibleSpace: Container(
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.green.shade600,
-                    Colors.purple.shade600,
-                  ],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
+                gradient: styles.getLinearGradient('appbar.background.linear_gradient'),
               ),
             ),
             elevation: 0,
             actions: [
               IconButton(
-                icon: const Icon(Icons.logout, color: Colors.white),
+                icon: Icon(Icons.logout, color: styles.getColor('appbar.icon.color')),
                 tooltip: 'Logout',
                 onPressed: () => _showLogoutDialog(context, authService),
               ),
@@ -95,51 +91,47 @@ class _HomePageState extends State<HomePage> {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.green.shade400,
-                      Colors.purple.shade400,
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  gradient: styles.getLinearGradient('home_page.welcome_container.background.linear_gradient'),
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.green.shade200,
+                      color: styles.getColorWithOpacity(
+                        'home_page.welcome_container.shadow.color',
+                        opacityPath: 'home_page.welcome_container.shadow.opacity',
+                      ),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     ),
                   ],
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.home,
-                  size: 80,
-                  color: Colors.white,
+                  size: styles.getFontSize('home_page.welcome_container.icon.font_size'),
+                  color: styles.getColor('home_page.welcome_container.icon.color'),
                 ),
               ),
               const SizedBox(height: 40),
 
               // Welcome Text
               _loadingUsername
-                  ? const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: SizedBox(
                         height: 28,
                         child: Center(
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: Colors.green,
+                            color: styles.getColor('appbar.background.linear_gradient.begin.color'),
                           ),
                         ),
                       ),
                     )
                   : Text(
                       'Welcome${_username != null && _username!.isNotEmpty ? ', ${_username!}' : ''}!',
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF2D3748),
+                      style: TextStyle(
+                        fontSize: styles.getFontSize('home_page.welcome_text.font_size'),
+                        fontWeight: styles.getFontWeight('home_page.welcome_text.font_weight'),
+                        color: styles.getColor('home_page.welcome_text.color'),
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -152,10 +144,10 @@ class _HomePageState extends State<HomePage> {
                   vertical: 12,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF7FAFC),
-                  borderRadius: BorderRadius.circular(12),
+                  color: styles.getColor('home_page.email_container.background.color'),
+                  borderRadius: BorderRadius.circular(styles.getBorderRadius('home_page.email_container.border_radius')),
                   border: Border.all(
-                    color: const Color(0xFFE2E8F0),
+                    color: styles.getColor('home_page.email_container.border.color'),
                   ),
                 ),
                 child: Row(
@@ -163,15 +155,15 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Icon(
                       Icons.email_outlined,
-                      color: Colors.purple.shade600,
+                      color: styles.getColor('home_page.email_container.icon.color'),
                       size: 20,
                     ),
                     const SizedBox(width: 8),
                     Text(
                       user?.email ?? 'No email',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Color(0xFF718096),
+                      style: TextStyle(
+                        fontSize: styles.getFontSize('home_page.email_container.text.font_size'),
+                        color: styles.getColor('home_page.email_container.text.color'),
                       ),
                     ),
                   ],
@@ -183,8 +175,8 @@ class _HomePageState extends State<HomePage> {
               Text(
                 'You are successfully logged in!',
                 style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey.shade600,
+                  fontSize: styles.getFontSize('home_page.info_text.primary.font_size'),
+                  color: styles.getColor('home_page.info_text.primary.color'),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -192,8 +184,8 @@ class _HomePageState extends State<HomePage> {
               Text(
                 'Your session is secure and will persist until you logout.',
                 style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade500,
+                  fontSize: styles.getFontSize('home_page.info_text.secondary.font_size'),
+                  color: styles.getColor('home_page.info_text.secondary.color'),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -202,23 +194,23 @@ class _HomePageState extends State<HomePage> {
               // Logout Button
               ElevatedButton.icon(
                 onPressed: () => _showLogoutDialog(context, authService),
-                icon: const Icon(Icons.logout),
-                label: const Text(
+                icon: Icon(Icons.logout, color: styles.getColor('home_page.logout_button.icon.color')),
+                label: Text(
                   'Logout',
                   style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                    fontSize: styles.getFontSize('home_page.logout_button.text.font_size'),
+                    fontWeight: styles.getFontWeight('home_page.logout_button.text.font_weight'),
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red.shade500,
-                  foregroundColor: Colors.white,
+                  backgroundColor: styles.getColor('home_page.logout_button.background.color'),
+                  foregroundColor: styles.getColor('home_page.logout_button.text.color'),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 32,
                     vertical: 16,
                   ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(styles.getBorderRadius('home_page.logout_button.border_radius')),
                   ),
                   elevation: 0,
                 ),
@@ -231,23 +223,22 @@ class _HomePageState extends State<HomePage> {
         // Loading Overlay
         if (_loadingUsername)
           Container(
-            color: Colors.white.withValues(alpha: 0.8),
+            color: styles.getColorWithOpacity(
+              'home_page.loading_overlay.background.color',
+              opacityPath: 'home_page.loading_overlay.background.opacity',
+            ),
             child: Center(
               child: Container(
                 padding: const EdgeInsets.all(32),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.green.shade400,
-                      Colors.purple.shade400,
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
+                  gradient: styles.getLinearGradient('home_page.loading_overlay.container.background.linear_gradient'),
+                  borderRadius: BorderRadius.circular(styles.getBorderRadius('home_page.loading_overlay.container.border_radius')),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.2),
+                      color: styles.getColorWithOpacity(
+                        'home_page.loading_overlay.container.shadow.color',
+                        opacityPath: 'home_page.loading_overlay.container.shadow.opacity',
+                      ),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     ),
@@ -256,17 +247,17 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(styles.getColor('home_page.loading_overlay.title.color')),
                       strokeWidth: 3,
                     ),
                     const SizedBox(height: 20),
-                    const Text(
+                    Text(
                       'Loading...',
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
+                        color: styles.getColor('home_page.loading_overlay.title.color'),
+                        fontSize: styles.getFontSize('home_page.loading_overlay.title.font_size'),
+                        fontWeight: styles.getFontWeight('home_page.loading_overlay.title.font_weight'),
                         decoration: TextDecoration.none,
                       ),
                     ),
@@ -274,8 +265,11 @@ class _HomePageState extends State<HomePage> {
                     Text(
                       'Preparing your workspace',
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.9),
-                        fontSize: 14,
+                        color: styles.getColorWithOpacity(
+                          'home_page.loading_overlay.subtitle.color',
+                          opacityPath: 'home_page.loading_overlay.subtitle.opacity',
+                        ),
+                        fontSize: styles.getFontSize('home_page.loading_overlay.subtitle.font_size'),
                         decoration: TextDecoration.none,
                       ),
                     ),
@@ -289,23 +283,25 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showLogoutDialog(BuildContext context, AuthService authService) {
+    final styles = AppStyles();
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(styles.getBorderRadius('home_page.logout_dialog.border_radius')),
         ),
-        title: const Text(
+        title: Text(
           'Logout',
           style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF2D3748),
+            fontWeight: styles.getFontWeight('home_page.logout_dialog.title.font_weight'),
+            color: styles.getColor('home_page.logout_dialog.title.color'),
           ),
         ),
-        content: const Text(
+        content: Text(
           'Are you sure you want to logout?',
           style: TextStyle(
-            color: Color(0xFF718096),
+            color: styles.getColor('home_page.logout_dialog.message.color'),
           ),
         ),
         actions: [
@@ -314,8 +310,8 @@ class _HomePageState extends State<HomePage> {
             child: Text(
               'Cancel',
               style: TextStyle(
-                color: Colors.grey.shade600,
-                fontWeight: FontWeight.w600,
+                color: styles.getColor('home_page.logout_dialog.cancel_button.color'),
+                fontWeight: styles.getFontWeight('home_page.logout_dialog.cancel_button.font_weight'),
               ),
             ),
           ),
@@ -329,17 +325,17 @@ class _HomePageState extends State<HomePage> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red.shade500,
-              foregroundColor: Colors.white,
+              backgroundColor: styles.getColor('home_page.logout_dialog.confirm_button.background.color'),
+              foregroundColor: styles.getColor('home_page.logout_dialog.confirm_button.text.color'),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(styles.getBorderRadius('home_page.logout_dialog.confirm_button.border_radius')),
               ),
               elevation: 0,
             ),
-            child: const Text(
+            child: Text(
               'Logout',
               style: TextStyle(
-                fontWeight: FontWeight.w600,
+                fontWeight: styles.getFontWeight('home_page.logout_dialog.confirm_button.text.font_weight'),
               ),
             ),
           ),

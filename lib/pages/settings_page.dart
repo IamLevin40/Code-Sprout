@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
+import '../services/app_styles_service.dart';
 import '../models/user_data.dart';
 import '../models/user_data_schema.dart';
 
@@ -152,12 +153,14 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void _showSaveSuccessDialog() {
+    final styles = AppStyles();
+    
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => Dialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(styles.getBorderRadius('register_page.success_dialog.border_radius')),
         ),
         child: Padding(
           padding: const EdgeInsets.all(28.0),
@@ -167,29 +170,29 @@ class _SettingsPageState extends State<SettingsPage> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.green.shade50,
+                  color: styles.getColor('register_page.success_dialog.background.color'),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.check_circle,
-                  color: Colors.green.shade600,
+                  color: styles.getColor('register_page.success_dialog.icon.color'),
                   size: 60,
                 ),
               ),
               const SizedBox(height: 20),
-              const Text(
+              Text(
                 'Saved!',
                 style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+                  fontSize: styles.getFontSize('register_page.success_dialog.title.font_size'),
+                  fontWeight: styles.getFontWeight('register_page.success_dialog.title.font_weight'),
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Your changes were saved successfully.',
                 style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade700,
+                  fontSize: styles.getFontSize('register_page.success_dialog.message.font_size'),
+                  color: styles.getColor('register_page.success_dialog.message.color'),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -201,19 +204,19 @@ class _SettingsPageState extends State<SettingsPage> {
                     Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green.shade600,
-                    foregroundColor: Colors.white,
+                    backgroundColor: styles.getColor('register_page.success_dialog.button.background.color'),
+                    foregroundColor: styles.getColor('register_page.success_dialog.button.text.color'),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(styles.getBorderRadius('register_page.success_dialog.button.border_radius')),
                     ),
                     elevation: 0,
                   ),
-                  child: const Text(
+                  child: Text(
                     'OK',
                     style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      fontSize: styles.getFontSize('register_page.success_dialog.button.text.font_size'),
+                      fontWeight: styles.getFontWeight('register_page.success_dialog.button.text.font_weight'),
                     ),
                   ),
                 ),
@@ -226,10 +229,12 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void _showErrorSnackBar(String message) {
+    final styles = AppStyles();
+    
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.red.shade600,
+        backgroundColor: styles.getColor('home_page.logout_button.background.color'),
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 3),
       ),
@@ -239,34 +244,29 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final authService = AuthService();
+    final styles = AppStyles();
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: styles.getColor('common.background.color'),
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Settings',
           style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+            fontWeight: styles.getFontWeight('appbar.title.font_weight'),
+            color: styles.getColor('appbar.title.color'),
+            fontSize: styles.getFontSize('appbar.title.font_size'),
           ),
         ),
         centerTitle: true,
         flexibleSpace: Container(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Colors.green.shade600,
-                Colors.purple.shade600,
-              ],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
+            gradient: styles.getLinearGradient('appbar.background.linear_gradient'),
           ),
         ),
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
+            icon: Icon(Icons.refresh, color: styles.getColor('appbar.icon.color')),
             tooltip: 'Reload Schema',
             onPressed: () async {
               setState(() {
@@ -278,16 +278,16 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
+            icon: Icon(Icons.logout, color: styles.getColor('appbar.icon.color')),
             tooltip: 'Logout',
             onPressed: () => _showLogoutDialog(context, authService),
           ),
         ],
       ),
       body: _isLoading
-          ? const Center(
+          ? Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                valueColor: AlwaysStoppedAnimation<Color>(styles.getColor('appbar.background.linear_gradient.begin.color')),
               ),
             )
           : SingleChildScrollView(
@@ -301,17 +301,17 @@ class _SettingsPageState extends State<SettingsPage> {
                     Text(
                       'User Data Configuration',
                       style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey.shade800,
+                        fontSize: styles.getFontSize('settings_page.title.font_size'),
+                        fontWeight: styles.getFontWeight('settings_page.title.font_weight'),
+                        color: styles.getColor('settings_page.title.color'),
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'Dynamically generated from schema',
                       style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey.shade600,
+                        fontSize: styles.getFontSize('common.text.secondary.font_size'),
+                        color: styles.getColor('common.text.secondary.color'),
                       ),
                     ),
                     const SizedBox(height: 32),
@@ -327,16 +327,16 @@ class _SettingsPageState extends State<SettingsPage> {
                       child: ElevatedButton(
                         onPressed: _isSaving ? null : _saveUserData,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green.shade600,
-                          foregroundColor: Colors.white,
+                          backgroundColor: styles.getColor('settings_page.save_button.background.color'),
+                          foregroundColor: styles.getColor('settings_page.save_button.text.color'),
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.save_button.border_radius')),
                           ),
                           elevation: 0,
                         ),
                         child: _isSaving
-                            ? const Row(
+                            ? Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -346,7 +346,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2.0,
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                          Colors.white),
+                                          styles.getColor('settings_page.save_button.text.color')),
                                     ),
                                   ),
                                   SizedBox(width: 12),

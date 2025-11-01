@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'home_page.dart';
 import 'settings_page.dart';
+import '../services/app_styles_service.dart';
 
 /// Main scaffold with bottom navigation for Home and Settings
 class MainNavigationPage extends StatefulWidget {
@@ -21,13 +22,18 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final styles = AppStyles();
+    
     return Scaffold(
       body: _pages[_currentIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
+              color: styles.getColorWithOpacity(
+                'bottom_navigation.shadow.color',
+                opacityPath: 'bottom_navigation.shadow.opacity',
+              ),
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),
@@ -40,14 +46,15 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
               _currentIndex = index;
             });
           },
-          selectedItemColor: Colors.green.shade600,
-          unselectedItemColor: Colors.grey.shade400,
-          selectedLabelStyle: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 12,
+          selectedItemColor: styles.getColor('bottom_navigation.selected.icon.color'),
+          unselectedItemColor: styles.getColor('bottom_navigation.unselected.icon.color'),
+          selectedLabelStyle: TextStyle(
+            fontWeight: styles.getFontWeight('bottom_navigation.selected.label.font_weight'),
+            fontSize: styles.getFontSize('bottom_navigation.selected.label.font_size'),
           ),
-          unselectedLabelStyle: const TextStyle(
-            fontSize: 12,
+          unselectedLabelStyle: TextStyle(
+            fontSize: styles.getFontSize('bottom_navigation.unselected.label.font_size'),
+            fontWeight: styles.getFontWeight('bottom_navigation.unselected.label.font_weight'),
           ),
           type: BottomNavigationBarType.fixed,
           elevation: 8,

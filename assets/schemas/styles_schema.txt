@@ -1,0 +1,478 @@
+{
+    "common": {
+        "background": {
+            "color": "#FFFFFF"
+        },
+        "text": {
+            "primary": {
+                "color": "#2D3748",
+                "font_size": 16,
+                "font_weight": 400
+            },
+            "secondary": {
+                "color": "#718096",
+                "font_size": 14,
+                "font_weight": 400
+            },
+            "error": {
+                "color": "#C53030",
+                "font_size": 14,
+                "font_weight": 400
+            }
+        },
+        "border": {
+            "color": "#E2E8F0",
+            "radius": 12
+        }
+    },
+    "appbar": {
+        "title": {
+            "color": "#FFFFFF",
+            "font_size": 20,
+            "font_weight": 700
+        },
+        "background": {
+            "linear_gradient": {
+                "begin": {
+                    "position": "center_left",
+                    "color": "#43A047"
+                },
+                "end": {
+                    "position": "center_right",
+                    "color": "#8E24AA"
+                }
+            }
+        },
+        "icon": {
+            "color": "#FFFFFF"
+        }
+    },
+    "bottom_navigation": {
+        "selected": {
+            "icon": {
+                "color": "#43A047"
+            },
+            "label": {
+                "color": "#43A047",
+                "font_size": 12,
+                "font_weight": 600
+            }
+        },
+        "unselected": {
+            "icon": {
+                "color": "#CBD5E0"
+            },
+            "label": {
+                "color": "#CBD5E0",
+                "font_size": 12,
+                "font_weight": 400
+            }
+        },
+        "shadow": {
+            "color": "#000000",
+            "opacity": 10
+        }
+    },
+    "login_page": {
+        "logo_container": {
+            "background": {
+                "linear_gradient": {
+                    "begin": {
+                        "position": "top_left",
+                        "color": "#AB47BC"
+                    },
+                    "end": {
+                        "position": "bottom_right",
+                        "color": "#66BB6A"
+                    }
+                }
+            },
+            "icon": {
+                "color": "#FFFFFF",
+                "font_size": 60
+            }
+        },
+        "title": {
+            "color": "#2D3748",
+            "font_size": 32,
+            "font_weight": 700
+        },
+        "subtitle": {
+            "color": "#718096",
+            "font_size": 16,
+            "font_weight": 400
+        },
+        "error_container": {
+            "background": {
+                "color": "#FFF5F5"
+            },
+            "border": {
+                "color": "#FEB2B2"
+            },
+            "text": {
+                "color": "#C53030",
+                "font_size": 14
+            },
+            "icon": {
+                "color": "#C53030"
+            },
+            "border_radius": 12
+        },
+        "email_field": {
+            "icon": {
+                "color": "#8E24AA"
+            },
+            "border": {
+                "color": "#E2E8F0"
+            },
+            "focused_border": {
+                "color": "#8E24AA"
+            },
+            "background": {
+                "color": "#F7FAFC"
+            },
+            "border_radius": 12
+        },
+        "password_field": {
+            "icon": {
+                "color": "#43A047"
+            },
+            "border": {
+                "color": "#E2E8F0"
+            },
+            "focused_border": {
+                "color": "#43A047"
+            },
+            "background": {
+                "color": "#F7FAFC"
+            },
+            "border_radius": 12
+        },
+        "login_button": {
+            "background": {
+                "color": "#8E24AA"
+            },
+            "text": {
+                "color": "#FFFFFF",
+                "font_size": 16,
+                "font_weight": 600
+            },
+            "border_radius": 12
+        },
+        "register_link": {
+            "color": "#43A047",
+            "font_size": 14,
+            "font_weight": 600
+        }
+    },
+    "register_page": {
+        "logo_container": {
+            "background": {
+                "linear_gradient": {
+                    "begin": {
+                        "position": "top_left",
+                        "color": "#66BB6A"
+                    },
+                    "end": {
+                        "position": "bottom_right",
+                        "color": "#AB47BC"
+                    }
+                }
+            },
+            "icon": {
+                "color": "#FFFFFF",
+                "font_size": 60
+            }
+        },
+        "title": {
+            "color": "#2D3748",
+            "font_size": 32,
+            "font_weight": 700
+        },
+        "subtitle": {
+            "color": "#718096",
+            "font_size": 16,
+            "font_weight": 400
+        },
+        "error_container": {
+            "background": {
+                "color": "#FFF5F5"
+            },
+            "border": {
+                "color": "#FEB2B2"
+            },
+            "text": {
+                "color": "#C53030",
+                "font_size": 14
+            },
+            "icon": {
+                "color": "#C53030"
+            },
+            "border_radius": 12
+        },
+        "username_field": {
+            "icon": {
+                "color": "#43A047"
+            },
+            "border": {
+                "color": "#E2E8F0"
+            },
+            "focused_border": {
+                "color": "#43A047"
+            },
+            "background": {
+                "color": "#F7FAFC"
+            },
+            "border_radius": 12
+        },
+        "email_field": {
+            "icon": {
+                "color": "#43A047"
+            },
+            "border": {
+                "color": "#E2E8F0"
+            },
+            "focused_border": {
+                "color": "#43A047"
+            },
+            "background": {
+                "color": "#F7FAFC"
+            },
+            "border_radius": 12
+        },
+        "password_field": {
+            "icon": {
+                "color": "#8E24AA"
+            },
+            "border": {
+                "color": "#E2E8F0"
+            },
+            "focused_border": {
+                "color": "#8E24AA"
+            },
+            "background": {
+                "color": "#F7FAFC"
+            },
+            "border_radius": 12
+        },
+        "register_button": {
+            "background": {
+                "color": "#43A047"
+            },
+            "text": {
+                "color": "#FFFFFF",
+                "font_size": 16,
+                "font_weight": 600
+            },
+            "border_radius": 12
+        },
+        "login_link": {
+            "color": "#8E24AA",
+            "font_size": 14,
+            "font_weight": 600
+        },
+        "success_dialog": {
+            "background": {
+                "color": "#F0FFF4"
+            },
+            "icon": {
+                "color": "#43A047"
+            },
+            "title": {
+                "color": "#2D3748",
+                "font_size": 22,
+                "font_weight": 700
+            },
+            "message": {
+                "color": "#718096",
+                "font_size": 14
+            },
+            "button": {
+                "background": {
+                    "color": "#43A047"
+                },
+                "text": {
+                    "color": "#FFFFFF",
+                    "font_size": 16,
+                    "font_weight": 600
+                },
+                "border_radius": 12
+            },
+            "border_radius": 20
+        }
+    },
+    "home_page": {
+        "welcome_container": {
+            "background": {
+                "linear_gradient": {
+                    "begin": {
+                        "position": "top_left",
+                        "color": "#66BB6A"
+                    },
+                    "end": {
+                        "position": "bottom_right",
+                        "color": "#AB47BC"
+                    }
+                }
+            },
+            "icon": {
+                "color": "#FFFFFF",
+                "font_size": 80
+            },
+            "shadow": {
+                "color": "#81C784",
+                "opacity": 100
+            }
+        },
+        "welcome_text": {
+            "color": "#2D3748",
+            "font_size": 28,
+            "font_weight": 700
+        },
+        "email_container": {
+            "background": {
+                "color": "#F7FAFC"
+            },
+            "border": {
+                "color": "#E2E8F0"
+            },
+            "icon": {
+                "color": "#8E24AA"
+            },
+            "text": {
+                "color": "#718096",
+                "font_size": 16
+            },
+            "border_radius": 12
+        },
+        "info_text": {
+            "primary": {
+                "color": "#757575",
+                "font_size": 16
+            },
+            "secondary": {
+                "color": "#9E9E9E",
+                "font_size": 14
+            }
+        },
+        "logout_button": {
+            "background": {
+                "color": "#EF5350"
+            },
+            "text": {
+                "color": "#FFFFFF",
+                "font_size": 16,
+                "font_weight": 600
+            },
+            "icon": {
+                "color": "#FFFFFF"
+            },
+            "border_radius": 12
+        },
+        "loading_overlay": {
+            "background": {
+                "color": "#FFFFFF",
+                "opacity": 80
+            },
+            "container": {
+                "background": {
+                    "linear_gradient": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "#66BB6A"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "#AB47BC"
+                        }
+                    }
+                },
+                "shadow": {
+                    "color": "#000000",
+                    "opacity": 20
+                },
+                "border_radius": 20
+            },
+            "title": {
+                "color": "#FFFFFF",
+                "font_size": 18,
+                "font_weight": 600
+            },
+            "subtitle": {
+                "color": "#FFFFFF",
+                "opacity": 90,
+                "font_size": 14
+            }
+        },
+        "logout_dialog": {
+            "title": {
+                "color": "#2D3748",
+                "font_weight": 700
+            },
+            "message": {
+                "color": "#718096"
+            },
+            "cancel_button": {
+                "color": "#757575",
+                "font_weight": 600
+            },
+            "confirm_button": {
+                "background": {
+                    "color": "#EF5350"
+                },
+                "text": {
+                    "color": "#FFFFFF",
+                    "font_weight": 600
+                },
+                "border_radius": 8
+            },
+            "border_radius": 20
+        }
+    },
+    "settings_page": {
+        "title": {
+            "color": "#2D3748",
+            "font_size": 24,
+            "font_weight": 700
+        },
+        "section_title": {
+            "color": "#2D3748",
+            "font_size": 18,
+            "font_weight": 600
+        },
+        "field_label": {
+            "color": "#4A5568",
+            "font_size": 14,
+            "font_weight": 500
+        },
+        "field_background": {
+            "color": "#F7FAFC"
+        },
+        "field_border": {
+            "color": "#E2E8F0",
+            "radius": 12
+        },
+        "save_button": {
+            "background": {
+                "color": "#43A047"
+            },
+            "text": {
+                "color": "#FFFFFF",
+                "font_size": 16,
+                "font_weight": 600
+            },
+            "border_radius": 12
+        },
+        "reset_button": {
+            "background": {
+                "color": "#EF5350"
+            },
+            "text": {
+                "color": "#FFFFFF",
+                "font_size": 16,
+                "font_weight": 600
+            },
+            "border_radius": 12
+        }
+    }
+}

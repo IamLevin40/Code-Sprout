@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import '../services/app_styles_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -56,8 +57,10 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final styles = AppStyles();
+    
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: styles.getColor('common.background.color'),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -72,40 +75,33 @@ class _LoginPageState extends State<LoginPage> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.purple.shade400,
-                          Colors.green.shade400,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
+                      gradient: styles.getLinearGradient('login_page.logo_container.background.linear_gradient'),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.login,
-                      size: 60,
-                      color: Colors.white,
+                      size: styles.getFontSize('login_page.logo_container.icon.font_size'),
+                      color: styles.getColor('login_page.logo_container.icon.color'),
                     ),
                   ),
                   const SizedBox(height: 32),
 
                   // Title
-                  const Text(
+                  Text(
                     'Welcome!',
                     style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF2D3748),
+                      fontSize: styles.getFontSize('login_page.title.font_size'),
+                      fontWeight: styles.getFontWeight('login_page.title.font_weight'),
+                      color: styles.getColor('login_page.title.color'),
                     ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Sign in to continue',
                     style: TextStyle(
-                      fontSize: 16,
-                      color: Color(0xFF718096),
+                      fontSize: styles.getFontSize('login_page.subtitle.font_size'),
+                      color: styles.getColor('login_page.subtitle.color'),
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -117,15 +113,15 @@ class _LoginPageState extends State<LoginPage> {
                       padding: const EdgeInsets.all(12),
                       margin: const EdgeInsets.only(bottom: 20),
                       decoration: BoxDecoration(
-                        color: Colors.red.shade50,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.red.shade200),
+                        color: styles.getColor('login_page.error_container.background.color'),
+                        borderRadius: BorderRadius.circular(styles.getBorderRadius('login_page.error_container.border_radius')),
+                        border: Border.all(color: styles.getColor('login_page.error_container.border.color')),
                       ),
                       child: Row(
                         children: [
                           Icon(
                             Icons.error_outline,
-                            color: Colors.red.shade700,
+                            color: styles.getColor('login_page.error_container.icon.color'),
                             size: 20,
                           ),
                           const SizedBox(width: 12),
@@ -133,8 +129,8 @@ class _LoginPageState extends State<LoginPage> {
                             child: Text(
                               _errorMessage!,
                               style: TextStyle(
-                                color: Colors.red.shade700,
-                                fontSize: 14,
+                                color: styles.getColor('login_page.error_container.text.color'),
+                                fontSize: styles.getFontSize('login_page.error_container.text.font_size'),
                               ),
                             ),
                           ),
@@ -149,21 +145,21 @@ class _LoginPageState extends State<LoginPage> {
                     decoration: InputDecoration(
                       labelText: 'Email',
                       hintText: 'Enter your email',
-                      prefixIcon: Icon(Icons.email_outlined, color: Colors.purple.shade600),
+                      prefixIcon: Icon(Icons.email_outlined, color: styles.getColor('login_page.email_field.icon.color')),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        borderRadius: BorderRadius.circular(styles.getBorderRadius('login_page.email_field.border_radius')),
+                        borderSide: BorderSide(color: styles.getColor('login_page.email_field.border.color')),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        borderRadius: BorderRadius.circular(styles.getBorderRadius('login_page.email_field.border_radius')),
+                        borderSide: BorderSide(color: styles.getColor('login_page.email_field.border.color')),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.purple.shade600, width: 2),
+                        borderRadius: BorderRadius.circular(styles.getBorderRadius('login_page.email_field.border_radius')),
+                        borderSide: BorderSide(color: styles.getColor('login_page.email_field.focused_border.color'), width: 2),
                       ),
                       filled: true,
-                      fillColor: const Color(0xFFF7FAFC),
+                      fillColor: styles.getColor('login_page.email_field.background.color'),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -184,11 +180,11 @@ class _LoginPageState extends State<LoginPage> {
                     decoration: InputDecoration(
                       labelText: 'Password',
                       hintText: 'Enter your password',
-                      prefixIcon: Icon(Icons.lock_outline, color: Colors.green.shade600),
+                      prefixIcon: Icon(Icons.lock_outline, color: styles.getColor('login_page.password_field.icon.color')),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                          color: Colors.grey.shade600,
+                          color: styles.getColor('common.text.secondary.color'),
                         ),
                         onPressed: () {
                           setState(() {
@@ -197,19 +193,19 @@ class _LoginPageState extends State<LoginPage> {
                         },
                       ),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        borderRadius: BorderRadius.circular(styles.getBorderRadius('login_page.password_field.border_radius')),
+                        borderSide: BorderSide(color: styles.getColor('login_page.password_field.border.color')),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        borderRadius: BorderRadius.circular(styles.getBorderRadius('login_page.password_field.border_radius')),
+                        borderSide: BorderSide(color: styles.getColor('login_page.password_field.border.color')),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.green.shade600, width: 2),
+                        borderRadius: BorderRadius.circular(styles.getBorderRadius('login_page.password_field.border_radius')),
+                        borderSide: BorderSide(color: styles.getColor('login_page.password_field.focused_border.color'), width: 2),
                       ),
                       filled: true,
-                      fillColor: const Color(0xFFF7FAFC),
+                      fillColor: styles.getColor('login_page.password_field.background.color'),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -224,28 +220,28 @@ class _LoginPageState extends State<LoginPage> {
                   ElevatedButton(
                     onPressed: _isLoading ? null : _login,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.purple.shade600,
-                      foregroundColor: Colors.white,
+                      backgroundColor: styles.getColor('login_page.login_button.background.color'),
+                      foregroundColor: styles.getColor('login_page.login_button.text.color'),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(styles.getBorderRadius('login_page.login_button.border_radius')),
                       ),
                       elevation: 0,
                     ),
                     child: _isLoading
-                        ? const SizedBox(
+                        ? SizedBox(
                             height: 20,
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(styles.getColor('login_page.login_button.text.color')),
                             ),
                           )
-                        : const Text(
+                        : Text(
                             'Login',
                             style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                              fontSize: styles.getFontSize('login_page.login_button.text.font_size'),
+                              fontWeight: styles.getFontWeight('login_page.login_button.text.font_weight'),
                             ),
                           ),
                   ),
@@ -255,11 +251,11 @@ class _LoginPageState extends State<LoginPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
+                      Text(
                         'Don\'t have an account? ',
                         style: TextStyle(
-                          color: Color(0xFF718096),
-                          fontSize: 14,
+                          color: styles.getColor('common.text.secondary.color'),
+                          fontSize: styles.getFontSize('common.text.secondary.font_size'),
                         ),
                       ),
                       TextButton(
@@ -274,9 +270,9 @@ class _LoginPageState extends State<LoginPage> {
                         child: Text(
                           'Register',
                           style: TextStyle(
-                            color: Colors.green.shade600,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                            color: styles.getColor('login_page.register_link.color'),
+                            fontSize: styles.getFontSize('login_page.register_link.font_size'),
+                            fontWeight: styles.getFontWeight('login_page.register_link.font_weight'),
                           ),
                         ),
                       ),
