@@ -49,7 +49,8 @@ class AppStyles {
   /// Get a Color from the schema path
   /// Supports:
   /// - Hex colors: "#FFFFFF"
-  /// - ARGB strings: "(255, 255, 255, 255)"
+  /// - RGB/RGBA strings: "rgb(255, 255, 255)" or "rgba(255, 255, 255, 0.5)"
+  /// - HSL/HSLA strings: "hsl(120, 100%, 50%)" or "hsla(120, 100%, 50%, 0.5)"
   Color getColor(String path) {
     final value = getValue(path);
     
@@ -57,9 +58,12 @@ class AppStyles {
       if (value.startsWith('#')) {
         // Hex color
         return _parseHexColor(value);
-      } else if (value.startsWith('(') && value.endsWith(')')) {
-        // ARGB color
-        return _parseARGBColor(value);
+      } else if (value.toLowerCase().startsWith('hsl')) {
+        // HSL or HSLA color
+        return _parseHslColor(value);
+      } else if (value.toLowerCase().startsWith('rgb')) {
+        // RGB or RGBA color (CSS-style)
+        return _parseRgbColor(value);
       }
     }
 
@@ -68,31 +72,118 @@ class AppStyles {
 
   /// Parse hex color string to Color
   Color _parseHexColor(String hex) {
-    hex = hex.replaceAll('#', '');
-    
-    if (hex.length == 6) {
-      // Add full opacity if not specified
-      hex = 'FF$hex';
+    var clean = hex.replaceAll('#', '');
+
+    // Support 6-char hex (RRGGBB) -> assume full opacity
+    if (clean.length == 6) {
+      clean = 'FF$clean'; // AARRGGBB
+    } else if (clean.length == 8) {
+      // User-specified 8-char hex is treated as RRGGBBAA (RGBA)
+      // Convert RRGGBBAA -> AARRGGBB for Flutter Color value
+      final rrggbb = clean.substring(0, 6);
+      final aa = clean.substring(6, 8);
+      clean = aa + rrggbb;
     }
-    
-    return Color(int.parse(hex, radix: 16));
+
+    return Color(int.parse(clean, radix: 16));
   }
 
-  /// Parse ARGB color string to Color
-  Color _parseARGBColor(String argb) {
-    // Remove parentheses and split by comma
-    final values = argb
-        .replaceAll('(', '')
-        .replaceAll(')', '')
-        .split(',')
-        .map((s) => int.parse(s.trim()))
-        .toList();
-
-    if (values.length != 4) {
-      throw Exception('Invalid ARGB format: $argb');
+  /// Parse RGB/RGBA CSS-style string to Color
+  /// Accepts:
+  /// - "rgb(r, g, b)" where r/g/b are 0..255 or percentages (e.g. "50%")
+  /// - "rgba(r, g, b, a)" where a is 0..1, a percent like "50%", or 0..100 (treated as percent)
+  Color _parseRgbColor(String rgb) {
+    final lower = rgb.trim().toLowerCase();
+    final match = RegExp(r'rgba?\(([^)]+)\)').firstMatch(lower);
+    if (match == null) {
+      throw Exception('Invalid rgb/rgba format: $rgb');
     }
 
-    return Color.fromARGB(values[0], values[1], values[2], values[3]);
+    final parts = match.group(1)!.split(',').map((s) => s.trim()).toList();
+    if (parts.length < 3) {
+      throw Exception('Invalid rgb/rgba format: $rgb');
+    }
+
+    int parseChannel(String token) {
+      if (token.endsWith('%')) {
+        final pct = double.parse(token.replaceAll('%', '')) / 100.0;
+        return (pct * 255).round().clamp(0, 255);
+      }
+      return int.parse(token).clamp(0, 255);
+    }
+
+    final r = parseChannel(parts[0]);
+    final g = parseChannel(parts[1]);
+    final b = parseChannel(parts[2]);
+
+    double alpha = 1.0;
+    if (parts.length >= 4) {
+      final aRaw = parts[3];
+      if (aRaw.endsWith('%')) {
+        alpha = double.parse(aRaw.replaceAll('%', '')) / 100.0;
+      } else {
+        alpha = double.parse(aRaw);
+        if (alpha > 1 && alpha <= 100) alpha = alpha / 100.0;
+      }
+    }
+
+    final a = (alpha.clamp(0.0, 1.0) * 255).round();
+    return Color.fromARGB(a, r, g, b);
+  }
+
+  /// Parse HSL or HSLA string to Color
+  /// Accepts formats like:
+  /// - "hsl(120, 100%, 50%)"
+  /// - "hsla(120, 100%, 50%, 0.5)"
+  /// - Alpha may be a 0..1 number or a percent like "50%" or (rarely) 0..100
+  Color _parseHslColor(String hsl) {
+    final lower = hsl.trim().toLowerCase();
+    final match = RegExp(r'hsla?\(([^)]+)\)').firstMatch(lower);
+    if (match == null) {
+      throw Exception('Invalid HSL/HSLA format: $hsl');
+    }
+
+    final parts = match.group(1)!.split(',').map((s) => s.trim()).toList();
+    if (parts.length < 3) {
+      throw Exception('Invalid HSL/HSLA format: $hsl');
+    }
+
+    // Hue
+    final hue = double.parse(parts[0]);
+
+    // Saturation (may be percent)
+    final satRaw = parts[1];
+    final sat = satRaw.endsWith('%')
+        ? double.parse(satRaw.replaceAll('%', '')) / 100.0
+        : double.parse(satRaw);
+
+    // Lightness (may be percent)
+    final lightRaw = parts[2];
+    final light = lightRaw.endsWith('%')
+        ? double.parse(lightRaw.replaceAll('%', '')) / 100.0
+        : double.parse(lightRaw);
+
+    // Alpha (optional)
+    double alpha = 1.0;
+    if (parts.length >= 4) {
+      final aRaw = parts[3];
+      if (aRaw.endsWith('%')) {
+        alpha = double.parse(aRaw.replaceAll('%', '')) / 100.0;
+      } else {
+        alpha = double.parse(aRaw);
+        // If user supplied 0-100 without percent, treat >1 as percent
+        if (alpha > 1 && alpha <= 100) alpha = alpha / 100.0;
+      }
+    }
+
+    final hslColor = HSLColor.fromAHSL(
+      alpha.clamp(0.0, 1.0),
+      hue % 360.0,
+      sat.clamp(0.0, 1.0),
+      light.clamp(0.0, 1.0),
+    );
+
+    return hslColor.toColor();
   }
 
   /// Get a LinearGradient from the schema path
@@ -154,13 +245,15 @@ class AppStyles {
     }
   }
 
-  /// Parse color from a value (can be hex or ARGB string)
+  /// Parse color from a value (can be hex, rgb/rgba, or hsl/hsla string)
   Color _parseColorFromValue(dynamic value) {
     if (value is String) {
       if (value.startsWith('#')) {
         return _parseHexColor(value);
-      } else if (value.startsWith('(') && value.endsWith(')')) {
-        return _parseARGBColor(value);
+      } else if (value.toLowerCase().startsWith('hsl')) {
+        return _parseHslColor(value);
+      } else if (value.toLowerCase().startsWith('rgb')) {
+        return _parseRgbColor(value);
       }
     }
     throw Exception('Invalid color value: $value');
