@@ -117,3 +117,47 @@ app.*.symbols
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 !/dev/ci/**/Gemfile.lock
+
+# -----------------------------------------------------------------------------
+# Project-specific sensitive files (do NOT commit these)
+# -----------------------------------------------------------------------------
+# IDE and workspace
+.idea/
+*.iml
+.vscode/
+
+# Google / Firebase config files
+# Android Firebase config
+**/google-services.json
+**/android/**/google-services.json
+# iOS Firebase config
+**/GoogleService-Info.plist
+
+# Firebase generated Flutter file that contains API keys (optional to ignore)
+lib/firebase_options.dart
+
+# Environment / secrets
+.env
+.env.*
+secrets.json
+credentials.json
+
+# Keystores and private keys
+*.keystore
+*.jks
+*.pem
+*.p12
+*.pfx
+upload-keystore.jks
+key.properties
+
+# Platform build artifacts and local config already covered above but included for clarity
+/.gradle/
+local.properties
+
+# Mac/Windows/Linux user files
+*.keystore
+*.user
+*.suo
+
+# If some sensitive files are already tracked, see guidance in repo to remove them from git history

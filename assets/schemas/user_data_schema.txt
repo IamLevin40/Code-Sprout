@@ -1,0 +1,11 @@
+{
+    "accountInformation": {
+        "username": "string (null) [required]",
+        "theme": "string (|light|dark|auto|)"
+    },
+    "interaction": {
+        "hasPlayedTutorial": "boolean (false)",
+        "hasLearnedModule": "boolean (false)",
+        "difficulty": "string (|easy|normal|hard|)"
+    }
+}
