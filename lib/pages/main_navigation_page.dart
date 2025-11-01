@@ -34,7 +34,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
                 'bottom_navigation.shadow.color',
                 opacityPath: 'bottom_navigation.shadow.opacity',
               ),
-              blurRadius: 10,
+              blurRadius: styles.getBlurRadius('bottom_navigation.shadow.blur_radius'),
               offset: const Offset(0, -2),
             ),
           ],

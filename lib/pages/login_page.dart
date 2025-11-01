@@ -115,14 +115,17 @@ class _LoginPageState extends State<LoginPage> {
                       decoration: BoxDecoration(
                         color: styles.getColor('login_page.error_container.background.color'),
                         borderRadius: BorderRadius.circular(styles.getBorderRadius('login_page.error_container.border_radius')),
-                        border: Border.all(color: styles.getColor('login_page.error_container.border.color')),
+                        border: Border.all(
+                          color: styles.getColor('login_page.error_container.border.color'),
+                          width: styles.getWidth('login_page.error_container.border.width'),
+                        ),
                       ),
                       child: Row(
                         children: [
                           Icon(
                             Icons.error_outline,
                             color: styles.getColor('login_page.error_container.icon.color'),
-                            size: 20,
+                            size: styles.getWidth('login_page.error_container.icon.width'),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -152,11 +155,17 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(styles.getBorderRadius('login_page.email_field.border_radius')),
-                        borderSide: BorderSide(color: styles.getColor('login_page.email_field.border.color')),
+                        borderSide: BorderSide(
+                          color: styles.getColor('login_page.email_field.border.color'),
+                          width: styles.getWidth('login_page.email_field.border.width'),
+                        ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(styles.getBorderRadius('login_page.email_field.border_radius')),
-                        borderSide: BorderSide(color: styles.getColor('login_page.email_field.focused_border.color'), width: 2),
+                        borderSide: BorderSide(
+                          color: styles.getColor('login_page.email_field.focused_border.color'),
+                          width: styles.getWidth('login_page.email_field.focused_border.width'),
+                        ),
                       ),
                       filled: true,
                       fillColor: styles.getColor('login_page.email_field.background.color'),
@@ -194,15 +203,24 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(styles.getBorderRadius('login_page.password_field.border_radius')),
-                        borderSide: BorderSide(color: styles.getColor('login_page.password_field.border.color')),
+                        borderSide: BorderSide(
+                          color: styles.getColor('login_page.password_field.border.color'),
+                          width: styles.getWidth('login_page.password_field.border.width'),
+                        ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(styles.getBorderRadius('login_page.password_field.border_radius')),
-                        borderSide: BorderSide(color: styles.getColor('login_page.password_field.border.color')),
+                        borderSide: BorderSide(
+                          color: styles.getColor('login_page.password_field.border.color'),
+                          width: styles.getWidth('login_page.password_field.border.width'),
+                        ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(styles.getBorderRadius('login_page.password_field.border_radius')),
-                        borderSide: BorderSide(color: styles.getColor('login_page.password_field.focused_border.color'), width: 2),
+                        borderSide: BorderSide(
+                          color: styles.getColor('login_page.password_field.focused_border.color'),
+                          width: styles.getWidth('login_page.password_field.focused_border.width'),
+                        ),
                       ),
                       filled: true,
                       fillColor: styles.getColor('login_page.password_field.background.color'),
@@ -230,10 +248,10 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     child: _isLoading
                         ? SizedBox(
-                            height: 20,
-                            width: 20,
+                            height: styles.getHeight('login_page.login_button.progress_indicator.height'),
+                            width: styles.getWidth('login_page.login_button.progress_indicator.width'),
                             child: CircularProgressIndicator(
-                              strokeWidth: 2,
+                              strokeWidth: styles.getStrokeWeight('login_page.login_button.progress_indicator.stroke_weight'),
                               valueColor: AlwaysStoppedAnimation<Color>(styles.getColor('login_page.login_button.text.color')),
                             ),
                           )

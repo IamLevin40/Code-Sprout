@@ -99,7 +99,7 @@ class _HomePageState extends State<HomePage> {
                         'home_page.welcome_container.shadow.color',
                         opacityPath: 'home_page.welcome_container.shadow.opacity',
                       ),
-                      blurRadius: 20,
+                      blurRadius: styles.getBlurRadius('home_page.welcome_container.shadow.blur_radius'),
                       offset: const Offset(0, 10),
                     ),
                   ],
@@ -117,10 +117,10 @@ class _HomePageState extends State<HomePage> {
                   ? Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: SizedBox(
-                        height: 28,
+                        height: styles.getHeight('home_page.username_loader.height'),
                         child: Center(
                           child: CircularProgressIndicator(
-                            strokeWidth: 2,
+                            strokeWidth: styles.getStrokeWeight('home_page.username_loader.stroke_weight'),
                             color: styles.getColor('appbar.background.linear_gradient.begin.color'),
                           ),
                         ),
@@ -148,6 +148,7 @@ class _HomePageState extends State<HomePage> {
                   borderRadius: BorderRadius.circular(styles.getBorderRadius('home_page.email_container.border_radius')),
                   border: Border.all(
                     color: styles.getColor('home_page.email_container.border.color'),
+                    width: styles.getWidth('home_page.email_container.border.width'),
                   ),
                 ),
                 child: Row(
@@ -156,7 +157,7 @@ class _HomePageState extends State<HomePage> {
                     Icon(
                       Icons.email_outlined,
                       color: styles.getColor('home_page.email_container.icon.color'),
-                      size: 20,
+                      size: styles.getWidth('home_page.email_container.icon.width'),
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -239,7 +240,7 @@ class _HomePageState extends State<HomePage> {
                         'home_page.loading_overlay.container.shadow.color',
                         opacityPath: 'home_page.loading_overlay.container.shadow.opacity',
                       ),
-                      blurRadius: 20,
+                      blurRadius: styles.getBlurRadius('home_page.loading_overlay.container.shadow.blur_radius'),
                       offset: const Offset(0, 10),
                     ),
                   ],
@@ -249,7 +250,7 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     CircularProgressIndicator(
                       valueColor: AlwaysStoppedAnimation<Color>(styles.getColor('home_page.loading_overlay.title.color')),
-                      strokeWidth: 3,
+                      strokeWidth: styles.getStrokeWeight('home_page.loading_overlay.progress_indicator.stroke_weight'),
                     ),
                     const SizedBox(height: 20),
                     Text(

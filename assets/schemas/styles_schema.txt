@@ -70,7 +70,8 @@
         },
         "shadow": {
             "color": "#000000",
-            "opacity": 10
+            "opacity": 10,
+            "blur_radius": 10
         }
     },
     "login_page": {
@@ -107,14 +108,17 @@
                 "color": "#FFF5F5"
             },
             "border": {
-                "color": "#FEB2B2"
+                "color": "#FEB2B2",
+                "width": 1
             },
             "text": {
                 "color": "#C53030",
                 "font_size": 14
             },
             "icon": {
-                "color": "#C53030"
+                "color": "#C53030",
+                "width": 20,
+                "height": 20
             },
             "border_radius": 12
         },
@@ -123,10 +127,12 @@
                 "color": "#8E24AA"
             },
             "border": {
-                "color": "#E2E8F0"
+                "color": "#E2E8F0",
+                "width": 1
             },
             "focused_border": {
-                "color": "#8E24AA"
+                "color": "#8E24AA",
+                "width": 2
             },
             "background": {
                 "color": "#F7FAFC"
@@ -138,10 +144,12 @@
                 "color": "#43A047"
             },
             "border": {
-                "color": "#E2E8F0"
+                "color": "#E2E8F0",
+                "width": 1
             },
             "focused_border": {
-                "color": "#43A047"
+                "color": "#43A047",
+                "width": 2
             },
             "background": {
                 "color": "#F7FAFC"
@@ -157,7 +165,12 @@
                 "font_size": 16,
                 "font_weight": 600
             },
-            "border_radius": 12
+            "border_radius": 12,
+            "progress_indicator": {
+                "width": 20,
+                "height": 20,
+                "stroke_weight": 2
+            }
         },
         "register_link": {
             "color": "#43A047",
@@ -199,14 +212,17 @@
                 "color": "#FFF5F5"
             },
             "border": {
-                "color": "#FEB2B2"
+                "color": "#FEB2B2",
+                "width": 1
             },
             "text": {
                 "color": "#C53030",
                 "font_size": 14
             },
             "icon": {
-                "color": "#C53030"
+                "color": "#C53030",
+                "width": 20,
+                "height": 20
             },
             "border_radius": 12
         },
@@ -218,7 +234,8 @@
                 "color": "#E2E8F0"
             },
             "focused_border": {
-                "color": "#43A047"
+                "color": "#43A047",
+                "width": 2
             },
             "background": {
                 "color": "#F7FAFC"
@@ -230,10 +247,12 @@
                 "color": "#43A047"
             },
             "border": {
-                "color": "#E2E8F0"
+                "color": "#E2E8F0",
+                "width": 1
             },
             "focused_border": {
-                "color": "#43A047"
+                "color": "#43A047",
+                "width": 2
             },
             "background": {
                 "color": "#F7FAFC"
@@ -245,10 +264,12 @@
                 "color": "#8E24AA"
             },
             "border": {
-                "color": "#E2E8F0"
+                "color": "#E2E8F0",
+                "width": 1
             },
             "focused_border": {
-                "color": "#8E24AA"
+                "color": "#8E24AA",
+                "width": 2
             },
             "background": {
                 "color": "#F7FAFC"
@@ -264,7 +285,12 @@
                 "font_size": 16,
                 "font_weight": 600
             },
-            "border_radius": 12
+            "border_radius": 12,
+            "progress_indicator": {
+                "width": 20,
+                "height": 20,
+                "stroke_weight": 2
+            }
         },
         "login_link": {
             "color": "#8E24AA",
@@ -276,7 +302,9 @@
                 "color": "#F0FFF4"
             },
             "icon": {
-                "color": "#43A047"
+                "color": "#43A047",
+                "width": 60,
+                "height": 60
             },
             "title": {
                 "color": "#2D3748",
@@ -321,7 +349,8 @@
             },
             "shadow": {
                 "color": "#81C784",
-                "opacity": 100
+                "opacity": 100,
+                "blur_radius": 20
             }
         },
         "welcome_text": {
@@ -329,15 +358,22 @@
             "font_size": 28,
             "font_weight": 700
         },
+        "username_loader": {
+            "stroke_weight": 2,
+            "height": 28
+        },
         "email_container": {
             "background": {
                 "color": "#F7FAFC"
             },
             "border": {
-                "color": "#E2E8F0"
+                "color": "#E2E8F0",
+                "width": 1
             },
             "icon": {
-                "color": "#8E24AA"
+                "color": "#8E24AA",
+                "width": 20,
+                "height": 20
             },
             "text": {
                 "color": "#718096",
@@ -389,7 +425,8 @@
                 },
                 "shadow": {
                     "color": "#000000",
-                    "opacity": 20
+                    "opacity": 20,
+                    "blur_radius": 20
                 },
                 "border_radius": 20
             },
@@ -402,6 +439,9 @@
                 "color": "#FFFFFF",
                 "opacity": 90,
                 "font_size": 14
+            },
+            "progress_indicator": {
+                "stroke_weight": 3
             }
         },
         "logout_dialog": {

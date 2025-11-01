@@ -305,19 +305,6 @@ class AppStyles {
     }
   }
 
-  /// Get border radius from schema path
-  double getBorderRadius(String path) {
-    final value = getValue(path);
-    
-    if (value is int) {
-      return value.toDouble();
-    } else if (value is double) {
-      return value;
-    }
-    
-    throw Exception('Invalid border_radius format at path "$path": $value');
-  }
-
   /// Get opacity from schema path (0-100)
   /// Returns value between 0.0 and 1.0
   double getOpacity(String path) {
@@ -336,6 +323,97 @@ class AppStyles {
     }
     
     throw Exception('Invalid opacity format at path "$path": $value');
+  }
+
+  /// Get width from schema path (positive integer >= 1)
+  double getWidth(String path) {
+    final value = getValue(path);
+    
+    if (value is int) {
+      if (value < 1) {
+        throw Exception('width must be >= 1 at path "$path": $value');
+      }
+      return value.toDouble();
+    } else if (value is double) {
+      if (value < 1) {
+        throw Exception('width must be >= 1 at path "$path": $value');
+      }
+      return value;
+    }
+    
+    throw Exception('Invalid width format at path "$path": $value');
+  }
+
+  /// Get height from schema path (positive integer >= 1)
+  double getHeight(String path) {
+    final value = getValue(path);
+    
+    if (value is int) {
+      if (value < 1) {
+        throw Exception('height must be >= 1 at path "$path": $value');
+      }
+      return value.toDouble();
+    } else if (value is double) {
+      if (value < 1) {
+        throw Exception('height must be >= 1 at path "$path": $value');
+      }
+      return value;
+    }
+    
+    throw Exception('Invalid height format at path "$path": $value');
+  }
+
+  /// Get stroke weight from schema path (positive integer >= 1)
+  /// Used for strokeWidth style parameter
+  double getStrokeWeight(String path) {
+    final value = getValue(path);
+    
+    if (value is int) {
+      if (value < 1) {
+        throw Exception('stroke_weight must be >= 1 at path "$path": $value');
+      }
+      return value.toDouble();
+    } else if (value is double) {
+      if (value < 1) {
+        throw Exception('stroke_weight must be >= 1 at path "$path": $value');
+      }
+      return value;
+    }
+    
+    throw Exception('Invalid stroke_weight format at path "$path": $value');
+  }
+
+  /// Get border radius from schema path
+  double getBorderRadius(String path) {
+    final value = getValue(path);
+    
+    if (value is int) {
+      return value.toDouble();
+    } else if (value is double) {
+      return value;
+    }
+    
+    throw Exception('Invalid border_radius format at path "$path": $value');
+  }
+
+  /// Get blur radius from schema path (positive integer >= 1)
+  /// Used for blurRadius style parameter in shadows and blur effects
+  double getBlurRadius(String path) {
+    final value = getValue(path);
+    
+    if (value is int) {
+      if (value < 1) {
+        throw Exception('blur_radius must be >= 1 at path "$path": $value');
+      }
+      return value.toDouble();
+    } else if (value is double) {
+      if (value < 1) {
+        throw Exception('blur_radius must be >= 1 at path "$path": $value');
+      }
+      return value;
+    }
+    
+    throw Exception('Invalid blur_radius format at path "$path": $value');
   }
 
   /// Get image path from schema path
@@ -385,12 +463,48 @@ class AppStyles {
     }
   }
 
+  /// Try to get width, or return a default value if the path doesn't exist
+  double getWidthOrDefault(String path, double defaultWidth) {
+    try {
+      return getWidth(path);
+    } catch (e) {
+      return defaultWidth;
+    }
+  }
+
+  /// Try to get height, or return a default value if the path doesn't exist
+  double getHeightOrDefault(String path, double defaultHeight) {
+    try {
+      return getHeight(path);
+    } catch (e) {
+      return defaultHeight;
+    }
+  }
+
+  /// Try to get stroke weight, or return a default value if the path doesn't exist
+  double getStrokeWeightOrDefault(String path, double defaultStrokeWeight) {
+    try {
+      return getStrokeWeight(path);
+    } catch (e) {
+      return defaultStrokeWeight;
+    }
+  }
+
   /// Try to get border radius, or return a default value if the path doesn't exist
   double getBorderRadiusOrDefault(String path, double defaultRadius) {
     try {
       return getBorderRadius(path);
     } catch (e) {
       return defaultRadius;
+    }
+  }
+
+  /// Try to get blur radius, or return a default value if the path doesn't exist
+  double getBlurRadiusOrDefault(String path, double defaultBlurRadius) {
+    try {
+      return getBlurRadius(path);
+    } catch (e) {
+      return defaultBlurRadius;
     }
   }
 

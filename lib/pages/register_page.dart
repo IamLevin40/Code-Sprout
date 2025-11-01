@@ -155,7 +155,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 child: Icon(
                   Icons.check_circle,
                   color: styles.getColor('register_page.success_dialog.icon.color'),
-                  size: 60,
+                  size: styles.getWidth('register_page.success_dialog.icon.width'),
                 ),
               ),
               const SizedBox(height: 24),
@@ -273,14 +273,17 @@ class _RegisterPageState extends State<RegisterPage> {
                       decoration: BoxDecoration(
                         color: styles.getColor('register_page.error_container.background.color'),
                         borderRadius: BorderRadius.circular(styles.getBorderRadius('register_page.error_container.border_radius')),
-                        border: Border.all(color: styles.getColor('register_page.error_container.border.color')),
+                        border: Border.all(
+                          color: styles.getColor('register_page.error_container.border.color'),
+                          width: styles.getWidth('register_page.error_container.border.width'),
+                        ),
                       ),
                       child: Row(
                         children: [
                           Icon(
                             Icons.error_outline,
                             color: styles.getColor('register_page.error_container.icon.color'),
-                            size: 20,
+                            size: styles.getWidth('register_page.error_container.icon.width'),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -306,15 +309,24 @@ class _RegisterPageState extends State<RegisterPage> {
                       prefixIcon: Icon(Icons.account_circle_outlined, color: styles.getColor('register_page.username_field.icon.color')),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(styles.getBorderRadius('register_page.username_field.border_radius')),
-                        borderSide: BorderSide(color: styles.getColor('register_page.username_field.border.color')),
+                        borderSide: BorderSide(
+                          color: styles.getColor('register_page.username_field.border.color'),
+                          width: styles.getWidth('register_page.username_field.border.width'),
+                        ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(styles.getBorderRadius('register_page.username_field.border_radius')),
-                        borderSide: BorderSide(color: styles.getColor('register_page.username_field.border.color')),
+                        borderSide: BorderSide(
+                          color: styles.getColor('register_page.username_field.border.color'),
+                          width: styles.getWidth('register_page.username_field.border.width'),
+                        ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(styles.getBorderRadius('register_page.username_field.border_radius')),
-                        borderSide: BorderSide(color: styles.getColor('register_page.username_field.focused_border.color'), width: 2),
+                        borderSide: BorderSide(
+                          color: styles.getColor('register_page.username_field.focused_border.color'),
+                          width: styles.getWidth('register_page.username_field.focused_border.width'),
+                        ),
                       ),
                       filled: true,
                       fillColor: styles.getColor('register_page.username_field.background.color'),
@@ -345,15 +357,24 @@ class _RegisterPageState extends State<RegisterPage> {
                       prefixIcon: Icon(Icons.email_outlined, color: styles.getColor('register_page.email_field.icon.color')),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(styles.getBorderRadius('register_page.email_field.border_radius')),
-                        borderSide: BorderSide(color: styles.getColor('register_page.email_field.border.color')),
+                        borderSide: BorderSide(
+                          color: styles.getColor('register_page.email_field.border.color'),
+                          width: styles.getWidth('register_page.email_field.border.width'),
+                        ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(styles.getBorderRadius('register_page.email_field.border_radius')),
-                        borderSide: BorderSide(color: styles.getColor('register_page.email_field.border.color')),
+                        borderSide: BorderSide(
+                          color: styles.getColor('register_page.email_field.border.color'),
+                          width: styles.getWidth('register_page.email_field.border.width'),
+                        ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(styles.getBorderRadius('register_page.email_field.border_radius')),
-                        borderSide: BorderSide(color: styles.getColor('register_page.email_field.focused_border.color'), width: 2),
+                        borderSide: BorderSide(
+                          color: styles.getColor('register_page.email_field.focused_border.color'),
+                          width: styles.getWidth('register_page.email_field.focused_border.width'),
+                        ),
                       ),
                       filled: true,
                       fillColor: styles.getColor('register_page.email_field.background.color'),
@@ -391,15 +412,24 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(styles.getBorderRadius('register_page.password_field.border_radius')),
-                        borderSide: BorderSide(color: styles.getColor('register_page.password_field.border.color')),
+                        borderSide: BorderSide(
+                          color: styles.getColor('register_page.password_field.border.color'),
+                          width: styles.getWidth('register_page.password_field.border.width'),
+                        ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(styles.getBorderRadius('register_page.password_field.border_radius')),
-                        borderSide: BorderSide(color: styles.getColor('register_page.password_field.border.color')),
+                        borderSide: BorderSide(
+                          color: styles.getColor('register_page.password_field.border.color'),
+                          width: styles.getWidth('register_page.password_field.border.width'),
+                        ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(styles.getBorderRadius('register_page.password_field.border_radius')),
-                        borderSide: BorderSide(color: styles.getColor('register_page.password_field.focused_border.color'), width: 2),
+                        borderSide: BorderSide(
+                          color: styles.getColor('register_page.password_field.focused_border.color'),
+                          width: styles.getWidth('register_page.password_field.focused_border.width'),
+                        ),
                       ),
                       filled: true,
                       fillColor: styles.getColor('register_page.password_field.background.color'),
@@ -437,15 +467,24 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(styles.getBorderRadius('register_page.password_field.border_radius')),
-                        borderSide: BorderSide(color: styles.getColor('register_page.password_field.border.color')),
+                        borderSide: BorderSide(
+                          color: styles.getColor('register_page.password_field.border.color'),
+                          width: styles.getWidth('register_page.password_field.border.width'),
+                        ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(styles.getBorderRadius('register_page.password_field.border_radius')),
-                        borderSide: BorderSide(color: styles.getColor('register_page.password_field.border.color')),
+                        borderSide: BorderSide(
+                          color: styles.getColor('register_page.password_field.border.color'),
+                          width: styles.getWidth('register_page.password_field.border.width'),
+                        ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(styles.getBorderRadius('register_page.password_field.border_radius')),
-                        borderSide: BorderSide(color: styles.getColor('register_page.password_field.focused_border.color'), width: 2),
+                        borderSide: BorderSide(
+                          color: styles.getColor('register_page.password_field.focused_border.color'),
+                          width: styles.getWidth('register_page.password_field.focused_border.width'),
+                        ),
                       ),
                       filled: true,
                       fillColor: styles.getColor('register_page.password_field.background.color'),
@@ -473,10 +512,10 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     child: _isLoading
                         ? SizedBox(
-                            height: 20,
-                            width: 20,
+                            height: styles.getHeight('register_page.register_button.progress_indicator.height'),
+                            width: styles.getWidth('register_page.register_button.progress_indicator.width'),
                             child: CircularProgressIndicator(
-                              strokeWidth: 2,
+                              strokeWidth: styles.getStrokeWeight('register_page.register_button.progress_indicator.stroke_weight'),
                               valueColor: AlwaysStoppedAnimation<Color>(styles.getColor('register_page.register_button.text.color')),
                             ),
                           )
