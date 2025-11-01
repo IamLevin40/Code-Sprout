@@ -231,7 +231,7 @@ class _HomePageState extends State<HomePage> {
         // Loading Overlay
         if (_loadingUsername)
           Container(
-            color: Colors.white.withOpacity(0.8),
+            color: Colors.white.withValues(alpha: 0.8),
             child: Center(
               child: Container(
                 padding: const EdgeInsets.all(32),
@@ -247,7 +247,7 @@ class _HomePageState extends State<HomePage> {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
+                      color: Colors.black.withValues(alpha: 0.2),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     ),
@@ -274,7 +274,7 @@ class _HomePageState extends State<HomePage> {
                     Text(
                       'Preparing your workspace',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 14,
                         decoration: TextDecoration.none,
                       ),

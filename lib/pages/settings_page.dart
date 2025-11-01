@@ -274,15 +274,7 @@ class _SettingsPageState extends State<SettingsPage> {
               });
               await UserData.reloadSchema();
               await _loadSchemaAndData();
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text('Schema reloaded successfully'),
-                    backgroundColor: Colors.green.shade600,
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-              }
+              if (!mounted) return;
             },
           ),
           IconButton(
@@ -344,7 +336,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           elevation: 0,
                         ),
                         child: _isSaving
-                            ? Row(
+                            ? const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -357,8 +349,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                           Colors.white),
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
-                                  const Text(
+                                  SizedBox(width: 12),
+                                  Text(
                                     'Saving...',
                                     style: TextStyle(
                                       fontSize: 16,
@@ -886,7 +878,7 @@ class _SettingsPageState extends State<SettingsPage> {
         _buildFieldLabel(fieldName, '${field.dataType} (enum)', field.isRequired),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: field.enumValues!.contains(currentValue) ? currentValue : field.enumValues!.first,
+          initialValue: field.enumValues!.contains(currentValue) ? currentValue : field.enumValues!.first,
           decoration: InputDecoration(
             prefixIcon: Icon(
               _getIconForField(fieldName),
