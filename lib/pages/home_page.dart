@@ -4,7 +4,9 @@ import '../services/firestore_service.dart';
 import '../models/styles_schema.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final ValueChanged<int>? onTabSelected;
+
+  const HomePage({super.key, this.onTabSelected});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -191,6 +193,40 @@ class _HomePageState extends State<HomePage> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 40),
+
+              // Quick navigation to Course and Sprout pages
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      // Switch to Courses tab (index 1)
+                      if (widget.onTabSelected != null) widget.onTabSelected!(1);
+                    },
+                    icon: Icon(Icons.school, color: styles.getColor('home_page.quick_nav.course.icon.color')),
+                    label: Text('Courses', style: TextStyle(fontSize: styles.getFontSize('home_page.quick_nav.course.text.font_size'))),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: styles.getColor('home_page.quick_nav.course.background.color'),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      // Switch to Sprout tab (index 2)
+                      if (widget.onTabSelected != null) widget.onTabSelected!(2);
+                    },
+                    icon: Icon(Icons.grass, color: styles.getColor('home_page.quick_nav.sprout.icon.color')),
+                    label: Text('The Sprout', style: TextStyle(fontSize: styles.getFontSize('home_page.quick_nav.sprout.text.font_size'))),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: styles.getColor('home_page.quick_nav.sprout.background.color'),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 24),
 
               // Logout Button
               ElevatedButton.icon(

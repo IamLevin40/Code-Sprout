@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'home_page.dart';
+import 'course_page.dart';
+import 'sprout_page.dart';
 import 'settings_page.dart';
 import '../models/styles_schema.dart';
 
@@ -14,18 +16,27 @@ class MainNavigationPage extends StatefulWidget {
 class _MainNavigationPageState extends State<MainNavigationPage> {
   int _currentIndex = 0;
 
-  // Pages for navigation
-  final List<Widget> _pages = [
-    const HomePage(),
-    const SettingsPage(),
-  ];
-
   @override
   Widget build(BuildContext context) {
     final styles = AppStyles();
     
+    // Build pages here so we can pass a callback to the HomePage to update the
+    // main bottom navigation index instead of pushing new routes.
+    final pages = [
+      HomePage(
+        onTabSelected: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+      ),
+      const CoursePage(),
+      const SproutPage(),
+      const SettingsPage(),
+    ];
+
     return Scaffold(
-      body: _pages[_currentIndex],
+      body: pages[_currentIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
@@ -63,6 +74,16 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
               icon: Icon(Icons.home_outlined),
               activeIcon: Icon(Icons.home),
               label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.school_outlined),
+              activeIcon: Icon(Icons.school),
+              label: 'Courses',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.grass_outlined),
+              activeIcon: Icon(Icons.grass),
+              label: 'Sprout',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.settings_outlined),

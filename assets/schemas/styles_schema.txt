@@ -13,7 +13,7 @@
             "pastel_red": "#EF576D",
             "pastel_blue": "#5177F7",
             "pastel_yellow": "#FFD23F",
-            "brown": "#CF5130" 
+            "brown": "#CF5130"
         },
         "font_sizes": {
             "regular": 12,
@@ -432,6 +432,30 @@
             },
             "border_radius": 12
         },
+        "quick_nav": {
+            "course": {
+                "icon": {
+                    "color": "--colors.white"
+                },
+                "text": {
+                    "font_size": "--font_sizes.regular"
+                },
+                "background": {
+                    "color": "--colors.light_purple"
+                }
+            },
+            "sprout": {
+                "icon": {
+                    "color": "--colors.white"
+                },
+                "text": {
+                    "font_size": "--font_sizes.regular"
+                },
+                "background": {
+                    "color": "--colors.dark_green"
+                }
+            }
+        },
         "loading_overlay": {
             "background": {
                 "color": "--colors.white",
@@ -789,6 +813,89 @@
         },
         "loading_indicator": {
             "stroke_weight": 3
+        }
+    },
+    "course_page": {
+        "list": {
+            "title": {
+                "font_size": "--font_sizes.regular",
+                "font_weight": "--font_weights.bold"
+            },
+            "subtitle": {
+                "color": "--colors.dirty_white"
+            },
+            "trailing": {
+                "color": "--colors.light_purple"
+            }
+        }
+    },
+    "sprout_page": {
+        "rank": {
+            "title": {
+                "font_size": "--font_sizes.regular"
+            },
+            "container": {
+                "background": {
+                    "color": "--colors.light_green"
+                },
+                "border_radius": 12
+            },
+            "number": {
+                "font_size": "--font_sizes.subheading"
+            }
+        },
+        "language": {
+            "title": {
+                "font_size": "--font_sizes.regular"
+            }
+        },
+        "start_button": {
+            "icon": {
+                "color": "--colors.white"
+            },
+            "text": {
+                "color": "--colors.white",
+                "font_size": "--font_sizes.regular"
+            },
+            "background": {
+                "color": "--colors.dark_green"
+            },
+            "text_color": "--colors.white",
+            "border_radius": 12
+        },
+        "inventory": {
+            "title": {
+                "font_size": "--font_sizes.regular",
+                "font_weight": "--font_weights.bold"
+            },
+            "icon": {
+                "color": "--colors.light_green"
+            },
+            "item": {
+                "font_size": "--font_sizes.regular",
+                "subtitle": {
+                    "color": "--colors.dirty_white"
+                }
+            }
+        }
+    },
+    "card": {
+        "border_radius": 12,
+        "border": {
+            "color": "--colors.ivory_white"
+        },
+        "avatar": {
+            "background": {
+                "color": "--colors.light_purple"
+            },
+            "text": {
+                "color": "--colors.white"
+            }
+        }
+    },
+    "tab": {
+        "label": {
+            "font_weight": "--font_weights.bold"
         }
     }
 }
