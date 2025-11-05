@@ -58,7 +58,10 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
                 'bottom_navigation.shadow.opacity',
               ),
               blurRadius: styles.toDouble(styles.getStyles('bottom_navigation.shadow.blur_radius')),
-              offset: const Offset(0, -2),
+              offset: Offset(
+                styles.toDouble(styles.getStyles('bottom_navigation.shadow.offset.x')),
+                styles.toDouble(styles.getStyles('bottom_navigation.shadow.offset.y')),
+              ),
             ),
           ],
         ),
@@ -84,7 +87,9 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
                   gradient: styles.getStyles('bottom_navigation.bar.linear_gradient') as LinearGradient,
                   borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('bottom_navigation.bar.border_radius'))),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 6.0),
+                padding: EdgeInsets.symmetric(
+                  vertical: styles.getStyles('bottom_navigation.bar.padding_buttons_vertical') as double,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: List.generate(4, (index) {
@@ -109,7 +114,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
                             width: styles.toDouble(styles.getStyles('bottom_navigation.icon.width')),
                             height: styles.toDouble(styles.getStyles('bottom_navigation.icon.height')),
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(height: styles.toDouble(styles.getStyles('bottom_navigation.selected_indicator.padding'))),
                           // Selected indicator
                           isSelected
                               ? Container(

@@ -2,14 +2,11 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../models/styles_schema.dart';
 
-class MainHeader extends StatefulWidget implements PreferredSizeWidget {
+class MainHeader extends StatefulWidget {
   const MainHeader({super.key});
 
   @override
   State<MainHeader> createState() => _MainHeaderState();
-
-  @override
-  Size get preferredSize => const Size.fromHeight(96);
 }
 
 class _MainHeaderState extends State<MainHeader> {
@@ -34,12 +31,15 @@ class _MainHeaderState extends State<MainHeader> {
     final styles = AppStyles();
 
     return Container(
-      height: widget.preferredSize.height,
+      height: styles.toDouble(styles.getStyles('header.height')),
       decoration: BoxDecoration(
         color: styles.getStyles('header.background_color') as Color,
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(styles.toDouble(styles.getStyles('header.border_radius')))),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      padding: EdgeInsets.symmetric(
+        horizontal: styles.toDouble(styles.getStyles('header.padding_horizontal')),
+        vertical: styles.toDouble(styles.getStyles('header.padding_vertical')),
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -79,7 +79,7 @@ class _MainHeaderState extends State<MainHeader> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('header.icon.border_radius'))),
               child: Padding(
-                padding: const EdgeInsets.all(4.0),
+                padding: EdgeInsets.all(styles.toDouble(styles.getStyles('header.icon.padding'))),
                 child: Image.asset(
                   styles.getStyles('header.icon.image') as String,
                   fit: BoxFit.contain,

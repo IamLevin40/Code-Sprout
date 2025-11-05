@@ -55,11 +55,41 @@
             "radius": 12
         }
     },
+    "header": {
+        "background_color": "--colors.light_purple",
+        "height": 96,
+        "border_radius": 32,
+        "padding_horizontal": 24,
+        "padding_vertical": 24,
+        "greeting": {
+            "color": "--colors.dirty_white",
+            "font_size": "--font_sizes.regular",
+            "font_weight": "--font_weights.bold"
+        },
+        "title": {
+            "color": "--colors.white",
+            "font_size": "--font_sizes.title",
+            "font_weight": "--font_weights.bold"
+        },
+        "icon_background_color": "--colors.white",
+        "icon": {
+            "image": "--images.logo",
+            "width": 48,
+            "height": 48,
+            "padding": 4,
+            "border_radius": 16,
+            "color": "--colors.white"
+        }
+    },
     "bottom_navigation": {
         "shadow": {
             "color": "--colors.dark_gray",
             "opacity": 10,
-            "blur_radius": 10
+            "blur_radius": 10,
+            "offset": {
+                "x": 0,
+                "y": -2
+            }
         },
         "linear_gradient": {
             "begin": {
@@ -74,6 +104,7 @@
         "bar": {
             "padding_horizontal": 24,
             "padding_vertical": 24,
+            "padding_buttons_vertical": 6,
             "max_height": 96,
             "border_radius": 16,
             "linear_gradient": {
@@ -107,6 +138,7 @@
         "selected_indicator": {
             "width": 16,
             "height": 2,
+            "padding": 4,
             "color": "--colors.light_purple",
             "border_radius": 8
         },
@@ -127,28 +159,6 @@
                 "selected": "images/icons/settings_selected.png",
                 "unselected": "images/icons/settings_unselected.png"
             }
-        }
-    },
-    "header": {
-        "background_color": "--colors.light_purple",
-        "border_radius": 32,
-        "greeting": {
-            "color": "--colors.dirty_white",
-            "font_size": "--font_sizes.regular",
-            "font_weight": "--font_weights.bold"
-        },
-        "title": {
-            "color": "--colors.white",
-            "font_size": "--font_sizes.title",
-            "font_weight": "--font_weights.bold"
-        },
-        "icon_background_color": "--colors.white",
-        "icon": {
-            "image": "--images.logo",
-            "width": 48,
-            "height": 48,
-            "border_radius": 16,
-            "color": "--colors.white"
         }
     },
     "login_page": {
