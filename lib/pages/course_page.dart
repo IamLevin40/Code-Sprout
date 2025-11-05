@@ -24,7 +24,7 @@ class _CoursePageState extends State<CoursePage> {
         Tab(text: 'Intermediate'),
         Tab(text: 'Advanced'),
       ],
-      indicatorColor: styles.getStyles('appbar.title.color') as Color,
+      indicatorColor: styles.getStyles('header.title.color') as Color,
       labelStyle: TextStyle(fontWeight: styles.toFontWeight(styles.getStyles('tab.label.font_weight'))),
     );
 
@@ -80,20 +80,20 @@ class _CoursePageState extends State<CoursePage> {
       return DefaultTabController(
         length: 3,
         child: Scaffold(
-          backgroundColor: styles.getStyles('common.background.color') as Color,
+          backgroundColor: styles.getStyles('global.background.color') as Color,
           appBar: AppBar(
             title: Text(
               'Courses',
               style: TextStyle(
-                fontWeight: styles.toFontWeight(styles.getStyles('appbar.title.font_weight')),
-                color: styles.getStyles('appbar.title.color') as Color,
-                fontSize: styles.toDouble(styles.getStyles('appbar.title.font_size')),
+                fontWeight: styles.toFontWeight(styles.getStyles('header.title.font_weight')),
+                color: styles.getStyles('header.title.color') as Color,
+                fontSize: styles.toDouble(styles.getStyles('header.title.font_size')),
               ),
             ),
             centerTitle: true,
             flexibleSpace: Container(
               decoration: BoxDecoration(
-                gradient: styles.getStyles('appbar.background') as LinearGradient,
+                gradient: styles.getStyles('header.background') as LinearGradient,
               ),
             ),
             bottom: tabs,
@@ -108,7 +108,7 @@ class _CoursePageState extends State<CoursePage> {
       length: 3,
       child: Column(
         children: [
-          Container(color: styles.getStyles('common.background.color') as Color, child: tabs),
+          Container(color: styles.getStyles('global.background.color') as Color, child: tabs),
           Expanded(child: tabViews),
         ],
       ),

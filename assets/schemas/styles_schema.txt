@@ -29,7 +29,7 @@
             "logo": "images/logo.png"
         }
     },
-    "common": {
+    "global": {
         "background": {
             "color": "--colors.white"
         },
@@ -53,28 +53,6 @@
         "border": {
             "color": "--colors.ivory_white",
             "radius": 12
-        }
-    },
-    "appbar": {
-        "title": {
-            "color": "--colors.white",
-            "font_size": "--font_sizes.title",
-            "font_weight": "--font_weights.bold"
-        },
-        "background": {
-            "linear_gradient": {
-                "begin": {
-                    "position": "center_left",
-                    "color": "--colors.dark_green"
-                },
-                "end": {
-                    "position": "center_right",
-                    "color": "--colors.light_purple"
-                }
-            }
-        },
-        "icon": {
-            "color": "--colors.white"
         }
     },
     "bottom_navigation": {
@@ -177,7 +155,8 @@
             "image": "--images.logo",
             "width": 48,
             "height": 48,
-            "border_radius": 16
+            "border_radius": 16,
+            "color": "--colors.white"
         }
     },
     "login_page": {

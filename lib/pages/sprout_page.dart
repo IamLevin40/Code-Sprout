@@ -107,20 +107,20 @@ class _SproutPageState extends State<SproutPage> {
 
     if (widget.showAppBar) {
       return Scaffold(
-        backgroundColor: styles.getStyles('common.background.color') as Color,
+        backgroundColor: styles.getStyles('global.background.color') as Color,
         appBar: AppBar(
           title: Text(
             'The Sprout',
             style: TextStyle(
-              fontWeight: styles.toFontWeight(styles.getStyles('appbar.title.font_weight')),
-              color: styles.getStyles('appbar.title.color') as Color,
-              fontSize: styles.toDouble(styles.getStyles('appbar.title.font_size')),
+              fontWeight: styles.toFontWeight(styles.getStyles('header.title.font_weight')),
+              color: styles.getStyles('header.title.color') as Color,
+              fontSize: styles.toDouble(styles.getStyles('header.title.font_size')),
             ),
           ),
           centerTitle: true,
           flexibleSpace: Container(
             decoration: BoxDecoration(
-              gradient: styles.getStyles('appbar.background') as LinearGradient,
+              gradient: styles.getStyles('header.background') as LinearGradient,
             ),
           ),
           elevation: 0,
@@ -129,6 +129,6 @@ class _SproutPageState extends State<SproutPage> {
       );
     }
 
-    return Container(color: styles.getStyles('common.background.color') as Color, child: content);
+    return Container(color: styles.getStyles('global.background.color') as Color, child: content);
   }
 }

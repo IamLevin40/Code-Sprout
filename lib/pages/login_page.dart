@@ -60,7 +60,7 @@ class _LoginPageState extends State<LoginPage> {
     final styles = AppStyles();
     
     return Scaffold(
-      backgroundColor: styles.getStyles('common.background.color') as Color,
+      backgroundColor: styles.getStyles('global.background.color') as Color,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -193,7 +193,7 @@ class _LoginPageState extends State<LoginPage> {
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                          color: styles.getStyles('common.text.secondary.color') as Color,
+                          color: styles.getStyles('global.text.secondary.color') as Color,
                         ),
                         onPressed: () {
                           setState(() {
@@ -272,8 +272,8 @@ class _LoginPageState extends State<LoginPage> {
                       Text(
                         'Don\'t have an account? ',
                         style: TextStyle(
-                          color: styles.getStyles('common.text.secondary.color') as Color,
-                          fontSize: styles.toDouble(styles.getStyles('common.text.secondary.font_size')),
+                          color: styles.getStyles('global.text.secondary.color') as Color,
+                          fontSize: styles.toDouble(styles.getStyles('global.text.secondary.font_size')),
                         ),
                       ),
                       TextButton(

@@ -60,7 +60,7 @@ class _HomePageState extends State<HomePage> {
     // Scaffold (when showAppBar==true) or as a plain widget (when embedded
     // under the shared header).
     final coreContent = Container(
-      color: styles.getStyles('common.background.color') as Color,
+      color: styles.getStyles('global.background.color') as Color,
       child: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -305,26 +305,26 @@ class _HomePageState extends State<HomePage> {
 
     if (widget.showAppBar) {
       return Scaffold(
-        backgroundColor: styles.getStyles('common.background.color') as Color,
+        backgroundColor: styles.getStyles('global.background.color') as Color,
         appBar: AppBar(
           title: Text(
             'Code Sprout',
             style: TextStyle(
-              fontWeight: styles.toFontWeight(styles.getStyles('appbar.title.font_weight')),
-              color: styles.getStyles('appbar.title.color') as Color,
-              fontSize: styles.toDouble(styles.getStyles('appbar.title.font_size')),
+              fontWeight: styles.toFontWeight(styles.getStyles('header.title.font_weight')),
+              color: styles.getStyles('header.title.color') as Color,
+              fontSize: styles.toDouble(styles.getStyles('header.title.font_size')),
             ),
           ),
           centerTitle: true,
           flexibleSpace: Container(
             decoration: BoxDecoration(
-              gradient: styles.getStyles('appbar.background') as LinearGradient,
+              gradient: styles.getStyles('header.background') as LinearGradient,
             ),
           ),
           elevation: 0,
           actions: [
             IconButton(
-              icon: Icon(Icons.logout, color: styles.getStyles('appbar.icon.color') as Color),
+              icon: Icon(Icons.logout, color: styles.getStyles('header.icon.color') as Color),
               tooltip: 'Logout',
               onPressed: () => _showLogoutDialog(context, authService),
             ),
