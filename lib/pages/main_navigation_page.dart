@@ -50,39 +50,39 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
       bottomNavigationBar: Container(
         // Background overlay gradient (transparent white -> opaque white)
         decoration: BoxDecoration(
-          gradient: styles.getLinearGradient('bottom_navigation.background.linear_gradient'),
+          gradient: styles.getStyles('bottom_navigation.background') as LinearGradient,
           boxShadow: [
             BoxShadow(
-              color: styles.getColorWithOpacity(
+              color: styles.withOpacity(
                 'bottom_navigation.shadow.color',
-                opacityPath: 'bottom_navigation.shadow.opacity',
+                'bottom_navigation.shadow.opacity',
               ),
-              blurRadius: styles.getBlurRadius('bottom_navigation.shadow.blur_radius'),
+              blurRadius: styles.toDouble(styles.getStyles('bottom_navigation.shadow.blur_radius')),
               offset: const Offset(0, -2),
             ),
           ],
         ),
         child: SizedBox(
-          height: styles.getHeight('bottom_navigation.bar.max_height'),
+          height: styles.toDouble(styles.getStyles('bottom_navigation.bar.max_height')),
           child: Padding(
             padding: EdgeInsets.symmetric(
-              vertical: styles.getWidth('bottom_navigation.bar.padding_vertical').toDouble(),
+              vertical: styles.toDouble(styles.getStyles('bottom_navigation.bar.padding_vertical')),
             ),
             child: Center(
               child: Container(
               margin: EdgeInsets.symmetric(
-                horizontal: styles.getWidth('bottom_navigation.bar.padding_horizontal').toDouble(),
+                horizontal: styles.toDouble(styles.getStyles('bottom_navigation.bar.padding_horizontal')),
               ),
               // Outline using outer gradient; inner padding creates the outline thickness
-              padding: EdgeInsets.all(styles.getWidth('bottom_navigation.bar.outline.thickness').toDouble()),
+              padding: EdgeInsets.all(styles.toDouble(styles.getStyles('bottom_navigation.bar.outline.thickness'))),
               decoration: BoxDecoration(
-                gradient: styles.getLinearGradient('bottom_navigation.bar.outline.linear_gradient'),
-                borderRadius: BorderRadius.circular(styles.getBorderRadius('bottom_navigation.bar.border_radius')),
+                gradient: styles.getStyles('bottom_navigation.bar.outline') as LinearGradient,
+                borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('bottom_navigation.bar.border_radius'))),
               ),
               child: Container(
                 decoration: BoxDecoration(
-                  gradient: styles.getLinearGradient('bottom_navigation.bar.background.linear_gradient'),
-                  borderRadius: BorderRadius.circular(styles.getBorderRadius('bottom_navigation.bar.border_radius')),
+                  gradient: styles.getStyles('bottom_navigation.bar.background') as LinearGradient,
+                  borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('bottom_navigation.bar.border_radius'))),
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 6.0),
                 child: Row(
@@ -91,9 +91,9 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
                     final keys = ['home', 'course', 'sprout', 'settings'];
                     final key = keys[index];
                     final isSelected = index == _currentIndex;
-                    final imagePath = styles.getImagePath(
-                      'bottom_navigation.items.$key.${isSelected ? 'selected' : 'unselected'}.image_path',
-                    );
+                    final imagePath = styles.getStyles(
+                      'bottom_navigation.items.$key.${isSelected ? 'selected' : 'unselected'}',
+                    ) as String;
 
                     return GestureDetector(
                       onTap: () {
@@ -106,23 +106,23 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
                         children: [
                           Image.asset(
                             imagePath,
-                            width: styles.getWidth('bottom_navigation.icon.width'),
-                            height: styles.getHeight('bottom_navigation.icon.height'),
+                            width: styles.toDouble(styles.getStyles('bottom_navigation.icon.width')),
+                            height: styles.toDouble(styles.getStyles('bottom_navigation.icon.height')),
                           ),
                           const SizedBox(height: 4),
                           // Selected indicator
                           isSelected
                               ? Container(
-                                  width: styles.getWidth('bottom_navigation.selected_indicator.width'),
-                                  height: styles.getHeight('bottom_navigation.selected_indicator.height'),
+                                  width: styles.toDouble(styles.getStyles('bottom_navigation.selected_indicator.width')),
+                                  height: styles.toDouble(styles.getStyles('bottom_navigation.selected_indicator.height')),
                                   decoration: BoxDecoration(
-                                    color: styles.getColor('bottom_navigation.selected_indicator.color'),
+                                    color: styles.getStyles('bottom_navigation.selected_indicator.color') as Color,
                                     borderRadius: BorderRadius.circular(
-                                      styles.getBorderRadius('bottom_navigation.selected_indicator.border_radius'),
+                                      styles.toDouble(styles.getStyles('bottom_navigation.selected_indicator.border_radius')),
                                     ),
                                   ),
                                 )
-                              : SizedBox(height: styles.getHeight('bottom_navigation.selected_indicator.height')),
+                              : SizedBox(height: styles.toDouble(styles.getStyles('bottom_navigation.selected_indicator.height'))),
                         ],
                       ),
                     );

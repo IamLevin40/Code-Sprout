@@ -24,8 +24,7 @@
         "font_weights": {
             "regular": 400,
             "bold": 700
-        }
-        ,
+        },
         "images": {
             "logo": "images/logo.png"
         }
@@ -139,20 +138,20 @@
         },
         "items": {
             "home": {
-                "selected": { "image_path": "images/icons/home_selected.png" },
-                "unselected": { "image_path": "images/icons/home_unselected.png" }
+                "selected": "images/icons/home_selected.png",
+                "unselected": "images/icons/home_unselected.png"
             },
             "course": {
-                "selected": { "image_path": "images/icons/course_selected.png" },
-                "unselected": { "image_path": "images/icons/course_unselected.png" }
+                "selected": "images/icons/course_selected.png",
+                "unselected": "images/icons/course_unselected.png"
             },
             "sprout": {
-                "selected": { "image_path": "images/icons/sprout_selected.png" },
-                "unselected": { "image_path": "images/icons/sprout_unselected.png" }
+                "selected": "images/icons/sprout_selected.png",
+                "unselected": "images/icons/sprout_unselected.png"
             },
             "settings": {
-                "selected": { "image_path": "images/icons/settings_selected.png" },
-                "unselected": { "image_path": "images/icons/settings_unselected.png" }
+                "selected": "images/icons/settings_selected.png",
+                "unselected": "images/icons/settings_unselected.png"
             }
         }
     },
@@ -175,7 +174,7 @@
             "color": "--colors.white"
         },
         "icon": {
-            "image_path": "--images.logo",
+            "image": "--images.logo",
             "width": 48,
             "height": 48,
             "border_radius": 16

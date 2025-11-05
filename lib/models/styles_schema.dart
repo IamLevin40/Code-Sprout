@@ -1,4 +1,4 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -25,11 +25,21 @@ class AppStyles {
     }
   }
 
-  /// Get a value from the styles schema using a dot-notation path
-  /// Example: "login_page.title.color" or "appbar.background.linear_gradient"
-  /// Supports constant value resolution: if value is a string starting with "--",
-  /// it will be resolved from the constant_values map
-  dynamic getValue(String path) {
+  /// Universal function to get any style value from the schema
+  /// Automatically detects and returns the appropriate type:
+  /// - Color (from hex, rgb/rgba, hsl/hsla strings)
+  ///   Method: `getStyles(path) as Color`
+  /// - LinearGradient (from gradient map with begin/end positions and colors)
+  ///   Method: `getStyles(path) as LinearGradient`
+  /// - FontWeight (from numeric weight 100-900)
+  ///   Method: `toFontWeight(getStyles(path))`
+  /// - num (int or double for sizes, weights, radii, etc.)
+  ///   Method: `toDouble(getStyles(path))`
+  /// - String (for image paths, positions, etc.)
+  ///   Method: `getStyles(path) as String`
+  /// - Map (for complex nested structures)
+
+  dynamic getStyles(String path) {
     if (_stylesData == null) {
       throw Exception('Styles not loaded. Call loadStyles() first.');
     }
@@ -47,14 +57,86 @@ class AppStyles {
 
     // Resolve constant values if the result is a string starting with "--"
     if (current is String && current.startsWith('--')) {
-      return _resolveConstantValue(current);
+      current = _resolveConstantValue(current);
     }
 
-    return current;
+    // Auto-detect type and return appropriate value
+    return _detectAndConvert(current, path);
+  }
+
+  /// Detect value type and convert to appropriate Flutter type
+  dynamic _detectAndConvert(dynamic value, String path) {
+    // Handle Map - could be a gradient or nested structure
+    if (value is Map<String, dynamic>) {
+      // If the map directly contains a linear gradient descriptor
+      if (value.containsKey('linear_gradient') && value['linear_gradient'] is Map<String, dynamic>) {
+        return _parseLinearGradient(value['linear_gradient'] as Map<String, dynamic>, path);
+      }
+
+      // Backwards-compatible: some schema entries may put begin/end at this level
+      if (value.containsKey('begin') && value.containsKey('end')) {
+        return _parseLinearGradient(value, path);
+      }
+
+      // If the map contains a color key, return that parsed color
+      if (value.containsKey('color')) {
+        final colorVal = value['color'];
+        // Resolve constant reference if necessary
+        final resolved = (colorVal is String && colorVal.startsWith('--'))
+            ? _resolveConstantValue(colorVal)
+            : colorVal;
+        if (resolved is String && _isColorString(resolved)) {
+          return _parseColor(resolved, path);
+        }
+      }
+
+      // Return as-is for other maps
+      return value;
+    }
+
+    // Handle String - could be color, image path, or position
+    if (value is String) {
+      // Check if it's a color
+      if (_isColorString(value)) {
+        return _parseColor(value, path);
+      }
+      // Return as string for paths, positions, etc.
+      return value;
+    }
+
+    // Handle numeric values - return as-is
+    if (value is int || value is double) {
+      return value;
+    }
+
+    // Return as-is for any other type
+    return value;
+  }
+
+  /// Check if a string is a color format
+  bool _isColorString(String value) {
+    final lower = value.toLowerCase().trim();
+    return lower.startsWith('#') || 
+           lower.startsWith('rgb') || 
+           lower.startsWith('hsl');
+  }
+
+  /// Parse color from string (hex, rgb/rgba, hsl/hsla)
+  Color _parseColor(String value, String path) {
+    final lower = value.toLowerCase().trim();
+    
+    if (value.startsWith('#')) {
+      return _parseHexColor(value);
+    } else if (lower.startsWith('hsl')) {
+      return _parseHslColor(value);
+    } else if (lower.startsWith('rgb')) {
+      return _parseRgbColor(value);
+    }
+    
+    throw Exception('Invalid color format at path "$path": $value');
   }
 
   /// Resolve constant value reference (e.g., "--colors.white")
-  /// from the constant_values map in the schema
   dynamic _resolveConstantValue(String reference) {
     if (_stylesData == null) {
       throw Exception('Styles not loaded. Call loadStyles() first.');
@@ -82,29 +164,7 @@ class AppStyles {
     return current;
   }
 
-  /// Get a Color from the schema path
-  /// Supports:
-  /// - Hex colors: "#FFFFFF"
-  /// - RGB/RGBA strings: "rgb(255, 255, 255)" or "rgba(255, 255, 255, 0.5)"
-  /// - HSL/HSLA strings: "hsl(120, 100%, 50%)" or "hsla(120, 100%, 50%, 0.5)"
-  Color getColor(String path) {
-    final value = getValue(path);
-    
-    if (value is String) {
-      if (value.startsWith('#')) {
-        // Hex color
-        return _parseHexColor(value);
-      } else if (value.toLowerCase().startsWith('hsl')) {
-        // HSL or HSLA color
-        return _parseHslColor(value);
-      } else if (value.toLowerCase().startsWith('rgb')) {
-        // RGB or RGBA color (CSS-style)
-        return _parseRgbColor(value);
-      }
-    }
 
-    throw Exception('Invalid color format at path "$path": $value');
-  }
 
   /// Parse hex color string to Color
   Color _parseHexColor(String hex) {
@@ -222,19 +282,8 @@ class AppStyles {
     return hslColor.toColor();
   }
 
-  /// Get a LinearGradient from the schema path
-  /// Expected format:
-  /// {
-  ///   "begin": { "position": "top_left", "color": "#FFFFFF" },
-  ///   "end": { "position": "bottom_right", "color": "#000000" }
-  /// }
-  LinearGradient getLinearGradient(String path) {
-    final value = getValue(path);
-    
-    if (value is! Map<String, dynamic>) {
-      throw Exception('Invalid linear_gradient format at path "$path"');
-    }
-
+  /// Parse LinearGradient from map
+  LinearGradient _parseLinearGradient(Map<String, dynamic> value, String path) {
     final beginData = value['begin'] as Map<String, dynamic>?;
     final endData = value['end'] as Map<String, dynamic>?;
 
@@ -243,10 +292,20 @@ class AppStyles {
     }
 
     final beginPosition = _parseAlignmentPosition(beginData['position'] as String);
-    final beginColor = _parseColorFromValue(beginData['color']);
+    final beginColor = _parseColor(
+      beginData['color'] is String && (beginData['color'] as String).startsWith('--')
+          ? _resolveConstantValue(beginData['color'])
+          : beginData['color'],
+      path,
+    );
     
     final endPosition = _parseAlignmentPosition(endData['position'] as String);
-    final endColor = _parseColorFromValue(endData['color']);
+    final endColor = _parseColor(
+      endData['color'] is String && (endData['color'] as String).startsWith('--')
+          ? _resolveConstantValue(endData['color'])
+          : endData['color'],
+      path,
+    );
 
     return LinearGradient(
       begin: beginPosition,
@@ -281,48 +340,11 @@ class AppStyles {
     }
   }
 
-  /// Parse color from a value (can be hex, rgb/rgba, or hsl/hsla string)
-  Color _parseColorFromValue(dynamic value) {
-    if (value is String && value.startsWith('--')) {
-      value = _resolveConstantValue(value);
-    }
-
-    if (value is String) {
-      if (value.startsWith('#')) {
-        return _parseHexColor(value);
-      } else if (value.toLowerCase().startsWith('hsl')) {
-        return _parseHslColor(value);
-      } else if (value.toLowerCase().startsWith('rgb')) {
-        return _parseRgbColor(value);
-      }
-    }
-
-    throw Exception('Invalid color value: $value');
-  }
-
-  /// Get font size from schema path
-  double getFontSize(String path) {
-    final value = getValue(path);
+  /// Helper to convert numeric value to FontWeight
+  FontWeight toFontWeight(dynamic value) {
+    final weight = value is int ? value : (value as double).toInt();
     
-    if (value is int) {
-      return value.toDouble();
-    } else if (value is double) {
-      return value;
-    }
-    
-    throw Exception('Invalid font_size format at path "$path": $value');
-  }
-
-  /// Get font weight from schema path
-  /// Accepts values: 100, 200, 300, 400, 500, 600, 700, 800, 900
-  FontWeight getFontWeight(String path) {
-    final value = getValue(path);
-    
-    if (value is! int) {
-      throw Exception('Invalid font_weight format at path "$path": $value');
-    }
-
-    switch (value) {
+    switch (weight) {
       case 100:
         return FontWeight.w100;
       case 200:
@@ -342,163 +364,30 @@ class AppStyles {
       case 900:
         return FontWeight.w900;
       default:
-        throw Exception('Invalid font_weight value at path "$path": $value. Must be 100-900 in increments of 100');
+        throw Exception('Invalid font_weight value: $weight. Must be 100-900 in increments of 100');
     }
   }
 
-  /// Get opacity from schema path (0-100)
-  /// Returns value between 0.0 and 1.0
-  double getOpacity(String path) {
-    final value = getValue(path);
-    
-    if (value is int) {
-      if (value < 0 || value > 100) {
-        throw Exception('opacity must be between 0-100 at path "$path": $value');
-      }
-      return value / 100.0;
-    } else if (value is double) {
-      if (value < 0 || value > 100) {
-        throw Exception('opacity must be between 0-100 at path "$path": $value');
-      }
-      return value / 100.0;
-    }
-    
-    throw Exception('Invalid opacity format at path "$path": $value');
+  /// Helper to convert value to double
+  double toDouble(dynamic value) {
+    if (value is int) return value.toDouble();
+    if (value is double) return value;
+    throw Exception('Cannot convert $value to double');
   }
 
-  /// Get width from schema path (positive integer >= 1)
-  double getWidth(String path) {
-    final value = getValue(path);
-    
-    if (value is int) {
-      if (value < 1) {
-        throw Exception('width must be >= 1 at path "$path": $value');
-      }
-      return value.toDouble();
-    } else if (value is double) {
-      if (value < 1) {
-        throw Exception('width must be >= 1 at path "$path": $value');
-      }
-      return value;
-    }
-    
-    throw Exception('Invalid width format at path "$path": $value');
-  }
-
-  /// Get height from schema path (positive integer >= 1)
-  double getHeight(String path) {
-    final value = getValue(path);
-    
-    if (value is int) {
-      if (value < 1) {
-        throw Exception('height must be >= 1 at path "$path": $value');
-      }
-      return value.toDouble();
-    } else if (value is double) {
-      if (value < 1) {
-        throw Exception('height must be >= 1 at path "$path": $value');
-      }
-      return value;
-    }
-    
-    throw Exception('Invalid height format at path "$path": $value');
-  }
-
-  /// Get stroke weight from schema path (positive integer >= 1)
-  /// Used for strokeWidth style parameter
-  double getStrokeWeight(String path) {
-    final value = getValue(path);
-    
-    if (value is int) {
-      if (value < 1) {
-        throw Exception('stroke_weight must be >= 1 at path "$path": $value');
-      }
-      return value.toDouble();
-    } else if (value is double) {
-      if (value < 1) {
-        throw Exception('stroke_weight must be >= 1 at path "$path": $value');
-      }
-      return value;
-    }
-    
-    throw Exception('Invalid stroke_weight format at path "$path": $value');
-  }
-
-  /// Get border radius from schema path
-  double getBorderRadius(String path) {
-    final value = getValue(path);
-    
-    if (value is int) {
-      return value.toDouble();
-    } else if (value is double) {
-      return value;
-    }
-    
-    throw Exception('Invalid border_radius format at path "$path": $value');
-  }
-
-  /// Get blur radius from schema path (positive integer >= 1)
-  /// Used for blurRadius style parameter in shadows and blur effects
-  double getBlurRadius(String path) {
-    final value = getValue(path);
-    
-    if (value is int) {
-      if (value < 1) {
-        throw Exception('blur_radius must be >= 1 at path "$path": $value');
-      }
-      return value.toDouble();
-    } else if (value is double) {
-      if (value < 1) {
-        throw Exception('blur_radius must be >= 1 at path "$path": $value');
-      }
-      return value;
-    }
-    
-    throw Exception('Invalid blur_radius format at path "$path": $value');
-  }
-
-  /// Get image path from schema path
-  String getImagePath(String path) {
-    final value = getValue(path);
-    
-    if (value is String) {
-      return value;
-    }
-    
-    throw Exception('Invalid image_path format at path "$path": $value');
-  }
-
-  /// Get a Color with opacity applied
-  /// First tries to get opacity from "{path}.opacity", then falls back to full opacity
-  Color getColorWithOpacity(String colorPath, {String? opacityPath}) {
-    final color = getColor(colorPath);
-    
-    if (opacityPath != null) {
-      try {
-        final opacity = getOpacity(opacityPath);
-        return color.withValues(alpha: opacity);
-      } catch (e) {
-        return color;
-      }
-    }
-    
-    // Try to get opacity from same parent path
-    try {
-      final pathParts = colorPath.split('.');
-      pathParts.removeLast(); // Remove 'color'
-      pathParts.add('opacity');
-      final defaultOpacityPath = pathParts.join('.');
-      final opacity = getOpacity(defaultOpacityPath);
-      return color.withValues(alpha: opacity);
-    } catch (e) {
-      return color;
-    }
+  /// Helper to get color with opacity applied
+  Color withOpacity(String colorPath, String opacityPath) {
+    final color = getStyles(colorPath) as Color;
+    final opacityValue = getStyles(opacityPath);
+    final opacity = opacityValue is int ? opacityValue / 100.0 : opacityValue as double;
+    final a = (opacity.clamp(0.0, 1.0) * 255).round().clamp(0, 255);
+    return color.withAlpha(a);
   }
 
   /// Check if a path exists in the schema
   bool hasPath(String path) {
     try {
-      getValue(path);
+      getStyles(path);
       return true;
     } catch (e) {
       return false;
