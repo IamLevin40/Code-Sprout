@@ -162,7 +162,7 @@ class _SettingsPageState extends State<SettingsPage> {
       barrierDismissible: false,
       builder: (context) => Dialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(styles.getBorderRadius('register_page.success_dialog.border_radius')),
+          borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('register_page.success_dialog.border_radius'))),
         ),
         child: Padding(
           padding: const EdgeInsets.all(28.0),
@@ -172,29 +172,29 @@ class _SettingsPageState extends State<SettingsPage> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: styles.getColor('register_page.success_dialog.background.color'),
+                  color: styles.getStyles('register_page.success_dialog.background_color') as Color,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.check_circle,
-                  color: styles.getColor('register_page.success_dialog.icon.color'),
-                  size: styles.getWidth('settings_page.success_dialog.icon.width'),
+                  color: styles.getStyles('register_page.success_dialog.icon.color') as Color,
+                  size: styles.toDouble(styles.getStyles('settings_page.success_dialog.icon.width')),
                 ),
               ),
               const SizedBox(height: 20),
               Text(
                 'Saved!',
                 style: TextStyle(
-                  fontSize: styles.getFontSize('register_page.success_dialog.title.font_size'),
-                  fontWeight: styles.getFontWeight('register_page.success_dialog.title.font_weight'),
+                  fontSize: styles.toDouble(styles.getStyles('register_page.success_dialog.title.font_size')),
+                  fontWeight: styles.toFontWeight(styles.getStyles('register_page.success_dialog.title.font_weight')),
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Your changes were saved successfully.',
                 style: TextStyle(
-                  fontSize: styles.getFontSize('register_page.success_dialog.message.font_size'),
-                  color: styles.getColor('register_page.success_dialog.message.color'),
+                  fontSize: styles.toDouble(styles.getStyles('register_page.success_dialog.message.font_size')),
+                  color: styles.getStyles('register_page.success_dialog.message.color') as Color,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -206,19 +206,19 @@ class _SettingsPageState extends State<SettingsPage> {
                     Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: styles.getColor('register_page.success_dialog.button.background.color'),
-                    foregroundColor: styles.getColor('register_page.success_dialog.button.text.color'),
+                    backgroundColor: styles.getStyles('register_page.success_dialog.button.background_color') as Color,
+                    foregroundColor: styles.getStyles('register_page.success_dialog.button.text.color') as Color,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(styles.getBorderRadius('register_page.success_dialog.button.border_radius')),
+                      borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('register_page.success_dialog.button.border_radius'))),
                     ),
                     elevation: 0,
                   ),
                   child: Text(
                     'OK',
                     style: TextStyle(
-                      fontSize: styles.getFontSize('register_page.success_dialog.button.text.font_size'),
-                      fontWeight: styles.getFontWeight('register_page.success_dialog.button.text.font_weight'),
+                      fontSize: styles.toDouble(styles.getStyles('register_page.success_dialog.button.text.font_size')),
+                      fontWeight: styles.toFontWeight(styles.getStyles('register_page.success_dialog.button.text.font_weight')),
                     ),
                   ),
                 ),
@@ -236,7 +236,7 @@ class _SettingsPageState extends State<SettingsPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: styles.getColor('home_page.logout_button.background.color'),
+        backgroundColor: styles.getStyles('home_page.logout_button.background_color') as Color,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 3),
       ),
@@ -251,8 +251,8 @@ class _SettingsPageState extends State<SettingsPage> {
     final content = _isLoading
         ? Center(
             child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(styles.getColor('appbar.background.linear_gradient.begin.color')),
-              strokeWidth: styles.getStrokeWeight('settings_page.loading_indicator.stroke_weight'),
+              valueColor: AlwaysStoppedAnimation<Color>(styles.getStyles('settings_page.title.color') as Color),
+              strokeWidth: styles.toDouble(styles.getStyles('settings_page.loading_indicator.stroke_weight')),
             ),
           )
         : SingleChildScrollView(
@@ -266,18 +266,18 @@ class _SettingsPageState extends State<SettingsPage> {
                     Text(
                       'User Data Configuration',
                       style: TextStyle(
-                        fontSize: styles.getFontSize('settings_page.title.font_size'),
-                        fontWeight: styles.getFontWeight('settings_page.title.font_weight'),
-                        color: styles.getColor('settings_page.title.color'),
+                        fontSize: styles.toDouble(styles.getStyles('settings_page.title.font_size')),
+                        fontWeight: styles.toFontWeight(styles.getStyles('settings_page.title.font_weight')),
+                        color: styles.getStyles('settings_page.title.color') as Color,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'Dynamically generated from schema',
                       style: TextStyle(
-                        fontSize: styles.getFontSize('settings_page.subtitle.font_size'),
-                        fontWeight: styles.getFontWeight('settings_page.subtitle.font_weight'),
-                        color: styles.getColor('settings_page.subtitle.color'),
+                        fontSize: styles.toDouble(styles.getStyles('settings_page.subtitle.font_size')),
+                        fontWeight: styles.toFontWeight(styles.getStyles('settings_page.subtitle.font_weight')),
+                        color: styles.getStyles('settings_page.subtitle.color') as Color,
                       ),
                     ),
                     const SizedBox(height: 32),
@@ -293,11 +293,11 @@ class _SettingsPageState extends State<SettingsPage> {
                       child: ElevatedButton(
                         onPressed: _isSaving ? null : _saveUserData,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: styles.getColor('settings_page.save_button.background.color'),
-                          foregroundColor: styles.getColor('settings_page.save_button.text.color'),
+                          backgroundColor: styles.getStyles('settings_page.save_button.background_color') as Color,
+                          foregroundColor: styles.getStyles('settings_page.save_button.text.color') as Color,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.save_button.border_radius')),
+                            borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.save_button.border_radius'))),
                           ),
                           elevation: 0,
                         ),
@@ -307,20 +307,20 @@ class _SettingsPageState extends State<SettingsPage> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   SizedBox(
-                                    width: styles.getWidth('settings_page.save_button.progress_indicator.width'),
-                                    height: styles.getHeight('settings_page.save_button.progress_indicator.height'),
+                                    width: styles.toDouble(styles.getStyles('settings_page.save_button.progress_indicator.width')),
+                                    height: styles.toDouble(styles.getStyles('settings_page.save_button.progress_indicator.height')),
                                     child: CircularProgressIndicator(
-                                      strokeWidth: styles.getStrokeWeight('settings_page.save_button.progress_indicator.stroke_weight'),
+                                      strokeWidth: styles.toDouble(styles.getStyles('settings_page.save_button.progress_indicator.stroke_weight')),
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                          styles.getColor('settings_page.save_button.text.color')),
+                                          styles.getStyles('settings_page.save_button.text.color') as Color),
                                     ),
                                   ),
                                   const SizedBox(width: 12),
                                   Text(
                                     'Saving...',
                                     style: TextStyle(
-                                      fontSize: styles.getFontSize('settings_page.save_button.text.font_size'),
-                                      fontWeight: styles.getFontWeight('settings_page.save_button.text.font_weight'),
+                                      fontSize: styles.toDouble(styles.getStyles('settings_page.save_button.text.font_size')),
+                                      fontWeight: styles.toFontWeight(styles.getStyles('settings_page.save_button.text.font_weight')),
                                     ),
                                   ),
                                 ],
@@ -328,8 +328,8 @@ class _SettingsPageState extends State<SettingsPage> {
                             : Text(
                                 'Save Changes',
                                 style: TextStyle(
-                                  fontSize: styles.getFontSize('settings_page.save_button.text.font_size'),
-                                  fontWeight: styles.getFontWeight('settings_page.save_button.text.font_weight'),
+                                  fontSize: styles.toDouble(styles.getStyles('settings_page.save_button.text.font_size')),
+                                  fontWeight: styles.toFontWeight(styles.getStyles('settings_page.save_button.text.font_weight')),
                                 ),
                               ),
                       ),
@@ -340,27 +340,27 @@ class _SettingsPageState extends State<SettingsPage> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: styles.getColor('settings_page.info_container.background.color'),
-                        borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.info_container.border_radius')),
+                        color: styles.getStyles('settings_page.info_container.background_color') as Color,
+                        borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.info_container.border_radius'))),
                         border: Border.all(
-                          color: styles.getColor('settings_page.info_container.border.color'),
-                          width: styles.getWidth('settings_page.info_container.border.width'),
+                          color: styles.getStyles('settings_page.info_container.border.color') as Color,
+                          width: styles.toDouble(styles.getStyles('settings_page.info_container.border.width')),
                         ),
                       ),
                       child: Row(
                         children: [
                           Icon(
                             Icons.info_outline,
-                            color: styles.getColor('settings_page.info_container.icon.color'),
-                            size: styles.getWidth('settings_page.info_container.icon.width'),
+                            color: styles.getStyles('settings_page.info_container.icon.color') as Color,
+                            size: styles.toDouble(styles.getStyles('settings_page.info_container.icon.width')),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
                               'UI is generated from schema. Update assets/schemas/user_data_schema.txt to modify structure.',
                               style: TextStyle(
-                                fontSize: styles.getFontSize('settings_page.info_container.text.font_size'),
-                                color: styles.getColor('settings_page.info_container.text.color'),
+                                fontSize: styles.toDouble(styles.getStyles('settings_page.info_container.text.font_size')),
+                                color: styles.getStyles('settings_page.info_container.text.color') as Color,
                               ),
                             ),
                           ),
@@ -374,26 +374,26 @@ class _SettingsPageState extends State<SettingsPage> {
 
     if (widget.showAppBar) {
       return Scaffold(
-        backgroundColor: styles.getColor('common.background.color'),
+        backgroundColor: styles.getStyles('global.background.color') as Color,
         appBar: AppBar(
           title: Text(
             'Settings',
-            style: TextStyle(
-              fontWeight: styles.getFontWeight('appbar.title.font_weight'),
-              color: styles.getColor('appbar.title.color'),
-              fontSize: styles.getFontSize('appbar.title.font_size'),
+              style: TextStyle(
+              fontWeight: styles.toFontWeight(styles.getStyles('header.title.font_weight')),
+              color: styles.getStyles('header.title.color') as Color,
+              fontSize: styles.toDouble(styles.getStyles('header.title.font_size')),
             ),
           ),
           centerTitle: true,
-          flexibleSpace: Container(
+              flexibleSpace: Container(
             decoration: BoxDecoration(
-              gradient: styles.getLinearGradient('appbar.background.linear_gradient'),
+              color: styles.getStyles('header.background_color') as Color,
             ),
           ),
           elevation: 0,
           actions: [
             IconButton(
-              icon: Icon(Icons.refresh, color: styles.getColor('appbar.icon.color')),
+              icon: Icon(Icons.refresh, color: styles.getStyles('header.icon.color') as Color),
               tooltip: 'Reload Schema',
               onPressed: () async {
                 setState(() {
@@ -405,7 +405,7 @@ class _SettingsPageState extends State<SettingsPage> {
               },
             ),
             IconButton(
-              icon: Icon(Icons.logout, color: styles.getColor('appbar.icon.color')),
+              icon: Icon(Icons.logout, color: styles.getStyles('header.icon.color') as Color),
               tooltip: 'Logout',
               onPressed: () => _showLogoutDialog(context, authService),
             ),
@@ -415,7 +415,7 @@ class _SettingsPageState extends State<SettingsPage> {
       );
     }
 
-    return Container(color: styles.getColor('common.background.color'), child: content);
+    return Container(color: styles.getStyles('global.background.color') as Color, child: content);
   }
 
   List<Widget> _buildSections() {
@@ -445,20 +445,20 @@ class _SettingsPageState extends State<SettingsPage> {
     return Row(
       children: [
         Container(
-          width: styles.getWidth('settings_page.section_header.indicator.width'),
-          height: styles.getHeight('settings_page.section_header.indicator.height'),
+          width: styles.toDouble(styles.getStyles('settings_page.section_header.indicator.width')),
+          height: styles.toDouble(styles.getStyles('settings_page.section_header.indicator.height')),
           decoration: BoxDecoration(
-            gradient: styles.getLinearGradient('settings_page.section_header.indicator.linear_gradient'),
-            borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.section_header.indicator.border_radius')),
+            gradient: styles.getStyles('settings_page.section_header.indicator') as LinearGradient,
+            borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.section_header.indicator.border_radius'))),
           ),
         ),
         const SizedBox(width: 12),
         Text(
           displayTitle,
           style: TextStyle(
-            fontSize: styles.getFontSize('settings_page.section_header.title.font_size'),
-            fontWeight: styles.getFontWeight('settings_page.section_header.title.font_weight'),
-            color: styles.getColor('settings_page.section_header.title.color'),
+            fontSize: styles.toDouble(styles.getStyles('settings_page.section_header.title.font_size')),
+            fontWeight: styles.toFontWeight(styles.getStyles('settings_page.section_header.title.font_weight')),
+            color: styles.getStyles('settings_page.section_header.title.color') as Color,
           ),
         ),
       ],
@@ -475,19 +475,19 @@ class _SettingsPageState extends State<SettingsPage> {
       margin: const EdgeInsets.only(left: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: styles.getColor('settings_page.section_card.background.color'),
-        borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.section_card.border_radius')),
+        color: styles.getStyles('settings_page.section_card.background_color') as Color,
+        borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.section_card.border_radius'))),
         border: Border.all(
-          color: styles.getColor('settings_page.section_card.border.color'),
-          width: styles.getWidth('settings_page.section_card.border.width'),
+          color: styles.getStyles('settings_page.section_card.border.color') as Color,
+          width: styles.toDouble(styles.getStyles('settings_page.section_card.border.width')),
         ),
         boxShadow: [
           BoxShadow(
-            color: styles.getColorWithOpacity(
+            color: styles.withOpacity(
               'settings_page.section_card.shadow.color',
-              opacityPath: 'settings_page.section_card.shadow.opacity',
+              'settings_page.section_card.shadow.opacity',
             ),
-            blurRadius: styles.getBlurRadius('settings_page.section_card.shadow.blur_radius'),
+            blurRadius: styles.toDouble(styles.getStyles('settings_page.section_card.shadow.blur_radius')),
             offset: const Offset(0, 2),
           ),
         ],
@@ -526,11 +526,11 @@ class _SettingsPageState extends State<SettingsPage> {
           margin: EdgeInsets.only(left: (depth + 1) * 16.0),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: styles.getColor('settings_page.nested_container.background.color'),
-            borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.nested_container.border_radius')),
+            color: styles.getStyles('settings_page.nested_container.background_color') as Color,
+            borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.nested_container.border_radius'))),
             border: Border.all(
-              color: styles.getColor('settings_page.nested_container.border.color'),
-              width: styles.getWidth('settings_page.nested_container.border.width'),
+              color: styles.getStyles('settings_page.nested_container.border.color') as Color,
+              width: styles.toDouble(styles.getStyles('settings_page.nested_container.border.width')),
             ),
           ),
           child: Column(
@@ -543,8 +543,8 @@ class _SettingsPageState extends State<SettingsPage> {
       if (i < keys.length - 1) {
         final styles = AppStyles();
         widgets.add(Divider(
-          height: styles.getHeight('settings_page.divider.height'),
-          color: styles.getColor('settings_page.divider.color'),
+          height: styles.toDouble(styles.getStyles('settings_page.divider.height')),
+          color: styles.getStyles('settings_page.divider.color') as Color,
         ));
       }
     }
@@ -560,35 +560,35 @@ class _SettingsPageState extends State<SettingsPage> {
         children: [
           Icon(
             Icons.folder_outlined,
-            size: styles.getWidth('settings_page.nested_map_header.icon.width'),
-            color: styles.getColor('settings_page.nested_map_header.icon.color'),
+            size: styles.toDouble(styles.getStyles('settings_page.nested_map_header.icon.width')),
+            color: styles.getStyles('settings_page.nested_map_header.icon.color') as Color,
           ),
           const SizedBox(width: 8),
           Text(
             _camelCaseToTitle(name),
             style: TextStyle(
-              fontSize: styles.getFontSize('settings_page.nested_map_header.title.font_size'),
-              fontWeight: styles.getFontWeight('settings_page.nested_map_header.title.font_weight'),
-              color: styles.getColor('settings_page.nested_map_header.title.color'),
+              fontSize: styles.toDouble(styles.getStyles('settings_page.nested_map_header.title.font_size')),
+              fontWeight: styles.toFontWeight(styles.getStyles('settings_page.nested_map_header.title.font_weight')),
+              color: styles.getStyles('settings_page.nested_map_header.title.color') as Color,
             ),
           ),
           const SizedBox(width: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: styles.getColor('settings_page.nested_map_header.badge.background.color'),
-              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.nested_map_header.badge.border_radius')),
+              color: styles.getStyles('settings_page.nested_map_header.badge.background_color') as Color,
+              borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.nested_map_header.badge.border_radius'))),
               border: Border.all(
-                color: styles.getColor('settings_page.nested_map_header.badge.border.color'),
-                width: styles.getWidth('settings_page.nested_map_header.badge.border.width'),
+                color: styles.getStyles('settings_page.nested_map_header.badge.border.color') as Color,
+                width: styles.toDouble(styles.getStyles('settings_page.nested_map_header.badge.border.width')),
               ),
             ),
             child: Text(
               'map',
               style: TextStyle(
-                fontSize: styles.getFontSize('settings_page.nested_map_header.badge.text.font_size'),
-                fontWeight: styles.getFontWeight('settings_page.nested_map_header.badge.text.font_weight'),
-                color: styles.getColor('settings_page.nested_map_header.badge.text.color'),
+                fontSize: styles.toDouble(styles.getStyles('settings_page.nested_map_header.badge.text.font_size')),
+                fontWeight: styles.toFontWeight(styles.getStyles('settings_page.nested_map_header.badge.text.font_weight')),
+                color: styles.getStyles('settings_page.nested_map_header.badge.text.color') as Color,
               ),
             ),
           ),
@@ -646,38 +646,38 @@ class _SettingsPageState extends State<SettingsPage> {
             hintText: 'Enter ${_camelCaseToTitle(fieldName).toLowerCase()}',
             prefixIcon: Icon(
               _getIconForField(fieldName),
-              color: styles.getColor('settings_page.text_field.icon.color'),
+              color: styles.getStyles('settings_page.text_field.icon.color') as Color,
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.text_field.border_radius')),
+              borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.text_field.border_radius'))),
               borderSide: BorderSide(
-                color: styles.getColor('settings_page.text_field.border.color'),
-                width: styles.getWidth('settings_page.text_field.border.width'),
+                color: styles.getStyles('settings_page.text_field.border.color') as Color,
+                width: styles.toDouble(styles.getStyles('settings_page.text_field.border.width')),
               ),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.text_field.border_radius')),
+              borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.text_field.border_radius'))),
               borderSide: BorderSide(
-                color: styles.getColor('settings_page.text_field.border.color'),
-                width: styles.getWidth('settings_page.text_field.border.width'),
+                color: styles.getStyles('settings_page.text_field.border.color') as Color,
+                width: styles.toDouble(styles.getStyles('settings_page.text_field.border.width')),
               ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.text_field.border_radius')),
+              borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.text_field.border_radius'))),
               borderSide: BorderSide(
-                color: styles.getColor('settings_page.text_field.focused_border.color'),
-                width: styles.getWidth('settings_page.text_field.focused_border.width'),
+                color: styles.getStyles('settings_page.text_field.focused_border.color') as Color,
+                width: styles.toDouble(styles.getStyles('settings_page.text_field.focused_border.width')),
               ),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.text_field.border_radius')),
+              borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.text_field.border_radius'))),
               borderSide: BorderSide(
-                color: styles.getColor('settings_page.text_field.error_border.color'),
-                width: styles.getWidth('settings_page.text_field.error_border.width'),
+                color: styles.getStyles('settings_page.text_field.error_border.color') as Color,
+                width: styles.toDouble(styles.getStyles('settings_page.text_field.error_border.width')),
               ),
             ),
             filled: true,
-            fillColor: styles.getColor('settings_page.text_field.background.color'),
+            fillColor: styles.getStyles('settings_page.text_field.background_color') as Color,
           ),
           validator: (value) {
             if (field.isRequired && (value == null || value.trim().isEmpty)) {
@@ -707,38 +707,38 @@ class _SettingsPageState extends State<SettingsPage> {
             hintText: 'Enter ${_camelCaseToTitle(fieldName).toLowerCase()}',
             prefixIcon: Icon(
               Icons.numbers,
-              color: styles.getColor('settings_page.text_field.icon.color'),
+              color: styles.getStyles('settings_page.text_field.icon.color') as Color,
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.text_field.border_radius')),
+              borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.text_field.border_radius'))),
               borderSide: BorderSide(
-                color: styles.getColor('settings_page.text_field.border.color'),
-                width: styles.getWidth('settings_page.text_field.border.width'),
+                color: styles.getStyles('settings_page.text_field.border.color') as Color,
+                width: styles.toDouble(styles.getStyles('settings_page.text_field.border.width')),
               ),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.text_field.border_radius')),
+              borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.text_field.border_radius'))),
               borderSide: BorderSide(
-                color: styles.getColor('settings_page.text_field.border.color'),
-                width: styles.getWidth('settings_page.text_field.border.width'),
+                color: styles.getStyles('settings_page.text_field.border.color') as Color,
+                width: styles.toDouble(styles.getStyles('settings_page.text_field.border.width')),
               ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.text_field.border_radius')),
+              borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.text_field.border_radius'))),
               borderSide: BorderSide(
-                color: styles.getColor('settings_page.text_field.focused_border.color'),
-                width: styles.getWidth('settings_page.text_field.focused_border.width'),
+                color: styles.getStyles('settings_page.text_field.focused_border.color') as Color,
+                width: styles.toDouble(styles.getStyles('settings_page.text_field.focused_border.width')),
               ),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.text_field.border_radius')),
+              borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.text_field.border_radius'))),
               borderSide: BorderSide(
-                color: styles.getColor('settings_page.text_field.error_border.color'),
-                width: styles.getWidth('settings_page.text_field.error_border.width'),
+                color: styles.getStyles('settings_page.text_field.error_border.color') as Color,
+                width: styles.toDouble(styles.getStyles('settings_page.text_field.error_border.width')),
               ),
             ),
             filled: true,
-            fillColor: styles.getColor('settings_page.text_field.background.color'),
+            fillColor: styles.getStyles('settings_page.text_field.background_color') as Color,
           ),
           validator: (value) {
             if (field.isRequired && (value == null || value.trim().isEmpty)) {
@@ -773,8 +773,8 @@ class _SettingsPageState extends State<SettingsPage> {
               Text(
                 value ? 'true' : 'false',
                 style: TextStyle(
-                  fontSize: styles.getFontSize('settings_page.switch_field.value_text.font_size'),
-                  color: styles.getColor('settings_page.switch_field.value_text.color'),
+                  fontSize: styles.toDouble(styles.getStyles('settings_page.switch_field.value_text.font_size')),
+                  color: styles.getStyles('settings_page.switch_field.value_text.color') as Color,
                   fontStyle: FontStyle.italic,
                 ),
               ),
@@ -788,7 +788,7 @@ class _SettingsPageState extends State<SettingsPage> {
               _fieldValues[path] = newValue;
             });
           },
-          activeTrackColor: styles.getColor('settings_page.switch_field.active_track_color'),
+          activeTrackColor: styles.getStyles('settings_page.switch_field.active_track_color') as Color,
         ),
       ],
     );
@@ -826,21 +826,21 @@ class _SettingsPageState extends State<SettingsPage> {
             }
           },
           child: Container(
-            padding: EdgeInsets.all(styles.getBorderRadius('settings_page.timestamp_field.padding')),
+            padding: EdgeInsets.all(styles.toDouble(styles.getStyles('settings_page.timestamp_field.padding'))),
             decoration: BoxDecoration(
-              color: styles.getColor('settings_page.timestamp_field.background.color'),
-              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.timestamp_field.border_radius')),
+              color: styles.getStyles('settings_page.timestamp_field.background_color') as Color,
+              borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.timestamp_field.border_radius'))),
               border: Border.all(
-                color: styles.getColor('settings_page.timestamp_field.border.color'),
-                width: styles.getWidth('settings_page.timestamp_field.border.width'),
+                color: styles.getStyles('settings_page.timestamp_field.border.color') as Color,
+                width: styles.toDouble(styles.getStyles('settings_page.timestamp_field.border.width')),
               ),
             ),
             child: Row(
               children: [
                 Icon(
                   Icons.calendar_today,
-                  color: styles.getColor('settings_page.timestamp_field.icon.color'),
-                  size: styles.getWidth('settings_page.timestamp_field.icon.size'),
+                  color: styles.getStyles('settings_page.timestamp_field.icon.color') as Color,
+                  size: styles.toDouble(styles.getStyles('settings_page.timestamp_field.icon.size')),
                 ),
                 const SizedBox(width: 4),
                 Text(
@@ -848,10 +848,10 @@ class _SettingsPageState extends State<SettingsPage> {
                       ? '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}'
                       : 'Select date',
                   style: TextStyle(
-                    fontSize: styles.getFontSize('settings_page.timestamp_field.text.font_size'),
+                    fontSize: styles.toDouble(styles.getStyles('settings_page.timestamp_field.text.font_size')),
                     color: dateTime != null 
-                        ? styles.getColor('settings_page.timestamp_field.text.color') 
-                        : styles.getColor('settings_page.timestamp_field.text.placeholder_color'),
+                        ? styles.getStyles('settings_page.timestamp_field.text.color') as Color
+                        : styles.getStyles('settings_page.timestamp_field.text.placeholder_color') as Color,
                   ),
                 ),
               ],
@@ -872,20 +872,20 @@ class _SettingsPageState extends State<SettingsPage> {
         _buildFieldLabel(fieldName, field.dataType, field.isRequired),
         const SizedBox(height: 8),
         Container(
-          padding: EdgeInsets.all(styles.getBorderRadius('settings_page.generic_field.padding')),
+          padding: EdgeInsets.all(styles.toDouble(styles.getStyles('settings_page.generic_field.padding'))),
           decoration: BoxDecoration(
-            color: styles.getColor('settings_page.generic_field.background.color'),
-            borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.generic_field.border_radius')),
+            color: styles.getStyles('settings_page.generic_field.background_color') as Color,
+            borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.generic_field.border_radius'))),
             border: Border.all(
-              color: styles.getColor('settings_page.generic_field.border.color'),
-              width: styles.getWidth('settings_page.generic_field.border.width'),
+              color: styles.getStyles('settings_page.generic_field.border.color') as Color,
+              width: styles.toDouble(styles.getStyles('settings_page.generic_field.border.width')),
             ),
           ),
           child: Text(
             value?.toString() ?? 'null',
             style: TextStyle(
-              fontSize: styles.getFontSize('settings_page.generic_field.value_text.font_size'),
-              color: styles.getColor('settings_page.generic_field.value_text.color'),
+              fontSize: styles.toDouble(styles.getStyles('settings_page.generic_field.value_text.font_size')),
+              color: styles.getStyles('settings_page.generic_field.value_text.color') as Color,
               fontStyle: FontStyle.italic,
             ),
           ),
@@ -894,8 +894,8 @@ class _SettingsPageState extends State<SettingsPage> {
         Text(
           'Type "${field.dataType}" is not editable in this UI',
           style: TextStyle(
-            fontSize: styles.getFontSize('settings_page.generic_field.note_text.font_size'),
-            color: styles.getColor('settings_page.generic_field.note_text.color'),
+            fontSize: styles.toDouble(styles.getStyles('settings_page.generic_field.note_text.font_size')),
+            color: styles.getStyles('settings_page.generic_field.note_text.color') as Color,
           ),
         ),
       ],
@@ -916,38 +916,38 @@ class _SettingsPageState extends State<SettingsPage> {
           decoration: InputDecoration(
             prefixIcon: Icon(
               _getIconForField(fieldName),
-              color: styles.getColor('settings_page.dropdown_field.icon.color'),
+              color: styles.getStyles('settings_page.dropdown_field.icon.color') as Color,
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.dropdown_field.border_radius')),
+              borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.dropdown_field.border_radius'))),
               borderSide: BorderSide(
-                color: styles.getColor('settings_page.dropdown_field.border.color'),
-                width: styles.getWidth('settings_page.dropdown_field.border.width'),
+                color: styles.getStyles('settings_page.dropdown_field.border.color') as Color,
+                width: styles.toDouble(styles.getStyles('settings_page.dropdown_field.border.width')),
               ),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.dropdown_field.border_radius')),
+              borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.dropdown_field.border_radius'))),
               borderSide: BorderSide(
-                color: styles.getColor('settings_page.dropdown_field.border.color'),
-                width: styles.getWidth('settings_page.dropdown_field.border.width'),
+                color: styles.getStyles('settings_page.dropdown_field.border.color') as Color,
+                width: styles.toDouble(styles.getStyles('settings_page.dropdown_field.border.width')),
               ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.dropdown_field.border_radius')),
+              borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.dropdown_field.border_radius'))),
               borderSide: BorderSide(
-                color: styles.getColor('settings_page.dropdown_field.focused_border.color'),
-                width: styles.getWidth('settings_page.dropdown_field.focused_border.width'),
+                color: styles.getStyles('settings_page.dropdown_field.focused_border.color') as Color,
+                width: styles.toDouble(styles.getStyles('settings_page.dropdown_field.focused_border.width')),
               ),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.dropdown_field.border_radius')),
+              borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.dropdown_field.border_radius'))),
               borderSide: BorderSide(
-                color: styles.getColor('settings_page.dropdown_field.error_border.color'),
-                width: styles.getWidth('settings_page.dropdown_field.error_border.width'),
+                color: styles.getStyles('settings_page.dropdown_field.error_border.color') as Color,
+                width: styles.toDouble(styles.getStyles('settings_page.dropdown_field.error_border.width')),
               ),
             ),
             filled: true,
-            fillColor: styles.getColor('settings_page.dropdown_field.background.color'),
+            fillColor: styles.getStyles('settings_page.dropdown_field.background_color') as Color,
           ),
           items: field.enumValues!.map((String value) {
             return DropdownMenuItem<String>(
@@ -983,28 +983,28 @@ class _SettingsPageState extends State<SettingsPage> {
         Text(
           fieldName,
           style: TextStyle(
-            fontSize: styles.getFontSize('settings_page.field_label.font_size'),
-            fontWeight: styles.getFontWeight('settings_page.field_label.font_weight'),
-            color: styles.getColor('settings_page.field_label.color'),
+            fontSize: styles.toDouble(styles.getStyles('settings_page.field_label.font_size')),
+            fontWeight: styles.toFontWeight(styles.getStyles('settings_page.field_label.font_weight')),
+            color: styles.getStyles('settings_page.field_label.color') as Color,
           ),
         ),
         const SizedBox(width: 4),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           decoration: BoxDecoration(
-            color: styles.getColor('settings_page.field_label.type_badge.background.color'),
-            borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.field_label.type_badge.border_radius')),
+            color: styles.getStyles('settings_page.field_label.type_badge.background_color') as Color,
+            borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.field_label.type_badge.border_radius'))),
             border: Border.all(
-              color: styles.getColor('settings_page.field_label.type_badge.border.color'),
-              width: styles.getWidth('settings_page.field_label.type_badge.border.width'),
+              color: styles.getStyles('settings_page.field_label.type_badge.border.color') as Color,
+              width: styles.toDouble(styles.getStyles('settings_page.field_label.type_badge.border.width')),
             ),
           ),
           child: Text(
             dataType,
             style: TextStyle(
-              fontSize: styles.getFontSize('settings_page.field_label.type_badge.text.font_size'),
-              fontWeight: styles.getFontWeight('settings_page.field_label.type_badge.text.font_weight'),
-              color: styles.getColor('settings_page.field_label.type_badge.text.color'),
+              fontSize: styles.toDouble(styles.getStyles('settings_page.field_label.type_badge.text.font_size')),
+              fontWeight: styles.toFontWeight(styles.getStyles('settings_page.field_label.type_badge.text.font_weight')),
+              color: styles.getStyles('settings_page.field_label.type_badge.text.color') as Color,
             ),
           ),
         ),
@@ -1013,19 +1013,19 @@ class _SettingsPageState extends State<SettingsPage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: styles.getColor('settings_page.field_label.required_badge.background.color'),
-              borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.field_label.required_badge.border_radius')),
+              color: styles.getStyles('settings_page.field_label.required_badge.background_color') as Color,
+              borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.field_label.required_badge.border_radius'))),
               border: Border.all(
-                color: styles.getColor('settings_page.field_label.required_badge.border.color'),
-                width: styles.getWidth('settings_page.field_label.required_badge.border.width'),
+                color: styles.getStyles('settings_page.field_label.required_badge.border.color') as Color,
+                width: styles.toDouble(styles.getStyles('settings_page.field_label.required_badge.border.width')),
               ),
             ),
             child: Text(
               'required',
               style: TextStyle(
-                fontSize: styles.getFontSize('settings_page.field_label.required_badge.text.font_size'),
-                fontWeight: styles.getFontWeight('settings_page.field_label.required_badge.text.font_weight'),
-                color: styles.getColor('settings_page.field_label.required_badge.text.color'),
+                fontSize: styles.toDouble(styles.getStyles('settings_page.field_label.required_badge.text.font_size')),
+                fontWeight: styles.toFontWeight(styles.getStyles('settings_page.field_label.required_badge.text.font_weight')),
+                color: styles.getStyles('settings_page.field_label.required_badge.text.color') as Color,
               ),
             ),
           ),
@@ -1066,21 +1066,21 @@ class _SettingsPageState extends State<SettingsPage> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.logout_dialog.border_radius')),
+          borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.logout_dialog.border_radius'))),
         ),
         title: Text(
           'Logout',
           style: TextStyle(
-            fontSize: styles.getFontSize('settings_page.logout_dialog.title.font_size'),
-            fontWeight: styles.getFontWeight('settings_page.logout_dialog.title.font_weight'),
-            color: styles.getColor('settings_page.logout_dialog.title.color'),
+            fontSize: styles.toDouble(styles.getStyles('settings_page.logout_dialog.title.font_size')),
+            fontWeight: styles.toFontWeight(styles.getStyles('settings_page.logout_dialog.title.font_weight')),
+            color: styles.getStyles('settings_page.logout_dialog.title.color') as Color,
           ),
         ),
         content: Text(
           'Are you sure you want to logout?',
           style: TextStyle(
-            fontSize: styles.getFontSize('settings_page.logout_dialog.content.font_size'),
-            color: styles.getColor('settings_page.logout_dialog.content.color'),
+            fontSize: styles.toDouble(styles.getStyles('settings_page.logout_dialog.content.font_size')),
+            color: styles.getStyles('settings_page.logout_dialog.content.color') as Color,
           ),
         ),
         actions: [
@@ -1089,9 +1089,9 @@ class _SettingsPageState extends State<SettingsPage> {
             child: Text(
               'Cancel',
               style: TextStyle(
-                fontSize: styles.getFontSize('settings_page.logout_dialog.cancel_button.font_size'),
-                color: styles.getColor('settings_page.logout_dialog.cancel_button.color'),
-                fontWeight: styles.getFontWeight('settings_page.logout_dialog.cancel_button.font_weight'),
+                fontSize: styles.toDouble(styles.getStyles('settings_page.logout_dialog.cancel_button.font_size')),
+                color: styles.getStyles('settings_page.logout_dialog.cancel_button.color') as Color,
+                fontWeight: styles.toFontWeight(styles.getStyles('settings_page.logout_dialog.cancel_button.font_weight')),
               ),
             ),
           ),
@@ -1104,18 +1104,18 @@ class _SettingsPageState extends State<SettingsPage> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: styles.getColor('settings_page.logout_dialog.logout_button.background.color'),
-              foregroundColor: styles.getColor('settings_page.logout_dialog.logout_button.text.color'),
+              backgroundColor: styles.getStyles('settings_page.logout_dialog.logout_button.background_color') as Color,
+              foregroundColor: styles.getStyles('settings_page.logout_dialog.logout_button.text.color') as Color,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(styles.getBorderRadius('settings_page.logout_dialog.logout_button.border_radius')),
+                borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.logout_dialog.logout_button.border_radius'))),
               ),
               elevation: 0,
             ),
             child: Text(
               'Logout',
               style: TextStyle(
-                fontSize: styles.getFontSize('settings_page.logout_dialog.logout_button.font_size'),
-                fontWeight: styles.getFontWeight('settings_page.logout_dialog.logout_button.font_weight'),
+                fontSize: styles.toDouble(styles.getStyles('settings_page.logout_dialog.logout_button.font_size')),
+                fontWeight: styles.toFontWeight(styles.getStyles('settings_page.logout_dialog.logout_button.font_weight')),
               ),
             ),
           ),

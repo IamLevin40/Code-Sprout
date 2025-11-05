@@ -24,8 +24,8 @@ class _CoursePageState extends State<CoursePage> {
         Tab(text: 'Intermediate'),
         Tab(text: 'Advanced'),
       ],
-      indicatorColor: styles.getColor('appbar.title.color'),
-      labelStyle: TextStyle(fontWeight: styles.getFontWeight('tab.label.font_weight')),
+      indicatorColor: styles.getStyles('header.title.color') as Color,
+      labelStyle: TextStyle(fontWeight: styles.toFontWeight(styles.getStyles('tab.label.font_weight'))),
     );
 
     final tabViews = TabBarView(
@@ -38,31 +38,31 @@ class _CoursePageState extends State<CoursePage> {
             itemBuilder: (context, i) => Card(
               elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(styles.getBorderRadius('card.border_radius')),
-                side: BorderSide(color: styles.getColor('card.border.color')),
+                borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('card.border_radius'))),
+                side: BorderSide(color: styles.getStyles('card.border.color') as Color),
               ),
               child: ListTile(
                 leading: CircleAvatar(
-                  backgroundColor: styles.getColor('card.avatar.background.color'),
+                  backgroundColor: styles.getStyles('card.avatar.background_color') as Color,
                   child: Text(
                     _languages[i][0],
-                    style: TextStyle(color: styles.getColor('card.avatar.text.color')),
+                    style: TextStyle(color: styles.getStyles('card.avatar.text.color') as Color),
                   ),
                 ),
                 title: Text(
                   _languages[i],
                   style: TextStyle(
-                    fontSize: styles.getFontSize('course_page.list.title.font_size'),
-                    fontWeight: styles.getFontWeight('course_page.list.title.font_weight'),
+                    fontSize: styles.toDouble(styles.getStyles('course_page.list.title.font_size')),
+                    fontWeight: styles.toFontWeight(styles.getStyles('course_page.list.title.font_weight')),
                   ),
                 ),
                 subtitle: Text(
                   'A ${['Beginner', 'Intermediate', 'Advanced'][index]} level overview of ${_languages[i]}',
                   style: TextStyle(
-                    color: styles.getColor('course_page.list.subtitle.color'),
+                    color: styles.getStyles('course_page.list.subtitle.color') as Color,
                   ),
                 ),
-                trailing: Icon(Icons.chevron_right, color: styles.getColor('course_page.list.trailing.color')),
+                trailing: Icon(Icons.chevron_right, color: styles.getStyles('course_page.list.trailing.color') as Color),
                 onTap: () {
                   // Placeholder: in future navigate to a course detail page
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -80,20 +80,20 @@ class _CoursePageState extends State<CoursePage> {
       return DefaultTabController(
         length: 3,
         child: Scaffold(
-          backgroundColor: styles.getColor('common.background.color'),
+          backgroundColor: styles.getStyles('global.background.color') as Color,
           appBar: AppBar(
             title: Text(
               'Courses',
               style: TextStyle(
-                fontWeight: styles.getFontWeight('appbar.title.font_weight'),
-                color: styles.getColor('appbar.title.color'),
-                fontSize: styles.getFontSize('appbar.title.font_size'),
+                fontWeight: styles.toFontWeight(styles.getStyles('header.title.font_weight')),
+                color: styles.getStyles('header.title.color') as Color,
+                fontSize: styles.toDouble(styles.getStyles('header.title.font_size')),
               ),
             ),
             centerTitle: true,
             flexibleSpace: Container(
               decoration: BoxDecoration(
-                gradient: styles.getLinearGradient('appbar.background.linear_gradient'),
+                color: styles.getStyles('header.background_color') as Color,
               ),
             ),
             bottom: tabs,
@@ -108,7 +108,7 @@ class _CoursePageState extends State<CoursePage> {
       length: 3,
       child: Column(
         children: [
-          Container(color: styles.getColor('common.background.color'), child: tabs),
+          Container(color: styles.getStyles('global.background.color') as Color, child: tabs),
           Expanded(child: tabViews),
         ],
       ),

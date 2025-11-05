@@ -36,8 +36,8 @@ class _MainHeaderState extends State<MainHeader> {
     return Container(
       height: widget.preferredSize.height,
       decoration: BoxDecoration(
-        color: styles.getColor('header.background.color'),
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(styles.getBorderRadius('header.border_radius'))),
+        color: styles.getStyles('header.background_color') as Color,
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(styles.toDouble(styles.getStyles('header.border_radius')))),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       child: Row(
@@ -51,17 +51,17 @@ class _MainHeaderState extends State<MainHeader> {
                 Text(
                   'Good ${_greeting()}, ${_username.isNotEmpty ? _username : '<username>'}!',
                   style: TextStyle(
-                    color: styles.getColor('header.greeting.color'),
-                    fontSize: styles.getFontSize('header.greeting.font_size'),
-                    fontWeight: styles.getFontWeight('header.greeting.font_weight'),
+                    color: styles.getStyles('header.greeting.color') as Color,
+                    fontSize: styles.toDouble(styles.getStyles('header.greeting.font_size')),
+                    fontWeight: styles.toFontWeight(styles.getStyles('header.greeting.font_weight')),
                   ),
                 ),
                 Text(
                   "Let's Grow Together",
                   style: TextStyle(
-                    color: styles.getColor('header.title.color'),
-                    fontSize: styles.getFontSize('header.title.font_size'),
-                    fontWeight: styles.getFontWeight('header.title.font_weight'),
+                    color: styles.getStyles('header.title.color') as Color,
+                    fontSize: styles.toDouble(styles.getStyles('header.title.font_size')),
+                    fontWeight: styles.toFontWeight(styles.getStyles('header.title.font_weight')),
                   ),
                 ),
               ],
@@ -70,18 +70,18 @@ class _MainHeaderState extends State<MainHeader> {
 
           // Right image box
           Container(
-            width: styles.getWidth('header.icon.width'),
-            height: styles.getHeight('header.icon.height'),
+            width: styles.toDouble(styles.getStyles('header.icon.width')),
+            height: styles.toDouble(styles.getStyles('header.icon.height')),
             decoration: BoxDecoration(
-              color: styles.getColor('header.icon_background.color'),
-              borderRadius: BorderRadius.circular(styles.getBorderRadius('header.icon.border_radius')),
+              color: styles.getStyles('header.icon_background_color') as Color,
+              borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('header.icon.border_radius'))),
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(styles.getBorderRadius('header.icon.border_radius')),
+              borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('header.icon.border_radius'))),
               child: Padding(
                 padding: const EdgeInsets.all(4.0),
                 child: Image.asset(
-                  styles.getImagePath('header.icon.image_path'),
+                  styles.getStyles('header.icon.image') as String,
                   fit: BoxFit.contain,
                 ),
               ),
