@@ -233,7 +233,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      gradient: styles.getStyles('register_page.logo_container.linear_gradient') as LinearGradient,
+                      gradient: styles.getStyles('register_page.logo_container.background_color') as LinearGradient,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(

@@ -75,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      gradient: styles.getStyles('login_page.logo_container.linear_gradient') as LinearGradient,
+                      gradient: styles.getStyles('login_page.logo_container.background_color') as LinearGradient,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(

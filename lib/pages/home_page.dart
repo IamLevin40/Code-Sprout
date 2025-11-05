@@ -71,7 +71,7 @@ class _HomePageState extends State<HomePage> {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  gradient: styles.getStyles('home_page.welcome_container.linear_gradient') as LinearGradient,
+                  gradient: styles.getStyles('home_page.welcome_container.background_color') as LinearGradient,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
@@ -247,7 +247,7 @@ class _HomePageState extends State<HomePage> {
               child: Container(
                 padding: const EdgeInsets.all(32),
                 decoration: BoxDecoration(
-                  gradient: styles.getStyles('home_page.loading_overlay.container.linear_gradient') as LinearGradient,
+                  gradient: styles.getStyles('home_page.loading_overlay.container.background_color') as LinearGradient,
                   borderRadius: BorderRadius.circular(styles.getStyles('home_page.loading_overlay.container.border_radius') as double),
                   boxShadow: [
                     BoxShadow(

@@ -50,7 +50,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
       bottomNavigationBar: Container(
         // Background overlay gradient (transparent white -> opaque white)
         decoration: BoxDecoration(
-          gradient: styles.getStyles('bottom_navigation.linear_gradient') as LinearGradient,
+          gradient: styles.getStyles('bottom_navigation.background_color') as LinearGradient,
           boxShadow: [
             BoxShadow(
               color: styles.withOpacity(
@@ -79,12 +79,12 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
               // Outline using outer gradient; inner padding creates the outline thickness
               padding: EdgeInsets.all(styles.getStyles('bottom_navigation.bar.outline.thickness') as double),
               decoration: BoxDecoration(
-                gradient: styles.getStyles('bottom_navigation.bar.outline.linear_gradient') as LinearGradient,
+                gradient: styles.getStyles('bottom_navigation.bar.outline.stroke_color') as LinearGradient,
                 borderRadius: BorderRadius.circular(styles.getStyles('bottom_navigation.bar.border_radius') as double),
               ),
               child: Container(
                 decoration: BoxDecoration(
-                  gradient: styles.getStyles('bottom_navigation.bar.linear_gradient') as LinearGradient,
+                  gradient: styles.getStyles('bottom_navigation.bar.background_color') as LinearGradient,
                   borderRadius: BorderRadius.circular(styles.getStyles('bottom_navigation.bar.border_radius') as double),
                 ),
                 padding: EdgeInsets.symmetric(

@@ -448,7 +448,7 @@ class _SettingsPageState extends State<SettingsPage> {
           width: styles.getStyles('settings_page.section_header.indicator.width') as double,
           height: styles.getStyles('settings_page.section_header.indicator.height') as double,
           decoration: BoxDecoration(
-            gradient: styles.getStyles('settings_page.section_header.indicator') as LinearGradient,
+            gradient: styles.getStyles('settings_page.section_header.indicator.background_color') as LinearGradient,
             borderRadius: BorderRadius.circular(styles.getStyles('settings_page.section_header.indicator.border_radius') as double),
           ),
         ),
