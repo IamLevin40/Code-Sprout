@@ -3,6 +3,7 @@ import 'home_page.dart';
 import 'course_page.dart';
 import 'sprout_page.dart';
 import 'settings_page.dart';
+import '../widgets/main_header.dart';
 import '../models/styles_schema.dart';
 
 /// Main scaffold with bottom navigation for Home and Settings
@@ -21,22 +22,31 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     final styles = AppStyles();
     
     // Build pages here so we can pass a callback to the HomePage to update the
-    // main bottom navigation index instead of pushing new routes.
+    // main bottom navigation index instead of pushing new routes. Pages are
+    // embedded (no per-page AppBar) so the shared header from MainHeader is
+    // displayed above all pages.
     final pages = [
       HomePage(
+        showAppBar: false,
         onTabSelected: (index) {
           setState(() {
             _currentIndex = index;
           });
         },
       ),
-      const CoursePage(),
-      const SproutPage(),
-      const SettingsPage(),
+      const CoursePage(showAppBar: false),
+      const SproutPage(showAppBar: false),
+      const SettingsPage(showAppBar: false),
     ];
 
     return Scaffold(
-      body: pages[_currentIndex],
+      // Header is shared across all main navigation pages
+      body: Column(
+        children: [
+          const MainHeader(),
+          Expanded(child: pages[_currentIndex]),
+        ],
+      ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [

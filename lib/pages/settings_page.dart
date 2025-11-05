@@ -9,7 +9,9 @@ import '../models/user_data_schema.dart';
 /// Settings page for user data manipulation and testing
 /// Dynamically renders UI based on the schema definition
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key});
+  final bool showAppBar;
+
+  const SettingsPage({super.key, this.showAppBar = true});
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -246,58 +248,20 @@ class _SettingsPageState extends State<SettingsPage> {
     final authService = AuthService();
     final styles = AppStyles();
 
-    return Scaffold(
-      backgroundColor: styles.getColor('common.background.color'),
-      appBar: AppBar(
-        title: Text(
-          'Settings',
-          style: TextStyle(
-            fontWeight: styles.getFontWeight('appbar.title.font_weight'),
-            color: styles.getColor('appbar.title.color'),
-            fontSize: styles.getFontSize('appbar.title.font_size'),
-          ),
-        ),
-        centerTitle: true,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: styles.getLinearGradient('appbar.background.linear_gradient'),
-          ),
-        ),
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh, color: styles.getColor('appbar.icon.color')),
-            tooltip: 'Reload Schema',
-            onPressed: () async {
-              setState(() {
-                _isLoading = true;
-              });
-              await UserData.reloadSchema();
-              await _loadSchemaAndData();
-              if (!mounted) return;
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.logout, color: styles.getColor('appbar.icon.color')),
-            tooltip: 'Logout',
-            onPressed: () => _showLogoutDialog(context, authService),
-          ),
-        ],
-      ),
-      body: _isLoading
-          ? Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(styles.getColor('appbar.background.linear_gradient.begin.color')),
-                strokeWidth: styles.getStrokeWeight('settings_page.loading_indicator.stroke_weight'),
-              ),
-            )
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+    final content = _isLoading
+        ? Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(styles.getColor('appbar.background.linear_gradient.begin.color')),
+              strokeWidth: styles.getStrokeWeight('settings_page.loading_indicator.stroke_weight'),
+            ),
+          )
+        : SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                     // Header
                     Text(
                       'User Data Configuration',
@@ -406,8 +370,52 @@ class _SettingsPageState extends State<SettingsPage> {
                   ],
                 ),
               ),
+      );
+
+    if (widget.showAppBar) {
+      return Scaffold(
+        backgroundColor: styles.getColor('common.background.color'),
+        appBar: AppBar(
+          title: Text(
+            'Settings',
+            style: TextStyle(
+              fontWeight: styles.getFontWeight('appbar.title.font_weight'),
+              color: styles.getColor('appbar.title.color'),
+              fontSize: styles.getFontSize('appbar.title.font_size'),
             ),
-    );
+          ),
+          centerTitle: true,
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              gradient: styles.getLinearGradient('appbar.background.linear_gradient'),
+            ),
+          ),
+          elevation: 0,
+          actions: [
+            IconButton(
+              icon: Icon(Icons.refresh, color: styles.getColor('appbar.icon.color')),
+              tooltip: 'Reload Schema',
+              onPressed: () async {
+                setState(() {
+                  _isLoading = true;
+                });
+                await UserData.reloadSchema();
+                await _loadSchemaAndData();
+                if (!mounted) return;
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.logout, color: styles.getColor('appbar.icon.color')),
+              tooltip: 'Logout',
+              onPressed: () => _showLogoutDialog(context, authService),
+            ),
+          ],
+        ),
+        body: content,
+      );
+    }
+
+    return Container(color: styles.getColor('common.background.color'), child: content);
   }
 
   List<Widget> _buildSections() {

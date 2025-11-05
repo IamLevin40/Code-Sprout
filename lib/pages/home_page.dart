@@ -5,8 +5,9 @@ import '../models/styles_schema.dart';
 
 class HomePage extends StatefulWidget {
   final ValueChanged<int>? onTabSelected;
+  final bool showAppBar;
 
-  const HomePage({super.key, this.onTabSelected});
+  const HomePage({super.key, this.onTabSelected, this.showAppBar = true});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -55,35 +56,12 @@ class _HomePageState extends State<HomePage> {
     final user = authService.currentUser;
     final styles = AppStyles();
 
-    return Stack(
-      children: [
-        Scaffold(
-          backgroundColor: styles.getColor('common.background.color'),
-          appBar: AppBar(
-            title: Text(
-              'Code Sprout',
-              style: TextStyle(
-                fontWeight: styles.getFontWeight('appbar.title.font_weight'),
-                color: styles.getColor('appbar.title.color'),
-                fontSize: styles.getFontSize('appbar.title.font_size'),
-              ),
-            ),
-            centerTitle: true,
-            flexibleSpace: Container(
-              decoration: BoxDecoration(
-                gradient: styles.getLinearGradient('appbar.background.linear_gradient'),
-              ),
-            ),
-            elevation: 0,
-            actions: [
-              IconButton(
-                icon: Icon(Icons.logout, color: styles.getColor('appbar.icon.color')),
-                tooltip: 'Logout',
-                onPressed: () => _showLogoutDialog(context, authService),
-              ),
-            ],
-          ),
-          body: Center(
+    // Build the core content separately so we can return it inside a
+    // Scaffold (when showAppBar==true) or as a plain widget (when embedded
+    // under the shared header).
+    final coreContent = Container(
+      color: styles.getColor('common.background.color'),
+      child: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
@@ -256,10 +234,11 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-        ),
-        // Loading Overlay
-        if (_loadingUsername)
-          Container(
+    );
+
+    // Overlay (loading)
+    final overlay = _loadingUsername
+        ? Container(
             color: styles.getColorWithOpacity(
               'home_page.loading_overlay.background.color',
               opacityPath: 'home_page.loading_overlay.background.opacity',
@@ -314,9 +293,49 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-          ),
+          )
+        : const SizedBox.shrink();
+
+    final stacked = Stack(
+      children: [
+        coreContent,
+        if (_loadingUsername) overlay,
       ],
     );
+
+    if (widget.showAppBar) {
+      return Scaffold(
+        backgroundColor: styles.getColor('common.background.color'),
+        appBar: AppBar(
+          title: Text(
+            'Code Sprout',
+            style: TextStyle(
+              fontWeight: styles.getFontWeight('appbar.title.font_weight'),
+              color: styles.getColor('appbar.title.color'),
+              fontSize: styles.getFontSize('appbar.title.font_size'),
+            ),
+          ),
+          centerTitle: true,
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              gradient: styles.getLinearGradient('appbar.background.linear_gradient'),
+            ),
+          ),
+          elevation: 0,
+          actions: [
+            IconButton(
+              icon: Icon(Icons.logout, color: styles.getColor('appbar.icon.color')),
+              tooltip: 'Logout',
+              onPressed: () => _showLogoutDialog(context, authService),
+            ),
+          ],
+        ),
+        body: stacked,
+      );
+    }
+
+    // Embedded (no AppBar) - return content only
+    return stacked;
   }
 
   void _showLogoutDialog(BuildContext context, AuthService authService) {
