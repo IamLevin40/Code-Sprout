@@ -32,15 +32,15 @@ class _SproutPageState extends State<SproutPage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Sprout Rank', style: TextStyle(fontSize: styles.toDouble(styles.getStyles('sprout_page.rank.title.font_size')))),
+                  Text('Sprout Rank', style: TextStyle(fontSize: styles.getStyles('sprout_page.rank.title.font_size') as double)),
                   const SizedBox(height: 6),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
                       color: styles.getStyles('sprout_page.rank.container.background_color') as Color,
-                      borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('sprout_page.rank.container.border_radius'))),
+                      borderRadius: BorderRadius.circular(styles.getStyles('sprout_page.rank.container.border_radius') as double),
                     ),
-                    child: Text('#$_sproutRank', style: TextStyle(fontSize: styles.toDouble(styles.getStyles('sprout_page.rank.number.font_size')))),
+                    child: Text('#$_sproutRank', style: TextStyle(fontSize: styles.getStyles('sprout_page.rank.number.font_size') as double)),
                   ),
                 ],
               ),
@@ -48,7 +48,7 @@ class _SproutPageState extends State<SproutPage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text('Language', style: TextStyle(fontSize: styles.toDouble(styles.getStyles('sprout_page.language.title.font_size')))),
+                  Text('Language', style: TextStyle(fontSize: styles.getStyles('sprout_page.language.title.font_size') as double)),
                   const SizedBox(height: 6),
                   DropdownButton<String>(
                     value: _selectedLanguage,
@@ -72,19 +72,19 @@ class _SproutPageState extends State<SproutPage> {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Opening sprout for $_selectedLanguage (placeholder)')));
               },
               icon: Icon(Icons.rocket_launch, color: styles.getStyles('sprout_page.start_button.icon.color') as Color),
-              label: Text('Start Sprout', style: TextStyle(fontSize: styles.toDouble(styles.getStyles('sprout_page.start_button.text.font_size')))),
+              label: Text('Start Sprout', style: TextStyle(fontSize: styles.getStyles('sprout_page.start_button.text.font_size') as double)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: styles.getStyles('sprout_page.start_button.background_color') as Color,
                 foregroundColor: styles.getStyles('sprout_page.start_button.text.color') as Color,
                 padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('sprout_page.start_button.border_radius')))),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(styles.getStyles('sprout_page.start_button.border_radius') as double)),
               ),
             ),
           ),
           const SizedBox(height: 20),
 
           // Inventory header
-          Text('Inventory', style: TextStyle(fontSize: styles.toDouble(styles.getStyles('sprout_page.inventory.title.font_size')), fontWeight: styles.toFontWeight(styles.getStyles('sprout_page.inventory.title.font_weight')))),
+          Text('Inventory', style: TextStyle(fontSize: styles.getStyles('sprout_page.inventory.title.font_size') as double, fontWeight: styles.getStyles('sprout_page.inventory.title.font_weight') as FontWeight)),
           const SizedBox(height: 8),
 
           // Inventory list
@@ -95,7 +95,7 @@ class _SproutPageState extends State<SproutPage> {
               itemBuilder: (context, i) => Card(
                 child: ListTile(
                   leading: Icon(Icons.spa, color: styles.getStyles('sprout_page.inventory.icon.color') as Color),
-                  title: Text(_inventory[i], style: TextStyle(fontSize: styles.toDouble(styles.getStyles('sprout_page.inventory.item.font_size')))),
+                  title: Text(_inventory[i], style: TextStyle(fontSize: styles.getStyles('sprout_page.inventory.item.font_size') as double)),
                   subtitle: Text('Amount: ${5 + i}', style: TextStyle(color: styles.getStyles('sprout_page.inventory.item.subtitle.color') as Color)),
                 ),
               ),
@@ -112,9 +112,9 @@ class _SproutPageState extends State<SproutPage> {
           title: Text(
             'The Sprout',
             style: TextStyle(
-              fontWeight: styles.toFontWeight(styles.getStyles('header.title.font_weight')),
+              fontWeight: styles.getStyles('header.title.font_weight') as FontWeight,
               color: styles.getStyles('header.title.color') as Color,
-              fontSize: styles.toDouble(styles.getStyles('header.title.font_size')),
+              fontSize: styles.getStyles('header.title.font_size') as double,
             ),
           ),
           centerTitle: true,

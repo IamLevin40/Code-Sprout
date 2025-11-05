@@ -31,10 +31,10 @@ class AppStyles {
   ///   Method: `getStyles(path) as Color`
   /// - LinearGradient (from gradient map with begin/end positions and colors)
   ///   Method: `getStyles(path) as LinearGradient`
-  /// - FontWeight (from numeric weight 100-900)
-  ///   Method: `toFontWeight(getStyles(path))`
-  /// - num (int or double for sizes, weights, radii, etc.)
-  ///   Method: `toDouble(getStyles(path))`
+  /// - FontWeight (from token strings like 'w100'..'w900')
+  ///   Method: `getStyles(path) as FontWeight`
+  /// - double (numeric sizes, weights, radii, etc.)
+  ///   Method: `getStyles(path) as double`
   /// - String (for image paths, positions, etc.)
   ///   Method: `getStyles(path) as String`
   /// - Map (for complex nested structures)
@@ -68,14 +68,17 @@ class AppStyles {
   dynamic _detectAndConvert(dynamic value, String path) {
     // Handle Map - could be a gradient or nested structure
     if (value is Map<String, dynamic>) {
-      // If the map directly contains a linear gradient descriptor
-      if (value.containsKey('linear_gradient') && value['linear_gradient'] is Map<String, dynamic>) {
-        return _parseLinearGradient(value['linear_gradient'] as Map<String, dynamic>, path);
-      }
-
-      // Backwards-compatible: some schema entries may put begin/end at this level
+      // If the map directly contains begin/end keys, treat it as a linear gradient
       if (value.containsKey('begin') && value.containsKey('end')) {
         return _parseLinearGradient(value, path);
+      }
+
+      // Otherwise, search any child map for a gradient descriptor (begin/end)
+      for (final entry in value.entries) {
+        final child = entry.value;
+        if (child is Map<String, dynamic> && child.containsKey('begin') && child.containsKey('end')) {
+          return _parseLinearGradient(child, '$path.${entry.key}');
+        }
       }
 
       // If the map contains a color key, return that parsed color
@@ -94,19 +97,27 @@ class AppStyles {
       return value;
     }
 
-    // Handle String - could be color, image path, or position
+    // Handle String - could be color, image path, font-weight token, or position
     if (value is String) {
       // Check if it's a color
       if (_isColorString(value)) {
         return _parseColor(value, path);
       }
+
+      // Detect font-weight token in the format 'w100'..'w900'
+      final fwMatch = RegExp(r'^w(100|200|300|400|500|600|700|800|900)$').firstMatch(value.toLowerCase());
+      if (fwMatch != null) {
+        final weight = int.parse(fwMatch.group(1)!);
+        return _numToFontWeight(weight);
+      }
+
       // Return as string for paths, positions, etc.
       return value;
     }
 
-    // Handle numeric values - return as-is
+    // Handle numeric values - convert to double by default.
     if (value is int || value is double) {
-      return value;
+      return value is int ? value.toDouble() : value;
     }
 
     // Return as-is for any other type
@@ -340,10 +351,8 @@ class AppStyles {
     }
   }
 
-  /// Helper to convert numeric value to FontWeight
-  FontWeight toFontWeight(dynamic value) {
-    final weight = value is int ? value : (value as double).toInt();
-    
+  /// Convert numeric 100-900 values into a FontWeight enum
+  FontWeight _numToFontWeight(int weight) {
     switch (weight) {
       case 100:
         return FontWeight.w100;
@@ -368,12 +377,8 @@ class AppStyles {
     }
   }
 
-  /// Helper to convert value to double
-  double toDouble(dynamic value) {
-    if (value is int) return value.toDouble();
-    if (value is double) return value;
-    throw Exception('Cannot convert $value to double');
-  }
+  // Note: `toFontWeight` and `toDouble` helpers removed. Callers should
+  // now use `getStyles(path) as FontWeight` or `getStyles(path) as double`.
 
   /// Helper to get color with opacity applied
   Color withOpacity(String colorPath, String opacityPath) {

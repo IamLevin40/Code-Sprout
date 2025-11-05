@@ -25,7 +25,7 @@ class _CoursePageState extends State<CoursePage> {
         Tab(text: 'Advanced'),
       ],
       indicatorColor: styles.getStyles('header.title.color') as Color,
-      labelStyle: TextStyle(fontWeight: styles.toFontWeight(styles.getStyles('tab.label.font_weight'))),
+      labelStyle: TextStyle(fontWeight: styles.getStyles('tab.label.font_weight') as FontWeight),
     );
 
     final tabViews = TabBarView(
@@ -38,7 +38,7 @@ class _CoursePageState extends State<CoursePage> {
             itemBuilder: (context, i) => Card(
               elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('card.border_radius'))),
+                borderRadius: BorderRadius.circular(styles.getStyles('card.border_radius') as double),
                 side: BorderSide(color: styles.getStyles('card.border.color') as Color),
               ),
               child: ListTile(
@@ -52,8 +52,8 @@ class _CoursePageState extends State<CoursePage> {
                 title: Text(
                   _languages[i],
                   style: TextStyle(
-                    fontSize: styles.toDouble(styles.getStyles('course_page.list.title.font_size')),
-                    fontWeight: styles.toFontWeight(styles.getStyles('course_page.list.title.font_weight')),
+                    fontSize: styles.getStyles('course_page.list.title.font_size') as double,
+                    fontWeight: styles.getStyles('course_page.list.title.font_weight') as FontWeight,
                   ),
                 ),
                 subtitle: Text(
@@ -85,9 +85,9 @@ class _CoursePageState extends State<CoursePage> {
             title: Text(
               'Courses',
               style: TextStyle(
-                fontWeight: styles.toFontWeight(styles.getStyles('header.title.font_weight')),
+                fontWeight: styles.getStyles('header.title.font_weight') as FontWeight,
                 color: styles.getStyles('header.title.color') as Color,
-                fontSize: styles.toDouble(styles.getStyles('header.title.font_size')),
+                fontSize: styles.getStyles('header.title.font_size') as double,
               ),
             ),
             centerTitle: true,
