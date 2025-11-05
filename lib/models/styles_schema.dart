@@ -68,14 +68,17 @@ class AppStyles {
   dynamic _detectAndConvert(dynamic value, String path) {
     // Handle Map - could be a gradient or nested structure
     if (value is Map<String, dynamic>) {
-      // If the map directly contains a linear gradient descriptor
-      if (value.containsKey('linear_gradient') && value['linear_gradient'] is Map<String, dynamic>) {
-        return _parseLinearGradient(value['linear_gradient'] as Map<String, dynamic>, path);
-      }
-
-      // Backwards-compatible: some schema entries may put begin/end at this level
+      // If the map directly contains begin/end keys, treat it as a linear gradient
       if (value.containsKey('begin') && value.containsKey('end')) {
         return _parseLinearGradient(value, path);
+      }
+
+      // Otherwise, search any child map for a gradient descriptor (begin/end)
+      for (final entry in value.entries) {
+        final child = entry.value;
+        if (child is Map<String, dynamic> && child.containsKey('begin') && child.containsKey('end')) {
+          return _parseLinearGradient(child, '$path.${entry.key}');
+        }
       }
 
       // If the map contains a color key, return that parsed color
