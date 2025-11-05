@@ -36,7 +36,7 @@ class _MainHeaderState extends State<MainHeader> {
     return Container(
       height: widget.preferredSize.height,
       decoration: BoxDecoration(
-        color: styles.getStyles('header.background.color') as Color,
+        color: styles.getStyles('header.background_color') as Color,
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(styles.toDouble(styles.getStyles('header.border_radius')))),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
@@ -73,7 +73,7 @@ class _MainHeaderState extends State<MainHeader> {
             width: styles.toDouble(styles.getStyles('header.icon.width')),
             height: styles.toDouble(styles.getStyles('header.icon.height')),
             decoration: BoxDecoration(
-              color: styles.getStyles('header.icon_background.color') as Color,
+              color: styles.getStyles('header.icon_background_color') as Color,
               borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('header.icon.border_radius'))),
             ),
             child: ClipRRect(

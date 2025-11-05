@@ -71,7 +71,7 @@ class _HomePageState extends State<HomePage> {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  gradient: styles.getStyles('home_page.welcome_container.background') as LinearGradient,
+                  gradient: styles.getStyles('home_page.welcome_container.linear_gradient') as LinearGradient,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
@@ -124,7 +124,7 @@ class _HomePageState extends State<HomePage> {
                   vertical: 12,
                 ),
                 decoration: BoxDecoration(
-                  color: styles.getStyles('home_page.email_container.background.color') as Color,
+                  color: styles.getStyles('home_page.email_container.background_color') as Color,
                   borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('home_page.email_container.border_radius'))),
                   border: Border.all(
                     color: styles.getStyles('home_page.email_container.border.color') as Color,
@@ -184,7 +184,7 @@ class _HomePageState extends State<HomePage> {
                     icon: Icon(Icons.school, color: styles.getStyles('home_page.quick_nav.course.icon.color') as Color),
                     label: Text('Courses', style: TextStyle(fontSize: styles.toDouble(styles.getStyles('home_page.quick_nav.course.text.font_size')))),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: styles.getStyles('home_page.quick_nav.course.background.color') as Color,
+                      backgroundColor: styles.getStyles('home_page.quick_nav.course.background_color') as Color,
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                     ),
                   ),
@@ -197,7 +197,7 @@ class _HomePageState extends State<HomePage> {
                     icon: Icon(Icons.grass, color: styles.getStyles('home_page.quick_nav.sprout.icon.color') as Color),
                     label: Text('The Sprout', style: TextStyle(fontSize: styles.toDouble(styles.getStyles('home_page.quick_nav.sprout.text.font_size')))),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: styles.getStyles('home_page.quick_nav.sprout.background.color') as Color,
+                      backgroundColor: styles.getStyles('home_page.quick_nav.sprout.background_color') as Color,
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                     ),
                   ),
@@ -218,7 +218,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: styles.getStyles('home_page.logout_button.background.color') as Color,
+                  backgroundColor: styles.getStyles('home_page.logout_button.background_color') as Color,
                   foregroundColor: styles.getStyles('home_page.logout_button.text.color') as Color,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 32,
@@ -240,14 +240,14 @@ class _HomePageState extends State<HomePage> {
     final overlay = _loadingUsername
         ? Container(
             color: styles.withOpacity(
-              'home_page.loading_overlay.background.color',
-              'home_page.loading_overlay.background.opacity',
+              'home_page.loading_overlay.background_color',
+              'home_page.loading_overlay.background_opacity',
             ),
             child: Center(
               child: Container(
                 padding: const EdgeInsets.all(32),
                 decoration: BoxDecoration(
-                  gradient: styles.getStyles('home_page.loading_overlay.container.background') as LinearGradient,
+                  gradient: styles.getStyles('home_page.loading_overlay.container.linear_gradient') as LinearGradient,
                   borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('home_page.loading_overlay.container.border_radius'))),
                   boxShadow: [
                     BoxShadow(
@@ -318,7 +318,7 @@ class _HomePageState extends State<HomePage> {
           centerTitle: true,
           flexibleSpace: Container(
             decoration: BoxDecoration(
-              gradient: styles.getStyles('header.background') as LinearGradient,
+              color: styles.getStyles('header.background_color') as Color,
             ),
           ),
           elevation: 0,
@@ -381,7 +381,7 @@ class _HomePageState extends State<HomePage> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: styles.getStyles('home_page.logout_dialog.confirm_button.background.color') as Color,
+              backgroundColor: styles.getStyles('home_page.logout_dialog.confirm_button.background_color') as Color,
               foregroundColor: styles.getStyles('home_page.logout_dialog.confirm_button.text.color') as Color,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('home_page.logout_dialog.confirm_button.border_radius'))),

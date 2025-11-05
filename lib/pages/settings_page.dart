@@ -172,7 +172,7 @@ class _SettingsPageState extends State<SettingsPage> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: styles.getStyles('register_page.success_dialog.background.color') as Color,
+                  color: styles.getStyles('register_page.success_dialog.background_color') as Color,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -206,7 +206,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: styles.getStyles('register_page.success_dialog.button.background.color') as Color,
+                    backgroundColor: styles.getStyles('register_page.success_dialog.button.background_color') as Color,
                     foregroundColor: styles.getStyles('register_page.success_dialog.button.text.color') as Color,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
@@ -236,7 +236,7 @@ class _SettingsPageState extends State<SettingsPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: styles.getStyles('home_page.logout_button.background.color') as Color,
+        backgroundColor: styles.getStyles('home_page.logout_button.background_color') as Color,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 3),
       ),
@@ -293,7 +293,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       child: ElevatedButton(
                         onPressed: _isSaving ? null : _saveUserData,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: styles.getStyles('settings_page.save_button.background.color') as Color,
+                          backgroundColor: styles.getStyles('settings_page.save_button.background_color') as Color,
                           foregroundColor: styles.getStyles('settings_page.save_button.text.color') as Color,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
@@ -340,7 +340,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: styles.getStyles('settings_page.info_container.background.color') as Color,
+                        color: styles.getStyles('settings_page.info_container.background_color') as Color,
                         borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.info_container.border_radius'))),
                         border: Border.all(
                           color: styles.getStyles('settings_page.info_container.border.color') as Color,
@@ -387,7 +387,7 @@ class _SettingsPageState extends State<SettingsPage> {
           centerTitle: true,
               flexibleSpace: Container(
             decoration: BoxDecoration(
-              gradient: styles.getStyles('header.background') as LinearGradient,
+              color: styles.getStyles('header.background_color') as Color,
             ),
           ),
           elevation: 0,
@@ -475,7 +475,7 @@ class _SettingsPageState extends State<SettingsPage> {
       margin: const EdgeInsets.only(left: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: styles.getStyles('settings_page.section_card.background.color') as Color,
+        color: styles.getStyles('settings_page.section_card.background_color') as Color,
         borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.section_card.border_radius'))),
         border: Border.all(
           color: styles.getStyles('settings_page.section_card.border.color') as Color,
@@ -526,7 +526,7 @@ class _SettingsPageState extends State<SettingsPage> {
           margin: EdgeInsets.only(left: (depth + 1) * 16.0),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: styles.getStyles('settings_page.nested_container.background.color') as Color,
+            color: styles.getStyles('settings_page.nested_container.background_color') as Color,
             borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.nested_container.border_radius'))),
             border: Border.all(
               color: styles.getStyles('settings_page.nested_container.border.color') as Color,
@@ -576,7 +576,7 @@ class _SettingsPageState extends State<SettingsPage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: styles.getStyles('settings_page.nested_map_header.badge.background.color') as Color,
+              color: styles.getStyles('settings_page.nested_map_header.badge.background_color') as Color,
               borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.nested_map_header.badge.border_radius'))),
               border: Border.all(
                 color: styles.getStyles('settings_page.nested_map_header.badge.border.color') as Color,
@@ -677,7 +677,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
             filled: true,
-            fillColor: styles.getStyles('settings_page.text_field.background.color') as Color,
+            fillColor: styles.getStyles('settings_page.text_field.background_color') as Color,
           ),
           validator: (value) {
             if (field.isRequired && (value == null || value.trim().isEmpty)) {
@@ -738,7 +738,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
             filled: true,
-            fillColor: styles.getStyles('settings_page.text_field.background.color') as Color,
+            fillColor: styles.getStyles('settings_page.text_field.background_color') as Color,
           ),
           validator: (value) {
             if (field.isRequired && (value == null || value.trim().isEmpty)) {
@@ -828,7 +828,7 @@ class _SettingsPageState extends State<SettingsPage> {
           child: Container(
             padding: EdgeInsets.all(styles.toDouble(styles.getStyles('settings_page.timestamp_field.padding'))),
             decoration: BoxDecoration(
-              color: styles.getStyles('settings_page.timestamp_field.background.color') as Color,
+              color: styles.getStyles('settings_page.timestamp_field.background_color') as Color,
               borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.timestamp_field.border_radius'))),
               border: Border.all(
                 color: styles.getStyles('settings_page.timestamp_field.border.color') as Color,
@@ -874,7 +874,7 @@ class _SettingsPageState extends State<SettingsPage> {
         Container(
           padding: EdgeInsets.all(styles.toDouble(styles.getStyles('settings_page.generic_field.padding'))),
           decoration: BoxDecoration(
-            color: styles.getStyles('settings_page.generic_field.background.color') as Color,
+            color: styles.getStyles('settings_page.generic_field.background_color') as Color,
             borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.generic_field.border_radius'))),
             border: Border.all(
               color: styles.getStyles('settings_page.generic_field.border.color') as Color,
@@ -947,7 +947,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
             filled: true,
-            fillColor: styles.getStyles('settings_page.dropdown_field.background.color') as Color,
+            fillColor: styles.getStyles('settings_page.dropdown_field.background_color') as Color,
           ),
           items: field.enumValues!.map((String value) {
             return DropdownMenuItem<String>(
@@ -992,7 +992,7 @@ class _SettingsPageState extends State<SettingsPage> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           decoration: BoxDecoration(
-            color: styles.getStyles('settings_page.field_label.type_badge.background.color') as Color,
+            color: styles.getStyles('settings_page.field_label.type_badge.background_color') as Color,
             borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.field_label.type_badge.border_radius'))),
             border: Border.all(
               color: styles.getStyles('settings_page.field_label.type_badge.border.color') as Color,
@@ -1013,7 +1013,7 @@ class _SettingsPageState extends State<SettingsPage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: styles.getStyles('settings_page.field_label.required_badge.background.color') as Color,
+              color: styles.getStyles('settings_page.field_label.required_badge.background_color') as Color,
               borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.field_label.required_badge.border_radius'))),
               border: Border.all(
                 color: styles.getStyles('settings_page.field_label.required_badge.border.color') as Color,
@@ -1104,7 +1104,7 @@ class _SettingsPageState extends State<SettingsPage> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: styles.getStyles('settings_page.logout_dialog.logout_button.background.color') as Color,
+              backgroundColor: styles.getStyles('settings_page.logout_dialog.logout_button.background_color') as Color,
               foregroundColor: styles.getStyles('settings_page.logout_dialog.logout_button.text.color') as Color,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('settings_page.logout_dialog.logout_button.border_radius'))),

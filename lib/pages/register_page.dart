@@ -149,7 +149,7 @@ class _RegisterPageState extends State<RegisterPage> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: styles.getStyles('register_page.success_dialog.background.color') as Color,
+                  color: styles.getStyles('register_page.success_dialog.background_color') as Color,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -187,7 +187,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: styles.getStyles('register_page.success_dialog.button.background.color') as Color,
+                    backgroundColor: styles.getStyles('register_page.success_dialog.button.background_color') as Color,
                     foregroundColor: styles.getStyles('register_page.success_dialog.button.text.color') as Color,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -233,7 +233,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      gradient: styles.getStyles('register_page.logo_container.background.linear_gradient') as LinearGradient,
+                      gradient: styles.getStyles('register_page.logo_container.linear_gradient') as LinearGradient,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -271,7 +271,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       padding: const EdgeInsets.all(12),
                       margin: const EdgeInsets.only(bottom: 20),
                       decoration: BoxDecoration(
-                        color: styles.getStyles('register_page.error_container.background.color') as Color,
+                        color: styles.getStyles('register_page.error_container.background_color') as Color,
                         borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('register_page.error_container.border_radius'))),
                         border: Border.all(
                           color: styles.getStyles('register_page.error_container.border.color') as Color,
@@ -329,7 +329,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                       ),
                       filled: true,
-                      fillColor: styles.getStyles('register_page.username_field.background.color') as Color,
+                      fillColor: styles.getStyles('register_page.username_field.background_color') as Color,
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -377,7 +377,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                       ),
                       filled: true,
-                      fillColor: styles.getStyles('register_page.email_field.background.color') as Color,
+                      fillColor: styles.getStyles('register_page.email_field.background_color') as Color,
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -432,7 +432,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                       ),
                       filled: true,
-                      fillColor: styles.getStyles('register_page.password_field.background.color') as Color,
+                      fillColor: styles.getStyles('register_page.password_field.background_color') as Color,
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -487,7 +487,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                       ),
                       filled: true,
-                      fillColor: styles.getStyles('register_page.password_field.background.color') as Color,
+                      fillColor: styles.getStyles('register_page.password_field.background_color') as Color,
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -502,7 +502,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ElevatedButton(
                     onPressed: _isLoading ? null : _register,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: styles.getStyles('register_page.register_button.background.color') as Color,
+                      backgroundColor: styles.getStyles('register_page.register_button.background_color') as Color,
                       foregroundColor: styles.getStyles('register_page.register_button.text.color') as Color,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(

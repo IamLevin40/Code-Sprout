@@ -37,7 +37,7 @@ class _SproutPageState extends State<SproutPage> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
-                      color: styles.getStyles('sprout_page.rank.container.background.color') as Color,
+                      color: styles.getStyles('sprout_page.rank.container.background_color') as Color,
                       borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('sprout_page.rank.container.border_radius'))),
                     ),
                     child: Text('#$_sproutRank', style: TextStyle(fontSize: styles.toDouble(styles.getStyles('sprout_page.rank.number.font_size')))),
@@ -74,7 +74,7 @@ class _SproutPageState extends State<SproutPage> {
               icon: Icon(Icons.rocket_launch, color: styles.getStyles('sprout_page.start_button.icon.color') as Color),
               label: Text('Start Sprout', style: TextStyle(fontSize: styles.toDouble(styles.getStyles('sprout_page.start_button.text.font_size')))),
               style: ElevatedButton.styleFrom(
-                backgroundColor: styles.getStyles('sprout_page.start_button.background.color') as Color,
+                backgroundColor: styles.getStyles('sprout_page.start_button.background_color') as Color,
                 foregroundColor: styles.getStyles('sprout_page.start_button.text.color') as Color,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('sprout_page.start_button.border_radius')))),
@@ -120,7 +120,7 @@ class _SproutPageState extends State<SproutPage> {
           centerTitle: true,
           flexibleSpace: Container(
             decoration: BoxDecoration(
-              gradient: styles.getStyles('header.background') as LinearGradient,
+              color: styles.getStyles('header.background_color') as Color,
             ),
           ),
           elevation: 0,

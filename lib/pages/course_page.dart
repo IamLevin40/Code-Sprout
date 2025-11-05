@@ -43,7 +43,7 @@ class _CoursePageState extends State<CoursePage> {
               ),
               child: ListTile(
                 leading: CircleAvatar(
-                  backgroundColor: styles.getStyles('card.avatar.background.color') as Color,
+                  backgroundColor: styles.getStyles('card.avatar.background_color') as Color,
                   child: Text(
                     _languages[i][0],
                     style: TextStyle(color: styles.getStyles('card.avatar.text.color') as Color),
@@ -93,7 +93,7 @@ class _CoursePageState extends State<CoursePage> {
             centerTitle: true,
             flexibleSpace: Container(
               decoration: BoxDecoration(
-                gradient: styles.getStyles('header.background') as LinearGradient,
+                color: styles.getStyles('header.background_color') as Color,
               ),
             ),
             bottom: tabs,

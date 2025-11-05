@@ -75,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      gradient: styles.getStyles('login_page.logo_container.background') as LinearGradient,
+                      gradient: styles.getStyles('login_page.logo_container.linear_gradient') as LinearGradient,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -113,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
                       padding: const EdgeInsets.all(12),
                       margin: const EdgeInsets.only(bottom: 20),
                       decoration: BoxDecoration(
-                        color: styles.getStyles('login_page.error_container.background.color') as Color,
+                        color: styles.getStyles('login_page.error_container.background_color') as Color,
                         borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('login_page.error_container.border_radius'))),
                         border: Border.all(
                           color: styles.getStyles('login_page.error_container.border.color') as Color,
@@ -168,7 +168,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       filled: true,
-                      fillColor: styles.getStyles('login_page.email_field.background.color') as Color,
+                      fillColor: styles.getStyles('login_page.email_field.background_color') as Color,
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -223,7 +223,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       filled: true,
-                      fillColor: styles.getStyles('login_page.password_field.background.color') as Color,
+                      fillColor: styles.getStyles('login_page.password_field.background_color') as Color,
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -238,7 +238,7 @@ class _LoginPageState extends State<LoginPage> {
                   ElevatedButton(
                     onPressed: _isLoading ? null : _login,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: styles.getStyles('login_page.login_button.background.color') as Color,
+                      backgroundColor: styles.getStyles('login_page.login_button.background_color') as Color,
                       foregroundColor: styles.getStyles('login_page.login_button.text.color') as Color,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
