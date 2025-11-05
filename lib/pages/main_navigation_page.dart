@@ -57,35 +57,35 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
                 'bottom_navigation.shadow.color',
                 'bottom_navigation.shadow.opacity',
               ),
-              blurRadius: styles.toDouble(styles.getStyles('bottom_navigation.shadow.blur_radius')),
+              blurRadius: styles.getStyles('bottom_navigation.shadow.blur_radius') as double,
               offset: Offset(
-                styles.toDouble(styles.getStyles('bottom_navigation.shadow.offset.x')),
-                styles.toDouble(styles.getStyles('bottom_navigation.shadow.offset.y')),
+                styles.getStyles('bottom_navigation.shadow.offset.x') as double,
+                styles.getStyles('bottom_navigation.shadow.offset.y') as double,
               ),
             ),
           ],
         ),
         child: SizedBox(
-          height: styles.toDouble(styles.getStyles('bottom_navigation.bar.max_height')),
+          height: styles.getStyles('bottom_navigation.bar.max_height') as double,
           child: Padding(
             padding: EdgeInsets.symmetric(
-              vertical: styles.toDouble(styles.getStyles('bottom_navigation.bar.padding_vertical')),
+              vertical: styles.getStyles('bottom_navigation.bar.padding_vertical') as double,
             ),
             child: Center(
               child: Container(
               margin: EdgeInsets.symmetric(
-                horizontal: styles.toDouble(styles.getStyles('bottom_navigation.bar.padding_horizontal')),
+                horizontal: styles.getStyles('bottom_navigation.bar.padding_horizontal') as double,
               ),
               // Outline using outer gradient; inner padding creates the outline thickness
-              padding: EdgeInsets.all(styles.toDouble(styles.getStyles('bottom_navigation.bar.outline.thickness'))),
+              padding: EdgeInsets.all(styles.getStyles('bottom_navigation.bar.outline.thickness') as double),
               decoration: BoxDecoration(
                 gradient: styles.getStyles('bottom_navigation.bar.outline.linear_gradient') as LinearGradient,
-                borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('bottom_navigation.bar.border_radius'))),
+                borderRadius: BorderRadius.circular(styles.getStyles('bottom_navigation.bar.border_radius') as double),
               ),
               child: Container(
                 decoration: BoxDecoration(
                   gradient: styles.getStyles('bottom_navigation.bar.linear_gradient') as LinearGradient,
-                  borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('bottom_navigation.bar.border_radius'))),
+                  borderRadius: BorderRadius.circular(styles.getStyles('bottom_navigation.bar.border_radius') as double),
                 ),
                 padding: EdgeInsets.symmetric(
                   vertical: styles.getStyles('bottom_navigation.bar.padding_buttons_vertical') as double,
@@ -111,23 +111,23 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
                         children: [
                           Image.asset(
                             imagePath,
-                            width: styles.toDouble(styles.getStyles('bottom_navigation.icon.width')),
-                            height: styles.toDouble(styles.getStyles('bottom_navigation.icon.height')),
+                            width: styles.getStyles('bottom_navigation.icon.width') as double,
+                            height: styles.getStyles('bottom_navigation.icon.height') as double,
                           ),
-                          SizedBox(height: styles.toDouble(styles.getStyles('bottom_navigation.selected_indicator.padding'))),
+                          SizedBox(height: styles.getStyles('bottom_navigation.selected_indicator.padding') as double),
                           // Selected indicator
                           isSelected
                               ? Container(
-                                  width: styles.toDouble(styles.getStyles('bottom_navigation.selected_indicator.width')),
-                                  height: styles.toDouble(styles.getStyles('bottom_navigation.selected_indicator.height')),
+                                  width: styles.getStyles('bottom_navigation.selected_indicator.width') as double,
+                                  height: styles.getStyles('bottom_navigation.selected_indicator.height') as double,
                                   decoration: BoxDecoration(
                                     color: styles.getStyles('bottom_navigation.selected_indicator.color') as Color,
                                     borderRadius: BorderRadius.circular(
-                                      styles.toDouble(styles.getStyles('bottom_navigation.selected_indicator.border_radius')),
+                                      styles.getStyles('bottom_navigation.selected_indicator.border_radius') as double,
                                     ),
                                   ),
                                 )
-                              : SizedBox(height: styles.toDouble(styles.getStyles('bottom_navigation.selected_indicator.height'))),
+                              : SizedBox(height: styles.getStyles('bottom_navigation.selected_indicator.height') as double),
                         ],
                       ),
                     );

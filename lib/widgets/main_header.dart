@@ -31,14 +31,14 @@ class _MainHeaderState extends State<MainHeader> {
     final styles = AppStyles();
 
     return Container(
-      height: styles.toDouble(styles.getStyles('header.height')),
+      height: styles.getStyles('header.height') as double,
       decoration: BoxDecoration(
         color: styles.getStyles('header.background_color') as Color,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(styles.toDouble(styles.getStyles('header.border_radius')))),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(styles.getStyles('header.border_radius') as double)),
       ),
       padding: EdgeInsets.symmetric(
-        horizontal: styles.toDouble(styles.getStyles('header.padding_horizontal')),
-        vertical: styles.toDouble(styles.getStyles('header.padding_vertical')),
+        horizontal: styles.getStyles('header.padding_horizontal') as double,
+        vertical: styles.getStyles('header.padding_vertical') as double,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,16 +52,16 @@ class _MainHeaderState extends State<MainHeader> {
                   'Good ${_greeting()}, ${_username.isNotEmpty ? _username : '<username>'}!',
                   style: TextStyle(
                     color: styles.getStyles('header.greeting.color') as Color,
-                    fontSize: styles.toDouble(styles.getStyles('header.greeting.font_size')),
-                    fontWeight: styles.toFontWeight(styles.getStyles('header.greeting.font_weight')),
+                    fontSize: styles.getStyles('header.greeting.font_size') as double,
+                    fontWeight: styles.getStyles('header.greeting.font_weight') as FontWeight,
                   ),
                 ),
                 Text(
                   "Let's Grow Together",
                   style: TextStyle(
                     color: styles.getStyles('header.title.color') as Color,
-                    fontSize: styles.toDouble(styles.getStyles('header.title.font_size')),
-                    fontWeight: styles.toFontWeight(styles.getStyles('header.title.font_weight')),
+                    fontSize: styles.getStyles('header.title.font_size') as double,
+                    fontWeight: styles.getStyles('header.title.font_weight') as FontWeight,
                   ),
                 ),
               ],
@@ -70,16 +70,16 @@ class _MainHeaderState extends State<MainHeader> {
 
           // Right image box
           Container(
-            width: styles.toDouble(styles.getStyles('header.icon.width')),
-            height: styles.toDouble(styles.getStyles('header.icon.height')),
+            width: styles.getStyles('header.icon.width') as double,
+            height: styles.getStyles('header.icon.height') as double,
             decoration: BoxDecoration(
               color: styles.getStyles('header.icon_background_color') as Color,
-              borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('header.icon.border_radius'))),
+              borderRadius: BorderRadius.circular(styles.getStyles('header.icon.border_radius') as double),
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(styles.toDouble(styles.getStyles('header.icon.border_radius'))),
+              borderRadius: BorderRadius.circular(styles.getStyles('header.icon.border_radius') as double),
               child: Padding(
-                padding: EdgeInsets.all(styles.toDouble(styles.getStyles('header.icon.padding'))),
+                padding: EdgeInsets.all(styles.getStyles('header.icon.padding') as double),
                 child: Image.asset(
                   styles.getStyles('header.icon.image') as String,
                   fit: BoxFit.contain,

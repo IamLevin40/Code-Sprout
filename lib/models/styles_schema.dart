@@ -32,9 +32,9 @@ class AppStyles {
   /// - LinearGradient (from gradient map with begin/end positions and colors)
   ///   Method: `getStyles(path) as LinearGradient`
   /// - FontWeight (from numeric weight 100-900)
-  ///   Method: `toFontWeight(getStyles(path))`
-  /// - num (int or double for sizes, weights, radii, etc.)
-  ///   Method: `toDouble(getStyles(path))`
+  ///   Method: `getStyles(path) as FontWeight`
+  /// - double (numeric sizes, weights, radii, etc.)
+  ///   Method: `getStyles(path) as double`
   /// - String (for image paths, positions, etc.)
   ///   Method: `getStyles(path) as String`
   /// - Map (for complex nested structures)
@@ -104,9 +104,16 @@ class AppStyles {
       return value;
     }
 
-    // Handle numeric values - return as-is
+    // Handle numeric values - convert to double by default. If the path
+    // refers to a font weight, return a FontWeight instance.
     if (value is int || value is double) {
-      return value;
+      final lowerPath = path.toLowerCase();
+      if (lowerPath.endsWith('font_weight') || lowerPath.contains('.font_weight')) {
+        final weight = value is int ? value : (value as double).toInt();
+        return _numToFontWeight(weight);
+      }
+      // Return numeric sizes as double to allow `as double` casts in callers
+      return value is int ? value.toDouble() : value;
     }
 
     // Return as-is for any other type
@@ -340,10 +347,8 @@ class AppStyles {
     }
   }
 
-  /// Helper to convert numeric value to FontWeight
-  FontWeight toFontWeight(dynamic value) {
-    final weight = value is int ? value : (value as double).toInt();
-    
+  /// Convert numeric 100-900 values into a FontWeight enum
+  FontWeight _numToFontWeight(int weight) {
     switch (weight) {
       case 100:
         return FontWeight.w100;
@@ -368,12 +373,8 @@ class AppStyles {
     }
   }
 
-  /// Helper to convert value to double
-  double toDouble(dynamic value) {
-    if (value is int) return value.toDouble();
-    if (value is double) return value;
-    throw Exception('Cannot convert $value to double');
-  }
+  // Note: `toFontWeight` and `toDouble` helpers removed. Callers should
+  // now use `getStyles(path) as FontWeight` or `getStyles(path) as double`.
 
   /// Helper to get color with opacity applied
   Color withOpacity(String colorPath, String opacityPath) {

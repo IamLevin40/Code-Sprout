@@ -31,8 +31,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: styles.getStyles('constant_values.colors.light_purple'),
-          secondary: styles.getStyles('constant_values.colors.dark_green'),
+          seedColor: styles.getStyles('constant_values.colors.light_purple') as Color,
+          secondary: styles.getStyles('constant_values.colors.dark_green') as Color,
         ),
         useMaterial3: true,
         fontFamily: 'Poppins',
@@ -61,11 +61,11 @@ class AuthWrapper extends StatelessWidget {
         // Show loading screen while checking auth state
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
-            backgroundColor: styles.getStyles('constant_values.colors.white'),
+            backgroundColor: styles.getStyles('constant_values.colors.white') as Color,
             body: Center(
               child: CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  styles.getStyles('constant_values.colors.light_purple'),
+                  styles.getStyles('constant_values.colors.light_purple') as Color,
                 ),
               ),
             ),
