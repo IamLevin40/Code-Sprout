@@ -22,8 +22,8 @@
             "heading": 32
         },
         "font_weights": {
-            "regular": 400,
-            "bold": 700
+            "regular": "w400",
+            "bold": "w700"
         },
         "images": {
             "logo": "images/logo.png"

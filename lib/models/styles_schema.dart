@@ -31,7 +31,7 @@ class AppStyles {
   ///   Method: `getStyles(path) as Color`
   /// - LinearGradient (from gradient map with begin/end positions and colors)
   ///   Method: `getStyles(path) as LinearGradient`
-  /// - FontWeight (from numeric weight 100-900)
+  /// - FontWeight (from token strings like 'w100'..'w900')
   ///   Method: `getStyles(path) as FontWeight`
   /// - double (numeric sizes, weights, radii, etc.)
   ///   Method: `getStyles(path) as double`
@@ -97,25 +97,26 @@ class AppStyles {
       return value;
     }
 
-    // Handle String - could be color, image path, or position
+    // Handle String - could be color, image path, font-weight token, or position
     if (value is String) {
       // Check if it's a color
       if (_isColorString(value)) {
         return _parseColor(value, path);
       }
+
+      // Detect font-weight token in the format 'w100'..'w900'
+      final fwMatch = RegExp(r'^w(100|200|300|400|500|600|700|800|900)$').firstMatch(value.toLowerCase());
+      if (fwMatch != null) {
+        final weight = int.parse(fwMatch.group(1)!);
+        return _numToFontWeight(weight);
+      }
+
       // Return as string for paths, positions, etc.
       return value;
     }
 
-    // Handle numeric values - convert to double by default. If the path
-    // refers to a font weight, return a FontWeight instance.
+    // Handle numeric values - convert to double by default.
     if (value is int || value is double) {
-      final lowerPath = path.toLowerCase();
-      if (lowerPath.endsWith('font_weight') || lowerPath.contains('.font_weight')) {
-        final weight = value is int ? value : (value as double).toInt();
-        return _numToFontWeight(weight);
-      }
-      // Return numeric sizes as double to allow `as double` casts in callers
       return value is int ? value.toDouble() : value;
     }
 
