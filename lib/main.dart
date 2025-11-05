@@ -24,16 +24,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final styles = AppStyles();
+    
     return MaterialApp(
       title: 'Code Sprout',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.green,
-          secondary: Colors.purple,
+          seedColor: styles.getColor('constant_values.colors.light_purple'),
+          secondary: styles.getColor('constant_values.colors.dark_green'),
         ),
         useMaterial3: true,
-        fontFamily: 'Roboto',
+        fontFamily: 'Poppins',
       ),
       home: const AuthWrapper(),
       routes: {
@@ -51,17 +53,20 @@ class AuthWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authService = AuthService();
+    final styles = AppStyles();
 
     return StreamBuilder(
       stream: authService.authStateChanges,
       builder: (context, snapshot) {
         // Show loading screen while checking auth state
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            backgroundColor: Colors.white,
+          return Scaffold(
+            backgroundColor: styles.getColor('constant_values.colors.white'),
             body: Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  styles.getColor('constant_values.colors.light_purple'),
+                ),
               ),
             ),
           );
