@@ -48,7 +48,9 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         ],
       ),
       bottomNavigationBar: Container(
+        // Background overlay gradient (transparent white -> opaque white)
         decoration: BoxDecoration(
+          gradient: styles.getLinearGradient('bottom_navigation.background.linear_gradient'),
           boxShadow: [
             BoxShadow(
               color: styles.getColorWithOpacity(
@@ -60,47 +62,76 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
             ),
           ],
         ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
-          selectedItemColor: styles.getColor('bottom_navigation.selected.icon.color'),
-          unselectedItemColor: styles.getColor('bottom_navigation.unselected.icon.color'),
-          selectedLabelStyle: TextStyle(
-            fontWeight: styles.getFontWeight('bottom_navigation.selected.label.font_weight'),
-            fontSize: styles.getFontSize('bottom_navigation.selected.label.font_size'),
+        child: SizedBox(
+          height: styles.getHeight('bottom_navigation.bar.max_height'),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: styles.getWidth('bottom_navigation.bar.padding_vertical').toDouble(),
+            ),
+            child: Center(
+              child: Container(
+              margin: EdgeInsets.symmetric(
+                horizontal: styles.getWidth('bottom_navigation.bar.padding_horizontal').toDouble(),
+              ),
+              // Outline using outer gradient; inner padding creates the outline thickness
+              padding: EdgeInsets.all(styles.getWidth('bottom_navigation.bar.outline.thickness').toDouble()),
+              decoration: BoxDecoration(
+                gradient: styles.getLinearGradient('bottom_navigation.bar.outline.linear_gradient'),
+                borderRadius: BorderRadius.circular(styles.getBorderRadius('bottom_navigation.bar.border_radius')),
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: styles.getLinearGradient('bottom_navigation.bar.background.linear_gradient'),
+                  borderRadius: BorderRadius.circular(styles.getBorderRadius('bottom_navigation.bar.border_radius')),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 6.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: List.generate(4, (index) {
+                    final keys = ['home', 'course', 'sprout', 'settings'];
+                    final key = keys[index];
+                    final isSelected = index == _currentIndex;
+                    final imagePath = styles.getImagePath(
+                      'bottom_navigation.items.$key.${isSelected ? 'selected' : 'unselected'}.image_path',
+                    );
+
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _currentIndex = index;
+                        });
+                      },
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset(
+                            imagePath,
+                            width: styles.getWidth('bottom_navigation.icon.width'),
+                            height: styles.getHeight('bottom_navigation.icon.height'),
+                          ),
+                          const SizedBox(height: 4),
+                          // Selected indicator
+                          isSelected
+                              ? Container(
+                                  width: styles.getWidth('bottom_navigation.selected_indicator.width'),
+                                  height: styles.getHeight('bottom_navigation.selected_indicator.height'),
+                                  decoration: BoxDecoration(
+                                    color: styles.getColor('bottom_navigation.selected_indicator.color'),
+                                    borderRadius: BorderRadius.circular(
+                                      styles.getBorderRadius('bottom_navigation.selected_indicator.border_radius'),
+                                    ),
+                                  ),
+                                )
+                              : SizedBox(height: styles.getHeight('bottom_navigation.selected_indicator.height')),
+                        ],
+                      ),
+                    );
+                  }),
+                ),
+              ),
+              ),
+            ),
           ),
-          unselectedLabelStyle: TextStyle(
-            fontSize: styles.getFontSize('bottom_navigation.unselected.label.font_size'),
-            fontWeight: styles.getFontWeight('bottom_navigation.unselected.label.font_weight'),
-          ),
-          type: BottomNavigationBarType.fixed,
-          elevation: 8,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.school_outlined),
-              activeIcon: Icon(Icons.school),
-              label: 'Courses',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.grass_outlined),
-              activeIcon: Icon(Icons.grass),
-              label: 'Sprout',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings_outlined),
-              activeIcon: Icon(Icons.settings),
-              label: 'Settings',
-            ),
-          ],
         ),
       ),
     );
