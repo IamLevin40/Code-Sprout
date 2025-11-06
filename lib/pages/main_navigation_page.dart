@@ -17,14 +17,70 @@ class MainNavigationPage extends StatefulWidget {
 class _MainNavigationPageState extends State<MainNavigationPage> {
   int _currentIndex = 0;
 
+  final List<GlobalKey> _iconKeys = <GlobalKey>[];
+  final GlobalKey _barKey = GlobalKey();
+
+  double _indicatorLeft = 0.0;
+  double _indicatorWidth = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateIndicatorPosition());
+  }
+
+  void _updateIndicatorPosition() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final styles = AppStyles();
+      final barContext = _barKey.currentContext;
+      if (barContext == null) return;
+      final barBox = barContext.findRenderObject() as RenderBox?;
+      if (barBox == null) return;
+
+      final indicatorW = (styles.getStyles('bottom_navigation.selected_indicator.width') as double);
+
+      // Determine number of nav items from schema so fallback spacing is dynamic
+      final itemsMap = styles.getStyles('bottom_navigation.items') as Map<String, dynamic>;
+      final itemCount = itemsMap.length; // safe: schema should include items
+      final effectiveCount = itemCount > 0 ? itemCount : 1;
+
+      double centerX;
+      // Guard indexing in case keys haven't been created yet
+      if (_currentIndex < _iconKeys.length && _iconKeys[_currentIndex].currentContext != null) {
+        final iconContext = _iconKeys[_currentIndex].currentContext!;
+        final iconBox = iconContext.findRenderObject() as RenderBox?;
+        if (iconBox != null) {
+          final iconCenterGlobal = iconBox.localToGlobal(iconBox.size.center(Offset.zero));
+          final barGlobal = barBox.localToGlobal(Offset.zero);
+          centerX = iconCenterGlobal.dx - barGlobal.dx;
+        } else {
+          centerX = barBox.size.width * (_currentIndex + 0.5) / effectiveCount;
+        }
+      } else {
+        centerX = barBox.size.width * (_currentIndex + 0.5) / effectiveCount;
+      }
+
+      final left = (centerX - indicatorW / 2.0).clamp(0.0, barBox.size.width - indicatorW);
+      setState(() {
+        _indicatorLeft = left;
+        _indicatorWidth = indicatorW;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final styles = AppStyles();
-    
-    // Build pages here so we can pass a callback to the HomePage to update the
-    // main bottom navigation index instead of pushing new routes. Pages are
-    // embedded (no per-page AppBar) so the shared header from MainHeader is
-    // displayed above all pages.
+    final itemsMap = styles.getStyles('bottom_navigation.items') as Map<String, dynamic>;
+    final navKeys = itemsMap.keys.toList();
+    final itemCount = navKeys.length;
+
+    if (_iconKeys.length < itemCount) {
+      _iconKeys.addAll(List.generate(itemCount - _iconKeys.length, (_) => GlobalKey()));
+    } else if (_iconKeys.length > itemCount) {
+      _iconKeys.removeRange(itemCount, _iconKeys.length);
+    }
+
     final pages = [
       HomePage(
         showAppBar: false,
@@ -48,7 +104,6 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         ],
       ),
       bottomNavigationBar: Container(
-        // Background overlay gradient (transparent white -> opaque white)
         decoration: BoxDecoration(
           gradient: styles.getStyles('bottom_navigation.background_color') as LinearGradient,
           boxShadow: [
@@ -76,64 +131,88 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
               margin: EdgeInsets.symmetric(
                 horizontal: styles.getStyles('bottom_navigation.bar.padding_horizontal') as double,
               ),
-              // Outline using outer gradient; inner padding creates the outline thickness
               padding: EdgeInsets.all(styles.getStyles('bottom_navigation.bar.outline.thickness') as double),
               decoration: BoxDecoration(
                 gradient: styles.getStyles('bottom_navigation.bar.outline.stroke_color') as LinearGradient,
                 borderRadius: BorderRadius.circular(styles.getStyles('bottom_navigation.bar.border_radius') as double),
               ),
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: styles.getStyles('bottom_navigation.bar.background_color') as LinearGradient,
-                  borderRadius: BorderRadius.circular(styles.getStyles('bottom_navigation.bar.border_radius') as double),
-                ),
-                padding: EdgeInsets.symmetric(
-                  vertical: styles.getStyles('bottom_navigation.bar.padding_buttons_vertical') as double,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: List.generate(4, (index) {
-                    final keys = ['home', 'course', 'sprout', 'settings'];
-                    final key = keys[index];
-                    final isSelected = index == _currentIndex;
-                    final imagePath = styles.getStyles(
-                      'bottom_navigation.items.$key.${isSelected ? 'selected' : 'unselected'}',
-                    ) as String;
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: styles.getStyles('bottom_navigation.bar.background_color') as LinearGradient,
+                    borderRadius: BorderRadius.circular(styles.getStyles('bottom_navigation.bar.border_radius') as double),
+                  ),
+                  padding: EdgeInsets.symmetric(
+                    vertical: styles.getStyles('bottom_navigation.bar.padding_buttons_vertical') as double,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: List.generate(itemCount, (index) {
+                          final key = navKeys[index];
+                          final isSelected = index == _currentIndex;
+                          final imagePath = styles.getStyles(
+                            'bottom_navigation.items.$key.${isSelected ? 'selected' : 'unselected'}',
+                          ) as String;
 
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _currentIndex = index;
-                        });
-                      },
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Image.asset(
-                            imagePath,
-                            width: styles.getStyles('bottom_navigation.icon.width') as double,
-                            height: styles.getStyles('bottom_navigation.icon.height') as double,
-                          ),
-                          SizedBox(height: styles.getStyles('bottom_navigation.selected_indicator.padding') as double),
-                          // Selected indicator
-                          isSelected
-                              ? Container(
-                                  width: styles.getStyles('bottom_navigation.selected_indicator.width') as double,
-                                  height: styles.getStyles('bottom_navigation.selected_indicator.height') as double,
-                                  decoration: BoxDecoration(
-                                    color: styles.getStyles('bottom_navigation.selected_indicator.color') as Color,
-                                    borderRadius: BorderRadius.circular(
-                                      styles.getStyles('bottom_navigation.selected_indicator.border_radius') as double,
+                          return Expanded(
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    _currentIndex = index;
+                                  });
+                                  _updateIndicatorPosition();
+                                },
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Image.asset(
+                                      imagePath,
+                                      key: _iconKeys[index],
+                                      width: styles.getStyles('bottom_navigation.icon.width') as double,
+                                      height: styles.getStyles('bottom_navigation.icon.height') as double,
                                     ),
-                                  ),
-                                )
-                              : SizedBox(height: styles.getStyles('bottom_navigation.selected_indicator.height') as double),
-                        ],
+                                    SizedBox(height: styles.getStyles('bottom_navigation.selected_indicator.padding') as double),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        }),
                       ),
-                    );
-                  }),
+
+                      // Animated moving indicator below the icons.
+                      SizedBox(height: styles.getStyles('bottom_navigation.selected_indicator.padding') as double),
+                      SizedBox(
+                        height: styles.getStyles('bottom_navigation.selected_indicator.height') as double,
+                        child: Stack(
+                          key: _barKey,
+                          children: [
+                            AnimatedPositioned(
+                              left: _indicatorLeft,
+                              duration: Duration(
+                                milliseconds: styles.getStyles('bottom_navigation.selected_indicator.animation_duration') as int
+                              ),
+                              curve: Curves.easeInOut,
+                              child: Container(
+                                width: _indicatorWidth == 0
+                                    ? styles.getStyles('bottom_navigation.selected_indicator.width') as double
+                                    : _indicatorWidth,
+                                height: styles.getStyles('bottom_navigation.selected_indicator.height') as double,
+                                decoration: BoxDecoration(
+                                  color: styles.getStyles('bottom_navigation.selected_indicator.color') as Color,
+                                  borderRadius: BorderRadius.circular(styles.getStyles('bottom_navigation.selected_indicator.border_radius') as double),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
               ),
             ),
           ),
