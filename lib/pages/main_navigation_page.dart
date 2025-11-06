@@ -14,7 +14,7 @@ class MainNavigationPage extends StatefulWidget {
   State<MainNavigationPage> createState() => _MainNavigationPageState();
 }
 
-class _MainNavigationPageState extends State<MainNavigationPage> {
+class _MainNavigationPageState extends State<MainNavigationPage> with WidgetsBindingObserver {
   int _currentIndex = 0;
   final ScrollController _scrollController = ScrollController();
 
@@ -23,17 +23,31 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
   double _indicatorLeft = 0.0;
   double _indicatorWidth = 0.0;
+  bool _animateIndicator = true;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateIndicatorPosition());
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _scrollController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeMetrics() {
+    if (mounted) {
+      setState(() {
+        _animateIndicator = false;
+      });
+    }
+    _updateIndicatorPosition();
+    super.didChangeMetrics();
   }
 
   void _updateIndicatorPosition() {
@@ -71,6 +85,13 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
       setState(() {
         _indicatorLeft = left;
         _indicatorWidth = indicatorW;
+      });
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        setState(() {
+          _animateIndicator = true;
+        });
       });
     });
   }
@@ -223,9 +244,9 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
                                   children: [
                                     AnimatedPositioned(
                                       left: _indicatorLeft,
-                                      duration: Duration(
-                                        milliseconds: styles.getStyles('bottom_navigation.selected_indicator.animation_duration') as int
-                                      ),
+                                      duration: _animateIndicator
+                                          ? Duration(milliseconds: styles.getStyles('bottom_navigation.selected_indicator.animation_duration') as int)
+                                          : Duration.zero,
                                       curve: Curves.easeInOut,
                                       child: Container(
                                         width: _indicatorWidth == 0
