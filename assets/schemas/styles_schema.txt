@@ -82,23 +82,14 @@
         }
     },
     "bottom_navigation": {
-        "shadow": {
-            "color": "--colors.dark_gray",
-            "opacity": 10,
-            "blur_radius": 10,
-            "offset": {
-                "x": 0,
-                "y": -2
-            }
-        },
         "background_color": {
             "begin": {
                 "position": "top_center",
-                "color": "rgba(250,250,250,0)"
+                "color": "rgba(250, 250, 250, 0)"
             },
             "end": {
                 "position": "bottom_center",
-                "color": "rgba(250,250,250,1)"
+                "color": "rgba(250, 250, 250, 1)"
             }
         },
         "bar": {

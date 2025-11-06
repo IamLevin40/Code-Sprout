@@ -96,127 +96,128 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     ];
 
     return Scaffold(
-      // Header is shared across all main navigation pages
-      body: Column(
+      body: Stack(
         children: [
-          const MainHeader(),
-          Expanded(child: pages[_currentIndex]),
-        ],
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          gradient: styles.getStyles('bottom_navigation.background_color') as LinearGradient,
-          boxShadow: [
-            BoxShadow(
-              color: styles.withOpacity(
-                'bottom_navigation.shadow.color',
-                'bottom_navigation.shadow.opacity',
-              ),
-              blurRadius: styles.getStyles('bottom_navigation.shadow.blur_radius') as double,
-              offset: Offset(
-                styles.getStyles('bottom_navigation.shadow.offset.x') as double,
-                styles.getStyles('bottom_navigation.shadow.offset.y') as double,
-              ),
-            ),
-          ],
-        ),
-        child: SizedBox(
-          height: styles.getStyles('bottom_navigation.bar.max_height') as double,
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: styles.getStyles('bottom_navigation.bar.padding_vertical') as double,
-            ),
-            child: Center(
-              child: Container(
-              margin: EdgeInsets.symmetric(
-                horizontal: styles.getStyles('bottom_navigation.bar.padding_horizontal') as double,
-              ),
-              padding: EdgeInsets.all(styles.getStyles('bottom_navigation.bar.outline.thickness') as double),
-              decoration: BoxDecoration(
-                gradient: styles.getStyles('bottom_navigation.bar.outline.stroke_color') as LinearGradient,
-                borderRadius: BorderRadius.circular(styles.getStyles('bottom_navigation.bar.border_radius') as double),
-              ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: styles.getStyles('bottom_navigation.bar.background_color') as LinearGradient,
-                    borderRadius: BorderRadius.circular(styles.getStyles('bottom_navigation.bar.border_radius') as double),
-                  ),
-                  padding: EdgeInsets.symmetric(
-                    vertical: styles.getStyles('bottom_navigation.bar.padding_buttons_vertical') as double,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        children: List.generate(itemCount, (index) {
-                          final key = navKeys[index];
-                          final isSelected = index == _currentIndex;
-                          final imagePath = styles.getStyles(
-                            'bottom_navigation.items.$key.${isSelected ? 'selected' : 'unselected'}',
-                          ) as String;
+          // Main content (header + current page)
+          Column(
+            children: [
+              const MainHeader(),
+              Expanded(child: pages[_currentIndex]),
+            ],
+          ),
 
-                          return Expanded(
-                            child: Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    _currentIndex = index;
-                                  });
-                                  _updateIndicatorPosition();
-                                },
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Image.asset(
-                                      imagePath,
-                                      key: _iconKeys[index],
-                                      width: styles.getStyles('bottom_navigation.icon.width') as double,
-                                      height: styles.getStyles('bottom_navigation.icon.height') as double,
+          // Positioned overlay bottom navigation
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: SafeArea(
+              top: false,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: styles.getStyles('bottom_navigation.background_color') as LinearGradient,
+                ),
+                child: SizedBox(
+                  height: styles.getStyles('bottom_navigation.bar.max_height') as double,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      vertical: styles.getStyles('bottom_navigation.bar.padding_vertical') as double,
+                    ),
+                    child: Center(
+                      child: Container(
+                        margin: EdgeInsets.symmetric(
+                          horizontal: styles.getStyles('bottom_navigation.bar.padding_horizontal') as double,
+                        ),
+                        padding: EdgeInsets.all(styles.getStyles('bottom_navigation.bar.outline.thickness') as double),
+                        decoration: BoxDecoration(
+                          gradient: styles.getStyles('bottom_navigation.bar.outline.stroke_color') as LinearGradient,
+                          borderRadius: BorderRadius.circular(styles.getStyles('bottom_navigation.bar.border_radius') as double),
+                        ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: styles.getStyles('bottom_navigation.bar.background_color') as LinearGradient,
+                            borderRadius: BorderRadius.circular(styles.getStyles('bottom_navigation.bar.border_radius') as double),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                            vertical: styles.getStyles('bottom_navigation.bar.padding_buttons_vertical') as double,
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Row(
+                                children: List.generate(itemCount, (index) {
+                                  final key = navKeys[index];
+                                  final isSelected = index == _currentIndex;
+                                  final imagePath = styles.getStyles(
+                                    'bottom_navigation.items.$key.${isSelected ? 'selected' : 'unselected'}',
+                                  ) as String;
+
+                                  return Expanded(
+                                    child: Material(
+                                      color: Colors.transparent,
+                                      child: InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            _currentIndex = index;
+                                          });
+                                          _updateIndicatorPosition();
+                                        },
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Image.asset(
+                                              imagePath,
+                                              key: _iconKeys[index],
+                                              width: styles.getStyles('bottom_navigation.icon.width') as double,
+                                              height: styles.getStyles('bottom_navigation.icon.height') as double,
+                                            ),
+                                            SizedBox(height: styles.getStyles('bottom_navigation.selected_indicator.padding') as double),
+                                          ],
+                                        ),
+                                      ),
                                     ),
-                                    SizedBox(height: styles.getStyles('bottom_navigation.selected_indicator.padding') as double),
+                                  );
+                                }),
+                              ),
+
+                              // Animated moving indicator below the icons
+                              SizedBox(height: styles.getStyles('bottom_navigation.selected_indicator.padding') as double),
+                              SizedBox(
+                                height: styles.getStyles('bottom_navigation.selected_indicator.height') as double,
+                                child: Stack(
+                                  key: _barKey,
+                                  children: [
+                                    AnimatedPositioned(
+                                      left: _indicatorLeft,
+                                      duration: Duration(
+                                        milliseconds: styles.getStyles('bottom_navigation.selected_indicator.animation_duration') as int
+                                      ),
+                                      curve: Curves.easeInOut,
+                                      child: Container(
+                                        width: _indicatorWidth == 0
+                                            ? styles.getStyles('bottom_navigation.selected_indicator.width') as double
+                                            : _indicatorWidth,
+                                        height: styles.getStyles('bottom_navigation.selected_indicator.height') as double,
+                                        decoration: BoxDecoration(
+                                          color: styles.getStyles('bottom_navigation.selected_indicator.color') as Color,
+                                          borderRadius: BorderRadius.circular(styles.getStyles('bottom_navigation.selected_indicator.border_radius') as double),
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
-                            ),
-                          );
-                        }),
-                      ),
-
-                      // Animated moving indicator below the icons.
-                      SizedBox(height: styles.getStyles('bottom_navigation.selected_indicator.padding') as double),
-                      SizedBox(
-                        height: styles.getStyles('bottom_navigation.selected_indicator.height') as double,
-                        child: Stack(
-                          key: _barKey,
-                          children: [
-                            AnimatedPositioned(
-                              left: _indicatorLeft,
-                              duration: Duration(
-                                milliseconds: styles.getStyles('bottom_navigation.selected_indicator.animation_duration') as int
-                              ),
-                              curve: Curves.easeInOut,
-                              child: Container(
-                                width: _indicatorWidth == 0
-                                    ? styles.getStyles('bottom_navigation.selected_indicator.width') as double
-                                    : _indicatorWidth,
-                                height: styles.getStyles('bottom_navigation.selected_indicator.height') as double,
-                                decoration: BoxDecoration(
-                                  color: styles.getStyles('bottom_navigation.selected_indicator.color') as Color,
-                                  borderRadius: BorderRadius.circular(styles.getStyles('bottom_navigation.selected_indicator.border_radius') as double),
-                                ),
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
