@@ -96,21 +96,22 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     ];
 
     final contentPadding = (styles.getStyles('bottom_navigation.bar.content_padding') as double) + MediaQuery.of(context).padding.bottom;
+    final headerHeight = styles.getStyles('header.height') as double;
 
     return Scaffold(
       body: Stack(
         children: [
-          // Main content (header + current page)
-          Column(
-            children: [
-              const MainHeader(),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.only(bottom: contentPadding),
-                  child: pages[_currentIndex],
-                ),
-              ),
-            ],
+          SingleChildScrollView(
+            padding: EdgeInsets.only(top: headerHeight, bottom: contentPadding),
+            child: pages[_currentIndex],
+          ),
+
+          // Positioned overlay header
+          const Positioned(
+            left: 0,
+            right: 0,
+            top: 0,
+            child: MainHeader(),
           ),
 
           // Positioned overlay bottom navigation
