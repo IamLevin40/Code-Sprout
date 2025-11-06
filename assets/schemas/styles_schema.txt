@@ -53,6 +53,9 @@
         "border": {
             "color": "--colors.ivory_white",
             "radius": 12
+        },
+        "animation": {
+            "scroll_back_duration": 250
         }
     },
     "header": {

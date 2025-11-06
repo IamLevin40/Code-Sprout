@@ -16,6 +16,7 @@ class MainNavigationPage extends StatefulWidget {
 
 class _MainNavigationPageState extends State<MainNavigationPage> {
   int _currentIndex = 0;
+  final ScrollController _scrollController = ScrollController();
 
   final List<GlobalKey> _iconKeys = <GlobalKey>[];
   final GlobalKey _barKey = GlobalKey();
@@ -27,6 +28,12 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateIndicatorPosition());
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   void _updateIndicatorPosition() {
@@ -88,6 +95,13 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
           setState(() {
             _currentIndex = index;
           });
+          if (_scrollController.hasClients) {
+            _scrollController.animateTo(
+              0.0,
+              duration: Duration(milliseconds: (styles.getStyles('global.animation.scroll_back_duration') as int)),
+              curve: Curves.easeOut,
+            );
+          }
         },
       ),
       const CoursePage(showAppBar: false),
@@ -102,6 +116,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
       body: Stack(
         children: [
           SingleChildScrollView(
+            controller: _scrollController,
             padding: EdgeInsets.only(top: headerHeight, bottom: contentPadding),
             child: pages[_currentIndex],
           ),
@@ -169,6 +184,10 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
                                             _currentIndex = index;
                                           });
                                           _updateIndicatorPosition();
+                                          // Reset scroll to top when switching pages
+                                          if (_scrollController.hasClients) {
+                                            _scrollController.animateTo(0.0, duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
+                                          }
                                         },
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
