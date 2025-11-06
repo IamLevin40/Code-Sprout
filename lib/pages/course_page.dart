@@ -3,9 +3,7 @@ import '../models/styles_schema.dart';
 
 /// Course page with tabs (Beginner, Intermediate, Advanced)
 class CoursePage extends StatefulWidget {
-  final bool showAppBar;
-
-  const CoursePage({super.key, this.showAppBar = true});
+  const CoursePage({super.key});
 
   @override
   State<CoursePage> createState() => _CoursePageState();

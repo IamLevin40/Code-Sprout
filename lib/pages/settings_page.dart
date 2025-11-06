@@ -9,9 +9,7 @@ import '../models/user_data_schema.dart';
 /// Settings page for user data manipulation and testing
 /// Dynamically renders UI based on the schema definition
 class SettingsPage extends StatefulWidget {
-  final bool showAppBar;
-
-  const SettingsPage({super.key, this.showAppBar = true});
+  const SettingsPage({super.key});
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();

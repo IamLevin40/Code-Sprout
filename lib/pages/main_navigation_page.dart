@@ -90,7 +90,6 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
     final pages = [
       HomePage(
-        showAppBar: false,
         onTabSelected: (index) {
           setState(() {
             _currentIndex = index;
@@ -104,9 +103,9 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
           }
         },
       ),
-      const CoursePage(showAppBar: false),
-      const SproutPage(showAppBar: false),
-      const SettingsPage(showAppBar: false),
+      const CoursePage(),
+      const SproutPage(),
+      const SettingsPage(),
     ];
 
     final contentPadding = (styles.getStyles('bottom_navigation.bar.content_padding') as double) + MediaQuery.of(context).padding.bottom;

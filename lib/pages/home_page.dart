@@ -5,9 +5,7 @@ import '../models/styles_schema.dart';
 
 class HomePage extends StatefulWidget {
   final ValueChanged<int>? onTabSelected;
-  final bool showAppBar;
-
-  const HomePage({super.key, this.onTabSelected, this.showAppBar = true});
+  const HomePage({super.key, this.onTabSelected});
 
   @override
   State<HomePage> createState() => _HomePageState();
