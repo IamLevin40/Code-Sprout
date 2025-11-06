@@ -22,7 +22,6 @@ class _SettingsPageState extends State<SettingsPage> {
   final Map<String, TextEditingController> _controllers = {};
   final Map<String, dynamic> _fieldValues = {};
   
-  bool _isLoading = true;
   bool _isSaving = false;
   
   UserData? _currentUserData;
@@ -83,13 +82,9 @@ class _SettingsPageState extends State<SettingsPage> {
       
       setState(() {
         _currentUserData = userData;
-        _isLoading = false;
       });
     } catch (e) {
       if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-      });
       _showErrorSnackBar('Failed to load user data: $e');
     }
   }
@@ -245,177 +240,124 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final authService = AuthService();
     final styles = AppStyles();
 
-    final content = _isLoading
-        ? Center(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(styles.getStyles('settings_page.title.color') as Color),
-              strokeWidth: styles.getStyles('settings_page.loading_indicator.stroke_weight') as double,
-            ),
-          )
-        : SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                    // Header
-                    Text(
-                      'User Data Configuration',
-                      style: TextStyle(
-                        fontSize: styles.getStyles('settings_page.title.font_size') as double,
-                        fontWeight: styles.getStyles('settings_page.title.font_weight') as FontWeight,
-                        color: styles.getStyles('settings_page.title.color') as Color,
-                      ),
+    return Container(
+      color: styles.getStyles('global.background.color') as Color,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 24.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Text(
+                'User Data Configuration',
+                style: TextStyle(
+                  fontSize: styles.getStyles('settings_page.title.font_size') as double,
+                  fontWeight: styles.getStyles('settings_page.title.font_weight') as FontWeight,
+                  color: styles.getStyles('settings_page.title.color') as Color,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Dynamically generated from schema',
+                style: TextStyle(
+                  fontSize: styles.getStyles('settings_page.subtitle.font_size') as double,
+                  fontWeight: styles.getStyles('settings_page.subtitle.font_weight') as FontWeight,
+                  color: styles.getStyles('settings_page.subtitle.color') as Color,
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              // Dynamically build sections
+              ..._buildSections(),
+
+              const SizedBox(height: 40),
+
+              // Save Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _isSaving ? null : _saveUserData,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: styles.getStyles('settings_page.save_button.background_color') as Color,
+                    foregroundColor: styles.getStyles('settings_page.save_button.text.color') as Color,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(styles.getStyles('settings_page.save_button.border_radius') as double),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Dynamically generated from schema',
-                      style: TextStyle(
-                        fontSize: styles.getStyles('settings_page.subtitle.font_size') as double,
-                        fontWeight: styles.getStyles('settings_page.subtitle.font_weight') as FontWeight,
-                        color: styles.getStyles('settings_page.subtitle.color') as Color,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-
-                    // Dynamically build sections
-                    ..._buildSections(),
-
-                    const SizedBox(height: 40),
-
-                    // Save Button
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _isSaving ? null : _saveUserData,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: styles.getStyles('settings_page.save_button.background_color') as Color,
-                            foregroundColor: styles.getStyles('settings_page.save_button.text.color') as Color,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(styles.getStyles('settings_page.save_button.border_radius') as double),
-                            ),
-                            elevation: 0,
-                          ),
-                        child: _isSaving
-                            ? Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  SizedBox(
-                                    width: styles.getStyles('settings_page.save_button.progress_indicator.width') as double,
-                                    height: styles.getStyles('settings_page.save_button.progress_indicator.height') as double,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: styles.getStyles('settings_page.save_button.progress_indicator.stroke_weight') as double,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                          styles.getStyles('settings_page.save_button.text.color') as Color),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Text(
-                                    'Saving...',
-                                    style: TextStyle(
-                                      fontSize: styles.getStyles('settings_page.save_button.text.font_size') as double,
-                                      fontWeight: styles.getStyles('settings_page.save_button.text.font_weight') as FontWeight,
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : Text(
-                                'Save Changes',
-                                style: TextStyle(
-                                  fontSize: styles.getStyles('settings_page.save_button.text.font_size') as double,
-                                  fontWeight: styles.getStyles('settings_page.save_button.text.font_weight') as FontWeight,
-                                ),
+                    elevation: 0,
+                  ),
+                  child: _isSaving
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              width: styles.getStyles('settings_page.save_button.progress_indicator.width') as double,
+                              height: styles.getStyles('settings_page.save_button.progress_indicator.height') as double,
+                              child: CircularProgressIndicator(
+                                strokeWidth: styles.getStyles('settings_page.save_button.progress_indicator.stroke_weight') as double,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    styles.getStyles('settings_page.save_button.text.color') as Color),
                               ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Info Text
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: styles.getStyles('settings_page.info_container.background_color') as Color,
-                        borderRadius: BorderRadius.circular(styles.getStyles('settings_page.info_container.border_radius') as double),
-                        border: Border.all(
-                          color: styles.getStyles('settings_page.info_container.border.color') as Color,
-                          width: styles.getStyles('settings_page.info_container.border.width') as double,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.info_outline,
-                            color: styles.getStyles('settings_page.info_container.icon.color') as Color,
-                            size: styles.getStyles('settings_page.info_container.icon.width') as double,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              'UI is generated from schema. Update assets/schemas/user_data_schema.txt to modify structure.',
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Saving...',
                               style: TextStyle(
-                                fontSize: styles.getStyles('settings_page.info_container.text.font_size') as double,
-                                color: styles.getStyles('settings_page.info_container.text.color') as Color,
+                                fontSize: styles.getStyles('settings_page.save_button.text.font_size') as double,
+                                fontWeight: styles.getStyles('settings_page.save_button.text.font_weight') as FontWeight,
                               ),
                             ),
+                          ],
+                        )
+                      : Text(
+                          'Save Changes',
+                          style: TextStyle(
+                            fontSize: styles.getStyles('settings_page.save_button.text.font_size') as double,
+                            fontWeight: styles.getStyles('settings_page.save_button.text.font_weight') as FontWeight,
                           ),
-                        ],
+                        ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Info Text
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: styles.getStyles('settings_page.info_container.background_color') as Color,
+                  borderRadius: BorderRadius.circular(styles.getStyles('settings_page.info_container.border_radius') as double),
+                  border: Border.all(
+                    color: styles.getStyles('settings_page.info_container.border.color') as Color,
+                    width: styles.getStyles('settings_page.info_container.border.width') as double,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: styles.getStyles('settings_page.info_container.icon.color') as Color,
+                      size: styles.getStyles('settings_page.info_container.icon.width') as double,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'UI is generated from schema. Update assets/schemas/user_data_schema.txt to modify structure.',
+                        style: TextStyle(color: styles.getStyles('settings_page.info_container.text.color') as Color),
                       ),
                     ),
                   ],
                 ),
               ),
-      );
-
-    if (widget.showAppBar) {
-      return Scaffold(
-        backgroundColor: styles.getStyles('global.background.color') as Color,
-        appBar: AppBar(
-          title: Text(
-            'Settings',
-              style: TextStyle(
-              fontWeight: styles.getStyles('header.title.font_weight') as FontWeight,
-              color: styles.getStyles('header.title.color') as Color,
-              fontSize: styles.getStyles('header.title.font_size') as double,
-            ),
+            ],
           ),
-          centerTitle: true,
-              flexibleSpace: Container(
-            decoration: BoxDecoration(
-              color: styles.getStyles('header.background_color') as Color,
-            ),
-          ),
-          elevation: 0,
-          actions: [
-            IconButton(
-              icon: Icon(Icons.refresh, color: styles.getStyles('header.icon.color') as Color),
-              tooltip: 'Reload Schema',
-              onPressed: () async {
-                setState(() {
-                  _isLoading = true;
-                });
-                await UserData.reloadSchema();
-                await _loadSchemaAndData();
-                if (!mounted) return;
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.logout, color: styles.getStyles('header.icon.color') as Color),
-              tooltip: 'Logout',
-              onPressed: () => _showLogoutDialog(context, authService),
-            ),
-          ],
         ),
-        body: content,
-      );
-    }
-
-    return Container(color: styles.getStyles('global.background.color') as Color, child: content);
+      ),
+    );
   }
 
   List<Widget> _buildSections() {
@@ -1058,69 +1000,5 @@ class _SettingsPageState extends State<SettingsPage> {
     } else {
       return Icons.text_fields;
     }
-  }
-
-  void _showLogoutDialog(BuildContext context, AuthService authService) {
-    final styles = AppStyles();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(styles.getStyles('settings_page.logout_dialog.border_radius') as double),
-        ),
-        title: Text(
-          'Logout',
-          style: TextStyle(
-            fontSize: styles.getStyles('settings_page.logout_dialog.title.font_size') as double,
-            fontWeight: styles.getStyles('settings_page.logout_dialog.title.font_weight') as FontWeight,
-            color: styles.getStyles('settings_page.logout_dialog.title.color') as Color,
-          ),
-        ),
-          content: Text(
-          'Are you sure you want to logout?',
-          style: TextStyle(
-            fontSize: styles.getStyles('settings_page.logout_dialog.content.font_size') as double,
-            color: styles.getStyles('settings_page.logout_dialog.content.color') as Color,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(
-              'Cancel',
-              style: TextStyle(
-                fontSize: styles.getStyles('settings_page.logout_dialog.cancel_button.font_size') as double,
-                color: styles.getStyles('settings_page.logout_dialog.cancel_button.color') as Color,
-                fontWeight: styles.getStyles('settings_page.logout_dialog.cancel_button.font_weight') as FontWeight,
-              ),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await authService.signOut();
-              if (context.mounted) {
-                Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: styles.getStyles('settings_page.logout_dialog.logout_button.background_color') as Color,
-              foregroundColor: styles.getStyles('settings_page.logout_dialog.logout_button.text.color') as Color,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(styles.getStyles('settings_page.logout_dialog.logout_button.border_radius') as double),
-              ),
-              elevation: 0,
-            ),
-            child: Text(
-              'Logout',
-              style: TextStyle(
-                fontSize: styles.getStyles('settings_page.logout_dialog.logout_button.font_size') as double,
-                fontWeight: styles.getStyles('settings_page.logout_dialog.logout_button.font_weight') as FontWeight,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

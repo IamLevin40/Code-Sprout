@@ -41,7 +41,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
       // Determine number of nav items from schema so fallback spacing is dynamic
       final itemsMap = styles.getStyles('bottom_navigation.items') as Map<String, dynamic>;
-      final itemCount = itemsMap.length; // safe: schema should include items
+      final itemCount = itemsMap.length;
       final effectiveCount = itemCount > 0 ? itemCount : 1;
 
       double centerX;
@@ -95,6 +95,8 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
       const SettingsPage(showAppBar: false),
     ];
 
+    final contentPadding = (styles.getStyles('bottom_navigation.bar.content_padding') as double) + MediaQuery.of(context).padding.bottom;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -102,7 +104,12 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
           Column(
             children: [
               const MainHeader(),
-              Expanded(child: pages[_currentIndex]),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.only(bottom: contentPadding),
+                  child: pages[_currentIndex],
+                ),
+              ),
             ],
           ),
 

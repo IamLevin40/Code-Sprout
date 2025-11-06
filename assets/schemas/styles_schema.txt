@@ -97,6 +97,7 @@
             "padding_vertical": 24,
             "padding_buttons_vertical": 6,
             "max_height": 96,
+            "content_padding": 72,
             "border_radius": 16,
             "background_color": {
                 "begin": {
@@ -876,6 +877,7 @@
     },
     "tab": {
         "label": {
+            "font_size": "--font_sizes.title",
             "font_weight": "--font_weights.bold"
         }
     }

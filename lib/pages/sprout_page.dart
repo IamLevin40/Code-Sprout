@@ -90,6 +90,7 @@ class _SproutPageState extends State<SproutPage> {
           // Inventory list
           Expanded(
             child: ListView.separated(
+              padding: const EdgeInsets.only(bottom: 72),
               itemCount: _inventory.length,
               separatorBuilder: (_, __) => const SizedBox(height: 8),
               itemBuilder: (context, i) => Card(
@@ -105,7 +106,7 @@ class _SproutPageState extends State<SproutPage> {
       ),
     );
 
-    if (widget.showAppBar) {
+  if (widget.showAppBar) {
       return Scaffold(
         backgroundColor: styles.getStyles('global.background.color') as Color,
         appBar: AppBar(
@@ -129,6 +130,99 @@ class _SproutPageState extends State<SproutPage> {
       );
     }
 
-    return Container(color: styles.getStyles('global.background.color') as Color, child: content);
+    // Embedded (no AppBar) - return passive non-scrolling content so the
+    // MainNavigationPage's central scroll view can handle scrolling.
+  // The content below was previously in `buildEmbedded` — keep it here so
+  // there's a single source of truth for the embedded UI.
+    return Container(
+      color: styles.getStyles('global.background.color') as Color,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Rank and language (same as above)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Sprout Rank', style: TextStyle(fontSize: styles.getStyles('sprout_page.rank.title.font_size') as double)),
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: styles.getStyles('sprout_page.rank.container.background_color') as Color,
+                        borderRadius: BorderRadius.circular(styles.getStyles('sprout_page.rank.container.border_radius') as double),
+                      ),
+                      child: Text('#$_sproutRank', style: TextStyle(fontSize: styles.getStyles('sprout_page.rank.number.font_size') as double)),
+                    ),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text('Language', style: TextStyle(fontSize: styles.getStyles('sprout_page.language.title.font_size') as double)),
+                    const SizedBox(height: 6),
+                    DropdownButton<String>(
+                      value: _selectedLanguage,
+                      items: _languages.map((l) => DropdownMenuItem(value: l, child: Text(l))).toList(),
+                      onChanged: (v) {
+                        if (v == null) return;
+                        setState(() => _selectedLanguage = v);
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Opening sprout for $_selectedLanguage (placeholder)')));
+                },
+                icon: Icon(Icons.rocket_launch, color: styles.getStyles('sprout_page.start_button.icon.color') as Color),
+                label: Text('Start Sprout', style: TextStyle(fontSize: styles.getStyles('sprout_page.start_button.text.font_size') as double)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: styles.getStyles('sprout_page.start_button.background_color') as Color,
+                  foregroundColor: styles.getStyles('sprout_page.start_button.text.color') as Color,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(styles.getStyles('sprout_page.start_button.border_radius') as double)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            Text('Inventory', style: TextStyle(fontSize: styles.getStyles('sprout_page.inventory.title.font_size') as double, fontWeight: styles.getStyles('sprout_page.inventory.title.font_weight') as FontWeight)),
+            const SizedBox(height: 8),
+
+            // Inventory rendered as a Column so the parent scroll view handles scrolling
+            Column(
+              children: List.generate(_inventory.length, (i) {
+                return Column(
+                  children: [
+                    Card(
+                      child: ListTile(
+                        leading: Icon(Icons.spa, color: styles.getStyles('sprout_page.inventory.icon.color') as Color),
+                        title: Text(_inventory[i], style: TextStyle(fontSize: styles.getStyles('sprout_page.inventory.item.font_size') as double)),
+                        subtitle: Text('Amount: ${5 + i}', style: TextStyle(color: styles.getStyles('sprout_page.inventory.item.subtitle.color') as Color)),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                );
+              }),
+            ),
+          ],
+        ),
+      ),
+    );
   }
+
+  // (removed duplicate buildEmbedded) The embedded UI is returned directly
+  // from `build()` above.
 }
