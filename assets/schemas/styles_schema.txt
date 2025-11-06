@@ -1,6 +1,7 @@
 {
     "constant_values": {
         "colors": {
+            "transparent": "rgba(0, 0, 0, 0)",
             "white": "#FAFAFA",
             "ivory_white": "#E7EEF6",
             "dirty_white": "#B7C5D5",

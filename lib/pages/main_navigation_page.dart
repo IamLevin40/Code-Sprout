@@ -176,16 +176,24 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
                                   return Expanded(
                                     child: Material(
-                                      color: Colors.transparent,
+                                      color: styles.getStyles('constant_values.colors.transparent') as Color,
                                       child: InkWell(
+                                        splashColor: styles.getStyles('constant_values.colors.transparent') as Color,
+                                        highlightColor: styles.getStyles('constant_values.colors.transparent') as Color,
+                                        hoverColor: styles.getStyles('constant_values.colors.transparent') as Color,
+                                        focusColor: styles.getStyles('constant_values.colors.transparent') as Color,
+                                        splashFactory: NoSplash.splashFactory,
                                         onTap: () {
                                           setState(() {
                                             _currentIndex = index;
                                           });
                                           _updateIndicatorPosition();
-                                          // Reset scroll to top when switching pages
                                           if (_scrollController.hasClients) {
-                                            _scrollController.animateTo(0.0, duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
+                                            _scrollController.animateTo(
+                                              0.0,
+                                              duration: Duration(milliseconds: (styles.getStyles('global.animation.scroll_back_duration') as int)),
+                                              curve: Curves.easeOut,
+                                            );
                                           }
                                         },
                                         child: Column(
