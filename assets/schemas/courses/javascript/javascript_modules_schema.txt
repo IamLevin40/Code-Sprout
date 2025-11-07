@@ -1,0 +1,97 @@
+{
+    "programming_language": "JavaScript",
+    "beginner": {
+        "estimated_duration": {
+            "hours": 8,
+            "minutes": 0
+        },
+        "chapter_1": {
+            "module_1": {
+                "title": "Introduction to JavaScript",
+                "level_schema": "schemas/courses/javascript/beginner/chapter_1/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "Variables and Data Types",
+                "level_schema": "schemas/courses/javascript/beginner/chapter_1/module_2_levels.txt"
+            },
+            "module_3": {
+                "title": "Console and Alerts",
+                "level_schema": "schemas/courses/javascript/beginner/chapter_1/module_3_levels.txt"
+            }
+        },
+        "chapter_2": {
+            "module_1": {
+                "title": "Operators in JavaScript",
+                "level_schema": "schemas/courses/javascript/beginner/chapter_2/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "Conditional Statements",
+                "level_schema": "schemas/courses/javascript/beginner/chapter_2/module_2_levels.txt"
+            },
+            "module_3": {
+                "title": "Loops in JavaScript",
+                "level_schema": "schemas/courses/javascript/beginner/chapter_2/module_3_levels.txt"
+            }
+        }
+    },
+    "intermediate": {
+        "estimated_duration": {
+            "hours": 11,
+            "minutes": 0
+        },
+        "chapter_1": {
+            "module_1": {
+                "title": "Functions and Arrow Functions",
+                "level_schema": "schemas/courses/javascript/intermediate/chapter_1/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "Arrays and Array Methods",
+                "level_schema": "schemas/courses/javascript/intermediate/chapter_1/module_2_levels.txt"
+            },
+            "module_3": {
+                "title": "Objects in JavaScript",
+                "level_schema": "schemas/courses/javascript/intermediate/chapter_1/module_3_levels.txt"
+            }
+        },
+        "chapter_2": {
+            "module_1": {
+                "title": "DOM Manipulation",
+                "level_schema": "schemas/courses/javascript/intermediate/chapter_2/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "Event Handling",
+                "level_schema": "schemas/courses/javascript/intermediate/chapter_2/module_2_levels.txt"
+            }
+        }
+    },
+    "advanced": {
+        "estimated_duration": {
+            "hours": 14,
+            "minutes": 30
+        },
+        "chapter_1": {
+            "module_1": {
+                "title": "ES6+ Features",
+                "level_schema": "schemas/courses/javascript/advanced/chapter_1/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "Promises and Async/Await",
+                "level_schema": "schemas/courses/javascript/advanced/chapter_1/module_2_levels.txt"
+            },
+            "module_3": {
+                "title": "Classes and Prototypes",
+                "level_schema": "schemas/courses/javascript/advanced/chapter_1/module_3_levels.txt"
+            }
+        },
+        "chapter_2": {
+            "module_1": {
+                "title": "Error Handling",
+                "level_schema": "schemas/courses/javascript/advanced/chapter_2/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "Modules and Imports",
+                "level_schema": "schemas/courses/javascript/advanced/chapter_2/module_2_levels.txt"
+            }
+        }
+    }
+}

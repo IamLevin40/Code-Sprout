@@ -1,0 +1,97 @@
+{
+    "programming_language": "Python",
+    "beginner": {
+        "estimated_duration": {
+            "hours": 7,
+            "minutes": 45
+        },
+        "chapter_1": {
+            "module_1": {
+                "title": "Introduction to Python",
+                "level_schema": "schemas/courses/python/beginner/chapter_1/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "Variables and Data Types",
+                "level_schema": "schemas/courses/python/beginner/chapter_1/module_2_levels.txt"
+            },
+            "module_3": {
+                "title": "Input and Output",
+                "level_schema": "schemas/courses/python/beginner/chapter_1/module_3_levels.txt"
+            }
+        },
+        "chapter_2": {
+            "module_1": {
+                "title": "Basic Operators",
+                "level_schema": "schemas/courses/python/beginner/chapter_2/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "Conditional Statements",
+                "level_schema": "schemas/courses/python/beginner/chapter_2/module_2_levels.txt"
+            },
+            "module_3": {
+                "title": "Loops in Python",
+                "level_schema": "schemas/courses/python/beginner/chapter_2/module_3_levels.txt"
+            }
+        }
+    },
+    "intermediate": {
+        "estimated_duration": {
+            "hours": 10,
+            "minutes": 30
+        },
+        "chapter_1": {
+            "module_1": {
+                "title": "Functions in Python",
+                "level_schema": "schemas/courses/python/intermediate/chapter_1/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "Lists and Tuples",
+                "level_schema": "schemas/courses/python/intermediate/chapter_1/module_2_levels.txt"
+            },
+            "module_3": {
+                "title": "Dictionaries and Sets",
+                "level_schema": "schemas/courses/python/intermediate/chapter_1/module_3_levels.txt"
+            }
+        },
+        "chapter_2": {
+            "module_1": {
+                "title": "String Manipulation",
+                "level_schema": "schemas/courses/python/intermediate/chapter_2/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "List Comprehensions",
+                "level_schema": "schemas/courses/python/intermediate/chapter_2/module_2_levels.txt"
+            }
+        }
+    },
+    "advanced": {
+        "estimated_duration": {
+            "hours": 13,
+            "minutes": 0
+        },
+        "chapter_1": {
+            "module_1": {
+                "title": "Object-Oriented Programming",
+                "level_schema": "schemas/courses/python/advanced/chapter_1/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "Inheritance and Polymorphism",
+                "level_schema": "schemas/courses/python/advanced/chapter_1/module_2_levels.txt"
+            },
+            "module_3": {
+                "title": "Decorators and Generators",
+                "level_schema": "schemas/courses/python/advanced/chapter_1/module_3_levels.txt"
+            }
+        },
+        "chapter_2": {
+            "module_1": {
+                "title": "Exception Handling",
+                "level_schema": "schemas/courses/python/advanced/chapter_2/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "File Handling",
+                "level_schema": "schemas/courses/python/advanced/chapter_2/module_2_levels.txt"
+            }
+        }
+    }
+}

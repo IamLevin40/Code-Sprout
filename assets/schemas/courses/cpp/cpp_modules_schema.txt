@@ -1,0 +1,97 @@
+{
+    "programming_language": "C++",
+    "beginner": {
+        "estimated_duration": {
+            "hours": 8,
+            "minutes": 30
+        },
+        "chapter_1": {
+            "module_1": {
+                "title": "Introduction to C++",
+                "level_schema": "schemas/courses/cpp/beginner/chapter_1/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "Variables and Data Types",
+                "level_schema": "schemas/courses/cpp/beginner/chapter_1/module_2_levels.txt"
+            },
+            "module_3": {
+                "title": "Basic Input and Output",
+                "level_schema": "schemas/courses/cpp/beginner/chapter_1/module_3_levels.txt"
+            }
+        },
+        "chapter_2": {
+            "module_1": {
+                "title": "Operators and Expressions",
+                "level_schema": "schemas/courses/cpp/beginner/chapter_2/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "Control Structures: If-Else",
+                "level_schema": "schemas/courses/cpp/beginner/chapter_2/module_2_levels.txt"
+            },
+            "module_3": {
+                "title": "Loops: For and While",
+                "level_schema": "schemas/courses/cpp/beginner/chapter_2/module_3_levels.txt"
+            }
+        }
+    },
+    "intermediate": {
+        "estimated_duration": {
+            "hours": 12,
+            "minutes": 0
+        },
+        "chapter_1": {
+            "module_1": {
+                "title": "Functions and Parameters",
+                "level_schema": "schemas/courses/cpp/intermediate/chapter_1/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "Arrays and Strings",
+                "level_schema": "schemas/courses/cpp/intermediate/chapter_1/module_2_levels.txt"
+            },
+            "module_3": {
+                "title": "Pointers Basics",
+                "level_schema": "schemas/courses/cpp/intermediate/chapter_1/module_3_levels.txt"
+            }
+        },
+        "chapter_2": {
+            "module_1": {
+                "title": "Object-Oriented Programming Basics",
+                "level_schema": "schemas/courses/cpp/intermediate/chapter_2/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "Classes and Objects",
+                "level_schema": "schemas/courses/cpp/intermediate/chapter_2/module_2_levels.txt"
+            }
+        }
+    },
+    "advanced": {
+        "estimated_duration": {
+            "hours": 15,
+            "minutes": 45
+        },
+        "chapter_1": {
+            "module_1": {
+                "title": "Inheritance and Polymorphism",
+                "level_schema": "schemas/courses/cpp/advanced/chapter_1/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "Templates and Generic Programming",
+                "level_schema": "schemas/courses/cpp/advanced/chapter_1/module_2_levels.txt"
+            },
+            "module_3": {
+                "title": "STL: Vectors and Maps",
+                "level_schema": "schemas/courses/cpp/advanced/chapter_1/module_3_levels.txt"
+            }
+        },
+        "chapter_2": {
+            "module_1": {
+                "title": "Exception Handling",
+                "level_schema": "schemas/courses/cpp/advanced/chapter_2/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "File I/O and Streams",
+                "level_schema": "schemas/courses/cpp/advanced/chapter_2/module_2_levels.txt"
+            }
+        }
+    }
+}
