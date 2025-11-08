@@ -1,0 +1,128 @@
+{
+    "level_1": {
+        "mode": "lecture",
+        "content": {
+            "1_title": [
+                "Inheritance and Polymorphism"
+            ],
+            "2_plain": [
+                "Inheritance allows a class to inherit properties and methods from another class.",
+                "The base class (parent) provides common functionality, while derived classes (children) can extend or override it.",
+                "Polymorphism enables objects of different classes to be treated as objects of a common base class."
+            ],
+            "3_input_code": [
+                "#include <iostream>",
+                "",
+                "class Animal {",
+                "public:",
+                "    virtual void makeSound() {",
+                "        std::cout << \"Some sound\" << std::endl;",
+                "    }",
+                "};",
+                "",
+                "class Dog : public Animal {",
+                "public:",
+                "    void makeSound() override {",
+                "        std::cout << \"Woof!\" << std::endl;",
+                "    }",
+                "};"
+            ],
+            "4_plain": [
+                "The Dog class inherits from Animal using the : public Animal syntax.",
+                "The virtual keyword enables polymorphism, allowing derived classes to override methods.",
+                "The override keyword explicitly indicates that a method overrides a base class method."
+            ]
+        }
+    },
+    "level_2": {
+        "mode": "multiple_choice",
+        "content": {
+            "question": "What keyword is used to allow a method to be overridden in derived classes?",
+            "correct_answer": "virtual",
+            "incorrect_answers": [
+                "override",
+                "extends",
+                "abstract"
+            ]
+        }
+    },
+    "level_3": {
+        "mode": "true_or_false",
+        "content": {
+            "question": "A derived class can only have one base class in C++.",
+            "correct_answer": false
+        }
+    },
+    "level_4": {
+        "mode": "fill_in_the_code",
+        "content": {
+            "code_lines": [
+                "class Animal {",
+                "public:",
+                "    [_] void speak() {",
+                "        std::cout << \"Sound\" << std::endl;",
+                "    }",
+                "};",
+                "",
+                "class Cat [_] public Animal {",
+                "public:",
+                "    void speak() [_] {",
+                "        std::cout << \"Meow!\" << std::endl;",
+                "    }",
+                "};"
+            ],
+            "choices": [
+                "virtual",
+                ":",
+                "override",
+                "extends",
+                "->",
+                "abstract",
+                "static",
+                "const"
+            ],
+            "correct_answers": [
+                "virtual",
+                ":",
+                "override"
+            ]
+        }
+    },
+    "level_5": {
+        "mode": "assemble_the_code",
+        "content": {
+            "question": "Arrange the code to create a proper inheritance structure",
+            "correct_code_lines": [
+                "class Shape {",
+                "public:",
+                "    virtual void draw() { }",
+                "};",
+                "class Circle : public Shape {",
+                "public:",
+                "    void draw() override {",
+                "        std::cout << \"Drawing circle\" << std::endl;",
+                "    }",
+                "};"
+            ],
+            "choices": [
+                "class Shape {",
+                "public:",
+                "virtual void draw() { }",
+                "    virtual void draw() { }",
+                "};",
+                "class Circle : public Shape {",
+                "public:",
+                "void draw() override {",
+                "    void draw() override {",
+                "std::cout << \"Drawing circle\" << std::endl;",
+                "        std::cout << \"Drawing circle\" << std::endl;",
+                "}",
+                "    }",
+                "};",
+                "class Circle extends Shape {",
+                "void draw() {",
+                "class Circle -> Shape {"
+            ]
+        }
+    }
+}

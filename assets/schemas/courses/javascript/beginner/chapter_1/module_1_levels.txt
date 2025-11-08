@@ -1,0 +1,85 @@
+{
+    "level_1": {
+        "mode": "lecture",
+        "content": {
+            "1_title": [
+                "Introduction to JavaScript"
+            ],
+            "2_plain": [
+                "JavaScript is a versatile programming language primarily used for web development.",
+                "It allows you to create interactive and dynamic web pages.",
+                "JavaScript can run in web browsers and on servers using Node.js."
+            ],
+            "3_input_code": [
+                "console.log(\"Hello, World!\");",
+                "alert(\"Welcome to JavaScript!\");"
+            ],
+            "4_plain": [
+                "console.log() displays messages in the browser's console.",
+                "alert() shows a popup message box in the browser.",
+                "Every JavaScript statement can end with a semicolon."
+            ]
+        }
+    },
+    "level_2": {
+        "mode": "multiple_choice",
+        "content": {
+            "question": "Which method displays a message in the browser console?",
+            "correct_answer": "console.log()",
+            "incorrect_answers": [
+                "print()",
+                "cout",
+                "System.out.println()"
+            ]
+        }
+    },
+    "level_3": {
+        "mode": "true_or_false",
+        "content": {
+            "question": "JavaScript can only run in web browsers.",
+            "correct_answer": false
+        }
+    },
+    "level_4": {
+        "mode": "fill_in_the_code",
+        "content": {
+            "code_lines": [
+                "console[_]log(\"Hello, JavaScript!\")[_]",
+                "alert(\"Welcome!\"[_];"
+            ],
+            "choices": [
+                ".",
+                ";",
+                ":",
+                "->",
+                "(",
+                ")",
+                ",",
+                "::"
+            ],
+            "correct_answers": [
+                ".",
+                ";",
+                ")"
+            ]
+        }
+    },
+    "level_5": {
+        "mode": "assemble_the_code",
+        "content": {
+            "question": "Arrange the code to create a JavaScript program that logs a message",
+            "correct_code_lines": [
+                "console.log(\"Hello, World!\");",
+                "console.log(\"Welcome to JavaScript!\");"
+            ],
+            "choices": [
+                "console.log(\"Hello, World!\");",
+                "console.log(\"Welcome to JavaScript!\");",
+                "print(\"Hello, World!\")",
+                "System.out.println(\"Hello, World!\");",
+                "std::cout << \"Hello, World!\";",
+                "echo \"Hello, World!\";"
+            ]
+        }
+    }
+}

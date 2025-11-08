@@ -1,0 +1,82 @@
+{
+    "level_1": {
+        "mode": "lecture",
+        "content": {
+            "1_title": [
+                "[Module Title - Replace This]"
+            ],
+            "2_plain": [
+                "This is a placeholder for educational content.",
+                "Replace this with actual learning material.",
+                "Include key concepts and explanations."
+            ],
+            "3_input_code": [
+                "// Add sample code here",
+                "// Use language-appropriate syntax"
+            ],
+            "4_plain": [
+                "Add explanation of the code above.",
+                "Explain what each part does."
+            ]
+        }
+    },
+    "level_2": {
+        "mode": "multiple_choice",
+        "content": {
+            "question": "[Add your question here]",
+            "correct_answer": "[Correct answer]",
+            "incorrect_answers": [
+                "[Incorrect answer 1]",
+                "[Incorrect answer 2]",
+                "[Incorrect answer 3]"
+            ]
+        }
+    },
+    "level_3": {
+        "mode": "true_or_false",
+        "content": {
+            "question": "[Add your true/false question here]",
+            "correct_answer": true
+        }
+    },
+    "level_4": {
+        "mode": "fill_in_the_code",
+        "content": {
+            "code_lines": [
+                "// Add code line with [_] for blanks",
+                "variable [_] value[_]"
+            ],
+            "choices": [
+                "=",
+                ";",
+                ":",
+                "->",
+                "option1",
+                "option2"
+            ],
+            "correct_answers": [
+                "=",
+                ";"
+            ]
+        }
+    },
+    "level_5": {
+        "mode": "assemble_the_code",
+        "content": {
+            "question": "[Instructions for assembling the code]",
+            "correct_code_lines": [
+                "// Correct line 1",
+                "// Correct line 2",
+                "// Correct line 3"
+            ],
+            "choices": [
+                "// Correct line 1",
+                "// Correct line 2",
+                "// Correct line 3",
+                "// Incorrect line 1",
+                "// Incorrect line 2",
+                "// Wrong syntax 1"
+            ]
+        }
+    }
+}

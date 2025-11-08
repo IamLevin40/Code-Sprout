@@ -1,0 +1,114 @@
+{
+    "level_1": {
+        "mode": "lecture",
+        "content": {
+            "1_title": [
+                "Functions and Parameters in C++"
+            ],
+            "2_plain": [
+                "Functions are reusable blocks of code that perform specific tasks.",
+                "They help organize code and avoid repetition.",
+                "Functions can accept parameters (inputs) and return values (outputs)."
+            ],
+            "3_input_code": [
+                "#include <iostream>",
+                "",
+                "int add(int a, int b) {",
+                "    return a + b;",
+                "}",
+                "",
+                "int main() {",
+                "    int result = add(5, 3);",
+                "    std::cout << \"Result: \" << result << std::endl;",
+                "    return 0;",
+                "}"
+            ],
+            "4_output_code": [
+                "Result: 8"
+            ],
+            "5_plain": [
+                "The function add takes two integer parameters and returns their sum.",
+                "Functions must be declared before they are called in C++."
+            ]
+        }
+    },
+    "level_2": {
+        "mode": "multiple_choice",
+        "content": {
+            "question": "What keyword is used to send a value back from a function?",
+            "correct_answer": "return",
+            "incorrect_answers": [
+                "send",
+                "output",
+                "give"
+            ]
+        }
+    },
+    "level_3": {
+        "mode": "true_or_false",
+        "content": {
+            "question": "A function can accept multiple parameters in C++.",
+            "correct_answer": true
+        }
+    },
+    "level_4": {
+        "mode": "fill_in_the_code",
+        "content": {
+            "code_lines": [
+                "int multiply(int x, int y) {",
+                "    [_] x * y;",
+                "}",
+                "",
+                "int main() {",
+                "    int result = multiply[_]4, 5[_];",
+                "    return 0;",
+                "}"
+            ],
+            "choices": [
+                "return",
+                "(",
+                ")",
+                ";",
+                "{",
+                "}",
+                "->",
+                "output"
+            ],
+            "correct_answers": [
+                "return",
+                "(",
+                ")"
+            ]
+        }
+    },
+    "level_5": {
+        "mode": "assemble_the_code",
+        "content": {
+            "question": "Arrange the code to create a function that calculates the square of a number",
+            "correct_code_lines": [
+                "int square(int num) {",
+                "    return num * num;",
+                "}",
+                "int main() {",
+                "    int result = square(4);",
+                "    return 0;",
+                "}"
+            ],
+            "choices": [
+                "int square(int num) {",
+                "return num * num;",
+                "    return num * num;",
+                "}",
+                "int main() {",
+                "int result = square(4);",
+                "    int result = square(4);",
+                "return 0;",
+                "    return 0;",
+                "}",
+                "square(int num) {",
+                "return num + num;",
+                "int result = square[4];"
+            ]
+        }
+    }
+}
