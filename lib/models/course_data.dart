@@ -423,4 +423,33 @@ class AssembleTheCodeContent {
       'choices': choices,
     };
   }
+
+  static String _leadingIndent(String line) {
+    final m = RegExp(r'^(\s*)').firstMatch(line);
+    return m?.group(1) ?? '';
+  }
+
+  List<String> get lineIndents => correctCodeLines.map((l) => _leadingIndent(l)).toList();
+
+  List<String> get trimmedCorrectCodeLines =>
+      correctCodeLines.map((l) => l.replaceFirst(RegExp(r'^\s*'), '')).toList();
+
+  List<String> get normalizedChoicesForDisplay {
+    final trimmedLines = trimmedCorrectCodeLines;
+    return choices.map((choice) {
+      for (var i = 0; i < correctCodeLines.length; i++) {
+        final full = correctCodeLines[i];
+        final trimmed = trimmedLines[i];
+        if (choice == full || choice == trimmed) {
+          return trimmed;
+        }
+      }
+      return choice;
+    }).toList();
+  }
+
+  String assembleLine(int lineIndex, List<String> tokens, {String separator = ''}) {
+    final indent = (lineIndex >= 0 && lineIndex < lineIndents.length) ? lineIndents[lineIndex] : '';
+    return indent + tokens.join(separator);
+  }
 }
