@@ -235,6 +235,232 @@ class _CourseSchemaExamplePageState extends State<CourseSchemaExamplePage> {
     }
   }
 
+  // ============================================================
+  // PROGRESS TRACKING TEST FUNCTIONS
+  // ============================================================
+
+  // Mock user data for testing
+  Map<String, dynamic> _mockUserData = {
+    'courseProgress': {
+      'cpp': {
+        'beginner': {
+          'currentChapter': 1,
+          'currentModule': 1,
+        },
+        'intermediate': {
+          'currentChapter': 1,
+          'currentModule': 1,
+        },
+        'advanced': {
+          'currentChapter': 1,
+          'currentModule': 1,
+        },
+      },
+    },
+  };
+
+  Future<void> _testGetCurrentProgress() async {
+    setState(() {
+      _isLoading = true;
+      _output = 'Getting current progress...';
+    });
+
+    try {
+      final progress = _courseService.getCurrentProgress(
+        userData: _mockUserData,
+        languageId: 'cpp',
+        difficulty: 'beginner',
+      );
+
+      final currentModule = await _courseService.getCurrentModule(
+        userData: _mockUserData,
+        languageId: 'cpp',
+        difficulty: 'beginner',
+      );
+
+      String result = 'Current Progress (C++ Beginner):\n\n';
+      result += 'Chapter: ${progress['currentChapter']}\n';
+      result += 'Module: ${progress['currentModule']}\n\n';
+      
+      if (currentModule != null) {
+        result += 'Current Module Title: ${currentModule.title}\n';
+        result += 'Level Schema: ${currentModule.levelSchema}\n';
+      } else {
+        result += 'No module found (completed or not available)\n';
+      }
+
+      setState(() {
+        _output = result;
+      });
+    } catch (e) {
+      setState(() {
+        _output = 'Error: $e';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _testAdvanceModule() async {
+    setState(() {
+      _isLoading = true;
+      _output = 'Advancing to next module...';
+    });
+
+    try {
+      final oldProgress = _courseService.getCurrentProgress(
+        userData: _mockUserData,
+        languageId: 'cpp',
+        difficulty: 'beginner',
+      );
+
+      // Advance the module
+      _mockUserData = await _courseService.advanceModule(
+        userData: _mockUserData,
+        languageId: 'cpp',
+        difficulty: 'beginner',
+      );
+
+      final newProgress = _courseService.getCurrentProgress(
+        userData: _mockUserData,
+        languageId: 'cpp',
+        difficulty: 'beginner',
+      );
+
+      final newModule = await _courseService.getCurrentModule(
+        userData: _mockUserData,
+        languageId: 'cpp',
+        difficulty: 'beginner',
+      );
+
+      String result = 'Module Advanced!\n\n';
+      result += 'OLD Progress:\n';
+      result += '  Chapter: ${oldProgress['currentChapter']}\n';
+      result += '  Module: ${oldProgress['currentModule']}\n\n';
+      result += 'NEW Progress:\n';
+      result += '  Chapter: ${newProgress['currentChapter']}\n';
+      result += '  Module: ${newProgress['currentModule']}\n\n';
+      
+      if (newModule != null) {
+        result += 'New Module Title: ${newModule.title}\n';
+      } else {
+        result += 'No more modules available (completed difficulty level)\n';
+      }
+
+      setState(() {
+        _output = result;
+      });
+    } catch (e) {
+      setState(() {
+        _output = 'Error: $e';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _testProgressPercentage() async {
+    setState(() {
+      _isLoading = true;
+      _output = 'Calculating progress percentage...';
+    });
+
+    try {
+      final percentage = await _courseService.getProgressPercentage(
+        userData: _mockUserData,
+        languageId: 'cpp',
+        difficulty: 'beginner',
+      );
+
+      final totalChapters = await _courseService.getChapterCount(
+        languageId: 'cpp',
+        difficulty: 'beginner',
+      );
+
+      final progress = _courseService.getCurrentProgress(
+        userData: _mockUserData,
+        languageId: 'cpp',
+        difficulty: 'beginner',
+      );
+
+      final isCompleted = await _courseService.hasCompletedDifficulty(
+        userData: _mockUserData,
+        languageId: 'cpp',
+        difficulty: 'beginner',
+      );
+
+      String result = 'Progress Statistics (C++ Beginner):\n\n';
+      result += 'Current Chapter: ${progress['currentChapter']}\n';
+      result += 'Current Module: ${progress['currentModule']}\n';
+      result += 'Total Chapters: $totalChapters\n\n';
+      result += 'Progress: ${(percentage * 100).toStringAsFixed(1)}%\n';
+      result += 'Completed: ${isCompleted ? 'Yes' : 'No'}\n';
+
+      setState(() {
+        _output = result;
+      });
+    } catch (e) {
+      setState(() {
+        _output = 'Error: $e';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _testResetProgress() async {
+    setState(() {
+      _isLoading = true;
+      _output = 'Resetting progress...';
+    });
+
+    try {
+      final oldProgress = _courseService.getCurrentProgress(
+        userData: _mockUserData,
+        languageId: 'cpp',
+        difficulty: 'beginner',
+      );
+
+      _mockUserData = _courseService.resetProgress(
+        userData: _mockUserData,
+        languageId: 'cpp',
+        difficulty: 'beginner',
+      );
+
+      final newProgress = _courseService.getCurrentProgress(
+        userData: _mockUserData,
+        languageId: 'cpp',
+        difficulty: 'beginner',
+      );
+
+      String result = 'Progress Reset!\n\n';
+      result += 'OLD Progress:\n';
+      result += '  Chapter: ${oldProgress['currentChapter']}\n';
+      result += '  Module: ${oldProgress['currentModule']}\n\n';
+      result += 'NEW Progress:\n';
+      result += '  Chapter: ${newProgress['currentChapter']}\n';
+      result += '  Module: ${newProgress['currentModule']}\n';
+
+      setState(() {
+        _output = result;
+      });
+    } catch (e) {
+      setState(() {
+        _output = 'Error: $e';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -272,6 +498,38 @@ class _CourseSchemaExamplePageState extends State<CourseSchemaExamplePage> {
                 ElevatedButton(
                   onPressed: _isLoading ? null : _getCourseStructure,
                   child: const Text('Get Course Structure Summary'),
+                ),
+                const SizedBox(height: 16),
+                const Divider(thickness: 2),
+                const Text(
+                  'Progress Tracking Tests',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  textAlign: TextAlign.center,
+                ),
+                const Divider(thickness: 2),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: _isLoading ? null : _testGetCurrentProgress,
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                  child: const Text('Get Current Progress (C++ Beginner)'),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: _isLoading ? null : _testAdvanceModule,
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                  child: const Text('Advance to Next Module'),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: _isLoading ? null : _testProgressPercentage,
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                  child: const Text('Calculate Progress %'),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: _isLoading ? null : _testResetProgress,
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+                  child: const Text('Reset Progress'),
                 ),
               ],
             ),

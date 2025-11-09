@@ -306,6 +306,137 @@ if (level.mode == 'fill_in_the_code') {
 
 ---
 
+## Progress Tracking
+
+### User Progress Schema
+
+User progress is stored in the `courseProgress` section of user data with the following structure:
+
+```json
+{
+    "courseProgress": {
+        "[language_id]": {
+            "[difficulty]": {
+                "currentChapter": [integer],
+                "currentModule": [integer]
+            }
+        }
+    }
+}
+```
+
+**Example:**
+```json
+{
+    "courseProgress": {
+        "cpp": {
+            "beginner": {
+                "currentChapter": 1,
+                "currentModule": 3
+            },
+            "intermediate": {
+                "currentChapter": 1,
+                "currentModule": 1
+            },
+            "advanced": {
+                "currentChapter": 1,
+                "currentModule": 1
+            }
+        }
+    }
+}
+```
+
+### Progress Tracking Methods
+
+The `CourseDataSchema` class provides several helper methods for managing user progress:
+
+#### Get Current Progress
+
+```dart
+final progress = courseService.getCurrentProgress(
+  userData: userData,
+  languageId: 'cpp',
+  difficulty: 'beginner',
+);
+// Returns: {'currentChapter': 1, 'currentModule': 3}
+```
+
+#### Get Current Module
+
+```dart
+final currentModule = await courseService.getCurrentModule(
+  userData: userData,
+  languageId: 'cpp',
+  difficulty: 'beginner',
+);
+// Returns: Module object user is currently on
+```
+
+#### Advance to Next Module
+
+```dart
+final updatedUserData = await courseService.advanceModule(
+  userData: userData,
+  languageId: 'cpp',
+  difficulty: 'beginner',
+);
+// Automatically moves to next chapter if current chapter is completed
+```
+
+#### Calculate Progress Percentage
+
+```dart
+final percentage = await courseService.getProgressPercentage(
+  userData: userData,
+  languageId: 'cpp',
+  difficulty: 'beginner',
+);
+// Returns: 0.0 to 1.0 (multiply by 100 for percentage)
+```
+
+#### Check Completion Status
+
+```dart
+final isCompleted = await courseService.hasCompletedDifficulty(
+  userData: userData,
+  languageId: 'cpp',
+  difficulty: 'beginner',
+);
+// Returns: true if all modules in difficulty are completed
+```
+
+#### Reset Progress
+
+```dart
+final resetUserData = courseService.resetProgress(
+  userData: userData,
+  languageId: 'cpp',
+  difficulty: 'beginner',
+);
+// Resets progress to chapter 1, module 1
+```
+
+### Progress Behavior
+
+**Module Advancement:**
+- When a user completes a module, call `advanceModule()`
+- If there are more modules in the current chapter, moves to next module
+- If current chapter is completed, moves to next chapter's first module
+- Progress continues beyond defined modules (for future updates)
+
+**Independence:**
+- Each difficulty level tracks progress independently
+- Completing beginner doesn't affect intermediate or advanced progress
+- Each language tracks progress independently
+
+**Level Progress:**
+- Level progress (within modules) is NOT stored in user data
+- Level progress is managed locally in the app
+- Only chapter and module progress is persisted to Firestore
+
+---
+
 ## Adding New Content
 
 ### Adding a New Module
