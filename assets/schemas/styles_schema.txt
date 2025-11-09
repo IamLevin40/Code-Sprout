@@ -133,20 +133,20 @@
         },
         "items": {
             "home": {
-                "selected": "images/icons/home_selected.png",
-                "unselected": "images/icons/home_unselected.png"
+                "selected": "images/icons/navbuttons/home_selected.png",
+                "unselected": "images/icons/navbuttons/home_unselected.png"
             },
             "course": {
-                "selected": "images/icons/course_selected.png",
-                "unselected": "images/icons/course_unselected.png"
+                "selected": "images/icons/navbuttons/course_selected.png",
+                "unselected": "images/icons/navbuttons/course_unselected.png"
             },
             "sprout": {
-                "selected": "images/icons/sprout_selected.png",
-                "unselected": "images/icons/sprout_unselected.png"
+                "selected": "images/icons/navbuttons/sprout_selected.png",
+                "unselected": "images/icons/navbuttons/sprout_unselected.png"
             },
             "settings": {
-                "selected": "images/icons/settings_selected.png",
-                "unselected": "images/icons/settings_unselected.png"
+                "selected": "images/icons/navbuttons/settings_selected.png",
+                "unselected": "images/icons/navbuttons/settings_unselected.png"
             }
         },
         "selected_indicator": {
