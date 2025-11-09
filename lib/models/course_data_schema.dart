@@ -376,20 +376,53 @@ class CourseDataSchema {
       int currentModule = progress['currentModule']!;
       
       // Get total modules in current chapter
-      final totalModulesInChapter = await getModuleCountInChapter(
+      final totalChapters = await getChapterCount(
         languageId: languageId,
         difficulty: difficulty,
-        chapterNumber: currentChapter,
       );
-      
-      // Check if we need to move to next chapter
-      if (currentModule >= totalModulesInChapter) {
-        // Move to next chapter, first module
-        currentChapter += 1;
+
+      // If user already beyond the last chapter marker (totalChapters + 1), do nothing
+      if (currentChapter > totalChapters + 1) {
+        // Cap the chapter to totalChapters + 1 and keep module at 1
+        currentChapter = totalChapters + 1;
+        currentModule = 1;
+      } else if (currentChapter > totalChapters) {
+        // We are already in the 'completed' sentinel state (chapter == totalChapters+1)
+        // Do nothing further; keep at sentinel
         currentModule = 1;
       } else {
-        // Move to next module in same chapter
-        currentModule += 1;
+        // Normal case: determine modules in current chapter
+        final totalModulesInChapter = await getModuleCountInChapter(
+          languageId: languageId,
+          difficulty: difficulty,
+          chapterNumber: currentChapter,
+        );
+
+        // If current module is the last module in the chapter
+        if (totalModulesInChapter == 0) {
+          // No modules in this chapter, move to next chapter
+          if (currentChapter < totalChapters) {
+            currentChapter += 1;
+            currentModule = 1;
+          } else {
+            // Last chapter with no modules -> mark as completed
+            currentChapter = totalChapters + 1;
+            currentModule = 1;
+          }
+        } else if (currentModule >= totalModulesInChapter) {
+          // Move to next chapter or completion sentinel
+          if (currentChapter < totalChapters) {
+            currentChapter += 1;
+            currentModule = 1;
+          } else {
+            // Finished last module of last chapter -> move to sentinel (totalChapters + 1)
+            currentChapter = totalChapters + 1;
+            currentModule = 1;
+          }
+        } else {
+          // Move to next module in same chapter
+          currentModule += 1;
+        }
       }
       
       // Update userData
