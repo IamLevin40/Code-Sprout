@@ -11,6 +11,7 @@ class CourseDataSchema {
   final Map<String, CourseData> _coursesCache = {};
   final Map<String, ModuleData> _modulesCache = {};
   final Map<String, LevelData> _levelsCache = {};
+  List<String> _recommendedLanguages = [];
 
   /// Load the main courses schema
   Future<Map<String, CourseData>> loadCoursesSchema() async {
@@ -22,9 +23,26 @@ class CourseDataSchema {
       final String jsonString = await rootBundle.loadString('schemas/courses_schema.txt');
       final Map<String, dynamic> jsonData = json.decode(jsonString);
 
+      // Only parse entries that look like course definitions (have module_schema_file)
       jsonData.forEach((key, value) {
-        _coursesCache[key] = CourseData.fromJson(key, value as Map<String, dynamic>);
+        try {
+          if (value is Map<String, dynamic> && value.containsKey('module_schema_file')) {
+            _coursesCache[key] = CourseData.fromJson(key, value);
+          }
+        } catch (e) {
+          // skip unexpected entries without failing
+        }
       });
+
+      // Cache recommended languages if present in the schema file
+      try {
+        final rec = jsonData['recommended'];
+        if (rec is List) {
+          _recommendedLanguages = rec.whereType<String>().toList();
+        }
+      } catch (_) {
+        _recommendedLanguages = [];
+      }
 
       return _coursesCache;
     } catch (e) {
@@ -85,6 +103,13 @@ class CourseDataSchema {
   Future<List<String>> getAvailableLanguages() async {
     final courses = await loadCoursesSchema();
     return courses.keys.toList();
+  }
+
+  /// Get recommended languages
+  Future<List<String>> getRecommendedLanguages() async {
+    if (_recommendedLanguages.isNotEmpty) return _recommendedLanguages;
+    await loadCoursesSchema();
+    return _recommendedLanguages;
   }
 
   /// Get a specific module by path

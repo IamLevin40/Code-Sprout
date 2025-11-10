@@ -62,7 +62,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               FutureBuilder<List<String>>(
-                future: CourseDataSchema().getAvailableLanguages(),
+                future: CourseDataSchema().getRecommendedLanguages(),
                 builder: (context, snap) {
                   if (!snap.hasData) {
                     return SizedBox(height: styles.getStyles('course_cards.recommended_card.attribute.height') as double, child: Center(child: CircularProgressIndicator()));

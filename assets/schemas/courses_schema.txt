@@ -13,5 +13,6 @@
     },
     "javascript": {
         "module_schema_file": "schemas/courses/javascript/javascript_modules_schema.txt"
-    }
+    },
+    "recommended": ["cpp", "java", "python"]
 }
