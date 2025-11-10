@@ -23,18 +23,9 @@ class _CoursePageState extends State<CoursePage> {
   UserData? _userData;
   bool _isLoading = true;
 
-  // Currently selected difficulty filter
-  String _selectedDifficulty = 'Beginner';
-  final List<String> _difficulties = ['Beginner', 'Intermediate', 'Advanced'];
-
-  // Language ID to display name mapping
-  final Map<String, String> _languageNames = {
-    'cpp': 'C++',
-    'csharp': 'C#',
-    'java': 'Java',
-    'python': 'Python',
-    'javascript': 'JavaScript',
-  };
+  String _selectedDifficulty = '';
+  List<String> _difficulties = [];
+  final Map<String, String> _languageNames = {};
 
   @override
   void initState() {
@@ -45,8 +36,9 @@ class _CoursePageState extends State<CoursePage> {
   /// Load available languages and user data
   Future<void> _loadData() async {
     try {
-      // Load available languages from course schema
-      final languages = await _courseSchema.getAvailableLanguages();
+      // Load available languages and module schemas from course schema
+      final coursesMap = await _courseSchema.loadCoursesSchema();
+      final languages = coursesMap.keys.toList();
       
       // Load user data if authenticated
       UserData? userData;
@@ -61,6 +53,30 @@ class _CoursePageState extends State<CoursePage> {
       }
 
       if (mounted) {
+        final Set<String> difficultiesFound = {};
+        for (final langId in languages) {
+          try {
+            final moduleSchema = await _courseSchema.loadModuleSchema(langId);
+            _languageNames[langId] = moduleSchema.programmingLanguage;
+
+            if (moduleSchema.beginner.chapters.isNotEmpty) difficultiesFound.add('Beginner');
+            if (moduleSchema.intermediate.chapters.isNotEmpty) difficultiesFound.add('Intermediate');
+            if (moduleSchema.advanced.chapters.isNotEmpty) difficultiesFound.add('Advanced');
+          } catch (e) {
+            _languageNames[langId] = langId;
+          }
+        }
+
+        final preferredOrder = ['Beginner', 'Intermediate', 'Advanced'];
+        _difficulties = preferredOrder.where((d) => difficultiesFound.contains(d)).toList();
+        if (_difficulties.isEmpty) {
+          _difficulties = List.from(preferredOrder);
+        }
+
+        if (_selectedDifficulty.isEmpty || !_difficulties.contains(_selectedDifficulty)) {
+          _selectedDifficulty = _difficulties.first;
+        }
+
         setState(() {
           _availableLanguages = languages;
           _userData = userData;
