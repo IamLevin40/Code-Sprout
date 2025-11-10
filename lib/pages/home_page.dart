@@ -1,19 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
 import '../services/auth_service.dart';
+import '../models/touch_mouse_drag_scroll_behavior.dart';
 import '../models/styles_schema.dart';
 import '../models/course_data_schema.dart';
 import '../widgets/recommended_course_cards.dart';
-
-class _TouchMouseDragScrollBehavior extends ScrollBehavior {
-  @override
-  Set<PointerDeviceKind> get dragDevices => {
-        PointerDeviceKind.touch,
-        PointerDeviceKind.mouse,
-        PointerDeviceKind.stylus,
-        PointerDeviceKind.unknown,
-      };
-}
 
 class HomePage extends StatefulWidget {
   final ValueChanged<int>? onTabSelected;
@@ -75,7 +65,7 @@ class _HomePageState extends State<HomePage> {
                         width: viewportWidth,
                         height: listHeight,
                         child: ScrollConfiguration(
-                          behavior: _TouchMouseDragScrollBehavior(),
+                          behavior: TouchMouseDragScrollBehavior(),
                           child: Scrollbar(
                             controller: _recommendedScrollController,
                             thumbVisibility: true,
