@@ -1053,6 +1053,20 @@
                 }
             }
         },
+        "discover_card": {
+            "attribute": {
+                "width": 120,
+                "height": 170,
+                "border_radius": 24,
+                "border_width": 2,
+                "padding": 8,
+                "spacing": 16,
+                "margin": {
+                    "left-right": 8,
+                    "top-bottom": 8
+                }
+            }
+        },
         "style_coding": {
             "cpp": {
                 "icon": "images/icons/languages/cpp.png",
