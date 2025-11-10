@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'course_data.dart';
 
@@ -142,7 +143,7 @@ class CourseDataSchema {
 
       return chapter.modules[moduleId];
     } catch (e) {
-      print('Error getting module: $e');
+      debugPrint('Error getting module: $e');
       return null;
     }
   }
@@ -177,7 +178,7 @@ class CourseDataSchema {
 
       return result;
     } catch (e) {
-      print('Error getting modules by difficulty: $e');
+      debugPrint('Error getting modules by difficulty: $e');
       return {};
     }
   }
@@ -201,7 +202,7 @@ class CourseDataSchema {
           return null;
       }
     } catch (e) {
-      print('Error getting estimated duration: $e');
+      debugPrint('Error getting estimated duration: $e');
       return null;
     }
   }
@@ -215,7 +216,7 @@ class CourseDataSchema {
       final levelSchema = await loadLevelSchema(levelSchemaPath);
       return levelSchema.levels[levelId];
     } catch (e) {
-      print('Error getting level: $e');
+      debugPrint('Error getting level: $e');
       return null;
     }
   }
@@ -228,7 +229,7 @@ class CourseDataSchema {
       final levelSchema = await loadLevelSchema(levelSchemaPath);
       return levelSchema.levels;
     } catch (e) {
-      print('Error getting all levels: $e');
+      debugPrint('Error getting all levels: $e');
       return {};
     }
   }
@@ -241,7 +242,7 @@ class CourseDataSchema {
       final levelSchema = await loadLevelSchema(levelSchemaPath);
       return levelSchema.levels.length;
     } catch (e) {
-      print('Error getting level count: $e');
+      debugPrint('Error getting level count: $e');
       return 0;
     }
   }
@@ -320,7 +321,7 @@ class CourseDataSchema {
         'currentModule': (progress['currentModule'] as num?)?.toInt() ?? 1,
       };
     } catch (e) {
-      print('Error getting current progress: $e');
+      debugPrint('Error getting current progress: $e');
       return {'currentChapter': 1, 'currentModule': 1};
     }
   }
@@ -344,7 +345,7 @@ class CourseDataSchema {
           return 0;
       }
     } catch (e) {
-      print('Error getting chapter count: $e');
+      debugPrint('Error getting chapter count: $e');
       return 0;
     }
   }
@@ -377,7 +378,7 @@ class CourseDataSchema {
       final chapter = difficultyLevel.chapters[chapterId];
       return chapter?.modules.length ?? 0;
     } catch (e) {
-      print('Error getting module count in chapter: $e');
+      debugPrint('Error getting module count in chapter: $e');
       return 0;
     }
   }
@@ -467,7 +468,7 @@ class CourseDataSchema {
       
       return updatedData;
     } catch (e) {
-      print('Error advancing module: $e');
+      debugPrint('Error advancing module: $e');
       return userData;
     }
   }
@@ -495,7 +496,7 @@ class CourseDataSchema {
         moduleId: moduleId,
       );
     } catch (e) {
-      print('Error getting current module: $e');
+      debugPrint('Error getting current module: $e');
       return null;
     }
   }
@@ -539,7 +540,7 @@ class CourseDataSchema {
       
       return false;
     } catch (e) {
-      print('Error checking completion: $e');
+      debugPrint('Error checking completion: $e');
       return false;
     }
   }
@@ -567,7 +568,7 @@ class CourseDataSchema {
       
       return updatedData;
     } catch (e) {
-      print('Error resetting progress: $e');
+      debugPrint('Error resetting progress: $e');
       return userData;
     }
   }
@@ -618,7 +619,7 @@ class CourseDataSchema {
       if (totalModules == 0) return 0.0;
       return completedModules / totalModules;
     } catch (e) {
-      print('Error calculating progress percentage: $e');
+      debugPrint('Error calculating progress percentage: $e');
       return 0.0;
     }
   }

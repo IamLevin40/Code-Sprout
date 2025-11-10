@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
     
     return MaterialApp(
       title: 'Code Sprout',
-      scrollBehavior: TouchMouseDragScrollBehavior(),
+      scrollBehavior: const TouchMouseDragScrollBehavior(),
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(

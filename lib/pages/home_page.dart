@@ -61,7 +61,7 @@ class _HomePageState extends State<HomePage> {
                 future: CourseDataSchema().getRecommendedLanguages(),
                 builder: (context, snap) {
                   if (!snap.hasData) {
-                    return SizedBox(height: styles.getStyles('course_cards.recommended_card.attribute.height') as double, child: Center(child: CircularProgressIndicator()));
+                    return SizedBox(height: styles.getStyles('course_cards.recommended_card.attribute.height') as double, child: const Center(child: CircularProgressIndicator()));
                   }
                   final langs = snap.data!;
                     final listHeight = styles.getStyles('course_cards.recommended_card.attribute.height') as double;
@@ -72,7 +72,7 @@ class _HomePageState extends State<HomePage> {
                           width: viewportWidth,
                           height: listHeight,
                           child: ScrollConfiguration(
-                            behavior: TouchMouseDragScrollBehavior(),
+                            behavior: const TouchMouseDragScrollBehavior(),
                             child: SingleChildScrollView(
                               controller: _recommendedScrollController,
                               scrollDirection: Axis.horizontal,
@@ -129,7 +129,7 @@ class _HomePageState extends State<HomePage> {
                 future: CourseDataSchema().getAvailableLanguages(),
                 builder: (context, snap) {
                   if (!snap.hasData) {
-                    return SizedBox(height: styles.getStyles('course_cards.discover_card.attribute.height') as double, child: Center(child: CircularProgressIndicator()));
+                    return SizedBox(height: styles.getStyles('course_cards.discover_card.attribute.height') as double, child: const Center(child: CircularProgressIndicator()));
                   }
                   final langs = snap.data!;
                   final listHeight = styles.getStyles('course_cards.discover_card.attribute.height') as double;
@@ -139,8 +139,8 @@ class _HomePageState extends State<HomePage> {
                       return SizedBox(
                         width: viewportWidth,
                         height: listHeight,
-                        child: ScrollConfiguration(
-                          behavior: TouchMouseDragScrollBehavior(),
+                          child: ScrollConfiguration(
+                          behavior: const TouchMouseDragScrollBehavior(),
                           child: SingleChildScrollView(
                             controller: _discoverScrollController,
                             scrollDirection: Axis.horizontal,
