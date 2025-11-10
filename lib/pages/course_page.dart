@@ -23,6 +23,10 @@ class _CoursePageState extends State<CoursePage> {
   UserData? _userData;
   bool _isLoading = true;
 
+  // Currently selected difficulty filter
+  String _selectedDifficulty = 'Beginner';
+  final List<String> _difficulties = ['Beginner', 'Intermediate', 'Advanced'];
+
   // Language ID to display name mapping
   final Map<String, String> _languageNames = {
     'cpp': 'C++',
@@ -84,43 +88,80 @@ class _CoursePageState extends State<CoursePage> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    final bottomNavHeight = styles.getStyles('bottom_navigation.bar.max_height') as double;
     final screenWidth = MediaQuery.of(context).size.width;
+
+    final double selectorGap = styles.getStyles('course_page.selector.gap') as double;
+    final double selectorHeight = (styles.getStyles('course_page.selector.height') as num).toDouble();
+    final Color selectorBackground = styles.getStyles('course_page.selector.background_color') as Color;
+    final Color selectorTextColor = styles.getStyles('course_page.selector.text_color') as Color;
+    final Color selectorSelectedTextColor = styles.getStyles('course_page.selector.selected_text_color') as Color;
+    final Color selectorSelectedBorderColor = styles.getStyles('course_page.selector.selected_border_color') as Color;
+    final double selectorSelectedBorderWidth = (styles.getStyles('course_page.selector.selected_border_width') as num).toDouble();
 
     return SingleChildScrollView(
       child: SizedBox(
         width: screenWidth,
         child: Padding(
-          padding: EdgeInsets.only(bottom: bottomNavHeight),
+          padding: const EdgeInsets.all(24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              const SizedBox(height: 16),
-              // Title
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Text(
-                  'Courses',
-                  style: TextStyle(
-                    fontSize: styles.getStyles('header.title.font_size') as double,
-                    fontWeight: styles.getStyles('header.title.font_weight') as FontWeight,
-                    color: styles.getStyles('header.title.color') as Color,
-                  ),
+              // Title (no extra padding)
+              Text(
+                'Courses',
+                style: TextStyle(
+                  fontSize: styles.getStyles('course_page.title.font_size') as double,
+                  fontWeight: styles.getStyles('course_page.title.font_weight') as FontWeight,
+                  color: styles.getStyles('course_page.title.color') as Color,
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 4),
 
-              // Beginner Section
-              _buildDifficultySection(styles, 'Beginner'),
-              const SizedBox(height: 32),
+              // Difficulty selector (one row, equally spaced buttons)
+              LayoutBuilder(builder: (context, constraints) {
+                final double maxW = constraints.maxWidth;
+                final int count = _difficulties.length;
+                final double totalGap = selectorGap * (count - 1);
+                final double buttonWidth = (maxW - totalGap) / count;
 
-              // Intermediate Section
-              _buildDifficultySection(styles, 'Intermediate'),
-              const SizedBox(height: 32),
+                return Row(
+                  children: List<Widget>.generate(count * 2 - 1, (index) {
+                    if (index.isOdd) return SizedBox(width: selectorGap);
+                    final int i = index ~/ 2;
+                    final String d = _difficulties[i];
+                    final bool selected = d == _selectedDifficulty;
 
-              // Advanced Section
-              _buildDifficultySection(styles, 'Advanced'),
-              const SizedBox(height: 32),
+                    return SizedBox(
+                      width: buttonWidth,
+                      height: selectorHeight,
+                      child: GestureDetector(
+                        onTap: () => setState(() => _selectedDifficulty = d),
+                        child: Container(
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: selectorBackground,
+                            borderRadius: BorderRadius.circular(selectorHeight / 2),
+                            border: selected
+                                ? Border.all(color: selectorSelectedBorderColor, width: selectorSelectedBorderWidth)
+                                : null,
+                          ),
+                          child: Text(
+                            d,
+                            style: TextStyle(
+                              fontSize: (styles.getStyles('course_page.selector.font_size') as num).toDouble(),
+                              fontWeight: styles.getStyles('course_page.selector.font_weight') as FontWeight,
+                              color: selected ? selectorSelectedTextColor : selectorTextColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                );
+              }),
+              const SizedBox(height: 12),
+
+              _buildDifficultySection(styles, _selectedDifficulty)
             ],
           ),
         ),
@@ -144,45 +185,28 @@ class _CoursePageState extends State<CoursePage> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Section title
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Text(
-              difficulty,
-              style: TextStyle(
-                fontSize: styles.getStyles('tab.label.font_size') as double,
-                fontWeight: styles.getStyles('tab.label.font_weight') as FontWeight,
-                color: styles.getStyles('global.text.primary.color') as Color,
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-
           // Responsive grid of course cards
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: SizedBox(
-              width: double.infinity,
-              child: Wrap(
-                spacing: spacing,
-                runSpacing: spacing,
-                alignment: WrapAlignment.center,
-                runAlignment: WrapAlignment.center,
-                children: _availableLanguages.map((languageId) {
-                  final languageName = _languageNames[languageId] ?? languageId.toUpperCase();
-                  return SizedBox(
-                    width: cardWidth,
-                    child: MainCourseCard(
-                      languageId: languageId,
-                      languageName: languageName,
-                      difficulty: difficulty,
-                      userData: _userData,
-                      cardWidth: cardWidth,
-                      onTap: () => _onCourseCardTap(languageId, difficulty),
-                    ),
-                  );
-                }).toList(),
-              ),
+          SizedBox(
+            width: double.infinity,
+            child: Wrap(
+              spacing: spacing,
+              runSpacing: spacing,
+              alignment: WrapAlignment.center,
+              runAlignment: WrapAlignment.center,
+              children: _availableLanguages.map((languageId) {
+                final languageName = _languageNames[languageId] ?? languageId.toUpperCase();
+                return SizedBox(
+                  width: cardWidth,
+                  child: MainCourseCard(
+                    languageId: languageId,
+                    languageName: languageName,
+                    difficulty: difficulty,
+                    userData: _userData,
+                    cardWidth: cardWidth,
+                    onTap: () => _onCourseCardTap(languageId, difficulty),
+                  ),
+                );
+              }).toList(),
             ),
           ),
         ],

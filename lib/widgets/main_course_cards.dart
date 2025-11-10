@@ -206,7 +206,6 @@ class MainCourseCard extends StatelessWidget {
 
                 // Language name (centered)
                 Center(child: _buildLanguageName(styles)),
-                const SizedBox(height: 2),
 
                 // Difficulty with leaves
                 _buildDifficultyRow(styles),
@@ -228,11 +227,11 @@ class MainCourseCard extends StatelessWidget {
                   styles.getStyles('course_cards.general.info_row.light.text_color') as Color,
                   _formatDuration(data['duration']),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 8),
 
                 // Current progress text
                 _buildProgressText(styles, data),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
 
                 // Progress bar
                 _buildProgressBar(styles, data['progressPercentage']),

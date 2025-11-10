@@ -809,17 +809,26 @@
         }
     },
     "course_page": {
-        "list": {
-            "title": {
-                "font_size": "--font_sizes.regular",
-                "font_weight": "--font_weights.bold"
-            },
-            "subtitle": {
-                "color": "--colors.dirty_white"
-            },
-            "trailing": {
-                "color": "--colors.light_purple"
-            }
+        "title": {
+            "color": "--colors.dark_purple",
+            "font_size": "--font_sizes.title",
+            "font_weight": "--font_weights.bold"
+        },
+        "selector": {
+            "font_size": "--font_sizes.regular",
+            "font_weight": "--font_weights.bold",
+            "height": 32,
+            "gap": 8,
+            "background_color": "--colors.dirty_white",
+            "text_color": "--colors.gray",
+            "selected_text_color": "--colors.dark_purple",
+            "selected_border_color": "--colors.dark_purple",
+            "selected_border_width": 2
+        },
+        "section_title": {
+            "font_size": "--font_sizes.title",
+            "font_weight": "--font_weights.bold",
+            "color": "--colors.dark_purple"
         }
     },
     "sprout_page": {
@@ -880,12 +889,7 @@
             }
         }
     },
-    "tab": {
-        "label": {
-            "font_size": "--font_sizes.title",
-            "font_weight": "--font_weights.bold"
-        }
-    },
+    
     "course_cards": {
         "general": {
             "placeholder": {
