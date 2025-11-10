@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'services/auth_service.dart';
 import 'models/styles_schema.dart';
+import 'models/touch_mouse_drag_scroll_behavior.dart';
 import 'pages/register_page.dart';
 import 'pages/login_page.dart';
 import 'pages/main_navigation_page.dart';
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
     
     return MaterialApp(
       title: 'Code Sprout',
+      scrollBehavior: TouchMouseDragScrollBehavior(),
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(

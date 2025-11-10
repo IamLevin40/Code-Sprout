@@ -35,19 +35,22 @@ class _HomePageState extends State<HomePage> {
       color: styles.getStyles('global.background.color') as Color,
       child: Center(
         child: Padding(
-          padding: const EdgeInsets.only(left: 24.0, right: 0, top: 24.0, bottom: 24.0),
+          padding: const EdgeInsets.symmetric(vertical: 24.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               // Recommended section
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Recommended',
-                  style: TextStyle(
-                    fontSize: styles.getStyles('home_page.card_title.font_size') as double,
-                    fontWeight: styles.getStyles('home_page.card_title.font_weight') as FontWeight,
-                    color: styles.getStyles('home_page.card_title.color') as Color,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Recommended',
+                    style: TextStyle(
+                      fontSize: styles.getStyles('home_page.card_title.font_size') as double,
+                      fontWeight: styles.getStyles('home_page.card_title.font_weight') as FontWeight,
+                      color: styles.getStyles('home_page.card_title.color') as Color,
+                    ),
                   ),
                 ),
               ),
@@ -59,51 +62,55 @@ class _HomePageState extends State<HomePage> {
                   }
                   final langs = snap.data!;
                     final listHeight = styles.getStyles('course_cards.recommended_card.attribute.height') as double;
-                    return LayoutBuilder(builder: (ctx, constraints) {
-                      final viewportWidth = constraints.maxWidth;
-                      return SizedBox(
-                        width: viewportWidth,
-                        height: listHeight,
-                        child: ScrollConfiguration(
-                          behavior: TouchMouseDragScrollBehavior(),
-                          child: Scrollbar(
-                            controller: _recommendedScrollController,
-                            thumbVisibility: true,
-                            trackVisibility: false,
-                            scrollbarOrientation: ScrollbarOrientation.bottom,
+                    return LayoutBuilder(
+                      builder: (ctx, constraints) {
+                        final viewportWidth = constraints.maxWidth;
+                        return SizedBox(
+                          width: viewportWidth,
+                          height: listHeight,
+                          child: ScrollConfiguration(
+                            behavior: TouchMouseDragScrollBehavior(),
                             child: SingleChildScrollView(
                               controller: _recommendedScrollController,
                               scrollDirection: Axis.horizontal,
                               physics: const BouncingScrollPhysics(),
                               clipBehavior: Clip.hardEdge,
-                              child: Row(
-                                children: [
-                                  for (int i = 0; i < langs.length; i++) ...[
-                                    FutureBuilder<Map<String, dynamic>>(
-                                      future: CourseDataSchema().loadModuleSchema(langs[i]).then((module) => {'id': langs[i], 'name': module.programmingLanguage}),
-                                      builder: (cctx, csnap) {
-                                        final displayName = csnap.hasData ? (csnap.data!['name'] as String) : langs[i];
-                                        return RecommendedCourseCard(languageId: langs[i], languageName: displayName, difficulty: 'Beginner');
-                                      },
-                                    ),
-                                    if (i < langs.length - 1) SizedBox(width: styles.getStyles('course_cards.recommended_card.attribute.spacing') as double),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                                child: Row(
+                                  children: [
+                                    for (int i = 0; i < langs.length; i++) ...[
+                                      FutureBuilder<Map<String, dynamic>>(
+                                        future: CourseDataSchema().loadModuleSchema(langs[i]).then((module) => {'id': langs[i], 'name': module.programmingLanguage}),
+                                        builder: (cctx, csnap) {
+                                          final displayName = csnap.hasData ? (csnap.data!['name'] as String) : langs[i];
+                                          return RecommendedCourseCard(languageId: langs[i], languageName: displayName, difficulty: 'Beginner');
+                                        },
+                                      ),
+                                      if (i < langs.length - 1)
+                                        SizedBox(width: styles.getStyles('course_cards.recommended_card.attribute.spacing') as double),
+                                    ],
                                   ],
-                                ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    });
+                        );
+                      },
+                    );
                 },
               ),
 
-              ElevatedButton.icon(
-                onPressed: () => _showLogoutDialog(context, AuthService()),
-                icon: Icon(Icons.logout, color: styles.getStyles('home_page.logout_button.icon.color') as Color),
-                label: Text('Logout', style: TextStyle(fontSize: styles.getStyles('home_page.logout_button.text.font_size') as double,
-                  fontWeight: styles.getStyles('home_page.logout_button.text.font_weight') as FontWeight)),
-                style: ElevatedButton.styleFrom(backgroundColor: styles.getStyles('home_page.logout_button.background_color') as Color),
+              // Logout button
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: ElevatedButton.icon(
+                  onPressed: () => _showLogoutDialog(context, AuthService()),
+                  icon: Icon(Icons.logout, color: styles.getStyles('home_page.logout_button.icon.color') as Color),
+                  label: Text('Logout', style: TextStyle(fontSize: styles.getStyles('home_page.logout_button.text.font_size') as double,
+                    fontWeight: styles.getStyles('home_page.logout_button.text.font_weight') as FontWeight)),
+                  style: ElevatedButton.styleFrom(backgroundColor: styles.getStyles('home_page.logout_button.background_color') as Color),
+                ),
               ),
             ],
           ),

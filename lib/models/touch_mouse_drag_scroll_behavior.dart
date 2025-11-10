@@ -10,4 +10,11 @@ class TouchMouseDragScrollBehavior extends ScrollBehavior {
         PointerDeviceKind.stylus,
         PointerDeviceKind.unknown,
       };
+
+  // Prevent the framework from inserting a default scrollbar on desktop/web.
+  // Return the child unchanged so no visible Scrollbar is shown.
+  @override
+  Widget buildScrollbar(BuildContext context, Widget child, ScrollableDetails details) {
+    return child;
+  }
 }
