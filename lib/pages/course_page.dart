@@ -36,9 +36,7 @@ class _CoursePageState extends State<CoursePage> {
   /// Load available languages and user data
   Future<void> _loadData() async {
     try {
-      // Load available languages and module schemas from course schema
-      final coursesMap = await _courseSchema.loadCoursesSchema();
-      final languages = coursesMap.keys.toList();
+      final languages = await _courseSchema.getAvailableLanguages();
       
       // Load user data if authenticated
       UserData? userData;
@@ -191,7 +189,7 @@ class _CoursePageState extends State<CoursePage> {
       final double maxWidth = constraints.maxWidth;
       final fixedCardWidth = styles.getStyles('course_cards.main_card.attribute.width') as double;
       final maxCardWidth = styles.getStyles('course_cards.main_card.attribute.max_width') as double;
-      final spacing = styles.getStyles('course_cards.main_card.attribute.padding') as double;
+      final spacing = styles.getStyles('course_cards.main_card.attribute.spacing') as double;
 
       int columns = (maxWidth / (fixedCardWidth + spacing)).floor();
       if (columns < 2) columns = 2;

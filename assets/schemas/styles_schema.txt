@@ -447,6 +447,11 @@
                 "font_size": "--font_sizes.regular"
             }
         },
+        "card_title": {
+            "color": "--colors.dark_purple",
+            "font_size": "--font_sizes.title",
+            "font_weight": "--font_weights.bold"
+        },
         "logout_button": {
             "background_color": "--colors.pastel_red",
             "text": {
@@ -980,6 +985,7 @@
                 "border_radius": 24,
                 "border_width": 2,
                 "padding": 8,
+                "spacing": 8,
                 "margin": {
                     "top-bottom": 8,
                     "left-right": 12
@@ -1011,6 +1017,39 @@
                         "position": "bottom_right", 
                         "color": "--colors.light_purple" 
                     }
+                }
+            }
+        },
+        "recommended_card": {
+            "attribute": {
+                "width": 220,
+                "height": 200,
+                "max_width": 220,
+                "max_height": 200,
+                "border_radius": 24,
+                "border_width": 2,
+                "padding": 8,
+                "spacing": 16,
+                "margin": {
+                    "top-bottom": 8,
+                    "left-right": 12
+                }
+            },
+            "bottom_info": {
+                "background_color": {
+                    "begin": { 
+                        "position": "top_left", 
+                        "color": "--colors.dirty_white" 
+                    },
+                    "end": { 
+                        "position": "bottom_right", 
+                        "color": "--colors.white" 
+                    }
+                },
+                "border_radius": 16,
+                "margin": {
+                    "top-bottom": 8,
+                    "left-right": 10
                 }
             }
         },
