@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'dart:ui' as ui show ImageFilter;
-import '../models/styles_schema.dart';
-import '../models/course_data_schema.dart';
-import '../models/course_data.dart';
-import '../models/user_data.dart';
+import '../../models/styles_schema.dart';
+import '../../models/course_data_schema.dart';
+import '../../models/course_data.dart';
+import '../../models/user_data.dart';
+import 'global_course_cards.dart';
 
 /// Main course card widget that displays course information
 /// Shows: language icon, difficulty with leaves, progress, chapters count, duration
@@ -33,11 +33,11 @@ class MainCourseCard extends StatelessWidget {
       future: _loadCourseData(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return _buildLoadingCard(styles);
+          return GlobalCourseCards.buildLoadingCard(styles, 'main_card', cardWidth: cardWidth);
         }
 
         if (snapshot.hasError) {
-          return _buildErrorCard(styles);
+          return GlobalCourseCards.buildErrorCard(styles, 'main_card', cardWidth: cardWidth);
         }
 
         final data = snapshot.data!;
@@ -115,47 +115,7 @@ class MainCourseCard extends StatelessWidget {
   }
 
   /// Build loading placeholder card
-  Widget _buildLoadingCard(AppStyles styles) {
-    final borderRadius = styles.getStyles('course_cards.main_card.attribute.border_radius') as double;
-    final fixedCardWidth = styles.getStyles('course_cards.main_card.attribute.width') as double;
-    final cardMaxHeight = styles.getStyles('course_cards.main_card.attribute.max_height') as double;
-    final effectiveWidth = cardWidth ?? fixedCardWidth;
-
-    return Container(
-      width: effectiveWidth,
-      height: cardMaxHeight,
-      decoration: BoxDecoration(
-        color: styles.getStyles('course_cards.general.placeholder.color') as Color,
-        borderRadius: BorderRadius.circular(borderRadius),
-      ),
-      child: const Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
-  }
-
-  /// Build error card when data fails to load
-  Widget _buildErrorCard(AppStyles styles) {
-    final fixedCardWidth = styles.getStyles('course_cards.main_card.attribute.width') as double;
-    final cardMaxHeight = styles.getStyles('course_cards.main_card.attribute.max_height') as double;
-    final effectiveWidth = cardWidth ?? fixedCardWidth;
-    final borderRadius = styles.getStyles('course_cards.main_card.attribute.border_radius') as double;
-    return Container(
-      width: effectiveWidth,
-      height: cardMaxHeight,
-      decoration: BoxDecoration(
-        color: styles.getStyles('course_cards.general.error.color') as Color,
-        borderRadius: BorderRadius.circular(borderRadius),
-      ),
-      child: Center(
-        child: Icon(
-          Icons.error, 
-          color: styles.getStyles('course_cards.general.error.color') as Color, 
-          size: styles.getStyles('course_cards.general.error.icon_size') as double,
-        ),
-      ),
-    );
-  }
+  
 
   /// Build the main course card with all information
   Widget _buildCard(BuildContext context, AppStyles styles, Map<String, dynamic> data) {
@@ -198,21 +158,21 @@ class MainCourseCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Language icon (centered)
+                // Language icon
                 Align(
                   alignment: Alignment.center,
-                  child: _buildLanguageIcon(styles),
+                  child: GlobalCourseCards.buildLanguageIcon(styles, languageId),
                 ),
 
-                // Language name (centered)
-                Center(child: _buildLanguageName(styles)),
-
+                // Language name
+                Center(child: GlobalCourseCards.buildLanguageName(styles, languageName)),
+                
                 // Difficulty with leaves
-                _buildDifficultyRow(styles),
+                GlobalCourseCards.buildDifficultyRowCombined(styles, difficulty),
                 const SizedBox(height: 4),
 
                 // Chapters info
-                _buildInfoRow(
+                GlobalCourseCards.buildInfoRow(
                   styles,
                   styles.getStyles('course_cards.general.info_row.light.chapter_icon') as String,
                   styles.getStyles('course_cards.general.info_row.light.text_color') as Color,
@@ -221,7 +181,7 @@ class MainCourseCard extends StatelessWidget {
                 const SizedBox(height: 2),
 
                 // Duration info
-                _buildInfoRow(
+                GlobalCourseCards.buildInfoRow(
                   styles,
                   styles.getStyles('course_cards.general.info_row.light.duration_icon') as String,
                   styles.getStyles('course_cards.general.info_row.light.text_color') as Color,
@@ -240,178 +200,6 @@ class MainCourseCard extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  /// Build language icon with background
-  Widget _buildLanguageIcon(AppStyles styles) {
-    final iconSize = styles.getStyles('course_cards.general.language_icon.width') as double;
-    final iconBorderRadius = styles.getStyles('course_cards.general.language_icon.border_radius') as double;
-    final dynamic iconBg = styles.getStyles('course_cards.general.language_icon.background_color') as LinearGradient;
-
-    return Container(
-      width: iconSize,
-      height: iconSize,
-      decoration: BoxDecoration(
-        gradient: iconBg,
-        borderRadius: BorderRadius.circular(iconBorderRadius),
-      ),
-      padding: const EdgeInsets.all(12),
-      child: Image.asset(
-        styles.getStyles('course_cards.style_coding.$languageId.icon') as String,
-        fit: BoxFit.contain,
-      ),
-    );
-  }
-
-  /// Build language name text
-  Widget _buildLanguageName(AppStyles styles) {
-    final fontSize = styles.getStyles('course_cards.general.language_name.font_size') as double;
-    final fontWeight = styles.getStyles('course_cards.general.language_name.font_weight') as FontWeight;
-    final color = styles.getStyles('course_cards.general.language_name.color') as Color;
-    List<Shadow> textShadows = [];
-    try {
-      final Color baseColor = styles.getStyles('course_cards.general.language_name.shadow.color') as Color;
-      final sopRaw = styles.getStyles('course_cards.general.language_name.shadow.opacity');
-      final double sop = (sopRaw is num) ? sopRaw.toDouble() / 100.0 : (sopRaw as double);
-      final sblur = styles.getStyles('course_cards.general.language_name.shadow.blur_radius') as double;
-      textShadows = [
-        Shadow(
-          color: baseColor.withAlpha((sop * 255).round()),
-          blurRadius: sblur
-        )
-      ];
-    } catch (e) {
-      textShadows = [];
-    }
-
-    return Text(
-      languageName,
-      style: TextStyle(
-        fontSize: fontSize,
-        fontWeight: fontWeight,
-        color: color,
-        shadows: textShadows,
-      ),
-    );
-  }
-
-  /// Build difficulty row with leaf indicators
-  /// 1 leaf highlighted = Beginner
-  /// 2 leaves highlighted = Intermediate  
-  /// 3 leaves highlighted = Advanced
-  Widget _buildDifficultyRow(AppStyles styles) {
-    final fontSize = styles.getStyles('course_cards.general.difficulty.font_size') as double;
-    final fontWeight = styles.getStyles('course_cards.general.difficulty.font_weight') as FontWeight;
-    final color = styles.getStyles('course_cards.general.difficulty.color') as Color;
-    final leafSize = styles.getStyles('course_cards.general.leaves.width') as double;
-
-    Color? leafShadowColor;
-    double? leafShadowOpacity;
-    double? leafShadowBlur;
-    try {
-      leafShadowColor = styles.getStyles('course_cards.general.leaves.highlight_shadow.color') as Color;
-      final lopRaw = styles.getStyles('course_cards.general.leaves.highlight_shadow.opacity');
-      leafShadowOpacity = (lopRaw is num) ? lopRaw.toDouble() / 100.0 : (lopRaw as double);
-      leafShadowBlur = styles.getStyles('course_cards.general.leaves.highlight_shadow.blur_radius') as double;
-    } catch (e) {
-      leafShadowColor = null;
-      leafShadowOpacity = null;
-      leafShadowBlur = null;
-    }
-
-    // Determine leaf count based on difficulty
-    int highlightedLeaves = 0;
-    switch (difficulty.toLowerCase()) {
-      case 'beginner':
-        highlightedLeaves = 1;
-        break;
-      case 'intermediate':
-        highlightedLeaves = 2;
-        break;
-      case 'advanced':
-        highlightedLeaves = 3;
-        break;
-    }
-
-    return Row(
-      children: [
-        Text(
-          difficulty,
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: fontWeight,
-            color: color,
-          ),
-        ),
-        const Spacer(),
-        // Three leaves with proper highlighting
-        for (int i = 0; i < 3; i++) ...[
-          SizedBox(
-            width: leafSize,
-            height: leafSize,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                if (i < highlightedLeaves && leafShadowColor != null && leafShadowOpacity != null && leafShadowBlur != null)
-                  Transform.translate(
-                    offset: const Offset(0.0, 0.0),
-                    child: ImageFiltered(
-                      imageFilter: ui.ImageFilter.blur(sigmaX: leafShadowBlur, sigmaY: leafShadowBlur),
-                      child: Image.asset(
-                        styles.getStyles('course_cards.general.leaves.icons.highlight') as String,
-                        width: leafSize,
-                        height: leafSize,
-                        color: leafShadowColor.withAlpha((leafShadowOpacity * 255).round()),
-                        colorBlendMode: BlendMode.srcIn,
-                      ),
-                    ),
-                  ),
-
-                // Actual leaf image on top
-                Image.asset(
-                  i < highlightedLeaves 
-                      ? styles.getStyles('course_cards.general.leaves.icons.highlight') as String 
-                      : styles.getStyles('course_cards.general.leaves.icons.unhighlight') as String,
-                  width: leafSize,
-                  height: leafSize,
-                ),
-              ],
-            ),
-          ),
-          if (i < 2) SizedBox(
-            width: (styles.getStyles('course_cards.general.leaves.padding') as double)
-          ),
-        ],
-      ],
-    );
-  }
-
-  /// Build info row with icon and text (used for chapters and duration)
-  Widget _buildInfoRow(AppStyles styles, String iconPath, Color textColor, String text) {
-    final iconWidth = styles.getStyles('course_cards.general.info_row.icon_width') as double;
-    final iconHeight = styles.getStyles('course_cards.general.info_row.icon_height') as double;
-    final textFontSize = styles.getStyles('course_cards.general.info_row.text_font_size') as double;
-    final textFontWeight = styles.getStyles('course_cards.general.info_row.text_font_weight') as FontWeight;
-    final spacing = styles.getStyles('course_cards.general.info_row.spacing') as double;
-
-    return Row(
-      children: [
-        Image.asset(
-          iconPath,
-          width: iconWidth,
-          height: iconHeight,
-        ),
-        SizedBox(width: spacing),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: textFontSize,
-            fontWeight: textFontWeight,
-            color: textColor,
-          ),
-        ),
-      ],
     );
   }
 
@@ -509,9 +297,6 @@ class MainCourseCard extends StatelessWidget {
       ),
     );
   }
-
-
-
 
   /// Format duration from EstimatedDuration object to display string
   String _formatDuration(dynamic duration) {

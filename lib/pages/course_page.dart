@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/styles_schema.dart';
 import '../models/course_data_schema.dart';
 import '../models/user_data.dart';
-import '../widgets/main_course_cards.dart';
+import '../widgets/course_cards/main_course_cards.dart';
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
 

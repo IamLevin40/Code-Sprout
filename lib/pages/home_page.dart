@@ -3,7 +3,7 @@ import '../services/auth_service.dart';
 import '../models/touch_mouse_drag_scroll_behavior.dart';
 import '../models/styles_schema.dart';
 import '../models/course_data_schema.dart';
-import '../widgets/recommended_course_cards.dart';
+import '../widgets/course_cards/recommended_course_cards.dart';
 
 class HomePage extends StatefulWidget {
   final ValueChanged<int>? onTabSelected;
@@ -100,6 +100,7 @@ class _HomePageState extends State<HomePage> {
                     );
                 },
               ),
+              const SizedBox(height: 16),
 
               // Logout button
               Padding(
