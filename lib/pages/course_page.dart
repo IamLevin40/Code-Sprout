@@ -231,10 +231,9 @@ class _CoursePageState extends State<CoursePage> {
   /// Handle course card tap
   void _onCourseCardTap(String languageId, String difficulty) {
     // TODO: Navigate to course detail page
-    final languageName = _languageNames[languageId] ?? languageId;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Selected $languageName - $difficulty'),
+        content: Text('Selected $languageId - $difficulty'),
         duration: const Duration(seconds: 2),
       ),
     );

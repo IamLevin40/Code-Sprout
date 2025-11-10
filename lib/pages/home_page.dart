@@ -84,7 +84,12 @@ class _HomePageState extends State<HomePage> {
                                         future: CourseDataSchema().loadModuleSchema(langs[i]).then((module) => {'id': langs[i], 'name': module.programmingLanguage}),
                                         builder: (cctx, csnap) {
                                           final displayName = csnap.hasData ? (csnap.data!['name'] as String) : langs[i];
-                                          return RecommendedCourseCard(languageId: langs[i], languageName: displayName, difficulty: 'Beginner');
+                                          return RecommendedCourseCard(
+                                            languageId: langs[i],
+                                            languageName: displayName,
+                                            difficulty: 'Beginner',
+                                            onTap: () => _onCourseCardTap(langs[i], 'Beginner'),
+                                          );
                                         },
                                       ),
                                       if (i < langs.length - 1)
@@ -141,6 +146,17 @@ class _HomePageState extends State<HomePage> {
             child: const Text('Logout'),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Handle course card tap
+  void _onCourseCardTap(String languageId, String difficulty) {
+    // TODO: Navigate to course detail page
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Selected $languageId - $difficulty'),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
