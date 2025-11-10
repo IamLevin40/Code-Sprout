@@ -93,13 +93,23 @@ class GlobalCourseCards {
       textShadows = [];
     }
 
-    return Text(
-      languageName,
-      style: TextStyle(
-        fontSize: fontSize,
-        fontWeight: fontWeight,
-        color: color,
-        shadows: textShadows,
+    final double heightBox = fontSize * 1.3;
+    return SizedBox(
+      height: heightBox,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.center,
+        child: Text(
+          languageName,
+          maxLines: 1,
+          overflow: TextOverflow.visible,
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: fontWeight,
+            color: color,
+            shadows: textShadows,
+          ),
+        ),
       ),
     );
   }
