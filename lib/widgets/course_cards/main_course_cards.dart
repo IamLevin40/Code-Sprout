@@ -5,6 +5,7 @@ import '../../models/course_data.dart';
 import '../../models/user_data.dart';
 import 'global_course_cards.dart';
 import 'locked_overlay_course_card.dart';
+import '../../miscellaneous/single_pass_painters.dart';
 
 /// Main course card widget that displays course information
 /// Shows: language icon, difficulty with leaves, progress, chapters count, duration
@@ -272,8 +273,8 @@ class MainCourseCard extends StatelessWidget {
     return SizedBox(
       height: barHeight + strokeThickness,
       child: CustomPaint(
-        painter: _ProgressBarBackgroundPainter(
-          barBg: barBgColor,
+        painter: SinglePassBackgroundPainter(
+          background: barBgColor,
           strokeGradient: strokeBg is LinearGradient ? strokeBg : null,
           strokeColor: strokeBg is Color ? strokeBg : null,
           borderRadius: barBorderRadius,
@@ -326,55 +327,5 @@ class MainCourseCard extends StatelessWidget {
       return '${duration.hours} H ${duration.minutes} M';
     }
     return '0 H 0 M';
-  }
-}
-
-/// Painter that draws the progress bar background and stroke in a single pass.
-class _ProgressBarBackgroundPainter extends CustomPainter {
-  final dynamic barBg; // Color or LinearGradient
-  final LinearGradient? strokeGradient;
-  final Color? strokeColor;
-  final double borderRadius;
-  final double strokeThickness;
-
-  _ProgressBarBackgroundPainter({
-    required this.barBg,
-    this.strokeGradient,
-    this.strokeColor,
-    required this.borderRadius,
-    required this.strokeThickness,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final Rect rect = Offset.zero & size;
-
-    // Draw background (fill)
-    final RRect bgRRect = RRect.fromRectAndRadius(rect.deflate(strokeThickness / 2), Radius.circular(borderRadius));
-    final Paint bgPaint = Paint();
-    if (barBg is LinearGradient) {
-      bgPaint.shader = (barBg as LinearGradient).createShader(bgRRect.outerRect);
-    } else if (barBg is Color) {
-      bgPaint.color = barBg as Color;
-    }
-    canvas.drawRRect(bgRRect, bgPaint);
-
-    // Draw stroke
-    if (strokeGradient != null || strokeColor != null) {
-      final Paint strokePaint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strokeThickness;
-      if (strokeGradient != null) {
-        strokePaint.shader = strokeGradient!.createShader(rect);
-      } else if (strokeColor != null) {
-        strokePaint.color = strokeColor!;
-      }
-      canvas.drawRRect(bgRRect, strokePaint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _ProgressBarBackgroundPainter oldDelegate) {
-    return oldDelegate.barBg != barBg || oldDelegate.strokeGradient != strokeGradient || oldDelegate.strokeColor != strokeColor || oldDelegate.borderRadius != borderRadius || oldDelegate.strokeThickness != strokeThickness;
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/styles_schema.dart';
 import '../../models/course_data_schema.dart';
+import '../../miscellaneous/single_pass_painters.dart';
 
 /// Locked overlay widget displayed on top of course cards when a difficulty is locked
 class LockedOverlayCourseCard extends StatelessWidget {
@@ -55,8 +56,8 @@ class LockedOverlayCourseCard extends StatelessWidget {
     final prevDifficultyDisplay = CourseDataSchema().previousDifficultyDisplay(difficulty);
 
     return CustomPaint(
-      painter: _LockedOverlayBackgroundPainter(
-        bgColor: bgColor,
+      painter: SinglePassBackgroundPainter(
+        background: bgColor,
         strokeGradient: strokeGradient,
         strokeColor: null,
         borderRadius: borderRadius,
@@ -121,50 +122,5 @@ class LockedOverlayCourseCard extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-/// Painter that draws the locked overlay background and stroke in a single pass.
-class _LockedOverlayBackgroundPainter extends CustomPainter {
-  final Color bgColor;
-  final LinearGradient? strokeGradient;
-  final Color? strokeColor;
-  final double borderRadius;
-  final double strokeThickness;
-
-  _LockedOverlayBackgroundPainter({
-    required this.bgColor,
-    this.strokeGradient,
-    this.strokeColor,
-    required this.borderRadius,
-    required this.strokeThickness,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final Rect rect = Offset.zero & size;
-
-    // Draw background (fill)
-    final RRect bgRRect = RRect.fromRectAndRadius(rect.deflate(strokeThickness / 2), Radius.circular(borderRadius));
-    final Paint bgPaint = Paint()..color = bgColor;
-    canvas.drawRRect(bgRRect, bgPaint);
-
-    // Draw stroke
-    if (strokeGradient != null || strokeColor != null) {
-      final Paint strokePaint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strokeThickness;
-      if (strokeGradient != null) {
-        strokePaint.shader = strokeGradient!.createShader(rect);
-      } else if (strokeColor != null) {
-        strokePaint.color = strokeColor!;
-      }
-      canvas.drawRRect(bgRRect, strokePaint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _LockedOverlayBackgroundPainter oldDelegate) {
-    return oldDelegate.bgColor != bgColor || oldDelegate.strokeGradient != strokeGradient || oldDelegate.strokeColor != strokeColor || oldDelegate.borderRadius != borderRadius || oldDelegate.strokeThickness != strokeThickness;
   }
 }

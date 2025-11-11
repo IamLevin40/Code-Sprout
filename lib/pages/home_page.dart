@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
-import '../models/touch_mouse_drag_scroll_behavior.dart';
+import '../miscellaneous/touch_mouse_drag_scroll_behavior.dart';
 import '../models/styles_schema.dart';
 import '../models/course_data_schema.dart';
 import '../models/user_data.dart';
