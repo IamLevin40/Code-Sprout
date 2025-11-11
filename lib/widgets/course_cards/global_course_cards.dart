@@ -236,4 +236,44 @@ class GlobalCourseCards {
       ],
     );
   }
+
+  /// Progress text shown on course cards.
+  /// If the difficulty is completed (data['isCompleted'] == true) shows "Course Completed",
+  /// otherwise shows "Chapter X | Module Y" using values from data.
+  static Widget buildProgressText(AppStyles styles, Map<String, dynamic> data) {
+    final fontSize = styles.getStyles('course_cards.general.progress_text.font_size') as double;
+    final fontWeight = styles.getStyles('course_cards.general.progress_text.font_weight') as FontWeight;
+    final color = styles.getStyles('course_cards.general.progress_text.color') as Color;
+
+    List<Shadow> textShadows = [];
+    try {
+      final Color baseColor = styles.getStyles('course_cards.general.progress_text.shadow.color') as Color;
+      final sopRaw = styles.getStyles('course_cards.general.progress_text.shadow.opacity');
+      final double sop = (sopRaw is num) ? sopRaw.toDouble() / 100.0 : (sopRaw as double);
+      final sblur = styles.getStyles('course_cards.general.progress_text.shadow.blur_radius') as double;
+      textShadows = [
+        Shadow(
+          color: baseColor.withAlpha((sop * 255).round()),
+          blurRadius: sblur,
+        )
+      ];
+    } catch (e) {
+      textShadows = [];
+    }
+
+    final bool completed = (data['isCompleted'] == true);
+    final String display = completed
+        ? 'Course Completed'
+        : 'Chapter ${data['currentChapter']} | Module ${data['currentModule']}';
+
+    return Text(
+      display,
+      style: TextStyle(
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        color: color,
+        shadows: textShadows,
+      ),
+    );
+  }
 }

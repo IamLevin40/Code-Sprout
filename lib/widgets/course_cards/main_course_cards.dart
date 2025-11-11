@@ -114,6 +114,20 @@ class MainCourseCard extends StatelessWidget {
       difficulty: difficulty,
     );
 
+    // Determine if the difficulty/course is completed for this user
+    bool isCompleted = false;
+    if (userData != null) {
+      try {
+        isCompleted = await courseSchema.hasCompletedDifficulty(
+          userData: userData!.toFirestore(),
+          languageId: languageId,
+          difficulty: difficulty,
+        );
+      } catch (e) {
+        isCompleted = false;
+      }
+    }
+
     return {
       'totalChapters': totalChapters,
       'duration': duration,
@@ -121,6 +135,7 @@ class MainCourseCard extends StatelessWidget {
       'currentModule': currentModule,
       'progressPercentage': progressPercentage,
       'isLocked': isLocked,
+      'isCompleted': isCompleted,
     };
   }
 
@@ -199,8 +214,8 @@ class MainCourseCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
 
-                    // Current progress text
-                    _buildProgressText(styles, data),
+                    // Current progress text (moved to global helper)
+                    GlobalCourseCards.buildProgressText(styles, data),
                     const SizedBox(height: 2),
 
                     // Progress bar
@@ -222,39 +237,6 @@ class MainCourseCard extends StatelessWidget {
               ),
           ],
         ),
-      ),
-    );
-  }
-
-  /// Build progress text showing current chapter and module
-  Widget _buildProgressText(AppStyles styles, Map<String, dynamic> data) {
-    final fontSize = styles.getStyles('course_cards.general.progress_text.font_size') as double;
-    final fontWeight = styles.getStyles('course_cards.general.progress_text.font_weight') as FontWeight;
-    final color = styles.getStyles('course_cards.general.progress_text.color') as Color;
-
-    List<Shadow> textShadows = [];
-    try {
-      final Color baseColor = styles.getStyles('course_cards.general.progress_text.shadow.color') as Color;
-      final sopRaw = styles.getStyles('course_cards.general.progress_text.shadow.opacity');
-      final double sop = (sopRaw is num) ? sopRaw.toDouble() / 100.0 : (sopRaw as double);
-      final sblur = styles.getStyles('course_cards.general.progress_text.shadow.blur_radius') as double;
-      textShadows = [
-        Shadow(
-          color: baseColor.withAlpha((sop * 255).round()),
-          blurRadius: sblur,
-        )
-      ];
-    } catch (e) {
-      textShadows = [];
-    }
-
-    return Text(
-      'Chapter ${data['currentChapter']} | Module ${data['currentModule']}',
-      style: TextStyle(
-        fontSize: fontSize,
-        fontWeight: fontWeight,
-        color: color,
-        shadows: textShadows,
       ),
     );
   }
