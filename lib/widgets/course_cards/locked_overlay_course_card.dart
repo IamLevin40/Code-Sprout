@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/styles_schema.dart';
 import '../../models/course_data_schema.dart';
 import '../../miscellaneous/glass_effect.dart';
+import 'global_course_cards.dart';
 
 /// Locked overlay widget displayed on top of course cards when a difficulty is locked
 class LockedOverlayCourseCard extends StatelessWidget {
@@ -36,21 +37,6 @@ class LockedOverlayCourseCard extends StatelessWidget {
     final requiresFontSize = styles.getStyles('$prefix.requires_text.font_size') as double;
     final requiresFontWeight = styles.getStyles('$prefix.requires_text.font_weight') as FontWeight;
     final requiresColor = styles.getStyles('$prefix.requires_text.color') as Color;
-
-    final languageFontSize = styles.getStyles('$prefix.language_name.font_size') as double;
-    final languageFontWeight = styles.getStyles('$prefix.language_name.font_weight') as FontWeight;
-    final languageColor = styles.getStyles('$prefix.language_name.color') as Color;
-
-    List<Shadow> languageShadows = [];
-    try {
-      final lsColor = styles.getStyles('$prefix.language_name.shadow.color') as Color;
-      final lsOpacityRaw = styles.getStyles('$prefix.language_name.shadow.opacity');
-      final lsOpacity = (lsOpacityRaw is num) ? lsOpacityRaw.toDouble() / 100.0 : (lsOpacityRaw as double);
-      final lsBlur = styles.getStyles('$prefix.language_name.shadow.blur_radius') as double;
-      languageShadows = [Shadow(color: lsColor.withAlpha((lsOpacity * 255).round()), blurRadius: lsBlur)];
-    } catch (_) {
-      languageShadows = [];
-    }
 
     final difficultyFontSize = styles.getStyles('$prefix.difficulty_label.font_size') as double;
     final difficultyFontWeight = styles.getStyles('$prefix.difficulty_label.font_weight') as FontWeight;
@@ -97,16 +83,7 @@ class LockedOverlayCourseCard extends StatelessWidget {
             const SizedBox(height: 6),
 
             // Language name
-            Text(
-              languageName,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: languageFontSize,
-                fontWeight: languageFontWeight,
-                color: languageColor,
-                shadows: languageShadows,
-              ),
-            ),
+            GlobalCourseCards.buildLanguageName(styles, languageName, stylePath: '$prefix.language_name'),
 
             // Difficulty label (show previous difficulty when locked)
             Text(

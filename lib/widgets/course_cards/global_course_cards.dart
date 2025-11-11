@@ -73,16 +73,17 @@ class GlobalCourseCards {
   }
 
   /// Language name text with optional shadow support defined in styles
-  static Widget buildLanguageName(AppStyles styles, String languageName) {
-    final fontSize = styles.getStyles('course_cards.general.language_name.font_size') as double;
-    final fontWeight = styles.getStyles('course_cards.general.language_name.font_weight') as FontWeight;
-    final color = styles.getStyles('course_cards.general.language_name.color') as Color;
+  static Widget buildLanguageName(AppStyles styles, String languageName, {String? stylePath}) {
+    final base = stylePath ?? 'course_cards.general.language_name';
+    final fontSize = styles.getStyles('$base.font_size') as double;
+    final fontWeight = styles.getStyles('$base.font_weight') as FontWeight;
+    final color = styles.getStyles('$base.color') as Color;
     List<Shadow> textShadows = [];
     try {
-      final Color baseColor = styles.getStyles('course_cards.general.language_name.shadow.color') as Color;
-      final sopRaw = styles.getStyles('course_cards.general.language_name.shadow.opacity');
+      final Color baseColor = styles.getStyles('$base.shadow.color') as Color;
+      final sopRaw = styles.getStyles('$base.shadow.opacity');
       final double sop = (sopRaw is num) ? sopRaw.toDouble() / 100.0 : (sopRaw as double);
-      final sblur = styles.getStyles('course_cards.general.language_name.shadow.blur_radius') as double;
+      final sblur = styles.getStyles('$base.shadow.blur_radius') as double;
       textShadows = [
         Shadow(
           color: baseColor.withAlpha((sop * 255).round()),
