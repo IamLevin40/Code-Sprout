@@ -4,6 +4,7 @@ import '../../models/course_data_schema.dart';
 import '../../models/course_data.dart';
 import '../../models/user_data.dart';
 import 'global_course_cards.dart';
+import 'locked_overlay_course_card.dart';
 
 /// Main course card widget that displays course information
 /// Shows: language icon, difficulty with leaves, progress, chapters count, duration
@@ -105,17 +106,22 @@ class MainCourseCard extends StatelessWidget {
       }
     }
 
+    // Determine locked state using centralized helper in CourseDataSchema
+    final isLocked = await courseSchema.isDifficultyLocked(
+      userData: userData?.toFirestore(),
+      languageId: languageId,
+      difficulty: difficulty,
+    );
+
     return {
       'totalChapters': totalChapters,
       'duration': duration,
       'currentChapter': currentChapter,
       'currentModule': currentModule,
       'progressPercentage': progressPercentage,
+      'isLocked': isLocked,
     };
   }
-
-  /// Build loading placeholder card
-  
 
   /// Build the main course card with all information
   Widget _buildCard(BuildContext context, AppStyles styles, Map<String, dynamic> data) {
@@ -137,67 +143,83 @@ class MainCourseCard extends StatelessWidget {
           maxHeight: cardHeight,
           maxWidth: maxWidth,
         ),
-        child: Container(
-          width: effectiveWidth,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(borderRadius),
-            gradient: strokeGradient,
-          ),
-          padding: EdgeInsets.all(borderWidth),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: bgGradient,
-              borderRadius: BorderRadius.circular(borderRadius - borderWidth),
-            ),
-            padding: EdgeInsets.only(
-              left: styles.getStyles('course_cards.main_card.attribute.margin.left-right') as double,
-              right: styles.getStyles('course_cards.main_card.attribute.margin.left-right') as double,
-              top: styles.getStyles('course_cards.main_card.attribute.margin.top-bottom') as double,
-              bottom: styles.getStyles('course_cards.main_card.attribute.margin.top-bottom') as double,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Language icon
-                Align(
-                  alignment: Alignment.center,
-                  child: GlobalCourseCards.buildLanguageIcon(styles, languageId),
+        child: Stack(
+          children: [
+            // The card itself
+            Container(
+              width: effectiveWidth,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(borderRadius),
+                gradient: strokeGradient,
+              ),
+              padding: EdgeInsets.all(borderWidth),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: bgGradient,
+                  borderRadius: BorderRadius.circular(borderRadius - borderWidth),
                 ),
-
-                // Language name
-                Center(child: GlobalCourseCards.buildLanguageName(styles, languageName)),
-                
-                // Difficulty with leaves
-                GlobalCourseCards.buildDifficultyRowCombined(styles, difficulty),
-                const SizedBox(height: 4),
-
-                // Chapters info
-                GlobalCourseCards.buildInfoRow(
-                  styles,
-                  styles.getStyles('course_cards.general.info_row.light.chapter_icon') as String,
-                  styles.getStyles('course_cards.general.info_row.light.text_color') as Color,
-                  '${data['totalChapters']} Chapters',
+                padding: EdgeInsets.only(
+                  left: styles.getStyles('course_cards.main_card.attribute.margin.left-right') as double,
+                  right: styles.getStyles('course_cards.main_card.attribute.margin.left-right') as double,
+                  top: styles.getStyles('course_cards.main_card.attribute.margin.top-bottom') as double,
+                  bottom: styles.getStyles('course_cards.main_card.attribute.margin.top-bottom') as double,
                 ),
-                const SizedBox(height: 2),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Language icon
+                    Align(
+                      alignment: Alignment.center,
+                      child: GlobalCourseCards.buildLanguageIcon(styles, languageId),
+                    ),
 
-                // Duration info
-                GlobalCourseCards.buildInfoRow(
-                  styles,
-                  styles.getStyles('course_cards.general.info_row.light.duration_icon') as String,
-                  styles.getStyles('course_cards.general.info_row.light.text_color') as Color,
-                  _formatDuration(data['duration']),
+                    // Language name
+                    Center(child: GlobalCourseCards.buildLanguageName(styles, languageName)),
+                    
+                    // Difficulty with leaves
+                    GlobalCourseCards.buildDifficultyRowCombined(styles, difficulty),
+                    const SizedBox(height: 4),
+
+                    // Chapters info
+                    GlobalCourseCards.buildInfoRow(
+                      styles,
+                      styles.getStyles('course_cards.general.info_row.light.chapter_icon') as String,
+                      styles.getStyles('course_cards.general.info_row.light.text_color') as Color,
+                      '${data['totalChapters']} Chapters',
+                    ),
+                    const SizedBox(height: 2),
+
+                    // Duration info
+                    GlobalCourseCards.buildInfoRow(
+                      styles,
+                      styles.getStyles('course_cards.general.info_row.light.duration_icon') as String,
+                      styles.getStyles('course_cards.general.info_row.light.text_color') as Color,
+                      _formatDuration(data['duration']),
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Current progress text
+                    _buildProgressText(styles, data),
+                    const SizedBox(height: 2),
+
+                    // Progress bar
+                    _buildProgressBar(styles, data['progressPercentage']),
+                  ],
                 ),
-                const SizedBox(height: 8),
-
-                // Current progress text
-                _buildProgressText(styles, data),
-                const SizedBox(height: 2),
-
-                // Progress bar
-                _buildProgressBar(styles, data['progressPercentage']),
-              ],
+              ),
             ),
-          ),
+
+            // Locked overlay (on top if locked)
+            if (data['isLocked'] == true)
+              Positioned.fill(
+                child: LockedOverlayCourseCard(
+                  styles: styles,
+                  languageName: languageName,
+                  difficulty: difficulty,
+                  borderRadius: (borderRadius - borderWidth).clamp(0.0, borderRadius),
+                ),
+              ),
+          ],
         ),
       ),
     );

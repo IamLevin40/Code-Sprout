@@ -545,6 +545,37 @@ class CourseDataSchema {
     }
   }
 
+  /// Determine whether a given difficulty is locked for a user.
+  /// Rules:
+  /// - 'beginner' is never locked.
+  /// - 'intermediate' is locked unless the user has completed 'beginner'.
+  /// - 'advanced' is locked unless the user has completed 'intermediate'.
+  /// If `userData` is null the method treats non-beginner difficulties as locked.
+  Future<bool> isDifficultyLocked({
+    Map<String, dynamic>? userData,
+    required String languageId,
+    required String difficulty,
+  }) async {
+    final diffLower = difficulty.toLowerCase();
+    if (diffLower == 'beginner') return false;
+
+    // If no user data provided treat non-beginner as locked by default
+    if (userData == null) return true;
+
+    final prev = diffLower == 'intermediate' ? 'beginner' : 'intermediate';
+    try {
+      final completedPrev = await hasCompletedDifficulty(
+        userData: userData,
+        languageId: languageId,
+        difficulty: prev,
+      );
+      return !completedPrev;
+    } catch (e) {
+      debugPrint('Error determining lock state: $e');
+      return true;
+    }
+  }
+
   /// Reset progress for a specific language and difficulty
   Map<String, dynamic> resetProgress({
     required Map<String, dynamic> userData,

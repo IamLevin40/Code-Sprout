@@ -974,6 +974,49 @@
                     "opacity": 40,
                     "blur_radius": 4
                 }
+            },
+            "locked_overlay": {
+                "background_color": "rgba(250, 250, 250, 0.6)",
+                "stroke_thickness": 2,
+                "stroke_gradient": {
+                    "begin": { 
+                        "position": "top_left", 
+                        "color": "#87A1BF" 
+                    },
+                    "end": { 
+                        "position": "bottom_right", 
+                        "color": "--colors.gray" 
+                    }
+                },
+                "margin": {
+                    "left-right": 16,
+                    "top-bottom": 20
+                },
+                "icon": {
+                    "image": "images/icons/on_cards/lock.png",
+                    "width": 40,
+                    "height": 40
+                },
+                "requires_text": {
+                    "font_size": "--font_sizes.regular",
+                    "font_weight": "--font_weights.bold",
+                    "color": "--colors.dark_gray"
+                },
+                "language_name": {
+                    "font_size": "--font_sizes.subheading",
+                    "font_weight": "--font_weights.bold",
+                    "color": "--colors.light_purple",
+                    "shadow": {
+                        "color": "--colors.black",
+                        "opacity": 25,
+                        "blur_radius": 4
+                    }
+                },
+                "difficulty_label": {
+                    "font_size": "--font_sizes.regular",
+                    "font_weight": "--font_weights.bold",
+                    "color": "--colors.light_purple"
+                }
             }
         },
         "main_card": {

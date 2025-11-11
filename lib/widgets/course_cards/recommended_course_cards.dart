@@ -4,6 +4,7 @@ import '../../models/course_data_schema.dart';
 import '../../models/course_data.dart';
 import '../../models/user_data.dart';
 import 'global_course_cards.dart';
+import 'locked_overlay_course_card.dart';
 
 /// Recommended course card variant
 class RecommendedCourseCard extends StatelessWidget {
@@ -93,12 +94,20 @@ class RecommendedCourseCard extends StatelessWidget {
       }
     }
 
+    // Determine locked state using centralized helper in CourseDataSchema
+    final isLocked = await CourseDataSchema().isDifficultyLocked(
+      userData: userData?.toFirestore(),
+      languageId: languageId,
+      difficulty: difficulty,
+    );
+
     return {
       'totalChapters': totalChapters,
       'duration': duration,
       'currentChapter': currentChapter,
       'currentModule': currentModule,
       'progressPercentage': progressPercentage,
+      'isLocked': isLocked,
     };
   }
 
@@ -116,85 +125,99 @@ class RecommendedCourseCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        width: width,
-        height: height,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(borderRadius),
-          gradient: strokeGradient,
-        ),
-        padding: EdgeInsets.all(borderWidth),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: bgGradient,
-            borderRadius: BorderRadius.circular(borderRadius - borderWidth),
-          ),
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: styles.getStyles('course_cards.recommended_card.attribute.margin.left-right') as double,
-              right: styles.getStyles('course_cards.recommended_card.attribute.margin.left-right') as double,
-              top: styles.getStyles('course_cards.recommended_card.attribute.margin.top-bottom') as double,
-              bottom: styles.getStyles('course_cards.recommended_card.attribute.margin.top-bottom') as double,
+      child: Stack(
+        children: [
+          Container(
+            width: width,
+            height: height,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(borderRadius),
+              gradient: strokeGradient,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+            padding: EdgeInsets.all(borderWidth),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: bgGradient,
+                borderRadius: BorderRadius.circular(borderRadius - borderWidth),
+              ),
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left: styles.getStyles('course_cards.recommended_card.attribute.margin.left-right') as double,
+                  right: styles.getStyles('course_cards.recommended_card.attribute.margin.left-right') as double,
+                  top: styles.getStyles('course_cards.recommended_card.attribute.margin.top-bottom') as double,
+                  bottom: styles.getStyles('course_cards.recommended_card.attribute.margin.top-bottom') as double,
+                ),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Left column: language name and difficulty
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Language name
-                          GlobalCourseCards.buildLanguageName(styles, languageName),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Left column: language name and difficulty
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Language name
+                              GlobalCourseCards.buildLanguageName(styles, languageName),
 
-                          // Difficulty with leaves
-                          GlobalCourseCards.buildDifficultyLabel(styles, difficulty),
-                          const SizedBox(height: 4),
-                          GlobalCourseCards.buildDifficultyLeaves(styles, difficulty),
-                        ],
-                      ),
+                              // Difficulty with leaves
+                              GlobalCourseCards.buildDifficultyLabel(styles, difficulty),
+                              const SizedBox(height: 4),
+                              GlobalCourseCards.buildDifficultyLeaves(styles, difficulty),
+                            ],
+                          ),
+                        ),
+
+                        // Right: language icon
+                        GlobalCourseCards.buildLanguageIcon(styles, languageId),
+                      ],
                     ),
 
-                    // Right: language icon
-                    GlobalCourseCards.buildLanguageIcon(styles, languageId),
+                    const Spacer(),
+
+                    // Bottom info
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: styles.getStyles('course_cards.recommended_card.bottom_info.background_color') as LinearGradient,
+                        borderRadius: BorderRadius.circular(styles.getStyles('course_cards.recommended_card.bottom_info.border_radius') as double),
+                      ),
+                      padding: EdgeInsets.only(
+                        left: styles.getStyles('course_cards.recommended_card.bottom_info.margin.left-right') as double,
+                        right: styles.getStyles('course_cards.recommended_card.bottom_info.margin.left-right') as double,
+                        top: styles.getStyles('course_cards.recommended_card.bottom_info.margin.top-bottom') as double,
+                        bottom: styles.getStyles('course_cards.recommended_card.bottom_info.margin.top-bottom') as double,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Chapters info
+                          GlobalCourseCards.buildInfoRow(styles, styles.getStyles('course_cards.general.info_row.dark.chapter_icon') as String, styles.getStyles('course_cards.general.info_row.dark.text_color') as Color, '$chapters Chapters'),
+                          const SizedBox(height: 2),
+                          
+                          // Duration info
+                          GlobalCourseCards.buildInfoRow(styles, styles.getStyles('course_cards.general.info_row.dark.duration_icon') as String, styles.getStyles('course_cards.general.info_row.dark.text_color') as Color, _formatDuration(duration)),
+                        ],
+                      ),
+                    )
                   ],
                 ),
-
-                const Spacer(),
-
-                // Bottom info
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    gradient: styles.getStyles('course_cards.recommended_card.bottom_info.background_color') as LinearGradient,
-                    borderRadius: BorderRadius.circular(styles.getStyles('course_cards.recommended_card.bottom_info.border_radius') as double),
-                  ),
-                  padding: EdgeInsets.only(
-                    left: styles.getStyles('course_cards.recommended_card.bottom_info.margin.left-right') as double,
-                    right: styles.getStyles('course_cards.recommended_card.bottom_info.margin.left-right') as double,
-                    top: styles.getStyles('course_cards.recommended_card.bottom_info.margin.top-bottom') as double,
-                    bottom: styles.getStyles('course_cards.recommended_card.bottom_info.margin.top-bottom') as double,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Chapters info
-                      GlobalCourseCards.buildInfoRow(styles, styles.getStyles('course_cards.general.info_row.dark.chapter_icon') as String, styles.getStyles('course_cards.general.info_row.dark.text_color') as Color, '$chapters Chapters'),
-                      const SizedBox(height: 2),
-                      
-                      // Duration info
-                      GlobalCourseCards.buildInfoRow(styles, styles.getStyles('course_cards.general.info_row.dark.duration_icon') as String, styles.getStyles('course_cards.general.info_row.dark.text_color') as Color, _formatDuration(duration)),
-                    ],
-                  ),
-                )
-              ],
+              ),
             ),
           ),
-        ),
+
+          if (data['isLocked'] == true)
+            Positioned.fill(
+              child: LockedOverlayCourseCard(
+                styles: styles,
+                languageName: languageName,
+                difficulty: difficulty,
+                borderRadius: (borderRadius - borderWidth).clamp(0.0, borderRadius),
+              ),
+            ),
+        ],
       ),
     );
   }

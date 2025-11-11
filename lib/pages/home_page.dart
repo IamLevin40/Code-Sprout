@@ -3,6 +3,8 @@ import '../services/auth_service.dart';
 import '../models/touch_mouse_drag_scroll_behavior.dart';
 import '../models/styles_schema.dart';
 import '../models/course_data_schema.dart';
+import '../models/user_data.dart';
+import '../services/firestore_service.dart';
 import '../widgets/course_cards/recommended_course_cards.dart';
 import '../widgets/course_cards/discover_course_cards.dart';
 
@@ -17,6 +19,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final ScrollController _recommendedScrollController = ScrollController();
   final ScrollController _discoverScrollController = ScrollController();
+  UserData? _userData;
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +32,25 @@ class _HomePageState extends State<HomePage> {
     _recommendedScrollController.dispose();
     _discoverScrollController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final auth = AuthService();
+    final currentUser = auth.currentUser;
+    if (currentUser != null) {
+      try {
+        final ud = await FirestoreService.getUserData(currentUser.uid);
+        if (mounted) setState(() => _userData = ud);
+      } catch (_) {
+        // ignore: no-op, leave _userData null
+      }
+    }
   }
 
   Widget _buildStackedContent() {
@@ -91,6 +113,7 @@ class _HomePageState extends State<HomePage> {
                                             languageId: langs[i],
                                             languageName: displayName,
                                             difficulty: 'Beginner',
+                                            userData: _userData,
                                             onTap: () => _onCourseCardTap(langs[i], 'Beginner'),
                                           );
                                         },
@@ -159,6 +182,7 @@ class _HomePageState extends State<HomePage> {
                                           languageId: langs[i],
                                           languageName: displayName,
                                           difficulty: 'Beginner',
+                                          userData: _userData,
                                           onTap: () => _onCourseCardTap(langs[i], 'Beginner'),
                                         );
                                       },
