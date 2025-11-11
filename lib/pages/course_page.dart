@@ -3,6 +3,7 @@ import '../models/styles_schema.dart';
 import '../models/course_data_schema.dart';
 import '../models/user_data.dart';
 import '../widgets/course_cards/main_course_cards.dart';
+import '../widgets/course_cards/continue_course_cards.dart';
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
 
@@ -120,7 +121,49 @@ class _CoursePageState extends State<CoursePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              // Title (no extra padding)
+              // Continue section (show only if user has lastInteraction)
+              Builder(builder: (context) {
+                final Map<String, dynamic>? lastMap = _userData?.toFirestore();
+                final dynamic lastInteraction = lastMap == null ? null : lastMap['lastInteraction'];
+                final String? continueLanguageId = lastInteraction is Map ? (lastInteraction['languageId'] as String?) : null;
+                final String? continueDifficulty = lastInteraction is Map ? (lastInteraction['difficulty'] as String?) : null;
+                final bool showContinue =
+                    continueLanguageId != null && continueLanguageId.isNotEmpty && continueDifficulty != null && continueDifficulty.isNotEmpty;
+
+                if (!showContinue) return const SizedBox.shrink();
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 0.0),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Continue',
+                          style: TextStyle(
+                            fontSize: styles.getStyles('home_page.card_title.font_size') as double,
+                            fontWeight: styles.getStyles('home_page.card_title.font_weight') as FontWeight,
+                            color: styles.getStyles('home_page.card_title.color') as Color,
+                          ),
+                        ),
+                      ),
+                    ),
+                    ContinueCourseCard(
+                      userData: _userData,
+                      onTap: () {
+                        // Navigate using stored lastInteraction (capitalize difficulty)
+                        final String lang = continueLanguageId;
+                        final String diff = continueDifficulty;
+                        _onCourseCardTap(lang, '${diff[0].toUpperCase()}${diff.substring(1)}');
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                );
+              }),
+
+              // Title
               Text(
                 'Courses',
                 style: TextStyle(
