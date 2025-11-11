@@ -124,7 +124,7 @@ class RecommendedCourseCard extends StatelessWidget {
     final duration = data['duration'];
 
     return GestureDetector(
-      onTap: onTap,
+      onTap: data['isLocked'] == true ? null : onTap,
       child: Stack(
         children: [
           Container(

@@ -47,7 +47,7 @@ class DiscoverCourseCard extends StatelessWidget {
         final bool isLocked = (snap.hasData ? snap.data! : false);
 
         return GestureDetector(
-          onTap: onTap,
+          onTap: isLocked ? null : onTap,
           child: Stack(
             children: [
               Container(

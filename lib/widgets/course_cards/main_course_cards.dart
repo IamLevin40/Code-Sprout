@@ -138,7 +138,7 @@ class MainCourseCard extends StatelessWidget {
     final strokeGradient = styles.getStyles('course_cards.style_coding.$languageId.stroke_color') as LinearGradient;
 
     return GestureDetector(
-      onTap: onTap,
+      onTap: data['isLocked'] == true ? null : onTap,
       child: ConstrainedBox(
         constraints: BoxConstraints(
           maxHeight: cardHeight,
