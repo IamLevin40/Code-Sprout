@@ -1,0 +1,93 @@
+{
+    "level_1": {
+        "mode": "lecture",
+        "content": {
+            "1_title": [
+                "Understanding Variables and Data Types"
+            ],
+            "2_plain": [
+                "Variables are containers that store data values in your program.",
+                "In C++, you must declare a variable's type before using it.",
+                "Common data types include int (integers), double (decimal numbers), char (characters), and bool (true/false)."
+            ],
+            "3_input_code": [
+                "int age = 25;",
+                "double price = 19.99;",
+                "char grade = 'A';",
+                "bool isActive = true;"
+            ],
+            "4_plain": [
+                "Each variable declaration follows this pattern: type name = value;",
+                "The type defines what kind of data can be stored in the variable."
+            ]
+        }
+    },
+    "level_2": {
+        "mode": "multiple_choice",
+        "content": {
+            "question": "Which data type would you use to store a decimal number in C++?",
+            "correct_answer": "double",
+            "incorrect_answers": [
+                "int",
+                "char",
+                "string"
+            ]
+        }
+    },
+    "level_3": {
+        "mode": "true_or_false",
+        "content": {
+            "question": "In C++, you must declare a variable's type before using it.",
+            "correct_answer": true
+        }
+    },
+    "level_4": {
+        "mode": "fill_in_the_code",
+        "content": {
+            "code_lines": [
+                "int age [_] 25;",
+                "double price = 19.99[_]",
+                "char grade = [_]A[_];",
+                "bool isActive = true[_]"
+            ],
+            "choices": [
+                "=",
+                ";",
+                "\"",
+                "'",
+                ":",
+                ",",
+                "->",
+                "=="
+            ],
+            "correct_answers": [
+                "=",
+                ";",
+                "'",
+                "'",
+                ";"
+            ]
+        }
+    },
+    "level_5": {
+        "mode": "assemble_the_code",
+        "content": {
+            "question": "Arrange the code to declare and initialize variables correctly",
+            "correct_code_lines": [
+                "int number = 42;",
+                "double temperature = 98.6;",
+                "char letter = 'X';"
+            ],
+            "choices": [
+                "int number = 42;",
+                "double temperature = 98.6;",
+                "char letter = 'X';",
+                "string number = 42;",
+                "float temperature == 98.6;",
+                "char letter = X;",
+                "int = number 42;",
+                "double temperature : 98.6;"
+            ]
+        }
+    }
+}

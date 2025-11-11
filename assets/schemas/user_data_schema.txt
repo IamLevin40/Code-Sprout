@@ -7,5 +7,81 @@
         "hasPlayedTutorial": "boolean (false)",
         "hasLearnedModule": "boolean (false)",
         "difficulty": "string (|easy|normal|hard|)"
+    },
+    "lastInteraction": {
+        "languageId": "string (null)",
+        "difficulty": "string (|beginner|intermediate|advanced|)"
+    },
+    "courseProgress": {
+        "cpp": {
+            "beginner": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            },
+            "intermediate": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            },
+            "advanced": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            }
+        },
+        "csharp": {
+            "beginner": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            },
+            "intermediate": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            },
+            "advanced": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            }
+        },
+        "java": {
+            "beginner": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            },
+            "intermediate": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            },
+            "advanced": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            }
+        },
+        "python": {
+            "beginner": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            },
+            "intermediate": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            },
+            "advanced": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            }
+        },
+        "javascript": {
+            "beginner": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            },
+            "intermediate": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            },
+            "advanced": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            }
+        }
     }
 }

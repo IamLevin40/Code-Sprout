@@ -1,0 +1,82 @@
+{
+    "level_1": {
+        "mode": "lecture",
+        "content": {
+            "1_title": [
+                "Getting Started with Python"
+            ],
+            "2_plain": [
+                "Python is a high-level, interpreted programming language known for its simplicity and readability.",
+                "Created by Guido van Rossum and first released in 1991, Python emphasizes code readability.",
+                "Python is widely used in web development, data science, artificial intelligence, and automation."
+            ],
+            "3_input_code": [
+                "print(\"Hello, World!\")"
+            ],
+            "4_plain": [
+                "Unlike C++ or Java, Python doesn't require semicolons or curly braces.",
+                "The print() function is used to display output in Python.",
+                "Python programs are typically shorter and easier to read than equivalent programs in other languages."
+            ]
+        }
+    },
+    "level_2": {
+        "mode": "multiple_choice",
+        "content": {
+            "question": "What function is used to display output in Python?",
+            "correct_answer": "print()",
+            "incorrect_answers": [
+                "cout",
+                "console.log()",
+                "System.out.println()"
+            ]
+        }
+    },
+    "level_3": {
+        "mode": "true_or_false",
+        "content": {
+            "question": "Python requires semicolons at the end of each statement.",
+            "correct_answer": false
+        }
+    },
+    "level_4": {
+        "mode": "fill_in_the_code",
+        "content": {
+            "code_lines": [
+                "print[_]\"Hello, Python!\"[_]"
+            ],
+            "choices": [
+                "(",
+                ")",
+                ";",
+                "{",
+                "}",
+                "[",
+                "]",
+                ":"
+            ],
+            "correct_answers": [
+                "(",
+                ")"
+            ]
+        }
+    },
+    "level_5": {
+        "mode": "assemble_the_code",
+        "content": {
+            "question": "Arrange the code to create a simple Python program",
+            "correct_code_lines": [
+                "print(\"Welcome to Python!\")",
+                "print(\"Let's start learning!\")"
+            ],
+            "choices": [
+                "print(\"Welcome to Python!\")",
+                "print(\"Let's start learning!\")",
+                "console.log(\"Welcome to Python!\")",
+                "System.out.println(\"Welcome to Python!\");",
+                "std::cout << \"Welcome to Python!\";",
+                "echo \"Welcome to Python!\";"
+            ]
+        }
+    }
+}

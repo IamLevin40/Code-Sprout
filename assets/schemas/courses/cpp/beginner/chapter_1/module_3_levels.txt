@@ -1,0 +1,113 @@
+{
+    "level_1": {
+        "mode": "lecture",
+        "content": {
+            "1_title": [
+                "Input and Output in C++"
+            ],
+            "2_plain": [
+                "In C++, we use cout for output and cin for input.",
+                "cout (console output) is used with the << operator to display data.",
+                "cin (console input) is used with the >> operator to read data from the user."
+            ],
+            "3_input_code": [
+                "#include <iostream>",
+                "",
+                "int main() {",
+                "    int number;",
+                "    std::cout << \"Enter a number: \";",
+                "    std::cin >> number;",
+                "    std::cout << \"You entered: \" << number << std::endl;",
+                "    return 0;",
+                "}"
+            ],
+            "4_output_code": [
+                "Enter a number: 42",
+                "You entered: 42"
+            ],
+            "5_plain": [
+                "The << operator is called the insertion operator for output.",
+                "The >> operator is called the extraction operator for input."
+            ]
+        }
+    },
+    "level_2": {
+        "mode": "multiple_choice",
+        "content": {
+            "question": "Which operator is used with cout for output in C++?",
+            "correct_answer": "<<",
+            "incorrect_answers": [
+                ">>",
+                "->",
+                "::"
+            ]
+        }
+    },
+    "level_3": {
+        "mode": "true_or_false",
+        "content": {
+            "question": "The cin object is used to read input from the user in C++.",
+            "correct_answer": true
+        }
+    },
+    "level_4": {
+        "mode": "fill_in_the_code",
+        "content": {
+            "code_lines": [
+                "int age;",
+                "std::cout [_] \"Enter your age: \";",
+                "std::cin [_] age;",
+                "std::cout << \"Your age is: \" [_] age [_] std::endl;"
+            ],
+            "choices": [
+                "<<",
+                ">>",
+                ";",
+                ":",
+                "->",
+                ".",
+                "==",
+                "="
+            ],
+            "correct_answers": [
+                "<<",
+                ">>",
+                "<<",
+                "<<"
+            ]
+        }
+    },
+    "level_5": {
+        "mode": "assemble_the_code",
+        "content": {
+            "question": "Arrange the code to create a program that asks for a name and displays it",
+            "correct_code_lines": [
+                "#include <iostream>",
+                "int main() {",
+                "    std::string name;",
+                "    std::cout << \"Enter your name: \";",
+                "    std::cin >> name;",
+                "    std::cout << \"Hello, \" << name << std::endl;",
+                "    return 0;",
+                "}"
+            ],
+            "choices": [
+                "#include <iostream>",
+                "int main() {",
+                "std::string name;",
+                "    std::string name;",
+                "std::cout << \"Enter your name: \";",
+                "    std::cout << \"Enter your name: \";",
+                "std::cin >> name;",
+                "    std::cin >> name;",
+                "std::cout << \"Hello, \" << name << std::endl;",
+                "    std::cout << \"Hello, \" << name << std::endl;",
+                "return 0;",
+                "    return 0;",
+                "}",
+                "std::cin << name;",
+                "std::cout >> \"Enter your name: \";"
+            ]
+        }
+    }
+}

@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
-import '../services/firestore_service.dart';
+import '../miscellaneous/touch_mouse_drag_scroll_behavior.dart';
 import '../models/styles_schema.dart';
+import '../models/course_data_schema.dart';
+import '../models/user_data.dart';
+import '../services/firestore_service.dart';
+import '../widgets/course_cards/continue_course_cards.dart';
+import '../widgets/course_cards/recommended_course_cards.dart';
+import '../widgets/course_cards/discover_course_cards.dart';
 
 class HomePage extends StatefulWidget {
   final ValueChanged<int>? onTabSelected;
@@ -12,38 +18,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String? _username;
-  bool _loadingUsername = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadUsername();
-  }
-
-  Future<void> _loadUsername() async {
-    final authService = AuthService();
-    final uid = authService.currentUser?.uid;
-    if (uid == null) {
-      if (mounted) Navigator.of(context).pushNamedAndRemoveUntil('/login', (r) => false);
-      return;
-    }
-
-    try {
-      final userData = await FirestoreService.getUserData(uid);
-      if (!mounted) return;
-      setState(() {
-        _username = (userData?.get('accountInformation.username') as String?) ?? '';
-        _loadingUsername = false;
-      });
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _username = null;
-        _loadingUsername = false;
-      });
-    }
-  }
+  final ScrollController _recommendedScrollController = ScrollController();
+  final ScrollController _discoverScrollController = ScrollController();
+  final ScrollController _challengeScrollController = ScrollController();
+  UserData? _userData;
 
   @override
   Widget build(BuildContext context) {
@@ -51,99 +29,316 @@ class _HomePageState extends State<HomePage> {
     return content;
   }
 
+  @override
+  void dispose() {
+    _recommendedScrollController.dispose();
+    _discoverScrollController.dispose();
+    _challengeScrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final auth = AuthService();
+    final currentUser = auth.currentUser;
+    if (currentUser != null) {
+      try {
+        final ud = await FirestoreService.getUserData(currentUser.uid);
+        if (mounted) setState(() => _userData = ud);
+      } catch (_) {
+        // ignore: no-op, leave _userData null
+      }
+    }
+  }
+
   Widget _buildStackedContent() {
     final styles = AppStyles();
+
+    // Determine whether we should show the Continue section
+    final Map<String, dynamic>? lastMap = _userData?.toFirestore();
+    final dynamic lastInteraction = lastMap == null ? null : lastMap['lastInteraction'];
+    final String? continueLanguageId = lastInteraction is Map ? (lastInteraction['languageId'] as String?) : null;
+    final String? continueDifficulty = lastInteraction is Map ? (lastInteraction['difficulty'] as String?) : null;
+    final bool showContinue =
+        continueLanguageId != null && continueLanguageId.isNotEmpty && continueDifficulty != null && continueDifficulty.isNotEmpty;
 
     final core = Container(
       color: styles.getStyles('global.background.color') as Color,
       child: Center(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.symmetric(vertical: 24.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  gradient: styles.getStyles('home_page.welcome_container.background_color') as LinearGradient,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.home, size: styles.getStyles('home_page.welcome_container.icon.font_size') as double,
-                  color: styles.getStyles('home_page.welcome_container.icon.color') as Color),
-              ),
-              const SizedBox(height: 40),
-              _loadingUsername
-                  ? SizedBox(
-                      height: styles.getStyles('home_page.username_loader.height') as double,
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          strokeWidth: styles.getStyles('home_page.username_loader.stroke_weight') as double,
-                          color: styles.getStyles('home_page.welcome_text.color') as Color,
-                        ),
-                      ),
-                    )
-                  : Text('Welcome${_username != null && _username!.isNotEmpty ? ', ${_username!}' : ''}!',
-                      textAlign: TextAlign.center,
+              // Continue section (shows only if user has lastInteraction)
+              if (showContinue) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Continue',
                       style: TextStyle(
-                        fontSize: styles.getStyles('home_page.welcome_text.font_size') as double,
-                        fontWeight: styles.getStyles('home_page.welcome_text.font_weight') as FontWeight,
-                        color: styles.getStyles('home_page.welcome_text.color') as Color,
-                      )),
+                        fontSize: styles.getStyles('home_page.card_title.font_size') as double,
+                        fontWeight: styles.getStyles('home_page.card_title.font_weight') as FontWeight,
+                        color: styles.getStyles('home_page.card_title.color') as Color,
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: ContinueCourseCard(
+                    userData: _userData,
+                    onTap: () {
+                      // Use the stored lastInteraction to navigate; for now show snackbar
+                      final lastMap = _userData == null ? null : _userData!.toFirestore();
+                      final last = lastMap == null ? null : lastMap['lastInteraction'];
+                      final lang = last is Map ? last['languageId'] as String? : null;
+                      final diff = last is Map ? last['difficulty'] as String? : null;
+                      if (lang != null && diff != null) {
+                        _onCourseCardTap(lang, '${diff[0].toUpperCase()}${diff.substring(1)}');
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              // Recommended section
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Recommended',
+                    style: TextStyle(
+                      fontSize: styles.getStyles('home_page.card_title.font_size') as double,
+                      fontWeight: styles.getStyles('home_page.card_title.font_weight') as FontWeight,
+                      color: styles.getStyles('home_page.card_title.color') as Color,
+                    ),
+                  ),
+                ),
+              ),
+              FutureBuilder<List<String>>(
+                future: CourseDataSchema().getRecommendedLanguages(),
+                builder: (context, snap) {
+                  if (!snap.hasData) {
+                    return SizedBox(height: styles.getStyles('course_cards.recommended_card.attribute.height') as double, child: const Center(child: CircularProgressIndicator()));
+                  }
+                  final langs = snap.data!;
+                    final listHeight = styles.getStyles('course_cards.recommended_card.attribute.height') as double;
+                    return LayoutBuilder(
+                      builder: (ctx, constraints) {
+                        final viewportWidth = constraints.maxWidth;
+                        return SizedBox(
+                          width: viewportWidth,
+                          height: listHeight,
+                          child: ScrollConfiguration(
+                            behavior: const TouchMouseDragScrollBehavior(),
+                            child: SingleChildScrollView(
+                              controller: _recommendedScrollController,
+                              scrollDirection: Axis.horizontal,
+                              physics: const BouncingScrollPhysics(),
+                              clipBehavior: Clip.hardEdge,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                                child: Row(
+                                  children: [
+                                    for (int i = 0; i < langs.length; i++) ...[
+                                      FutureBuilder<Map<String, dynamic>>(
+                                        future: CourseDataSchema().loadModuleSchema(langs[i]).then((module) => {'id': langs[i], 'name': module.programmingLanguage}),
+                                        builder: (cctx, csnap) {
+                                          final displayName = csnap.hasData ? (csnap.data!['name'] as String) : langs[i];
+                                          return RecommendedCourseCard(
+                                            languageId: langs[i],
+                                            languageName: displayName,
+                                            difficulty: 'Beginner',
+                                            userData: _userData,
+                                            onTap: () => _onCourseCardTap(langs[i], 'Beginner'),
+                                          );
+                                        },
+                                      ),
+                                      if (i < langs.length - 1)
+                                        SizedBox(width: styles.getStyles('course_cards.recommended_card.attribute.spacing') as double),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                },
+              ),
               const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                decoration: BoxDecoration(
-                  color: styles.getStyles('home_page.email_container.background_color') as Color,
-                  borderRadius: BorderRadius.circular(styles.getStyles('home_page.email_container.border_radius') as double),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.email_outlined, color: styles.getStyles('home_page.email_container.icon.color') as Color,
-                      size: styles.getStyles('home_page.email_container.icon.width') as double),
-                    const SizedBox(width: 8),
-                    Text(AuthService().currentUser?.email ?? 'No email',
-                      style: TextStyle(fontSize: styles.getStyles('home_page.email_container.text.font_size') as double,
-                        color: styles.getStyles('home_page.email_container.text.color') as Color)),
-                  ],
+
+              // Discover section
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Discover',
+                    style: TextStyle(
+                      fontSize: styles.getStyles('home_page.card_title.font_size') as double,
+                      fontWeight: styles.getStyles('home_page.card_title.font_weight') as FontWeight,
+                      color: styles.getStyles('home_page.card_title.color') as Color,
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(height: 40),
-              Text('You are successfully logged in!', style: TextStyle(
-                fontSize: styles.getStyles('home_page.info_text.primary.font_size') as double,
-                color: styles.getStyles('home_page.info_text.primary.color') as Color,
-              )),
-              const SizedBox(height: 8),
-              Text('Your session is secure and will persist until you logout.', style: TextStyle(
-                fontSize: styles.getStyles('home_page.info_text.secondary.font_size') as double,
-                color: styles.getStyles('home_page.info_text.secondary.color') as Color,
-              )),
-              const SizedBox(height: 40),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () { if (widget.onTabSelected != null) widget.onTabSelected!(1); },
-                    icon: Icon(Icons.school, color: styles.getStyles('home_page.quick_nav.course.icon.color') as Color),
-                    label: Text('Courses', style: TextStyle(fontSize: styles.getStyles('home_page.quick_nav.course.text.font_size') as double)),
-                    style: ElevatedButton.styleFrom(backgroundColor: styles.getStyles('home_page.quick_nav.course.background_color') as Color),
-                  ),
-                  const SizedBox(width: 16),
-                  ElevatedButton.icon(
-                    onPressed: () { if (widget.onTabSelected != null) widget.onTabSelected!(2); },
-                    icon: Icon(Icons.grass, color: styles.getStyles('home_page.quick_nav.sprout.icon.color') as Color),
-                    label: Text('The Sprout', style: TextStyle(fontSize: styles.getStyles('home_page.quick_nav.sprout.text.font_size') as double)),
-                    style: ElevatedButton.styleFrom(backgroundColor: styles.getStyles('home_page.quick_nav.sprout.background_color') as Color),
-                  ),
-                ],
+              FutureBuilder<List<String>>(
+                future: CourseDataSchema().getAvailableLanguages(),
+                builder: (context, snap) {
+                  if (!snap.hasData) {
+                    return SizedBox(height: styles.getStyles('course_cards.discover_card.attribute.height') as double, child: const Center(child: CircularProgressIndicator()));
+                  }
+                  final langs = snap.data!;
+                  final listHeight = styles.getStyles('course_cards.discover_card.attribute.height') as double;
+                  return LayoutBuilder(
+                    builder: (ctx, constraints) {
+                      final viewportWidth = constraints.maxWidth;
+                      return SizedBox(
+                        width: viewportWidth,
+                        height: listHeight,
+                          child: ScrollConfiguration(
+                          behavior: const TouchMouseDragScrollBehavior(),
+                          child: SingleChildScrollView(
+                            controller: _discoverScrollController,
+                            scrollDirection: Axis.horizontal,
+                            physics: const BouncingScrollPhysics(),
+                            clipBehavior: Clip.hardEdge,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                              child: Row(
+                                children: [
+                                  for (int i = 0; i < langs.length; i++) ...[
+                                    FutureBuilder<Map<String, dynamic>>(
+                                      future: CourseDataSchema().loadModuleSchema(langs[i]).then((module) => {'id': langs[i], 'name': module.programmingLanguage}),
+                                      builder: (cctx, csnap) {
+                                        final displayName = csnap.hasData ? (csnap.data!['name'] as String) : langs[i];
+                                        return DiscoverCourseCard(
+                                          languageId: langs[i],
+                                          languageName: displayName,
+                                          difficulty: 'Beginner',
+                                          userData: _userData,
+                                          onTap: () => _onCourseCardTap(langs[i], 'Beginner'),
+                                        );
+                                      },
+                                    ),
+                                    if (i < langs.length - 1)
+                                      SizedBox(width: styles.getStyles('course_cards.discover_card.attribute.spacing') as double),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
-              const SizedBox(height: 24),
-              ElevatedButton.icon(
-                onPressed: () => _showLogoutDialog(context, AuthService()),
-                icon: Icon(Icons.logout, color: styles.getStyles('home_page.logout_button.icon.color') as Color),
-                label: Text('Logout', style: TextStyle(fontSize: styles.getStyles('home_page.logout_button.text.font_size') as double,
-                  fontWeight: styles.getStyles('home_page.logout_button.text.font_weight') as FontWeight)),
-                style: ElevatedButton.styleFrom(backgroundColor: styles.getStyles('home_page.logout_button.background_color') as Color),
+              const SizedBox(height: 16),
+
+              // Challenge section (Intermediate + Advanced)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Challenge',
+                    style: TextStyle(
+                      fontSize: styles.getStyles('home_page.card_title.font_size') as double,
+                      fontWeight: styles.getStyles('home_page.card_title.font_weight') as FontWeight,
+                      color: styles.getStyles('home_page.card_title.color') as Color,
+                    ),
+                  ),
+                ),
+              ),
+              FutureBuilder<List<String>>(
+                future: CourseDataSchema().getAvailableLanguages(),
+                builder: (context, snap) {
+                  if (!snap.hasData) {
+                    return SizedBox(height: styles.getStyles('course_cards.discover_card.attribute.height') as double, child: const Center(child: CircularProgressIndicator()));
+                  }
+                  final langs = snap.data!;
+                  final listHeight = styles.getStyles('course_cards.discover_card.attribute.height') as double;
+                  return LayoutBuilder(
+                    builder: (ctx, constraints) {
+                      final viewportWidth = constraints.maxWidth;
+                      return SizedBox(
+                        width: viewportWidth,
+                        height: listHeight,
+                        child: ScrollConfiguration(
+                          behavior: const TouchMouseDragScrollBehavior(),
+                          child: SingleChildScrollView(
+                            controller: _challengeScrollController,
+                            scrollDirection: Axis.horizontal,
+                            physics: const BouncingScrollPhysics(),
+                            clipBehavior: Clip.hardEdge,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                              child: Row(
+                                children: [
+                                  for (int i = 0; i < langs.length; i++) ...[
+                                    FutureBuilder<Map<String, dynamic>>(
+                                      future: CourseDataSchema().loadModuleSchema(langs[i]).then((module) => {'id': langs[i], 'name': module.programmingLanguage}),
+                                      builder: (cctx, csnap) {
+                                        final displayName = csnap.hasData ? (csnap.data!['name'] as String) : langs[i];
+                                        return Row(
+                                          children: [
+                                            DiscoverCourseCard(
+                                              languageId: langs[i],
+                                              languageName: displayName,
+                                              difficulty: 'Intermediate',
+                                              userData: _userData,
+                                              onTap: () => _onCourseCardTap(langs[i], 'Intermediate'),
+                                            ),
+                                            SizedBox(width: styles.getStyles('course_cards.discover_card.attribute.spacing') as double),
+                                            DiscoverCourseCard(
+                                              languageId: langs[i],
+                                              languageName: displayName,
+                                              difficulty: 'Advanced',
+                                              userData: _userData,
+                                              onTap: () => _onCourseCardTap(langs[i], 'Advanced'),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    ),
+                                    if (i < langs.length - 1)
+                                      SizedBox(width: styles.getStyles('course_cards.discover_card.attribute.spacing') as double),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              
+              // Logout button
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: ElevatedButton.icon(
+                  onPressed: () => _showLogoutDialog(context, AuthService()),
+                  icon: Icon(Icons.logout, color: styles.getStyles('home_page.logout_button.icon.color') as Color),
+                  label: Text('Logout', style: TextStyle(fontSize: styles.getStyles('home_page.logout_button.text.font_size') as double,
+                    fontWeight: styles.getStyles('home_page.logout_button.text.font_weight') as FontWeight)),
+                  style: ElevatedButton.styleFrom(backgroundColor: styles.getStyles('home_page.logout_button.background_color') as Color),
+                ),
               ),
             ],
           ),
@@ -151,35 +346,7 @@ class _HomePageState extends State<HomePage> {
       ),
     );
 
-    final overlay = _loadingUsername
-        ? Container(
-            color: styles.withOpacity('home_page.loading_overlay.background_color', 'home_page.loading_overlay.background_opacity'),
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.all(32),
-                decoration: BoxDecoration(
-                  gradient: styles.getStyles('home_page.loading_overlay.container.background_color') as LinearGradient,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(styles.getStyles('home_page.loading_overlay.title.color') as Color),
-                      strokeWidth: styles.getStyles('home_page.loading_overlay.progress_indicator.stroke_weight') as double,
-                    ),
-                    const SizedBox(height: 20),
-                    Text('Loading...', style: TextStyle(
-                      color: styles.getStyles('home_page.loading_overlay.title.color') as Color,
-                      fontSize: styles.getStyles('home_page.loading_overlay.title.font_size') as double,
-                    )),
-                  ],
-                ),
-              ),
-            ),
-          )
-        : const SizedBox.shrink();
-
-    return Stack(children: [core, if (_loadingUsername) overlay]);
+    return core;
   }
 
   void _showLogoutDialog(BuildContext context, AuthService authService) {
@@ -201,6 +368,17 @@ class _HomePageState extends State<HomePage> {
             child: const Text('Logout'),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Handle course card tap
+  void _onCourseCardTap(String languageId, String difficulty) {
+    // TODO: Navigate to course detail page
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Selected $languageId - $difficulty'),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
