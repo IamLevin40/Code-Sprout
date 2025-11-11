@@ -19,6 +19,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final ScrollController _recommendedScrollController = ScrollController();
   final ScrollController _discoverScrollController = ScrollController();
+  final ScrollController _challengeScrollController = ScrollController();
   UserData? _userData;
 
   @override
@@ -31,6 +32,7 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     _recommendedScrollController.dispose();
     _discoverScrollController.dispose();
+    _challengeScrollController.dispose();
     super.dispose();
   }
 
@@ -184,6 +186,87 @@ class _HomePageState extends State<HomePage> {
                                           difficulty: 'Beginner',
                                           userData: _userData,
                                           onTap: () => _onCourseCardTap(langs[i], 'Beginner'),
+                                        );
+                                      },
+                                    ),
+                                    if (i < langs.length - 1)
+                                      SizedBox(width: styles.getStyles('course_cards.discover_card.attribute.spacing') as double),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // Challenge section (Intermediate + Advanced)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Challenge',
+                    style: TextStyle(
+                      fontSize: styles.getStyles('home_page.card_title.font_size') as double,
+                      fontWeight: styles.getStyles('home_page.card_title.font_weight') as FontWeight,
+                      color: styles.getStyles('home_page.card_title.color') as Color,
+                    ),
+                  ),
+                ),
+              ),
+              FutureBuilder<List<String>>(
+                future: CourseDataSchema().getAvailableLanguages(),
+                builder: (context, snap) {
+                  if (!snap.hasData) {
+                    return SizedBox(height: styles.getStyles('course_cards.discover_card.attribute.height') as double, child: const Center(child: CircularProgressIndicator()));
+                  }
+                  final langs = snap.data!;
+                  final listHeight = styles.getStyles('course_cards.discover_card.attribute.height') as double;
+                  return LayoutBuilder(
+                    builder: (ctx, constraints) {
+                      final viewportWidth = constraints.maxWidth;
+                      return SizedBox(
+                        width: viewportWidth,
+                        height: listHeight,
+                        child: ScrollConfiguration(
+                          behavior: const TouchMouseDragScrollBehavior(),
+                          child: SingleChildScrollView(
+                            controller: _challengeScrollController,
+                            scrollDirection: Axis.horizontal,
+                            physics: const BouncingScrollPhysics(),
+                            clipBehavior: Clip.hardEdge,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                              child: Row(
+                                children: [
+                                  for (int i = 0; i < langs.length; i++) ...[
+                                    FutureBuilder<Map<String, dynamic>>(
+                                      future: CourseDataSchema().loadModuleSchema(langs[i]).then((module) => {'id': langs[i], 'name': module.programmingLanguage}),
+                                      builder: (cctx, csnap) {
+                                        final displayName = csnap.hasData ? (csnap.data!['name'] as String) : langs[i];
+                                        return Row(
+                                          children: [
+                                            DiscoverCourseCard(
+                                              languageId: langs[i],
+                                              languageName: displayName,
+                                              difficulty: 'Intermediate',
+                                              userData: _userData,
+                                              onTap: () => _onCourseCardTap(langs[i], 'Intermediate'),
+                                            ),
+                                            SizedBox(width: styles.getStyles('course_cards.discover_card.attribute.spacing') as double),
+                                            DiscoverCourseCard(
+                                              languageId: langs[i],
+                                              languageName: displayName,
+                                              difficulty: 'Advanced',
+                                              userData: _userData,
+                                              onTap: () => _onCourseCardTap(langs[i], 'Advanced'),
+                                            ),
+                                          ],
                                         );
                                       },
                                     ),

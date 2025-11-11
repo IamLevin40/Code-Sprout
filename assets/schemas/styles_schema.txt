@@ -993,7 +993,7 @@
                     }
                 },
                 "margin": {
-                    "left-right": 16,
+                    "left-right": 8,
                     "top-bottom": 20
                 },
                 "icon": {
