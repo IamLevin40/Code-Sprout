@@ -545,6 +545,26 @@ class CourseDataSchema {
     }
   }
 
+  /// Return the canonical previous difficulty key for a given difficulty.
+  /// Examples:
+  /// - 'intermediate' -> 'beginner'
+  /// - 'advanced' -> 'intermediate'
+  /// - anything else -> 'beginner' (safe default)
+  String previousDifficultyKey(String difficulty) {
+    final diff = difficulty.toLowerCase();
+    if (diff == 'advanced') return 'intermediate';
+    if (diff == 'intermediate') return 'beginner';
+    return 'beginner';
+  }
+
+  /// Return a display-ready previous difficulty label (capitalized).
+  /// For example 'intermediate' -> 'Beginner'
+  String previousDifficultyDisplay(String difficulty) {
+    final key = previousDifficultyKey(difficulty);
+    if (key.isEmpty) return '';
+    return '${key[0].toUpperCase()}${key.substring(1)}';
+  }
+
   /// Determine whether a given difficulty is locked for a user.
   /// Rules:
   /// - 'beginner' is never locked.

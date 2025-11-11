@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/styles_schema.dart';
+import '../../models/course_data_schema.dart';
 
 /// Locked overlay widget displayed on top of course cards when a difficulty is locked
 class LockedOverlayCourseCard extends StatelessWidget {
@@ -51,6 +52,7 @@ class LockedOverlayCourseCard extends StatelessWidget {
     final difficultyFontSize = styles.getStyles('$prefix.difficulty_label.font_size') as double;
     final difficultyFontWeight = styles.getStyles('$prefix.difficulty_label.font_weight') as FontWeight;
     final difficultyColor = styles.getStyles('$prefix.difficulty_label.color') as Color;
+    final prevDifficultyDisplay = CourseDataSchema().previousDifficultyDisplay(difficulty);
 
     return CustomPaint(
       painter: _LockedOverlayBackgroundPainter(
@@ -105,9 +107,9 @@ class LockedOverlayCourseCard extends StatelessWidget {
                 ),
               ),
 
-              // Difficulty label
+              // Difficulty label (show previous difficulty when locked)
               Text(
-                difficulty,
+                prevDifficultyDisplay,
                 style: TextStyle(
                   fontSize: difficultyFontSize,
                   fontWeight: difficultyFontWeight,
