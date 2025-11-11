@@ -8,6 +8,10 @@
         "hasLearnedModule": "boolean (false)",
         "difficulty": "string (|easy|normal|hard|)"
     },
+    "lastInteraction": {
+        "languageId": "string (null)",
+        "difficulty": "string (|beginner|intermediate|advanced|)"
+    },
     "courseProgress": {
         "cpp": {
             "beginner": {

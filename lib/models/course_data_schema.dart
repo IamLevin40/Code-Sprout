@@ -326,6 +326,75 @@ class CourseDataSchema {
     }
   }
 
+  /// Returns the user's last interaction record (top-level) if present.
+  /// The returned map contains:
+  /// - 'languageId': String? (may be null)
+  /// - 'difficulty': String? (may be null)
+  Map<String, dynamic> getLastInteraction({
+    required Map<String, dynamic> userData,
+  }) {
+    try {
+      final li = userData['lastInteraction'];
+      if (li == null || li is! Map<String, dynamic>) {
+        return {
+          'languageId': null,
+          'difficulty': null,
+        };
+      }
+
+      return {
+        'languageId': li['languageId'] as String?,
+        'difficulty': li['difficulty'] as String?,
+      };
+    } catch (e) {
+      debugPrint('Error reading lastInteraction: $e');
+      return {
+        'languageId': null,
+        'difficulty': null,
+      };
+    }
+  }
+
+  /// Get the last interaction relevant to a specific programming language.
+  Map<String, dynamic> getLastInteractionForLanguage({
+    required Map<String, dynamic> userData,
+    required String languageId,
+  }) {
+    try {
+      final li = userData['lastInteraction'];
+      if (li is Map<String, dynamic> && li['languageId'] == languageId) {
+        return {
+          'difficulty': li['difficulty'] as String?,
+        };
+      }
+
+      // Fallback to courseProgress for the language
+      final cpLang = userData['courseProgress']?[languageId];
+      if (cpLang is Map<String, dynamic>) {
+        // Prefer the most advanced difficulty that exists
+        const diffs = ['advanced', 'intermediate', 'beginner'];
+        for (final d in diffs) {
+          final entry = cpLang[d];
+          if (entry is Map<String, dynamic>) {
+            return {
+              'difficulty': d,
+            };
+          }
+        }
+      }
+
+      // Final default
+      return {
+        'difficulty': null,
+      };
+    } catch (e) {
+      debugPrint('Error getting last interaction for language: $e');
+      return {
+        'difficulty': null,
+      };
+    }
+  }
+
   /// Get the total number of chapters for a difficulty level
   Future<int> getChapterCount({
     required String languageId,

@@ -5,6 +5,7 @@ import '../models/styles_schema.dart';
 import '../models/course_data_schema.dart';
 import '../models/user_data.dart';
 import '../services/firestore_service.dart';
+import '../widgets/course_cards/continue_course_cards.dart';
 import '../widgets/course_cards/recommended_course_cards.dart';
 import '../widgets/course_cards/discover_course_cards.dart';
 
@@ -58,6 +59,14 @@ class _HomePageState extends State<HomePage> {
   Widget _buildStackedContent() {
     final styles = AppStyles();
 
+    // Determine whether we should show the Continue section
+    final Map<String, dynamic>? lastMap = _userData?.toFirestore();
+    final dynamic lastInteraction = lastMap == null ? null : lastMap['lastInteraction'];
+    final String? continueLanguageId = lastInteraction is Map ? (lastInteraction['languageId'] as String?) : null;
+    final String? continueDifficulty = lastInteraction is Map ? (lastInteraction['difficulty'] as String?) : null;
+    final bool showContinue =
+        continueLanguageId != null && continueLanguageId.isNotEmpty && continueDifficulty != null && continueDifficulty.isNotEmpty;
+
     final core = Container(
       color: styles.getStyles('global.background.color') as Color,
       child: Center(
@@ -66,6 +75,41 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Continue section (shows only if user has lastInteraction)
+              if (showContinue) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Continue',
+                      style: TextStyle(
+                        fontSize: styles.getStyles('home_page.card_title.font_size') as double,
+                        fontWeight: styles.getStyles('home_page.card_title.font_weight') as FontWeight,
+                        color: styles.getStyles('home_page.card_title.color') as Color,
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: ContinueCourseCard(
+                    userData: _userData,
+                    onTap: () {
+                      // Use the stored lastInteraction to navigate; for now show snackbar
+                      final lastMap = _userData == null ? null : _userData!.toFirestore();
+                      final last = lastMap == null ? null : lastMap['lastInteraction'];
+                      final lang = last is Map ? last['languageId'] as String? : null;
+                      final diff = last is Map ? last['difficulty'] as String? : null;
+                      if (lang != null && diff != null) {
+                        _onCourseCardTap(lang, '${diff[0].toUpperCase()}${diff.substring(1)}');
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+
               // Recommended section
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),

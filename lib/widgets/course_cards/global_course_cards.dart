@@ -120,11 +120,16 @@ class GlobalCourseCards {
     final fontSize = styles.getStyles('course_cards.general.difficulty.font_size') as double;
     final fontWeight = styles.getStyles('course_cards.general.difficulty.font_weight') as FontWeight;
     final color = styles.getStyles('course_cards.general.difficulty.color') as Color;
+    
+    final String trimmed = difficulty.trim();
+      final String display = trimmed.isNotEmpty
+          ? '${trimmed[0].toUpperCase()}${trimmed.substring(1).toLowerCase()}'
+          : trimmed;
 
-    return Text(
-      difficulty,
-      style: TextStyle(fontSize: fontSize, fontWeight: fontWeight, color: color),
-    );
+      return Text(
+        display,
+        style: TextStyle(fontSize: fontSize, fontWeight: fontWeight, color: color),
+      );
   }
 
   /// Difficulty leaves widget (1-3 highlighted based on difficulty)
