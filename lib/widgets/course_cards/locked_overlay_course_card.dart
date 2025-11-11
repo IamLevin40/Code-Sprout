@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/styles_schema.dart';
 import '../../models/course_data_schema.dart';
-import '../../miscellaneous/single_pass_painters.dart';
+import '../../miscellaneous/glass_effect.dart';
 
 /// Locked overlay widget displayed on top of course cards when a difficulty is locked
 class LockedOverlayCourseCard extends StatelessWidget {
@@ -21,7 +21,9 @@ class LockedOverlayCourseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const prefix = 'course_cards.general.locked_overlay';
-    final bgColor = styles.getStyles('$prefix.background_color') as Color;
+    final bgColor = styles.getStyles('$prefix.background.color') as Color;
+    final bgOpacity = styles.getStyles('$prefix.background.opacity') as double;
+    final bgBlurSigma = styles.getStyles('$prefix.background.blur_sigma') as double;
     final strokeThickness = styles.getStyles('$prefix.stroke_thickness') as double;
     final strokeGradient = styles.getStyles('$prefix.stroke_gradient') as LinearGradient;
     final contentPadLR = styles.getStyles('$prefix.margin.left-right') as double;
@@ -55,70 +57,67 @@ class LockedOverlayCourseCard extends StatelessWidget {
     final difficultyColor = styles.getStyles('$prefix.difficulty_label.color') as Color;
     final prevDifficultyDisplay = CourseDataSchema().previousDifficultyDisplay(difficulty);
 
-    return CustomPaint(
-      painter: SinglePassBackgroundPainter(
-        background: bgColor,
-        strokeGradient: strokeGradient,
-        strokeColor: null,
-        borderRadius: borderRadius,
-        strokeThickness: strokeThickness,
+    return GlassEffect(
+      background: bgColor,
+      opacity: bgOpacity,
+      blurSigma: bgBlurSigma,
+      strokeGradient: strokeGradient,
+      strokeThickness: strokeThickness,
+      borderRadius: borderRadius,
+      padding: EdgeInsets.symmetric(
+        horizontal: contentPadLR + strokeThickness,
+        vertical: contentPadTB + strokeThickness,
       ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: contentPadLR + strokeThickness,
-          vertical: contentPadTB + strokeThickness,
-        ),
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Lock icon
-              if (iconPath.isNotEmpty)
-                Center(
-                  child: Image.asset(
-                    iconPath,
-                    width: iconWidth,
-                    height: iconHeight,
-                  ),
-                ),
-              const SizedBox(height: 2),
-
-              // "Requires"
-              Text(
-                'Requires',
-                style: TextStyle(
-                  fontSize: requiresFontSize,
-                  fontWeight: requiresFontWeight,
-                  color: requiresColor,
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Lock icon
+            if (iconPath.isNotEmpty)
+              Center(
+                child: Image.asset(
+                  iconPath,
+                  width: iconWidth,
+                  height: iconHeight,
                 ),
               ),
-              const SizedBox(height: 6),
+            const SizedBox(height: 2),
 
-              // Language name
-              Text(
-                languageName,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: languageFontSize,
-                  fontWeight: languageFontWeight,
-                  color: languageColor,
-                  shadows: languageShadows,
-                ),
+            // "Requires"
+            Text(
+              'Requires',
+              style: TextStyle(
+                fontSize: requiresFontSize,
+                fontWeight: requiresFontWeight,
+                color: requiresColor,
               ),
+            ),
+            const SizedBox(height: 6),
 
-              // Difficulty label (show previous difficulty when locked)
-              Text(
-                prevDifficultyDisplay,
-                style: TextStyle(
-                  fontSize: difficultyFontSize,
-                  fontWeight: difficultyFontWeight,
-                  color: difficultyColor,
-                ),
+            // Language name
+            Text(
+              languageName,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: languageFontSize,
+                fontWeight: languageFontWeight,
+                color: languageColor,
+                shadows: languageShadows,
               ),
-            ],
-          ),
+            ),
+
+            // Difficulty label (show previous difficulty when locked)
+            Text(
+              prevDifficultyDisplay,
+              style: TextStyle(
+                fontSize: difficultyFontSize,
+                fontWeight: difficultyFontWeight,
+                color: difficultyColor,
+              ),
+            ),
+          ],
         ),
       ),
     );

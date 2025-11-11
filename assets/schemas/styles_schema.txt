@@ -976,7 +976,11 @@
                 }
             },
             "locked_overlay": {
-                "background_color": "rgba(250, 250, 250, 0.6)",
+                "background": {
+                    "color": "rgba(250, 250, 250, 0.6)",
+                    "opacity": 60,
+                    "blur_sigma": 4
+                },
                 "stroke_thickness": 2,
                 "stroke_gradient": {
                     "begin": { 
