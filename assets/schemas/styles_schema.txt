@@ -1144,6 +1144,7 @@
             "attribute": {
                 "width": 120,
                 "height": 170,
+                "max_height": 170,
                 "border_radius": 24,
                 "border_width": 2,
                 "padding": 8,
