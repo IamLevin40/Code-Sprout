@@ -1,22 +1,42 @@
 {
   "rank_1": {
     "title": "Seedling",
-    "experience_points_requirement": 0
+    "experience_points_requirement": 100
   },
   "rank_2": {
     "title": "Sprout",
-    "experience_points_requirement": 50
+    "experience_points_requirement": 150
   },
   "rank_3": {
     "title": "Sapling",
-    "experience_points_requirement": 100
+    "experience_points_requirement": 250
   },
   "rank_4": {
     "title": "Young Tree",
-    "experience_points_requirement": 200
+    "experience_points_requirement": 400
   },
   "rank_5": {
     "title": "Mature Tree",
-    "experience_points_requirement": 400
+    "experience_points_requirement": 600
+  },
+  "rank_6": {
+    "title": "Blooming Coder",
+    "experience_points_requirement": 850
+  },
+  "rank_7": {
+    "title": "Logic Gardener",
+    "experience_points_requirement": 1150
+  },
+  "rank_8": {
+    "title": "Algorithm Planter",
+    "experience_points_requirement": 1500
+  },
+  "rank_9": {
+    "title": "Code Cultivator",
+    "experience_points_requirement": 1900
+  },
+  "rank_10": {
+    "title": "Master Coder of Growth",
+    "experience_points_requirement": 2350
   }
 }
