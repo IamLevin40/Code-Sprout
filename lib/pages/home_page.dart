@@ -4,6 +4,8 @@ import '../miscellaneous/touch_mouse_drag_scroll_behavior.dart';
 import '../models/styles_schema.dart';
 import '../models/course_data_schema.dart';
 import '../models/user_data.dart';
+import '../models/rank_data.dart';
+import '../widgets/rank_card.dart';
 import '../services/firestore_service.dart';
 import '../widgets/course_cards/continue_course_cards.dart';
 import '../widgets/course_cards/recommended_course_cards.dart';
@@ -75,6 +77,34 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Rank display section
+              if (_userData != null) ...[
+                FutureBuilder<RankData>(
+                  future: RankData.load(),
+                  builder: (ctx, rsnap) {
+                    if (!rsnap.hasData) return const SizedBox();
+                    final rankData = rsnap.data!;
+                    final userMap = _userData!.toFirestore();
+
+                    final display = rankData.getDisplayData(userMap);
+                    final title = display['title'] as String;
+                    final progressValue = display['progressValue'] as double;
+                    final displayText = display['displayText'] as String;
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: RankCard(
+                        title: title,
+                        progress: progressValue.clamp(0.0, 1.0),
+                        displayText: displayText,
+                        onTap: () {},
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 16),
+              ],
+
               // Continue section (shows only if user has lastInteraction)
               if (showContinue) ...[
                 Padding(
@@ -97,7 +127,7 @@ class _HomePageState extends State<HomePage> {
                     userData: _userData,
                     onTap: () {
                       // Use the stored lastInteraction to navigate; for now show snackbar
-                      final lastMap = _userData == null ? null : _userData!.toFirestore();
+                      final lastMap = _userData?.toFirestore();
                       final last = lastMap == null ? null : lastMap['lastInteraction'];
                       final lang = last is Map ? last['languageId'] as String? : null;
                       final diff = last is Map ? last['difficulty'] as String? : null;
