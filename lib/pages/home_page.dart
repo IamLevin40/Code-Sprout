@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
 import '../services/auth_service.dart';
 import '../miscellaneous/touch_mouse_drag_scroll_behavior.dart';
 import '../models/styles_schema.dart';
@@ -85,11 +84,11 @@ class _HomePageState extends State<HomePage> {
                     if (!rsnap.hasData) return const SizedBox();
                     final rankData = rsnap.data!;
                     final userMap = _userData!.toFirestore();
-                    final title = rankData.getCurrentRankTitle(userMap);
-                    final progress = rankData.getProgressForDisplay(userMap);
-                    final current = progress['current'] ?? 0;
-                    final nextReq = progress['nextRequirement'] ?? 0;
-                    final progressValue = (nextReq <= 0) ? 1.0 : (current / max(1, nextReq));
+
+                    final display = rankData.getDisplayData(userMap);
+                    final title = display['title'] as String;
+                    final progressValue = display['progressValue'] as double;
+                    final displayText = display['displayText'] as String;
 
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -119,7 +118,8 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ),
                               const SizedBox(width: 12),
-                              Text('$current / $nextReq XP'),
+                              // Display text comes preformatted from RankData
+                              Text(displayText),
                             ],
                           ),
                           const SizedBox(height: 16),

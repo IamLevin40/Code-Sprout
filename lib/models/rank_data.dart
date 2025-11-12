@@ -19,7 +19,6 @@ class RankData {
       final val = rp['experiencePoints'];
       if (val is num) return val.toInt();
     }
-    // As requested, no fallback — assume schema provides the field
     return 0;
   }
 
@@ -96,5 +95,98 @@ class RankData {
     final inRank = getCurrentXPInRank(userData);
     final nextReq = getNextRankRequirement(userData);
     return {'current': inRank, 'nextRequirement': nextReq};
+  }
+
+  /// Returns a display-friendly map containing:
+  /// - title: String current rank title
+  /// - progressValue: double between 0.0 and 1.0 for progress bar
+  /// - displayText: String to display (e.g., "10 / 50 XP" or "Max")
+  /// - current: int current in-rank XP or max total when at max
+  /// - nextRequirement: int next rank requirement (or maxTotal when at max)
+  /// - isMax: bool whether user is at max rank
+  Map<String, dynamic> getDisplayData(Map<String, dynamic> userData) {
+    final title = getCurrentRankTitle(userData);
+    final maxTotal = getMaxTotalXP();
+    final bool isMax = isAtMaxRank(userData);
+
+    if (isMax) {
+      // At max rank: show full bar and "Max" label
+      return {
+        'title': title,
+        'progressValue': 1.0,
+        'displayText': 'Max',
+        'current': maxTotal,
+        'nextRequirement': maxTotal,
+        'isMax': true,
+      };
+    }
+
+    final progress = getProgressForDisplay(userData);
+    final int current = progress['current'] ?? 0;
+    final int nextReq = progress['nextRequirement'] ?? 0;
+    final double progressValue = (nextReq <= 0) ? 1.0 : (current / max(1, nextReq));
+
+    return {
+      'title': title,
+      'progressValue': progressValue.clamp(0.0, 1.0),
+      'displayText': '$current / $nextReq XP',
+      'current': current,
+      'nextRequirement': nextReq,
+      'isMax': false,
+    };
+  }
+
+  /// Get the maximum total XP across all ranks (accumulative)
+  int getMaxTotalXP() {
+    return _ranks.fold<int>(0, (prev, e) => prev + e.experiencePointsRequirement);
+  }
+
+  /// Check if the user is at (or beyond) the last rank
+  bool isAtMaxRank(Map<String, dynamic> userData) {
+    final total = getCurrentTotalExperiencePoints(userData);
+    return total >= getMaxTotalXP();
+  }
+
+  /// Return a new copy of the userData map with updated rankProgress.experiencePoints
+  Map<String, dynamic> _withUpdatedTotalXP(Map<String, dynamic> userData, int newTotal) {
+    final newData = Map<String, dynamic>.from(userData);
+    final rp = (userData['rankProgress'] is Map<String, dynamic>)
+        ? Map<String, dynamic>.from(userData['rankProgress'] as Map<String, dynamic>)
+        : <String, dynamic>{};
+    rp['experiencePoints'] = newTotal;
+    newData['rankProgress'] = rp;
+    return newData;
+  }
+
+  /// Apply a delta to the user's total experience points (positive to add, negative to subtract).
+  /// Behavior:
+  /// - If adding (delta>0) while user is already at max rank, no change is applied (adding is disabled).
+  /// - The resulting total is clamped to [0, maxTotal].
+  /// Returns the updated userData map.
+  Map<String, dynamic> applyExperienceDelta(Map<String, dynamic> userData, int delta) {
+    final currentTotal = getCurrentTotalExperiencePoints(userData);
+    final maxTotal = getMaxTotalXP();
+
+    if (delta > 0 && currentTotal >= maxTotal) {
+      // Adding is disabled at max rank — return original unchanged
+      return userData;
+    }
+
+    int newTotal = currentTotal + delta;
+    if (newTotal > maxTotal) newTotal = maxTotal;
+    if (newTotal < 0) newTotal = 0;
+
+    return _withUpdatedTotalXP(userData, newTotal);
+  }
+
+  /// Convenience helpers for add/subtract
+  Map<String, dynamic> addExperiencePoints(Map<String, dynamic> userData, int amount) {
+    if (amount <= 0) return userData;
+    return applyExperienceDelta(userData, amount);
+  }
+
+  Map<String, dynamic> subtractExperiencePoints(Map<String, dynamic> userData, int amount) {
+    if (amount <= 0) return userData;
+    return applyExperienceDelta(userData, -amount);
   }
 }
