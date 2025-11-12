@@ -6,7 +6,7 @@ import 'settings_page.dart';
 import '../widgets/main_header.dart';
 import '../models/styles_schema.dart';
 
-/// Main scaffold with bottom navigation for Home and Settings
+/// Main scaffold with bottom navigation
 class MainNavigationPage extends StatefulWidget {
   const MainNavigationPage({super.key});
 
@@ -134,6 +134,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> with WidgetsBin
 
     return Scaffold(
       body: Stack(
+        fit: StackFit.expand,
         children: [
           SingleChildScrollView(
             controller: _scrollController,
