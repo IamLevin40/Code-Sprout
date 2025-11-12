@@ -77,7 +77,7 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Rank display (above Continue)
+              // Rank display section
               if (_userData != null) ...[
                 FutureBuilder<RankData>(
                   future: RankData.load(),

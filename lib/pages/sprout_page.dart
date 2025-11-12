@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import '../models/styles_schema.dart';
+import '../services/auth_service.dart';
+import '../services/firestore_service.dart';
+import '../models/user_data.dart';
+import '../models/rank_data.dart';
+import '../widgets/rank_card.dart';
 
 class SproutPage extends StatefulWidget {
   const SproutPage({super.key});
@@ -12,7 +17,8 @@ class _SproutPageState extends State<SproutPage> {
   final List<String> _inventory = ['Wheat', 'Corn', 'Rice', 'Carrot', 'Potato'];
   final List<String> _languages = ['C++', 'C#', 'Java', 'Python', 'JavaScript'];
   String _selectedLanguage = 'Python';
-  final int _sproutRank = 1;
+  
+  UserData? _userData;
 
   @override
   Widget build(BuildContext context) {
@@ -22,48 +28,53 @@ class _SproutPageState extends State<SproutPage> {
     return Container(
       color: styles.getStyles('global.background.color') as Color,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Rank and language (same as above)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Sprout Rank', style: TextStyle(fontSize: styles.getStyles('sprout_page.rank.title.font_size') as double)),
-                    const SizedBox(height: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: styles.getStyles('sprout_page.rank.container.background_color') as Color,
-                        borderRadius: BorderRadius.circular(styles.getStyles('sprout_page.rank.container.border_radius') as double),
-                      ),
-                      child: Text('#$_sproutRank', style: TextStyle(fontSize: styles.getStyles('sprout_page.rank.number.font_size') as double)),
-                    ),
-                  ],
+            // Rank display section
+            if (_userData != null) ...[
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: FutureBuilder<RankData>(
+                    future: RankData.load(),
+                    builder: (ctx, rsnap) {
+                      if (!rsnap.hasData) return const SizedBox();
+                      final rankData = rsnap.data!;
+                      final userMap = _userData!.toFirestore();
+                      final display = rankData.getDisplayData(userMap);
+                      final title = display['title'] as String;
+                      final progressValue = display['progressValue'] as double;
+                      final displayText = display['displayText'] as String;
+
+                      return RankCard(
+                        title: title,
+                        progress: progressValue.clamp(0.0, 1.0),
+                        displayText: displayText,
+                        onTap: () {},
+                      );
+                    },
+                  ),
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text('Language', style: TextStyle(fontSize: styles.getStyles('sprout_page.language.title.font_size') as double)),
-                    const SizedBox(height: 6),
-                    DropdownButton<String>(
-                      value: _selectedLanguage,
-                      items: _languages.map((l) => DropdownMenuItem(value: l, child: Text(l))).toList(),
-                      onChanged: (v) {
-                        if (v == null) return;
-                        setState(() => _selectedLanguage = v);
-                      },
-                    ),
-                  ],
-                ),
-              ],
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            // Language section
+            Text('Language', style: TextStyle(fontSize: styles.getStyles('sprout_page.language.title.font_size') as double)),
+            const SizedBox(height: 6),
+            DropdownButton<String>(
+              value: _selectedLanguage,
+              items: _languages.map((l) => DropdownMenuItem(value: l, child: Text(l))).toList(),
+              onChanged: (v) {
+                if (v == null) return;
+                setState(() => _selectedLanguage = v);
+              },
             ),
             const SizedBox(height: 20),
 
+            // Visit / Start button section
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
@@ -82,10 +93,10 @@ class _SproutPageState extends State<SproutPage> {
             ),
             const SizedBox(height: 20),
 
+            // Inventory
             Text('Inventory', style: TextStyle(fontSize: styles.getStyles('sprout_page.inventory.title.font_size') as double, fontWeight: styles.getStyles('sprout_page.inventory.title.font_weight') as FontWeight)),
             const SizedBox(height: 8),
 
-            // Inventory rendered as a Column so the parent scroll view handles scrolling
             Column(
               children: List.generate(_inventory.length, (i) {
                 return Column(
@@ -108,6 +119,22 @@ class _SproutPageState extends State<SproutPage> {
     );
   }
 
-  // (removed duplicate buildEmbedded) The embedded UI is returned directly
-  // from `build()` above.
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final auth = AuthService();
+    final currentUser = auth.currentUser;
+    if (currentUser != null) {
+      try {
+        final ud = await FirestoreService.getUserData(currentUser.uid);
+        if (mounted) setState(() => _userData = ud);
+      } catch (_) {
+        // ignore
+      }
+    }
+  }
 }
