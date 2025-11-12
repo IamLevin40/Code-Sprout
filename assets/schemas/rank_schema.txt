@@ -1,0 +1,22 @@
+{
+  "rank_1": {
+    "title": "Seedling",
+    "experience_points_requirement": 0
+  },
+  "rank_2": {
+    "title": "Sprout",
+    "experience_points_requirement": 50
+  },
+  "rank_3": {
+    "title": "Sapling",
+    "experience_points_requirement": 100
+  },
+  "rank_4": {
+    "title": "Young Tree",
+    "experience_points_requirement": 200
+  },
+  "rank_5": {
+    "title": "Mature Tree",
+    "experience_points_requirement": 400
+  }
+}

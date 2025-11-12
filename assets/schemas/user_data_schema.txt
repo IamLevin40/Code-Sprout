@@ -12,6 +12,9 @@
         "languageId": "string (null)",
         "difficulty": "string (|beginner|intermediate|advanced|)"
     },
+    "rankProgress": {
+        "experiencePoints": "number (0)"
+    },
     "courseProgress": {
         "cpp": {
             "beginner": {
