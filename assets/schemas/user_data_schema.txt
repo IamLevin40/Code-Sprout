@@ -12,6 +12,9 @@
         "languageId": "string (null)",
         "difficulty": "string (|beginner|intermediate|advanced|)"
     },
+    "sproutProgress": {
+        "selectedLanguage": "string (null)"
+    },
     "rankProgress": {
         "experiencePoints": "number (0)"
     },

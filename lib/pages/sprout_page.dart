@@ -5,6 +5,8 @@ import '../services/firestore_service.dart';
 import '../models/user_data.dart';
 import '../models/rank_data.dart';
 import '../widgets/rank_card.dart';
+import '../models/course_data_schema.dart';
+import '../models/sprout_data.dart';
 
 class SproutPage extends StatefulWidget {
   const SproutPage({super.key});
@@ -15,16 +17,75 @@ class SproutPage extends StatefulWidget {
 
 class _SproutPageState extends State<SproutPage> {
   final List<String> _inventory = ['Wheat', 'Corn', 'Rice', 'Carrot', 'Potato'];
-  final List<String> _languages = ['C++', 'C#', 'Java', 'Python', 'JavaScript'];
-  String _selectedLanguage = 'Python';
+
+  final CourseDataSchema _courseSchema = CourseDataSchema();
+  List<String> _languages = [];
+  final Map<String, String> _languageNames = {};
+  String? _selectedLanguage;
   
   UserData? _userData;
+
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
+
+  Future<void> _init() async {
+    List<String> langs = [];
+    final Map<String, String> names = {};
+
+    try {
+      langs = await _courseSchema.getAvailableLanguages();
+
+      for (final id in langs) {
+        try {
+          final module = await _courseSchema.loadModuleSchema(id);
+          names[id] = module.programmingLanguage;
+        } catch (_) {
+          names[id] = id;
+        }
+      }
+    } catch (_) {}
+
+    final auth = AuthService();
+    final currentUser = auth.currentUser;
+    UserData? ud;
+    try {
+      if (currentUser != null) {
+        ud = await FirestoreService.getUserData(currentUser.uid);
+      }
+    } catch (_) {}
+
+    final String? selected = await SproutData.resolveSelectedLanguage(
+      availableLanguages: langs,
+      userData: ud,
+    );
+
+    if (ud != null) {
+      final current = ud.get('sproutProgress.selectedLanguage') as String?;
+      if ((current == null || current.isEmpty) && selected != null) {
+        try {
+          ud = ud.copyWith({'sproutProgress.selectedLanguage': selected});
+        } catch (_) {}
+      }
+    }
+
+    if (mounted) {
+      setState(() {
+        _languages = langs;
+        _languageNames.clear();
+        _languageNames.addAll(names);
+        _userData = ud;
+        _selectedLanguage = selected;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final styles = AppStyles();
 
-    // embedded-only UI (single source of truth)
     return Container(
       color: styles.getStyles('global.background.color') as Color,
       child: Padding(
@@ -66,10 +127,24 @@ class _SproutPageState extends State<SproutPage> {
             const SizedBox(height: 6),
             DropdownButton<String>(
               value: _selectedLanguage,
-              items: _languages.map((l) => DropdownMenuItem(value: l, child: Text(l))).toList(),
-              onChanged: (v) {
+              items: _languages.map((langId) {
+                final display = _languageNames[langId] ?? langId;
+                return DropdownMenuItem(value: langId, child: Text(display));
+              }).toList(),
+              onChanged: (v) async {
                 if (v == null) return;
                 setState(() => _selectedLanguage = v);
+
+                if (_userData != null) {
+                  try {
+                    final updated = await SproutData.setSelectedLanguage(userData: _userData!, languageId: v);
+                    setState(() {
+                      _userData = updated;
+                    });
+                  } catch (e) {
+                    debugPrint('Failed to persist sprout selection: $e');
+                  }
+                }
               },
             ),
             const SizedBox(height: 20),
@@ -117,24 +192,5 @@ class _SproutPageState extends State<SproutPage> {
         ),
       ),
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _loadUserData();
-  }
-
-  Future<void> _loadUserData() async {
-    final auth = AuthService();
-    final currentUser = auth.currentUser;
-    if (currentUser != null) {
-      try {
-        final ud = await FirestoreService.getUserData(currentUser.uid);
-        if (mounted) setState(() => _userData = ud);
-      } catch (_) {
-        // ignore
-      }
-    }
   }
 }
