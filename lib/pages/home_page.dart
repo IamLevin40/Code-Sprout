@@ -5,6 +5,7 @@ import '../models/styles_schema.dart';
 import '../models/course_data_schema.dart';
 import '../models/user_data.dart';
 import '../models/rank_data.dart';
+import '../widgets/rank_card.dart';
 import '../services/firestore_service.dart';
 import '../widgets/course_cards/continue_course_cards.dart';
 import '../widgets/course_cards/recommended_course_cards.dart';
@@ -92,38 +93,11 @@ class _HomePageState extends State<HomePage> {
 
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Column(
-                        children: [
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              'Rank: $title',
-                              style: TextStyle(
-                                fontSize: styles.getStyles('home_page.card_title.font_size') as double,
-                                fontWeight: styles.getStyles('home_page.card_title.font_weight') as FontWeight,
-                                color: styles.getStyles('home_page.card_title.color') as Color,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(6),
-                                  child: LinearProgressIndicator(
-                                    value: progressValue.clamp(0.0, 1.0),
-                                    minHeight: 10,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              // Display text comes preformatted from RankData
-                              Text(displayText),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                        ],
+                      child: RankCard(
+                        title: title,
+                        progress: progressValue.clamp(0.0, 1.0),
+                        displayText: displayText,
+                        onTap: () {},
                       ),
                     );
                   },
