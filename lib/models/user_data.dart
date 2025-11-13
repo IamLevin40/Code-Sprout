@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'user_data_schema.dart';
+import '../services/local_storage_service.dart';
 
 /// UserData model class that represents user information stored in Firestore.
 /// This class is dynamically driven by the schema defined in assets/schemas/user_data_schema.txt
@@ -264,10 +265,18 @@ class UserData {
         throw Exception('Invalid value for field $path. Expected ${field.dataType}');
       }
       
-      // Convert to Firestore path (with dots)
+      // Convert to Firestore path (with dots) and persist
       await _usersCollection.doc(uid).update({
         path: field.toFirestoreValue(value),
       });
+
+      // Update in-memory data and local cache to keep UI reactive
+      set(path, value);
+      try {
+        await LocalStorageService.instance.saveUserData(this);
+      } catch (_) {
+        // Ignore local cache write failures; Firestore update already succeeded
+      }
     } catch (e) {
       throw Exception('Failed to update field $path: $e');
     }
@@ -293,6 +302,18 @@ class UserData {
       });
       
       await _usersCollection.doc(uid).update(firestoreUpdates);
+
+      // Apply updates to in-memory data
+      updates.forEach((path, value) {
+        set(path, value);
+      });
+
+      // Persist updated in-memory data to local cache so listeners are notified
+      try {
+        await LocalStorageService.instance.saveUserData(this);
+      } catch (_) {
+        // Ignore local cache write failures
+      }
     } catch (e) {
       throw Exception('Failed to update fields: $e');
     }

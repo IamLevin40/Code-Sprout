@@ -160,7 +160,7 @@ class UserDataSchema {
   /// Load schema from assets file
   static Future<UserDataSchema> load() async {
     try {
-  final schemaContent = await rootBundle.loadString('assets/schemas/user_data_schema.txt');
+      final schemaContent = await rootBundle.loadString('schemas/user_data_schema.txt');
       
       // Find the JSON part (after the comments)
       final jsonStart = schemaContent.indexOf('{');

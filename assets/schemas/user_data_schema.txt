@@ -7,5 +7,125 @@
         "hasPlayedTutorial": "boolean (false)",
         "hasLearnedModule": "boolean (false)",
         "difficulty": "string (|easy|normal|hard|)"
+    },
+    "lastInteraction": {
+        "languageId": "string (null)",
+        "difficulty": "string (|beginner|intermediate|advanced|)"
+    },
+    "sproutProgress": {
+        "selectedLanguage": "string (null)",
+        "cropItems": {
+            "wheat": {
+                "isLocked": "boolean (false)",
+                "quantity": "number (0)"
+            },
+            "carrot": {
+                "isLocked": "boolean (true)",
+                "quantity": "number (0)"
+            },
+            "potato": {
+                "isLocked": "boolean (true)",
+                "quantity": "number (0)"
+            },
+            "beetroot": {
+                "isLocked": "boolean (true)",
+                "quantity": "number (0)"
+            },
+            "radish": {
+                "isLocked": "boolean (true)",
+                "quantity": "number (0)"
+            },
+            "onion": {
+                "isLocked": "boolean (true)",
+                "quantity": "number (0)"
+            },
+            "lettuce": {
+                "isLocked": "boolean (true)",
+                "quantity": "number (0)"
+            },
+            "tomato": {
+                "isLocked": "boolean (true)",
+                "quantity": "number (0)"
+            },
+            "garlic": {
+                "isLocked": "boolean (true)",
+                "quantity": "number (0)"
+            }
+        }
+    },
+    "rankProgress": {
+        "experiencePoints": "number (0)"
+    },
+    "courseProgress": {
+        "cpp": {
+            "beginner": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            },
+            "intermediate": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            },
+            "advanced": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            }
+        },
+        "csharp": {
+            "beginner": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            },
+            "intermediate": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            },
+            "advanced": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            }
+        },
+        "java": {
+            "beginner": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            },
+            "intermediate": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            },
+            "advanced": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            }
+        },
+        "python": {
+            "beginner": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            },
+            "intermediate": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            },
+            "advanced": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            }
+        },
+        "javascript": {
+            "beginner": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            },
+            "intermediate": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            },
+            "advanced": {
+                "currentChapter": "number (1)",
+                "currentModule": "number (1)"
+            }
+        }
     }
 }

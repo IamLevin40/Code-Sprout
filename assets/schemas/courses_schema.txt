@@ -1,0 +1,18 @@
+{
+    "cpp": {
+        "module_schema_file": "schemas/courses/cpp/cpp_modules_schema.txt"
+    },
+    "csharp": {
+        "module_schema_file": "schemas/courses/csharp/csharp_modules_schema.txt"
+    },
+    "java": {
+        "module_schema_file": "schemas/courses/java/java_modules_schema.txt"
+    },
+    "python": {
+        "module_schema_file": "schemas/courses/python/python_modules_schema.txt"
+    },
+    "javascript": {
+        "module_schema_file": "schemas/courses/javascript/javascript_modules_schema.txt"
+    },
+    "recommended": ["cpp", "java", "python"]
+}

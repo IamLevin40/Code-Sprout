@@ -1,0 +1,97 @@
+{
+    "programming_language": "C#",
+    "beginner": {
+        "estimated_duration": {
+            "hours": 9,
+            "minutes": 0
+        },
+        "chapter_1": {
+            "module_1": {
+                "title": "Introduction to C#",
+                "level_schema": "schemas/courses/csharp/beginner/chapter_1/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "Variables and Data Types",
+                "level_schema": "schemas/courses/csharp/beginner/chapter_1/module_2_levels.txt"
+            },
+            "module_3": {
+                "title": "Console Input and Output",
+                "level_schema": "schemas/courses/csharp/beginner/chapter_1/module_3_levels.txt"
+            }
+        },
+        "chapter_2": {
+            "module_1": {
+                "title": "Operators and Expressions",
+                "level_schema": "schemas/courses/csharp/beginner/chapter_2/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "Control Flow Statements",
+                "level_schema": "schemas/courses/csharp/beginner/chapter_2/module_2_levels.txt"
+            },
+            "module_3": {
+                "title": "Loops and Iterations",
+                "level_schema": "schemas/courses/csharp/beginner/chapter_2/module_3_levels.txt"
+            }
+        }
+    },
+    "intermediate": {
+        "estimated_duration": {
+            "hours": 11,
+            "minutes": 30
+        },
+        "chapter_1": {
+            "module_1": {
+                "title": "Methods and Parameters",
+                "level_schema": "schemas/courses/csharp/intermediate/chapter_1/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "Arrays and Collections",
+                "level_schema": "schemas/courses/csharp/intermediate/chapter_1/module_2_levels.txt"
+            },
+            "module_3": {
+                "title": "String Manipulation",
+                "level_schema": "schemas/courses/csharp/intermediate/chapter_1/module_3_levels.txt"
+            }
+        },
+        "chapter_2": {
+            "module_1": {
+                "title": "Object-Oriented Programming in C#",
+                "level_schema": "schemas/courses/csharp/intermediate/chapter_2/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "Properties and Encapsulation",
+                "level_schema": "schemas/courses/csharp/intermediate/chapter_2/module_2_levels.txt"
+            }
+        }
+    },
+    "advanced": {
+        "estimated_duration": {
+            "hours": 14,
+            "minutes": 15
+        },
+        "chapter_1": {
+            "module_1": {
+                "title": "Inheritance and Interfaces",
+                "level_schema": "schemas/courses/csharp/advanced/chapter_1/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "Delegates and Events",
+                "level_schema": "schemas/courses/csharp/advanced/chapter_1/module_2_levels.txt"
+            },
+            "module_3": {
+                "title": "LINQ Basics",
+                "level_schema": "schemas/courses/csharp/advanced/chapter_1/module_3_levels.txt"
+            }
+        },
+        "chapter_2": {
+            "module_1": {
+                "title": "Exception Handling",
+                "level_schema": "schemas/courses/csharp/advanced/chapter_2/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "Async and Await",
+                "level_schema": "schemas/courses/csharp/advanced/chapter_2/module_2_levels.txt"
+            }
+        }
+    }
+}

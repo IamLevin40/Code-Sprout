@@ -1,0 +1,33 @@
+{
+    "level_1": {
+        "mode": "lecture",
+        "content": {
+            "1_title": [
+                "Loops: For and While"
+            ],
+            "2_plain": [
+                "This module covers loops in C++.",
+                "Content will be added soon."
+            ]
+        }
+    },
+    "level_2": {
+        "mode": "multiple_choice",
+        "content": {
+            "question": "Sample question",
+            "correct_answer": "Answer",
+            "incorrect_answers": [
+                "Option 1",
+                "Option 2",
+                "Option 3"
+            ]
+        }
+    },
+    "level_3": {
+        "mode": "true_or_false",
+        "content": {
+            "question": "Sample true/false question",
+            "correct_answer": true
+        }
+    }
+}

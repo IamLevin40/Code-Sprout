@@ -28,6 +28,10 @@ class FirestoreService {
       );
 
       await userData.save();
+      // Cache the newly created user document locally so UI can react immediately
+      try {
+        await _localStorage.saveUserData(userData);
+      } catch (_) {}
     } catch (e) {
       throw Exception('Failed to create user document: $e');
     }

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'services/auth_service.dart';
+import 'models/styles_schema.dart';
+import 'miscellaneous/touch_mouse_drag_scroll_behavior.dart';
 import 'pages/register_page.dart';
 import 'pages/login_page.dart';
 import 'pages/main_navigation_page.dart';
@@ -11,6 +13,10 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  
+  // Load app styles from schema
+  await AppStyles().loadStyles();
+  
   runApp(const MyApp());
 }
 
@@ -19,16 +25,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final styles = AppStyles();
+    
     return MaterialApp(
       title: 'Code Sprout',
+      scrollBehavior: const TouchMouseDragScrollBehavior(),
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.green,
-          secondary: Colors.purple,
+          seedColor: styles.getStyles('constant_values.colors.light_purple') as Color,
+          secondary: styles.getStyles('constant_values.colors.dark_green') as Color,
         ),
         useMaterial3: true,
-        fontFamily: 'Roboto',
+        fontFamily: 'Poppins',
       ),
       home: const AuthWrapper(),
       routes: {
@@ -46,17 +55,20 @@ class AuthWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authService = AuthService();
+    final styles = AppStyles();
 
     return StreamBuilder(
       stream: authService.authStateChanges,
       builder: (context, snapshot) {
         // Show loading screen while checking auth state
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            backgroundColor: Colors.white,
+          return Scaffold(
+            backgroundColor: styles.getStyles('constant_values.colors.white') as Color,
             body: Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  styles.getStyles('constant_values.colors.light_purple') as Color,
+                ),
               ),
             ),
           );

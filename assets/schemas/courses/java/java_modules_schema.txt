@@ -1,0 +1,97 @@
+{
+    "programming_language": "Java",
+    "beginner": {
+        "estimated_duration": {
+            "hours": 10,
+            "minutes": 0
+        },
+        "chapter_1": {
+            "module_1": {
+                "title": "Introduction to Java",
+                "level_schema": "schemas/courses/java/beginner/chapter_1/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "Variables and Data Types",
+                "level_schema": "schemas/courses/java/beginner/chapter_1/module_2_levels.txt"
+            },
+            "module_3": {
+                "title": "Input and Output in Java",
+                "level_schema": "schemas/courses/java/beginner/chapter_1/module_3_levels.txt"
+            }
+        },
+        "chapter_2": {
+            "module_1": {
+                "title": "Operators in Java",
+                "level_schema": "schemas/courses/java/beginner/chapter_2/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "Conditional Statements",
+                "level_schema": "schemas/courses/java/beginner/chapter_2/module_2_levels.txt"
+            },
+            "module_3": {
+                "title": "Loops in Java",
+                "level_schema": "schemas/courses/java/beginner/chapter_2/module_3_levels.txt"
+            }
+        }
+    },
+    "intermediate": {
+        "estimated_duration": {
+            "hours": 13,
+            "minutes": 30
+        },
+        "chapter_1": {
+            "module_1": {
+                "title": "Methods and Overloading",
+                "level_schema": "schemas/courses/java/intermediate/chapter_1/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "Arrays and ArrayLists",
+                "level_schema": "schemas/courses/java/intermediate/chapter_1/module_2_levels.txt"
+            },
+            "module_3": {
+                "title": "Strings and StringBuilder",
+                "level_schema": "schemas/courses/java/intermediate/chapter_1/module_3_levels.txt"
+            }
+        },
+        "chapter_2": {
+            "module_1": {
+                "title": "Classes and Objects",
+                "level_schema": "schemas/courses/java/intermediate/chapter_2/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "Constructors and this Keyword",
+                "level_schema": "schemas/courses/java/intermediate/chapter_2/module_2_levels.txt"
+            }
+        }
+    },
+    "advanced": {
+        "estimated_duration": {
+            "hours": 16,
+            "minutes": 0
+        },
+        "chapter_1": {
+            "module_1": {
+                "title": "Inheritance in Java",
+                "level_schema": "schemas/courses/java/advanced/chapter_1/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "Polymorphism and Interfaces",
+                "level_schema": "schemas/courses/java/advanced/chapter_1/module_2_levels.txt"
+            },
+            "module_3": {
+                "title": "Abstract Classes",
+                "level_schema": "schemas/courses/java/advanced/chapter_1/module_3_levels.txt"
+            }
+        },
+        "chapter_2": {
+            "module_1": {
+                "title": "Exception Handling",
+                "level_schema": "schemas/courses/java/advanced/chapter_2/module_1_levels.txt"
+            },
+            "module_2": {
+                "title": "File I/O in Java",
+                "level_schema": "schemas/courses/java/advanced/chapter_2/module_2_levels.txt"
+            }
+        }
+    }
+}

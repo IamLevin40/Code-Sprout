@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
+import '../models/styles_schema.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -131,12 +132,14 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _showSuccessDialog() {
+    final styles = AppStyles();
+    
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => Dialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(styles.getStyles('register_page.success_dialog.border_radius') as double),
         ),
         child: Padding(
           padding: const EdgeInsets.all(32.0),
@@ -146,31 +149,31 @@ class _RegisterPageState extends State<RegisterPage> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.green.shade50,
+                  color: styles.getStyles('register_page.success_dialog.background_color') as Color,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.check_circle,
-                  color: Colors.green.shade600,
-                  size: 60,
+                  color: styles.getStyles('register_page.success_dialog.icon.color') as Color,
+                  size: styles.getStyles('register_page.success_dialog.icon.width') as double,
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Successfully Registered!',
                 style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D3748),
+                  fontSize: styles.getStyles('register_page.success_dialog.title.font_size') as double,
+                  fontWeight: styles.getStyles('register_page.success_dialog.title.font_weight') as FontWeight,
+                  color: styles.getStyles('register_page.success_dialog.title.color') as Color,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
-              const Text(
+              Text(
                 'Your account has been created successfully.',
                 style: TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF718096),
+                  fontSize: styles.getStyles('register_page.success_dialog.message.font_size') as double,
+                  color: styles.getStyles('register_page.success_dialog.message.color') as Color,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -184,19 +187,19 @@ class _RegisterPageState extends State<RegisterPage> {
                     Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green.shade600,
-                    foregroundColor: Colors.white,
+                    backgroundColor: styles.getStyles('register_page.success_dialog.button.background_color') as Color,
+                    foregroundColor: styles.getStyles('register_page.success_dialog.button.text.color') as Color,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(styles.getStyles('register_page.success_dialog.button.border_radius') as double),
                     ),
                     elevation: 0,
                   ),
-                  child: const Text(
+                  child: Text(
                     'Continue',
                     style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      fontSize: styles.getStyles('register_page.success_dialog.button.text.font_size') as double,
+                      fontWeight: styles.getStyles('register_page.success_dialog.button.text.font_weight') as FontWeight,
                     ),
                   ),
                 ),
@@ -212,8 +215,10 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    final styles = AppStyles();
+    
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: styles.getStyles('global.background.color') as Color,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -228,40 +233,33 @@ class _RegisterPageState extends State<RegisterPage> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.green.shade400,
-                          Colors.purple.shade400,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
+                      gradient: styles.getStyles('register_page.logo_container.background_color') as LinearGradient,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.person_add,
-                      size: 60,
-                      color: Colors.white,
+                      size: styles.getStyles('register_page.logo_container.icon.font_size') as double,
+                      color: styles.getStyles('register_page.logo_container.icon.color') as Color,
                     ),
                   ),
                   const SizedBox(height: 32),
 
                   // Title
-                  const Text(
+                  Text(
                     'Create Account',
                     style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF2D3748),
+                      fontSize: styles.getStyles('register_page.title.font_size') as double,
+                      fontWeight: styles.getStyles('register_page.title.font_weight') as FontWeight,
+                      color: styles.getStyles('register_page.title.color') as Color,
                     ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Sign up to get started',
                     style: TextStyle(
-                      fontSize: 16,
-                      color: Color(0xFF718096),
+                      fontSize: styles.getStyles('register_page.subtitle.font_size') as double,
+                      color: styles.getStyles('register_page.subtitle.color') as Color,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -273,24 +271,27 @@ class _RegisterPageState extends State<RegisterPage> {
                       padding: const EdgeInsets.all(12),
                       margin: const EdgeInsets.only(bottom: 20),
                       decoration: BoxDecoration(
-                        color: Colors.red.shade50,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.red.shade200),
+                        color: styles.getStyles('register_page.error_container.background_color') as Color,
+                        borderRadius: BorderRadius.circular(styles.getStyles('register_page.error_container.border_radius') as double),
+                        border: Border.all(
+                          color: styles.getStyles('register_page.error_container.border.color') as Color,
+                          width: styles.getStyles('register_page.error_container.border.width') as double,
+                        ),
                       ),
                       child: Row(
                         children: [
                           Icon(
                             Icons.error_outline,
-                            color: Colors.red.shade700,
-                            size: 20,
+                            color: styles.getStyles('register_page.error_container.icon.color') as Color,
+                            size: styles.getStyles('register_page.error_container.icon.width') as double,
                           ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
                               _errorMessage!,
                               style: TextStyle(
-                                color: Colors.red.shade700,
-                                fontSize: 14,
+                                color: styles.getStyles('register_page.error_container.text.color') as Color,
+                                fontSize: styles.getStyles('register_page.error_container.text.font_size') as double,
                               ),
                             ),
                           ),
@@ -305,21 +306,30 @@ class _RegisterPageState extends State<RegisterPage> {
                     decoration: InputDecoration(
                       labelText: 'Username',
                       hintText: 'Enter your username',
-                      prefixIcon: Icon(Icons.account_circle_outlined, color: Colors.green.shade600),
+                      prefixIcon: Icon(Icons.account_circle_outlined, color: styles.getStyles('register_page.username_field.icon.color') as Color),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        borderRadius: BorderRadius.circular(styles.getStyles('register_page.username_field.border_radius') as double),
+                        borderSide: BorderSide(
+                          color: styles.getStyles('register_page.username_field.border.color') as Color,
+                          width: styles.getStyles('register_page.username_field.border.width') as double,
+                        ),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        borderRadius: BorderRadius.circular(styles.getStyles('register_page.username_field.border_radius') as double),
+                        borderSide: BorderSide(
+                          color: styles.getStyles('register_page.username_field.border.color') as Color,
+                          width: styles.getStyles('register_page.username_field.border.width') as double,
+                        ),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.green.shade600, width: 2),
+                        borderRadius: BorderRadius.circular(styles.getStyles('register_page.username_field.border_radius') as double),
+                        borderSide: BorderSide(
+                          color: styles.getStyles('register_page.username_field.focused_border.color') as Color,
+                          width: styles.getStyles('register_page.username_field.focused_border.width') as double,
+                        ),
                       ),
                       filled: true,
-                      fillColor: const Color(0xFFF7FAFC),
+                      fillColor: styles.getStyles('register_page.username_field.background_color') as Color,
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -344,21 +354,30 @@ class _RegisterPageState extends State<RegisterPage> {
                     decoration: InputDecoration(
                       labelText: 'Email',
                       hintText: 'Enter your email',
-                      prefixIcon: Icon(Icons.email_outlined, color: Colors.green.shade600),
+                      prefixIcon: Icon(Icons.email_outlined, color: styles.getStyles('register_page.email_field.icon.color') as Color),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        borderRadius: BorderRadius.circular(styles.getStyles('register_page.email_field.border_radius') as double),
+                        borderSide: BorderSide(
+                          color: styles.getStyles('register_page.email_field.border.color') as Color,
+                          width: styles.getStyles('register_page.email_field.border.width') as double,
+                        ),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        borderRadius: BorderRadius.circular(styles.getStyles('register_page.email_field.border_radius') as double),
+                        borderSide: BorderSide(
+                          color: styles.getStyles('register_page.email_field.border.color') as Color,
+                          width: styles.getStyles('register_page.email_field.border.width') as double,
+                        ),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.green.shade600, width: 2),
+                        borderRadius: BorderRadius.circular(styles.getStyles('register_page.email_field.border_radius') as double),
+                        borderSide: BorderSide(
+                          color: styles.getStyles('register_page.email_field.focused_border.color') as Color,
+                          width: styles.getStyles('register_page.email_field.focused_border.width') as double,
+                        ),
                       ),
                       filled: true,
-                      fillColor: const Color(0xFFF7FAFC),
+                      fillColor: styles.getStyles('register_page.email_field.background_color') as Color,
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -379,11 +398,11 @@ class _RegisterPageState extends State<RegisterPage> {
                     decoration: InputDecoration(
                       labelText: 'Password',
                       hintText: 'Enter your password',
-                      prefixIcon: Icon(Icons.lock_outline, color: Colors.purple.shade600),
+                      prefixIcon: Icon(Icons.lock_outline, color: styles.getStyles('register_page.password_field.icon.color') as Color),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                          color: Colors.grey.shade600,
+                          color: styles.getStyles('global.text.secondary.color') as Color,
                         ),
                         onPressed: () {
                           setState(() {
@@ -392,19 +411,28 @@ class _RegisterPageState extends State<RegisterPage> {
                         },
                       ),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        borderRadius: BorderRadius.circular(styles.getStyles('register_page.password_field.border_radius') as double),
+                        borderSide: BorderSide(
+                          color: styles.getStyles('register_page.password_field.border.color') as Color,
+                          width: styles.getStyles('register_page.password_field.border.width') as double,
+                        ),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        borderRadius: BorderRadius.circular(styles.getStyles('register_page.password_field.border_radius') as double),
+                        borderSide: BorderSide(
+                          color: styles.getStyles('register_page.password_field.border.color') as Color,
+                          width: styles.getStyles('register_page.password_field.border.width') as double,
+                        ),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.purple.shade600, width: 2),
+                        borderRadius: BorderRadius.circular(styles.getStyles('register_page.password_field.border_radius') as double),
+                        borderSide: BorderSide(
+                          color: styles.getStyles('register_page.password_field.focused_border.color') as Color,
+                          width: styles.getStyles('register_page.password_field.focused_border.width') as double,
+                        ),
                       ),
                       filled: true,
-                      fillColor: const Color(0xFFF7FAFC),
+                      fillColor: styles.getStyles('register_page.password_field.background_color') as Color,
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -425,11 +453,11 @@ class _RegisterPageState extends State<RegisterPage> {
                     decoration: InputDecoration(
                       labelText: 'Confirm Password',
                       hintText: 'Re-enter your password',
-                      prefixIcon: Icon(Icons.lock_outline, color: Colors.purple.shade600),
+                      prefixIcon: Icon(Icons.lock_outline, color: styles.getStyles('register_page.password_field.icon.color') as Color),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscureConfirmPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                          color: Colors.grey.shade600,
+                          color: styles.getStyles('global.text.secondary.color') as Color,
                         ),
                         onPressed: () {
                           setState(() {
@@ -438,19 +466,28 @@ class _RegisterPageState extends State<RegisterPage> {
                         },
                       ),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        borderRadius: BorderRadius.circular(styles.getStyles('register_page.password_field.border_radius') as double),
+                        borderSide: BorderSide(
+                          color: styles.getStyles('register_page.password_field.border.color') as Color,
+                          width: styles.getStyles('register_page.password_field.border.width') as double,
+                        ),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        borderRadius: BorderRadius.circular(styles.getStyles('register_page.password_field.border_radius') as double),
+                        borderSide: BorderSide(
+                          color: styles.getStyles('register_page.password_field.border.color') as Color,
+                          width: styles.getStyles('register_page.password_field.border.width') as double,
+                        ),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.purple.shade600, width: 2),
+                        borderRadius: BorderRadius.circular(styles.getStyles('register_page.password_field.border_radius') as double),
+                        borderSide: BorderSide(
+                          color: styles.getStyles('register_page.password_field.focused_border.color') as Color,
+                          width: styles.getStyles('register_page.password_field.focused_border.width') as double,
+                        ),
                       ),
                       filled: true,
-                      fillColor: const Color(0xFFF7FAFC),
+                      fillColor: styles.getStyles('register_page.password_field.background_color') as Color,
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -465,28 +502,28 @@ class _RegisterPageState extends State<RegisterPage> {
                   ElevatedButton(
                     onPressed: _isLoading ? null : _register,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green.shade600,
-                      foregroundColor: Colors.white,
+                      backgroundColor: styles.getStyles('register_page.register_button.background_color') as Color,
+                      foregroundColor: styles.getStyles('register_page.register_button.text.color') as Color,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(styles.getStyles('register_page.register_button.border_radius') as double),
                       ),
                       elevation: 0,
                     ),
                     child: _isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
+                        ? SizedBox(
+                            height: styles.getStyles('register_page.register_button.progress_indicator.height') as double,
+                            width: styles.getStyles('register_page.register_button.progress_indicator.width') as double,
                             child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              strokeWidth: styles.getStyles('register_page.register_button.progress_indicator.stroke_weight') as double,
+                              valueColor: AlwaysStoppedAnimation<Color>(styles.getStyles('register_page.register_button.text.color') as Color),
                             ),
                           )
-                        : const Text(
+                        : Text(
                             'Register',
                             style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                              fontSize: styles.getStyles('register_page.register_button.text.font_size') as double,
+                              fontWeight: styles.getStyles('register_page.register_button.text.font_weight') as FontWeight,
                             ),
                           ),
                   ),
@@ -496,11 +533,11 @@ class _RegisterPageState extends State<RegisterPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
+                      Text(
                         'Already have an account? ',
                         style: TextStyle(
-                          color: Color(0xFF718096),
-                          fontSize: 14,
+                          color: styles.getStyles('global.text.secondary.color') as Color,
+                          fontSize: styles.getStyles('global.text.secondary.font_size') as double,
                         ),
                       ),
                       TextButton(
@@ -515,9 +552,9 @@ class _RegisterPageState extends State<RegisterPage> {
                         child: Text(
                           'Login',
                           style: TextStyle(
-                            color: Colors.purple.shade600,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                            color: styles.getStyles('register_page.login_link.color') as Color,
+                            fontSize: styles.getStyles('register_page.login_link.font_size') as double,
+                            fontWeight: styles.getStyles('register_page.login_link.font_weight') as FontWeight,
                           ),
                         ),
                       ),
@@ -532,3 +569,4 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 }
+
