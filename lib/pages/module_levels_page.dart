@@ -300,7 +300,13 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
                                       }
 
                                       final userMap = ud.toFirestore();
-                                      final updated = await CourseDataSchema().advanceModule(userData: userMap, languageId: widget.languageId, difficulty: widget.difficulty);
+                                      final updated = await CourseDataSchema().advanceModule(
+                                        userData: userMap,
+                                        languageId: widget.languageId,
+                                        difficulty: widget.difficulty,
+                                        completedChapter: widget.chapterNumber,
+                                        completedModule: widget.moduleNumber,
+                                      );
 
                                       try {
                                         final merged = {'uid': ud.uid, ...updated};

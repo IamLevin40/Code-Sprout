@@ -478,6 +478,8 @@ class CourseDataSchema {
     required Map<String, dynamic> userData,
     required String languageId,
     required String difficulty,
+    int? completedChapter,
+    int? completedModule,
   }) async {
     try {
       final progress = getCurrentProgress(
@@ -488,6 +490,16 @@ class CourseDataSchema {
       
       int currentChapter = progress['currentChapter']!;
       int currentModule = progress['currentModule']!;
+
+      final int finishedChapter = completedChapter ?? currentChapter;
+      final int finishedModule = completedModule ?? currentModule;
+
+      // Only advance progress when the user completed the module that they are
+      // expected to be on (i.e., matches current progress)
+      if (!(finishedChapter == currentChapter && finishedModule == currentModule)) {
+        // No change to progress
+        return userData;
+      }
       
       // Get total modules in current chapter
       final totalChapters = await getChapterCount(
