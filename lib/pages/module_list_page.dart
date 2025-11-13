@@ -41,12 +41,20 @@ class ModuleListPage extends StatelessWidget {
       final est = await CourseDataSchema().getEstimatedDuration(programmingLanguageId: languageId, difficulty: difficultyKey);
       final progress = await CourseDataSchema().getProgressPercentage(userData: userMap, languageId: languageId, difficulty: difficultyKey);
 
+      final modulesByDifficulty = await CourseDataSchema().getModulesByDifficulty(programmingLanguageId: languageId, difficulty: difficultyKey);
+      final currentProgress = CourseDataSchema().getCurrentProgress(userData: userMap, languageId: languageId, difficulty: difficultyKey);
+      final int currentChapter = currentProgress['currentChapter'] ?? 1;
+      final int currentModule = currentProgress['currentModule'] ?? 1;
+
       return {
         'module': module,
         'displayName': module.programmingLanguage,
         'chapterCount': chapterCount,
         'estimatedDuration': est,
         'progress': progress,
+        'modulesByDifficulty': modulesByDifficulty,
+        'currentChapter': currentChapter,
+        'currentModule': currentModule,
       };
     }();
 
@@ -195,8 +203,153 @@ class ModuleListPage extends StatelessWidget {
 
                 const SizedBox(height: 16),
 
-                // Placeholder for more scrollable content (chapters, modules, etc.)
-                // We will populate this with real module/chapter lists next.
+                // Chapters-Modules list section
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: FutureBuilder<Map<String, dynamic>>(
+                    future: courseInfoFuture,
+                    builder: (context, snap) {
+                      if (!snap.hasData) return const SizedBox();
+                      final info = snap.data!;
+                      final modulesByDifficulty = info['modulesByDifficulty'] as Map<String, Map<String, Module>>;
+                      final int curChap = info['currentChapter'] as int;
+                      final int curMod = info['currentModule'] as int;
+
+                      // Partition modules
+                      final Map<String, List<MapEntry<String, Module>>> completed = {};
+                      final Map<String, List<MapEntry<String, Module>>> notCompleted = {};
+
+                      final chapterKeys = modulesByDifficulty.keys.toList()..sort((a, b) {
+                        final aNum = int.tryParse(a.split('_').last) ?? 0;
+                        final bNum = int.tryParse(b.split('_').last) ?? 0;
+                        return aNum.compareTo(bNum);
+                      });
+
+                      for (final chapterId in chapterKeys) {
+                        final chapModules = modulesByDifficulty[chapterId]!;
+                        final moduleEntries = chapModules.entries.toList()..sort((a, b) {
+                          final aNum = int.tryParse(a.key.split('_').last) ?? 0;
+                          final bNum = int.tryParse(b.key.split('_').last) ?? 0;
+                          return aNum.compareTo(bNum);
+                        });
+
+                        final chapNum = int.tryParse(chapterId.split('_').last) ?? 0;
+                        final List<MapEntry<String, Module>> compList = [];
+                        final List<MapEntry<String, Module>> notCompList = [];
+
+                        for (final me in moduleEntries) {
+                          final modIdNum = int.tryParse(me.key.split('_').last) ?? 0;
+                          if (chapNum < curChap || (chapNum == curChap && modIdNum < curMod)) {
+                            compList.add(me);
+                          } else {
+                            notCompList.add(me);
+                          }
+                        }
+
+                        if (notCompList.isNotEmpty) notCompleted[chapterId] = notCompList;
+                        if (compList.isNotEmpty) completed[chapterId] = compList;
+                      }
+
+                      Widget buildModuleCard(MapEntry<String, Module> entry, {required bool pressable, required bool completedCard}) {
+                        final moduleKey = entry.key;
+                        final module = entry.value;
+                        final moduleNumber = int.tryParse(moduleKey.split('_').last) ?? 0;
+
+                        final leftIcon = completedCard
+                            ? Icons.check_circle_outline
+                            : (pressable ? Icons.play_circle_fill : Icons.lock_outline);
+
+                        return GestureDetector(
+                          onTap: pressable
+                              ? () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (_) => AlertDialog(
+                                      title: Text(module.title),
+                                      content: Text('Module $moduleNumber'),
+                                      actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close'))],
+                                    ),
+                                  );
+                                }
+                              : null,
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(vertical: 8.0),
+                            padding: const EdgeInsets.all(12.0),
+                            decoration: BoxDecoration(
+                              color: completedCard ? Colors.blue.shade300 : Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: Colors.grey.shade400, width: 1.5),
+                              boxShadow: completedCard ? [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))] : null,
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(leftIcon, size: 36, color: completedCard ? Colors.white : Colors.grey.shade700),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(module.title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                                      const SizedBox(height: 4),
+                                      Text('Module $moduleNumber', style: TextStyle(fontSize: 12, color: Colors.grey.shade700)),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+
+                      final List<Widget> widgets = [];
+                      
+                      // Not Completed section
+                      if (notCompleted.isNotEmpty) {
+                        widgets.add(const Text('Not Completed', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)));
+                        widgets.add(const SizedBox(height: 8));
+
+                        for (final chapterId in chapterKeys) {
+                          final chapNum = int.tryParse(chapterId.split('_').last) ?? 0;
+                          final notList = notCompleted[chapterId];
+                          if (notList == null) continue;
+
+                          widgets.add(Text('Chapter $chapNum', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)));
+                          widgets.add(const SizedBox(height: 8));
+
+                          for (final entry in notList) {
+                            final modNum = int.tryParse(entry.key.split('_').last) ?? 0;
+                            final pressable = (chapNum == curChap && modNum == curMod);
+                            widgets.add(buildModuleCard(entry, pressable: pressable, completedCard: false));
+                          }
+                        }
+                      }
+
+                      // Completed section
+                      if (completed.isNotEmpty) {
+                        widgets.add(const SizedBox(height: 12));
+                        widgets.add(const Text('Completed', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)));
+                        widgets.add(const SizedBox(height: 8));
+
+                        for (final chapterId in chapterKeys) {
+                          final chapNum = int.tryParse(chapterId.split('_').last) ?? 0;
+                          final compList = completed[chapterId];
+                          if (compList == null) continue;
+
+                          widgets.add(Text('Chapter $chapNum', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)));
+                          widgets.add(const SizedBox(height: 8));
+
+                          for (final entry in compList) {
+                            widgets.add(buildModuleCard(entry, pressable: true, completedCard: true));
+                          }
+                        }
+                      }
+
+                      return Column(children: widgets);
+                    },
+                  ),
+                ),
+
+                // Completed section
               ],
             ),
           ),
