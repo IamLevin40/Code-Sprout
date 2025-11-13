@@ -1351,6 +1351,11 @@
             "lettuce": "images/icons/sprout_researches/crop_items/lettuce.png",
             "tomato": "images/icons/sprout_researches/crop_items/tomato.png",
             "garlic": "images/icons/sprout_researches/crop_items/garlic.png"
+        },
+        "locked_overlay": {
+            "icon": {
+                "image": "images/icons/on_cards/lock.png"
+            }
         }
     }
 }

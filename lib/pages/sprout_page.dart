@@ -16,7 +16,7 @@ class SproutPage extends StatefulWidget {
 }
 
 class _SproutPageState extends State<SproutPage> {
-  final List<String> _inventory = ['Wheat', 'Corn', 'Rice', 'Carrot', 'Potato'];
+  List<CropItem> _cropItems = [];
 
   final CourseDataSchema _courseSchema = CourseDataSchema();
   List<String> _languages = [];
@@ -80,6 +80,11 @@ class _SproutPageState extends State<SproutPage> {
         _selectedLanguage = selected;
       });
     }
+    // load crop items after initial set
+    try {
+      final items = await SproutDataHelpers.getCropItemsForUser(ud);
+      if (mounted) setState(() => _cropItems = items);
+    } catch (_) {}
   }
 
   @override
@@ -172,22 +177,72 @@ class _SproutPageState extends State<SproutPage> {
             Text('Inventory', style: TextStyle(fontSize: styles.getStyles('sprout_page.inventory.title.font_size') as double, fontWeight: styles.getStyles('sprout_page.inventory.title.font_weight') as FontWeight)),
             const SizedBox(height: 8),
 
-            Column(
-              children: List.generate(_inventory.length, (i) {
-                return Column(
-                  children: [
-                    Card(
-                      child: ListTile(
-                        leading: Icon(Icons.spa, color: styles.getStyles('sprout_page.inventory.icon.color') as Color),
-                        title: Text(_inventory[i], style: TextStyle(fontSize: styles.getStyles('sprout_page.inventory.item.font_size') as double)),
-                        subtitle: Text('Amount: ${5 + i}', style: TextStyle(color: styles.getStyles('sprout_page.inventory.item.subtitle.color') as Color)),
+            // Inventory grid (3 columns max)
+            LayoutBuilder(builder: (context, constraints) {
+              final double maxWidth = constraints.maxWidth;
+              const int columns = 3;
+              const double spacing = 8.0;
+              final double itemWidth = (maxWidth - (columns - 1) * spacing) / columns;
+
+              final cropImages = styles.getStyles('sprout_researches.crop_items') as Map<String, dynamic>;
+
+              return Wrap(
+                spacing: spacing,
+                runSpacing: spacing,
+                children: _cropItems.map((item) {
+                  final String imagePath = cropImages[item.id] as String;
+
+                  return SizedBox(
+                    width: itemWidth,
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: itemWidth * 0.35,
+                              height: itemWidth * 0.35,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Image.asset(imagePath, fit: BoxFit.contain),
+                                  if (item.isLocked) ...[
+                                    Container(color: const Color.fromARGB(192, 255, 255, 255)),
+                                    Builder(builder: (_) {
+                                      final lockedImg = styles.getStyles('sprout_researches.locked_overlay.icon.image') as String;
+                                      return Image.asset(lockedImg, width: itemWidth * 0.18, height: itemWidth * 0.18, fit: BoxFit.contain);
+                                    }),
+                                  ],
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    item.isLocked ? 'Locked' : item.displayName,
+                                    style: TextStyle(fontSize: styles.getStyles('sprout_page.inventory.item.font_size') as double),
+                                  ),
+                                  if (!item.isLocked) ...[
+                                    Text(
+                                      'x${item.quantity}',
+                                      style: TextStyle(color: styles.getStyles('sprout_page.inventory.item.subtitle.color') as Color),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 8),
-                  ],
-                );
-              }),
-            ),
+                  );
+                }).toList(),
+              );
+            }),
           ],
         ),
       ),
