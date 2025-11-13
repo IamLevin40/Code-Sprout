@@ -1343,18 +1343,18 @@
     },
     "module_list_page": {
         "transition_duration": 500,
+        "back": {
+            "color": "--colors.dark_purple",
+            "size": 32
+        },
         "title": {
-            "color": "--colors.white",
+            "color": "--colors.dark_purple",
             "font_size": "--font_sizes.title",
             "font_weight": "--font_weights.bold"
         },
         "subtitle": {
-            "color": "--colors.white",
-            "font_size": "--font_sizes.regular"
-        },
-        "back": {
             "color": "--colors.dark_purple",
-            "size": 32
+            "font_size": "--font_sizes.regular"
         },
         "icon": {
             "width": 80,
@@ -1372,14 +1372,34 @@
                 }
             }
         },
-        "card": {
-            "border_radius": 16,
-            "border_width": 4,
-            "margin": {
-                "left-right": 24,
-                "top-bottom": 24
+        "progress_text": {
+            "color": "--colors.light_purple",
+            "font_size": "--font_sizes.heading",
+            "font_weight": "--font_weights.bold"
+        },
+        "info_row": {
+            "icon_width": 14,
+            "icon_height": 14,
+            "font_size": "--font_sizes.regular",
+            "font_weight": "--font_weights.bold",
+            "text_color": "--colors.dark_gray",
+            "dark": {
+                "chapter_icon": "images/icons/on_cards/chapters_dark.png",
+                "duration_icon": "images/icons/on_cards/duration_dark.png"
+            }
+        },
+        "leaves": {
+            "width": 14,
+            "padding": 4,
+            "icons": {
+                "highlight": "images/icons/on_cards/leaf_highlight.png",
+                "unhighlight": "images/icons/on_cards/leaf_unhighlight.png"
             },
-            "padding": 24
+            "highlight_shadow": {
+                "color": "--colors.black",
+                "opacity": 70,
+                "blur_radius": 2
+            }
         }
     },
     "sprout_researches": {
