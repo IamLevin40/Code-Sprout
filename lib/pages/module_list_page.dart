@@ -4,6 +4,7 @@ import '../models/course_data_schema.dart';
 import '../models/course_data.dart';
 import '../services/local_storage_service.dart';
 import '../models/user_data.dart';
+import 'module_levels_page.dart';
 
 class ModuleListPage extends StatelessWidget {
   final String languageId;
@@ -250,7 +251,7 @@ class ModuleListPage extends StatelessWidget {
                         if (compList.isNotEmpty) completed[chapterId] = compList;
                       }
 
-                      Widget buildModuleCard(MapEntry<String, Module> entry, {required bool pressable, required bool completedCard}) {
+                      Widget buildModuleCard(MapEntry<String, Module> entry, {required int chapterNum, required bool pressable, required bool completedCard}) {
                         final moduleKey = entry.key;
                         final module = entry.value;
                         final moduleNumber = int.tryParse(moduleKey.split('_').last) ?? 0;
@@ -259,19 +260,21 @@ class ModuleListPage extends StatelessWidget {
                             ? Icons.check_circle_outline
                             : (pressable ? Icons.play_circle_fill : Icons.lock_outline);
 
-                        return GestureDetector(
-                          onTap: pressable
-                              ? () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (_) => AlertDialog(
-                                      title: Text(module.title),
-                                      content: Text('Module $moduleNumber'),
-                                      actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close'))],
-                                    ),
-                                  );
-                                }
-                              : null,
+                                return GestureDetector(
+                                  onTap: pressable
+                                      ? () {
+                                          // Navigate to ModuleLevelsPage for this module
+                                          Navigator.of(context).push(MaterialPageRoute(
+                                            builder: (_) => ModuleLevelsPage(
+                                              languageId: languageId,
+                                              difficulty: difficulty,
+                                              chapterNumber: chapterNum,
+                                              moduleNumber: moduleNumber,
+                                              moduleTitle: module.title,
+                                            ),
+                                          ));
+                                        }
+                                      : null,
                           child: Container(
                             margin: const EdgeInsets.symmetric(vertical: 8.0),
                             padding: const EdgeInsets.all(12.0),
@@ -316,10 +319,10 @@ class ModuleListPage extends StatelessWidget {
                           widgets.add(Text('Chapter $chapNum', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)));
                           widgets.add(const SizedBox(height: 8));
 
-                          for (final entry in notList) {
+                            for (final entry in notList) {
                             final modNum = int.tryParse(entry.key.split('_').last) ?? 0;
                             final pressable = (chapNum == curChap && modNum == curMod);
-                            widgets.add(buildModuleCard(entry, pressable: pressable, completedCard: false));
+                            widgets.add(buildModuleCard(entry, chapterNum: chapNum, pressable: pressable, completedCard: false));
                           }
                         }
                       }
@@ -339,7 +342,7 @@ class ModuleListPage extends StatelessWidget {
                           widgets.add(const SizedBox(height: 8));
 
                           for (final entry in compList) {
-                            widgets.add(buildModuleCard(entry, pressable: true, completedCard: true));
+                            widgets.add(buildModuleCard(entry, chapterNum: chapNum, pressable: true, completedCard: true));
                           }
                         }
                       }
@@ -348,8 +351,6 @@ class ModuleListPage extends StatelessWidget {
                     },
                   ),
                 ),
-
-                // Completed section
               ],
             ),
           ),
