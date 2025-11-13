@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import '../models/styles_schema.dart';
 import '../models/course_data_schema.dart';
 import '../models/course_data.dart';
+import '../services/local_storage_service.dart';
+import '../models/user_data.dart';
 
-class ModuleLevelsPage extends StatelessWidget {
+class ModuleLevelsPage extends StatefulWidget {
   final String languageId;
   final String difficulty;
   final int chapterNumber;
@@ -18,6 +20,64 @@ class ModuleLevelsPage extends StatelessWidget {
     required this.moduleNumber,
     this.moduleTitle,
   });
+
+  @override
+  State<ModuleLevelsPage> createState() => _ModuleLevelsPageState();
+}
+
+class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
+  late Future<Map<String, dynamic>> _moduleInfoFuture;
+  int _currentLevelIndex = 1; // 1-based
+
+  @override
+  void initState() {
+    super.initState();
+    _moduleInfoFuture = _loadModuleInfo();
+  }
+
+  Future<Map<String, dynamic>> _loadModuleInfo() async {
+    final moduleSchema = await CourseDataSchema().loadModuleSchema(widget.languageId);
+    String title = widget.moduleTitle ?? '';
+    LevelData? levelData;
+    String? levelSchemaPath;
+
+    try {
+      final diffKey = widget.difficulty.toLowerCase();
+      DifficultyLevel? level;
+      switch (diffKey) {
+        case 'beginner':
+          level = moduleSchema.beginner;
+          break;
+        case 'intermediate':
+          level = moduleSchema.intermediate;
+          break;
+        case 'advanced':
+          level = moduleSchema.advanced;
+          break;
+        default:
+          level = moduleSchema.beginner;
+      }
+
+      final chap = level.chapters['chapter_${widget.chapterNumber}'];
+      final mod = chap?.modules['module_${widget.moduleNumber}'];
+      if (mod != null) {
+        title = title.isEmpty ? mod.title : title;
+        levelSchemaPath = mod.levelSchema;
+      }
+
+      if (levelSchemaPath != null) {
+        final levels = await CourseDataSchema().getAllLevels(levelSchemaPath: levelSchemaPath);
+        levelData = LevelData(levels: levels);
+      }
+    } catch (_) {}
+
+    return {
+      'moduleTitle': title,
+      'languageName': moduleSchema.programmingLanguage,
+      'levelSchemaPath': levelSchemaPath,
+      'levelsMap': levelData?.levels ?? {},
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,45 +98,12 @@ class ModuleLevelsPage extends StatelessWidget {
     final iconBorderRadius = styles.getStyles('module_list_page.icon.border_radius') as double;
     final iconPadding = styles.getStyles('module_list_page.icon.padding') as double;
     final iconBg = styles.getStyles('module_list_page.icon.background_color') as LinearGradient;
-    final iconImage = styles.getStyles('course_cards.style_coding.$languageId.icon') as String;
+    final iconImage = styles.getStyles('course_cards.style_coding.${widget.languageId}.icon') as String;
 
     final leafSize = styles.getStyles('module_list_page.leaves.width') as double;
     final leafPadding = styles.getStyles('module_list_page.leaves.padding') as double;
     final leafHighlightPath = styles.getStyles('module_list_page.leaves.icons.highlight') as String;
     final leafUnhighlightPath = styles.getStyles('module_list_page.leaves.icons.unhighlight') as String;
-
-    final Future<Map<String, String>> moduleInfoFuture = () async {
-      // Load module schema to get language display name and module title if not provided
-      final moduleSchema = await CourseDataSchema().loadModuleSchema(languageId);
-      String title = moduleTitle ?? '';
-      if (title.isEmpty) {
-        try {
-          final diffKey = difficulty.toLowerCase();
-          DifficultyLevel? level;
-          switch (diffKey) {
-            case 'beginner':
-              level = moduleSchema.beginner;
-              break;
-            case 'intermediate':
-              level = moduleSchema.intermediate;
-              break;
-            case 'advanced':
-              level = moduleSchema.advanced;
-              break;
-            default:
-              level = moduleSchema.beginner;
-          }
-
-          final chap = level.chapters['chapter_$chapterNumber'];
-          final mod = chap?.modules['module_$moduleNumber'];
-          if (mod != null) title = mod.title;
-        } catch (_) {
-          // ignore
-        }
-      }
-
-      return {'moduleTitle': title, 'languageName': moduleSchema.programmingLanguage};
-    }();
 
     return Scaffold(
       body: SafeArea(
@@ -89,16 +116,16 @@ class ModuleLevelsPage extends StatelessWidget {
                 // Module information section
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: FutureBuilder<Map<String, String>>(
-                    future: moduleInfoFuture,
+                  child: FutureBuilder<Map<String, dynamic>>(
+                    future: _moduleInfoFuture,
                     builder: (context, snap) {
                       if (!snap.hasData) return const SizedBox();
                       final info = snap.data!;
-                      final modTitle = info['moduleTitle'] ?? 'Module $moduleNumber';
+                      final modTitle = info['moduleTitle'] as String? ?? 'Module ${widget.moduleNumber}';
 
                       // Determine highlighted leaves from difficulty
                       int highlightedLeaves = 0;
-                      switch (difficulty.toLowerCase()) {
+                      switch (widget.difficulty.toLowerCase()) {
                         case 'beginner':
                           highlightedLeaves = 1;
                           break;
@@ -136,7 +163,7 @@ class ModuleLevelsPage extends StatelessWidget {
                               children: [
                                 const SizedBox(height: 4),
                                 Text(modTitle, style: TextStyle(fontSize: titleFontSize, fontWeight: titleFontWeight, color: titleColor), textAlign: TextAlign.center),
-                                Text('Chapter $chapterNumber, Module $moduleNumber', style: TextStyle(fontSize: subtitleFontSize, color: subtitleColor), textAlign: TextAlign.center),
+                                Text('Chapter ${widget.chapterNumber}, Module ${widget.moduleNumber}', style: TextStyle(fontSize: subtitleFontSize, color: subtitleColor), textAlign: TextAlign.center),
                               ],
                             ),
                           ),
@@ -180,6 +207,137 @@ class ModuleLevelsPage extends StatelessWidget {
                               ],
                             ),
                           ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                // Level content section
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: FutureBuilder<Map<String, dynamic>>(
+                    future: _moduleInfoFuture,
+                    builder: (context, snap) {
+                      if (!snap.hasData) return const SizedBox();
+                      final info = snap.data!;
+                      final levelsMap = info['levelsMap'] as Map<String, Level>;
+
+                      final levelKeys = levelsMap.keys.toList()..sort((a, b) {
+                        final aNum = int.tryParse(a.split('_').last) ?? 0;
+                        final bNum = int.tryParse(b.split('_').last) ?? 0;
+                        return aNum.compareTo(bNum);
+                      });
+
+                      final totalLevels = levelKeys.length;
+
+                      if (_currentLevelIndex < 1) _currentLevelIndex = 1;
+                      if (_currentLevelIndex > (totalLevels == 0 ? 1 : totalLevels)) _currentLevelIndex = totalLevels == 0 ? 1 : totalLevels;
+
+                      if (totalLevels == 0) return const SizedBox();
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Level bars row
+                          Row(
+                            children: levelKeys.map((lk) {
+                              final idx = int.tryParse(lk.split('_').last) ?? 0;
+                              final bool finished = idx < _currentLevelIndex;
+                              final bool current = idx == _currentLevelIndex;
+
+                              return Expanded(
+                                child: Container(
+                                  margin: const EdgeInsets.symmetric(horizontal: 6.0),
+                                  height: 10,
+                                  decoration: BoxDecoration(
+                                    color: finished ? Colors.green.shade400 : (current ? Colors.blue.shade400 : Colors.grey.shade300),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: current ? Colors.blue.shade700 : Colors.transparent, width: current ? 2 : 0),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          // Mode title + description for current level
+                          Builder(builder: (_) {
+                            final currentKey = 'level_$_currentLevelIndex';
+                            final Level? lvl = levelsMap[currentKey];
+                            final mode = lvl?.mode ?? '';
+                            final modeInfo = CourseDataSchema().getModeDisplay(mode);
+                            final modeTitle = modeInfo['title'] ?? mode;
+                            final modeDesc = modeInfo['description'] ?? '';
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(modeTitle, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                const SizedBox(height: 8),
+                                Text(modeDesc, style: TextStyle(fontSize: 14, color: Colors.grey.shade700)),
+                                const SizedBox(height: 12),
+
+                                // Next button (testing)
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: () async {
+                                      // If not last level, go to next level locally
+                                      if (_currentLevelIndex < totalLevels) {
+                                        setState(() => _currentLevelIndex += 1);
+                                        return;
+                                      }
+
+                                      // Last level -> module accomplished: advance module for user and go back
+                                      final ud = LocalStorageService.instance.userDataNotifier.value;
+                                      if (ud == null) {
+                                        if (context.mounted) Navigator.of(context).pop();
+                                        return;
+                                      }
+
+                                      final userMap = ud.toFirestore();
+                                      final updated = await CourseDataSchema().advanceModule(userData: userMap, languageId: widget.languageId, difficulty: widget.difficulty);
+
+                                      try {
+                                        final merged = {'uid': ud.uid, ...updated};
+                                        final newUser = UserData.fromJson(merged);
+
+                                        await LocalStorageService.instance.saveUserData(newUser);
+
+                                        try {
+                                          await newUser.save();
+                                        } catch (_) {}
+                                      } catch (_) {}
+
+                                      if (context.mounted) {
+                                        showDialog(
+                                          context: context,
+                                          builder: (_) => AlertDialog(
+                                            title: const Text('Module Accomplished'),
+                                            content: const Text('You completed the module. Progress advanced.'),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop(); // close dialog
+                                                  Navigator.of(context).pop(); // back to module list
+                                                },
+                                                child: const Text('OK'),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    child: const Text('Next'),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }),
                         ],
                       );
                     },

@@ -6,11 +6,68 @@ import '../services/local_storage_service.dart';
 import '../models/user_data.dart';
 import 'module_levels_page.dart';
 
-class ModuleListPage extends StatelessWidget {
+class ModuleListPage extends StatefulWidget {
   final String languageId;
   final String difficulty;
 
   const ModuleListPage({super.key, required this.languageId, required this.difficulty});
+
+  @override
+  State<ModuleListPage> createState() => _ModuleListPageState();
+}
+
+class _ModuleListPageState extends State<ModuleListPage> {
+  late Future<Map<String, dynamic>> _courseInfoFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshCourseInfo();
+    LocalStorageService.instance.userDataNotifier.addListener(_onUserDataChanged);
+  }
+
+  @override
+  void dispose() {
+    LocalStorageService.instance.userDataNotifier.removeListener(_onUserDataChanged);
+    super.dispose();
+  }
+
+  void _onUserDataChanged() {
+    if (!mounted) return;
+    setState(() => _refreshCourseInfo());
+  }
+
+  void _refreshCourseInfo() {
+    _courseInfoFuture = _loadCourseInfo();
+  }
+
+  Future<Map<String, dynamic>> _loadCourseInfo() async {
+    final module = await CourseDataSchema().loadModuleSchema(widget.languageId);
+    final difficultyKey = widget.difficulty.toLowerCase();
+
+    final UserData? ud = LocalStorageService.instance.userDataNotifier.value;
+    final Map<String, dynamic> userMap = ud == null ? <String, dynamic>{} : ud.toFirestore();
+
+    final chapterCount = await CourseDataSchema().getChapterCount(languageId: widget.languageId, difficulty: difficultyKey);
+    final est = await CourseDataSchema().getEstimatedDuration(programmingLanguageId: widget.languageId, difficulty: difficultyKey);
+    final progress = await CourseDataSchema().getProgressPercentage(userData: userMap, languageId: widget.languageId, difficulty: difficultyKey);
+
+    final modulesByDifficulty = await CourseDataSchema().getModulesByDifficulty(programmingLanguageId: widget.languageId, difficulty: difficultyKey);
+    final currentProgress = CourseDataSchema().getCurrentProgress(userData: userMap, languageId: widget.languageId, difficulty: difficultyKey);
+    final int currentChapter = currentProgress['currentChapter'] ?? 1;
+    final int currentModule = currentProgress['currentModule'] ?? 1;
+
+    return {
+      'module': module,
+      'displayName': module.programmingLanguage,
+      'chapterCount': chapterCount,
+      'estimatedDuration': est,
+      'progress': progress,
+      'modulesByDifficulty': modulesByDifficulty,
+      'currentChapter': currentChapter,
+      'currentModule': currentModule,
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,38 +83,12 @@ class ModuleListPage extends StatelessWidget {
     final iconBorderRadius = styles.getStyles('module_list_page.icon.border_radius') as double;
     final iconPadding = styles.getStyles('module_list_page.icon.padding') as double;
     final iconBg = styles.getStyles('module_list_page.icon.background_color') as LinearGradient;
-    final iconImage = styles.getStyles('course_cards.style_coding.$languageId.icon') as String;
+  final iconImage = styles.getStyles('course_cards.style_coding.${widget.languageId}.icon') as String;
 
     final backIconColor = styles.getStyles('module_list_page.back.color') as Color;
     final backIconSize = styles.getStyles('module_list_page.back.size') as double;
 
-    final Future<Map<String, dynamic>> courseInfoFuture = () async {
-      final module = await CourseDataSchema().loadModuleSchema(languageId);
-      final difficultyKey = difficulty.toLowerCase();
-
-      final UserData? ud = LocalStorageService.instance.userDataNotifier.value;
-      final Map<String, dynamic> userMap = ud == null ? <String, dynamic>{} : ud.toFirestore();
-
-      final chapterCount = await CourseDataSchema().getChapterCount(languageId: languageId, difficulty: difficultyKey);
-      final est = await CourseDataSchema().getEstimatedDuration(programmingLanguageId: languageId, difficulty: difficultyKey);
-      final progress = await CourseDataSchema().getProgressPercentage(userData: userMap, languageId: languageId, difficulty: difficultyKey);
-
-      final modulesByDifficulty = await CourseDataSchema().getModulesByDifficulty(programmingLanguageId: languageId, difficulty: difficultyKey);
-      final currentProgress = CourseDataSchema().getCurrentProgress(userData: userMap, languageId: languageId, difficulty: difficultyKey);
-      final int currentChapter = currentProgress['currentChapter'] ?? 1;
-      final int currentModule = currentProgress['currentModule'] ?? 1;
-
-      return {
-        'module': module,
-        'displayName': module.programmingLanguage,
-        'chapterCount': chapterCount,
-        'estimatedDuration': est,
-        'progress': progress,
-        'modulesByDifficulty': modulesByDifficulty,
-        'currentChapter': currentChapter,
-        'currentModule': currentModule,
-      };
-    }();
+    // course info future is provided by the state field `_courseInfoFuture`
 
     return Scaffold(
       body: SafeArea(
@@ -88,7 +119,7 @@ class ModuleListPage extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: FutureBuilder<Map<String, dynamic>>(
-                    future: courseInfoFuture,
+                    future: _courseInfoFuture,
                     builder: (context, snap) {
                         if (!snap.hasData) {
                           return const SizedBox(height: 120, child: Center(child: CircularProgressIndicator()));
@@ -119,7 +150,7 @@ class ModuleListPage extends StatelessWidget {
 
                         // Determine highlighted leaves from difficulty
                         int highlightedLeaves = 0;
-                        switch (difficulty.toLowerCase()) {
+                        switch (widget.difficulty.toLowerCase()) {
                           case 'beginner':
                             highlightedLeaves = 1;
                             break;
@@ -163,7 +194,7 @@ class ModuleListPage extends StatelessWidget {
                             // Row 3: difficulty label left, leaves right
                             Row(
                               children: [
-                                Text(difficulty, style: TextStyle(fontSize: subtitleFontSize, color: subtitleColor)),
+                                Text(widget.difficulty, style: TextStyle(fontSize: subtitleFontSize, color: subtitleColor)),
                                 const Spacer(),
                                 Row(
                                   children: [
@@ -208,7 +239,7 @@ class ModuleListPage extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: FutureBuilder<Map<String, dynamic>>(
-                    future: courseInfoFuture,
+                    future: _courseInfoFuture,
                     builder: (context, snap) {
                       if (!snap.hasData) return const SizedBox();
                       final info = snap.data!;
@@ -266,8 +297,8 @@ class ModuleListPage extends StatelessWidget {
                                           // Navigate to ModuleLevelsPage for this module
                                           Navigator.of(context).push(MaterialPageRoute(
                                             builder: (_) => ModuleLevelsPage(
-                                              languageId: languageId,
-                                              difficulty: difficulty,
+                                              languageId: widget.languageId,
+                                              difficulty: widget.difficulty,
                                               chapterNumber: chapterNum,
                                               moduleNumber: moduleNumber,
                                               moduleTitle: module.title,

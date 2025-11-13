@@ -100,6 +100,25 @@ class CourseDataSchema {
     }
   }
 
+  /// Return display title and description for a given level mode
+  /// Example modes: 'lecture', 'multiple_choice', 'true_or_false', 'fill_in_the_code', 'assemble_the_code'
+  Map<String, String> getModeDisplay(String mode) {
+    switch (mode) {
+      case 'lecture':
+        return {'title': 'Lecture', 'description': 'Read and analyze the lesson.'};
+      case 'multiple_choice':
+        return {'title': 'Multiple Choice', 'description': 'Select the correct option.'};
+      case 'true_or_false':
+        return {'title': 'True or False', 'description': 'Select the correct option.'};
+      case 'fill_in_the_code':
+        return {'title': 'Fill in the Code', 'description': 'Drag and drop the correct missing character(s).'};
+      case 'assemble_the_code':
+        return {'title': 'Assemble the Code', 'description': 'Construct code based on the given statement.'};
+      default:
+        return {'title': mode, 'description': ''};
+    }
+  }
+
   /// Get all available programming languages
   Future<List<String>> getAvailableLanguages() async {
     final courses = await loadCoursesSchema();
