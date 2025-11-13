@@ -83,27 +83,27 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
   Widget build(BuildContext context) {
     final styles = AppStyles();
 
-    final backIconColor = styles.getStyles('module_list_page.back.color') as Color;
-    final backIconSize = styles.getStyles('module_list_page.back.size') as double;
+    final backIconColor = styles.getStyles('module_pages.back.color') as Color;
+    final backIconSize = styles.getStyles('module_pages.back.size') as double;
 
-    final titleColor = styles.getStyles('module_list_page.title.color') as Color;
-    final titleFontSize = styles.getStyles('module_list_page.title.font_size') as double;
-    final titleFontWeight = styles.getStyles('module_list_page.title.font_weight') as FontWeight;
+    final titleColor = styles.getStyles('module_pages.title.color') as Color;
+    final titleFontSize = styles.getStyles('module_pages.title.font_size') as double;
+    final titleFontWeight = styles.getStyles('module_pages.title.font_weight') as FontWeight;
 
-    final subtitleColor = styles.getStyles('module_list_page.subtitle.color') as Color;
-    final subtitleFontSize = styles.getStyles('module_list_page.subtitle.font_size') as double;
+    final subtitleColor = styles.getStyles('module_pages.subtitle.color') as Color;
+    final subtitleFontSize = styles.getStyles('module_pages.subtitle.font_size') as double;
 
-    final iconWidth = styles.getStyles('module_list_page.icon.width') as double;
-    final iconHeight = styles.getStyles('module_list_page.icon.height') as double;
-    final iconBorderRadius = styles.getStyles('module_list_page.icon.border_radius') as double;
-    final iconPadding = styles.getStyles('module_list_page.icon.padding') as double;
-    final iconBg = styles.getStyles('module_list_page.icon.background_color') as LinearGradient;
+    final iconWidth = styles.getStyles('module_pages.icon.width') as double;
+    final iconHeight = styles.getStyles('module_pages.icon.height') as double;
+    final iconBorderRadius = styles.getStyles('module_pages.icon.border_radius') as double;
+    final iconPadding = styles.getStyles('module_pages.icon.padding') as double;
+    final iconBg = styles.getStyles('module_pages.icon.background_color') as LinearGradient;
     final iconImage = styles.getStyles('course_cards.style_coding.${widget.languageId}.icon') as String;
 
-    final leafSize = styles.getStyles('module_list_page.leaves.width') as double;
-    final leafPadding = styles.getStyles('module_list_page.leaves.padding') as double;
-    final leafHighlightPath = styles.getStyles('module_list_page.leaves.icons.highlight') as String;
-    final leafUnhighlightPath = styles.getStyles('module_list_page.leaves.icons.unhighlight') as String;
+    final leafSize = styles.getStyles('module_pages.leaves.width') as double;
+    final leafPadding = styles.getStyles('module_pages.leaves.padding') as double;
+    final leafHighlightPath = styles.getStyles('module_pages.leaves.icons.highlight') as String;
+    final leafUnhighlightPath = styles.getStyles('module_pages.leaves.icons.unhighlight') as String;
 
     return Scaffold(
       body: SafeArea(

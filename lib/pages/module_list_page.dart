@@ -72,21 +72,21 @@ class _ModuleListPageState extends State<ModuleListPage> {
   @override
   Widget build(BuildContext context) {
     final styles = AppStyles();
-    final titleColor = styles.getStyles('module_list_page.title.color') as Color;
-    final titleFontSize = styles.getStyles('module_list_page.title.font_size') as double;
-    final titleFontWeight = styles.getStyles('module_list_page.title.font_weight') as FontWeight;
-    final subtitleColor = styles.getStyles('module_list_page.subtitle.color') as Color;
-    final subtitleFontSize = styles.getStyles('module_list_page.subtitle.font_size') as double;
+    final titleColor = styles.getStyles('module_pages.title.color') as Color;
+    final titleFontSize = styles.getStyles('module_pages.title.font_size') as double;
+    final titleFontWeight = styles.getStyles('module_pages.title.font_weight') as FontWeight;
+    final subtitleColor = styles.getStyles('module_pages.subtitle.color') as Color;
+    final subtitleFontSize = styles.getStyles('module_pages.subtitle.font_size') as double;
 
-    final iconWidth = styles.getStyles('module_list_page.icon.width') as double;
-    final iconHeight = styles.getStyles('module_list_page.icon.height') as double;
-    final iconBorderRadius = styles.getStyles('module_list_page.icon.border_radius') as double;
-    final iconPadding = styles.getStyles('module_list_page.icon.padding') as double;
-    final iconBg = styles.getStyles('module_list_page.icon.background_color') as LinearGradient;
+    final iconWidth = styles.getStyles('module_pages.icon.width') as double;
+    final iconHeight = styles.getStyles('module_pages.icon.height') as double;
+    final iconBorderRadius = styles.getStyles('module_pages.icon.border_radius') as double;
+    final iconPadding = styles.getStyles('module_pages.icon.padding') as double;
+    final iconBg = styles.getStyles('module_pages.icon.background_color') as LinearGradient;
   final iconImage = styles.getStyles('course_cards.style_coding.${widget.languageId}.icon') as String;
 
-    final backIconColor = styles.getStyles('module_list_page.back.color') as Color;
-    final backIconSize = styles.getStyles('module_list_page.back.size') as double;
+    final backIconColor = styles.getStyles('module_pages.back.color') as Color;
+    final backIconSize = styles.getStyles('module_pages.back.size') as double;
 
     // course info future is provided by the state field `_courseInfoFuture`
 
@@ -131,22 +131,22 @@ class _ModuleListPageState extends State<ModuleListPage> {
                         final dynamic est = info['estimatedDuration'];
                         final double progress = info['progress'] as double;
 
-                        final progressColor = styles.getStyles('module_list_page.progress_text.color') as Color;
-                        final progressFontSize = styles.getStyles('module_list_page.progress_text.font_size') as double;
-                        final progressFontWeight = styles.getStyles('module_list_page.progress_text.font_weight') as FontWeight;
+                        final progressColor = styles.getStyles('module_pages.progress_text.color') as Color;
+                        final progressFontSize = styles.getStyles('module_pages.progress_text.font_size') as double;
+                        final progressFontWeight = styles.getStyles('module_pages.progress_text.font_weight') as FontWeight;
 
-                        final infoIconChapter = styles.getStyles('module_list_page.info_row.dark.chapter_icon') as String;
-                        final infoIconDuration = styles.getStyles('module_list_page.info_row.dark.duration_icon') as String;
-                        final infoTextColor = styles.getStyles('module_list_page.info_row.text_color') as Color;
-                        final infoFontSize = styles.getStyles('module_list_page.info_row.font_size') as double;
-                        final infoFontWeight = styles.getStyles('module_list_page.info_row.font_weight') as FontWeight;
-                        final infoIconWidth = styles.getStyles('module_list_page.info_row.icon_width') as double;
-                        final infoIconHeight = styles.getStyles('module_list_page.info_row.icon_height') as double;
+                        final infoIconChapter = styles.getStyles('module_pages.info_row.dark.chapter_icon') as String;
+                        final infoIconDuration = styles.getStyles('module_pages.info_row.dark.duration_icon') as String;
+                        final infoTextColor = styles.getStyles('module_pages.info_row.text_color') as Color;
+                        final infoFontSize = styles.getStyles('module_pages.info_row.font_size') as double;
+                        final infoFontWeight = styles.getStyles('module_pages.info_row.font_weight') as FontWeight;
+                        final infoIconWidth = styles.getStyles('module_pages.info_row.icon_width') as double;
+                        final infoIconHeight = styles.getStyles('module_pages.info_row.icon_height') as double;
 
-                        final leafSize = styles.getStyles('module_list_page.leaves.width') as double;
-                        final leafPadding = styles.getStyles('module_list_page.leaves.padding') as double;
-                        final leafHighlightPath = styles.getStyles('module_list_page.leaves.icons.highlight') as String;
-                        final leafUnhighlightPath = styles.getStyles('module_list_page.leaves.icons.unhighlight') as String;
+                        final leafSize = styles.getStyles('module_pages.leaves.width') as double;
+                        final leafPadding = styles.getStyles('module_pages.leaves.padding') as double;
+                        final leafHighlightPath = styles.getStyles('module_pages.leaves.icons.highlight') as String;
+                        final leafUnhighlightPath = styles.getStyles('module_pages.leaves.icons.unhighlight') as String;
 
                         // Determine highlighted leaves from difficulty
                         int highlightedLeaves = 0;

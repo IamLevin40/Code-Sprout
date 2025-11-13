@@ -298,7 +298,7 @@ class _CoursePageState extends State<CoursePage> {
           child: child,
         );
       },
-      transitionDuration: Duration(milliseconds: AppStyles().getStyles('module_list_page.transition_duration') as int),
+     transitionDuration: Duration(milliseconds: AppStyles().getStyles('module_pages.transition_duration') as int),
     ));
   }
 }

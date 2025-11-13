@@ -1341,7 +1341,7 @@
             }
         }
     },
-    "module_list_page": {
+    "module_pages": {
         "transition_duration": 500,
         "back": {
             "color": "--colors.dark_purple",
