@@ -1341,6 +1341,46 @@
             }
         }
     },
+    "module_list_page": {
+        "title": {
+            "color": "--colors.white",
+            "font_size": "--font_sizes.title",
+            "font_weight": "--font_weights.bold"
+        },
+        "subtitle": {
+            "color": "--colors.white",
+            "font_size": "--font_sizes.regular"
+        },
+        "back": {
+            "color": "--colors.dark_purple",
+            "size": 32
+        },
+        "icon": {
+            "width": 80,
+            "height": 72,
+            "border_radius": 16,
+            "padding": 12,
+            "background_color": {
+                "begin": {
+                    "position": "top_left",
+                    "color": "--colors.dirty_white"
+                },
+                "end": {
+                    "position": "bottom_right",
+                    "color": "--colors.white"
+                }
+            }
+        },
+        "card": {
+            "border_radius": 16,
+            "border_width": 4,
+            "margin": {
+                "left-right": 24,
+                "top-bottom": 24
+            },
+            "padding": 24
+        }
+    },
     "sprout_researches": {
         "crop_items": {
             "wheat": "images/icons/sprout_researches/crop_items/wheat.png",
