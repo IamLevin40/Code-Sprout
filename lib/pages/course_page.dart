@@ -6,6 +6,7 @@ import '../widgets/course_cards/main_course_cards.dart';
 import '../widgets/course_cards/continue_course_cards.dart';
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
+import '../services/local_storage_service.dart';
 
 /// Course page displaying all available courses organized by difficulty
 /// Shows main course cards for each language and difficulty level
@@ -32,6 +33,13 @@ class _CoursePageState extends State<CoursePage> {
   void initState() {
     super.initState();
     _loadData();
+    LocalStorageService.instance.userDataNotifier.addListener(_onUserDataChanged);
+  }
+
+  void _onUserDataChanged() {
+    final ud = LocalStorageService.instance.userDataNotifier.value;
+    if (!mounted) return;
+    setState(() => _userData = ud);
   }
 
   /// Load available languages and user data
@@ -280,5 +288,11 @@ class _CoursePageState extends State<CoursePage> {
         duration: const Duration(seconds: 2),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    LocalStorageService.instance.userDataNotifier.removeListener(_onUserDataChanged);
+    super.dispose();
   }
 }

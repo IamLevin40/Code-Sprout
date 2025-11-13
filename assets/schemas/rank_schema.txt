@@ -1,7 +1,7 @@
 {
   "rank_1": {
     "title": "Seedling",
-    "experience_points_requirement": 100
+    "experience_points_requirement": 0
   },
   "rank_2": {
     "title": "Sprout",

@@ -5,6 +5,7 @@ import '../services/firestore_service.dart';
 import '../models/styles_schema.dart';
 import '../models/user_data.dart';
 import '../models/user_data_schema.dart';
+import '../services/local_storage_service.dart';
 
 /// Settings page for user data manipulation and testing
 /// Dynamically renders UI based on the schema definition
@@ -31,6 +32,7 @@ class _SettingsPageState extends State<SettingsPage> {
   void initState() {
     super.initState();
     _loadSchemaAndData();
+    LocalStorageService.instance.userDataNotifier.addListener(_onUserDataChanged);
   }
 
   @override
@@ -38,7 +40,16 @@ class _SettingsPageState extends State<SettingsPage> {
     for (final controller in _controllers.values) {
       controller.dispose();
     }
+    LocalStorageService.instance.userDataNotifier.removeListener(_onUserDataChanged);
     super.dispose();
+  }
+
+  void _onUserDataChanged() {
+    final ud = LocalStorageService.instance.userDataNotifier.value;
+    if (!mounted) return;
+    setState(() {
+      _currentUserData = ud;
+    });
   }
 
   Future<void> _loadSchemaAndData() async {

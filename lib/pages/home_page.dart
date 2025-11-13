@@ -4,6 +4,7 @@ import '../miscellaneous/touch_mouse_drag_scroll_behavior.dart';
 import '../models/styles_schema.dart';
 import '../models/course_data_schema.dart';
 import '../models/user_data.dart';
+import '../services/local_storage_service.dart';
 import '../models/rank_data.dart';
 import '../widgets/rank_card.dart';
 import '../services/firestore_service.dart';
@@ -36,6 +37,7 @@ class _HomePageState extends State<HomePage> {
     _recommendedScrollController.dispose();
     _discoverScrollController.dispose();
     _challengeScrollController.dispose();
+    LocalStorageService.instance.userDataNotifier.removeListener(_onUserDataChanged);
     super.dispose();
   }
 
@@ -43,6 +45,13 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _loadUserData();
+    LocalStorageService.instance.userDataNotifier.addListener(_onUserDataChanged);
+  }
+
+  void _onUserDataChanged() {
+    final ud = LocalStorageService.instance.userDataNotifier.value;
+    if (!mounted) return;
+    setState(() => _userData = ud);
   }
 
   Future<void> _loadUserData() async {

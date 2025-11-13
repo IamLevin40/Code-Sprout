@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/styles_schema.dart';
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
+import '../services/local_storage_service.dart';
 import '../models/user_data.dart';
 import '../models/rank_data.dart';
 import '../widgets/rank_card.dart';
@@ -29,6 +30,24 @@ class _SproutPageState extends State<SproutPage> {
   void initState() {
     super.initState();
     _init();
+    // Listen to local cached user data changes so UI updates immediately
+    LocalStorageService.instance.userDataNotifier.addListener(_onUserDataChanged);
+  }
+
+  void _onUserDataChanged() {
+    final ud = LocalStorageService.instance.userDataNotifier.value;
+
+    if (!mounted) return;
+
+    setState(() {
+      _userData = ud;
+    });
+
+    // Recompute derived data (crop items) when user data changes
+    SproutDataHelpers.getCropItemsForUser(ud).then((items) {
+      if (!mounted) return;
+      setState(() => _cropItems = items);
+    }).catchError((_) {});
   }
 
   Future<void> _init() async {
@@ -247,5 +266,11 @@ class _SproutPageState extends State<SproutPage> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    LocalStorageService.instance.userDataNotifier.removeListener(_onUserDataChanged);
+    super.dispose();
   }
 }
