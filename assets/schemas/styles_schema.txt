@@ -143,7 +143,8 @@
             },
             "sprout": {
                 "selected": "images/icons/navbuttons/sprout_selected.png",
-                "unselected": "images/icons/navbuttons/sprout_unselected.png"
+                "unselected": "images/icons/navbuttons/sprout_unselected.png",
+                "disabled": "images/icons/navbuttons/sprout_disabled.png"
             },
             "settings": {
                 "selected": "images/icons/navbuttons/settings_selected.png",

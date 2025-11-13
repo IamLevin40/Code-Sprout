@@ -5,6 +5,7 @@ import 'sprout_page.dart';
 import 'settings_page.dart';
 import '../widgets/main_header.dart';
 import '../models/styles_schema.dart';
+import '../services/local_storage_service.dart';
 
 /// Main scaffold with bottom navigation
 class MainNavigationPage extends StatefulWidget {
@@ -17,6 +18,7 @@ class MainNavigationPage extends StatefulWidget {
 class _MainNavigationPageState extends State<MainNavigationPage> with WidgetsBindingObserver {
   int _currentIndex = 0;
   final ScrollController _scrollController = ScrollController();
+  bool _sproutEnabled = true;
 
   final List<GlobalKey> _iconKeys = <GlobalKey>[];
   final GlobalKey _barKey = GlobalKey();
@@ -30,11 +32,69 @@ class _MainNavigationPageState extends State<MainNavigationPage> with WidgetsBin
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateIndicatorPosition());
+
+    _loadUserData();
+
+    // Listen to cached user data changes so UI updates automatically when data is saved elsewhere
+    LocalStorageService.instance.userDataNotifier.addListener(_onUserDataChanged);
+  }
+
+  void _onUserDataChanged() {
+    final userData = LocalStorageService.instance.userDataNotifier.value;
+
+    final enabled = userData == null
+        ? _sproutEnabled
+        : (userData.get('interaction.hasLearnedModule') as bool?) ?? false;
+
+    final styles = AppStyles();
+    final itemsMap = styles.getStyles('bottom_navigation.items') as Map<String, dynamic>;
+    final navKeys = itemsMap.keys.toList();
+    final sproutIndex = navKeys.indexOf('sprout');
+
+    if (!mounted) return;
+
+    setState(() {
+      _sproutEnabled = enabled;
+      if (!_sproutEnabled && sproutIndex >= 0 && _currentIndex == sproutIndex) {
+        _currentIndex = 0;
+      }
+    });
+
+    _updateIndicatorPosition();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      final userData = await LocalStorageService.instance.getUserData();
+
+      final enabled = userData == null
+        ? _sproutEnabled
+        : (userData.get('interaction.hasLearnedModule') as bool?) ?? false;
+
+      final styles = AppStyles();
+      final itemsMap = styles.getStyles('bottom_navigation.items') as Map<String, dynamic>;
+      final navKeys = itemsMap.keys.toList();
+      final sproutIndex = navKeys.indexOf('sprout');
+
+      if (!mounted) return;
+
+      setState(() {
+        _sproutEnabled = enabled;
+        if (!_sproutEnabled && sproutIndex >= 0 && _currentIndex == sproutIndex) {
+          _currentIndex = 0;
+        }
+      });
+
+      _updateIndicatorPosition();
+    } catch (e) {
+      // ignore
+    }
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    LocalStorageService.instance.userDataNotifier.removeListener(_onUserDataChanged);
     _scrollController.dispose();
     super.dispose();
   }
@@ -59,14 +119,11 @@ class _MainNavigationPageState extends State<MainNavigationPage> with WidgetsBin
       if (barBox == null) return;
 
       final indicatorW = (styles.getStyles('bottom_navigation.selected_indicator.width') as double);
-
-      // Determine number of nav items from schema so fallback spacing is dynamic
       final itemsMap = styles.getStyles('bottom_navigation.items') as Map<String, dynamic>;
       final itemCount = itemsMap.length;
       final effectiveCount = itemCount > 0 ? itemCount : 1;
 
       double centerX;
-      // Guard indexing in case keys haven't been created yet
       if (_currentIndex < _iconKeys.length && _iconKeys[_currentIndex].currentContext != null) {
         final iconContext = _iconKeys[_currentIndex].currentContext!;
         final iconBox = iconContext.findRenderObject() as RenderBox?;
@@ -192,9 +249,18 @@ class _MainNavigationPageState extends State<MainNavigationPage> with WidgetsBin
                                 children: List.generate(itemCount, (index) {
                                   final key = navKeys[index];
                                   final isSelected = index == _currentIndex;
-                                  final imagePath = styles.getStyles(
-                                    'bottom_navigation.items.$key.${isSelected ? 'selected' : 'unselected'}',
-                                  ) as String;
+
+                                  final isSprout = key == 'sprout';
+                                  final isDisabled = isSprout && !_sproutEnabled;
+
+                                  String imagePath;
+                                  if (isDisabled) {
+                                    imagePath = styles.getStyles('bottom_navigation.items.$key.disabled') as String;
+                                  } else {
+                                    imagePath = styles.getStyles(
+                                      'bottom_navigation.items.$key.${isSelected ? 'selected' : 'unselected'}',
+                                    ) as String;
+                                  }
 
                                   return Expanded(
                                     child: Material(
@@ -205,19 +271,22 @@ class _MainNavigationPageState extends State<MainNavigationPage> with WidgetsBin
                                         hoverColor: styles.getStyles('constant_values.colors.transparent') as Color,
                                         focusColor: styles.getStyles('constant_values.colors.transparent') as Color,
                                         splashFactory: NoSplash.splashFactory,
-                                        onTap: () {
-                                          setState(() {
-                                            _currentIndex = index;
-                                          });
-                                          _updateIndicatorPosition();
-                                          if (_scrollController.hasClients) {
-                                            _scrollController.animateTo(
-                                              0.0,
-                                              duration: Duration(milliseconds: (styles.getStyles('global.animation.scroll_back_duration') as int)),
-                                              curve: Curves.easeOut,
-                                            );
-                                          }
-                                        },
+                                        // Disable tap if this is the disabled sprout
+                                        onTap: isDisabled
+                                            ? null
+                                            : () {
+                                                setState(() {
+                                                  _currentIndex = index;
+                                                });
+                                                _updateIndicatorPosition();
+                                                if (_scrollController.hasClients) {
+                                                  _scrollController.animateTo(
+                                                    0.0,
+                                                    duration: Duration(milliseconds: (styles.getStyles('global.animation.scroll_back_duration') as int)),
+                                                    curve: Curves.easeOut,
+                                                  );
+                                                }
+                                              },
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [

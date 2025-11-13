@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/user_data.dart';
 
@@ -25,6 +26,10 @@ class LocalStorageService {
   static const String _userDataKey = 'cached_user_data';
   static const String _lastSyncKey = 'last_sync_timestamp';
 
+  /// Notifier that emits the current cached UserData when it changes.
+  /// Listeners can subscribe to this to receive updates when `saveUserData` or `clearUserData` is called.
+  final ValueNotifier<UserData?> userDataNotifier = ValueNotifier<UserData?>(null);
+
   /// Save user data to secure local storage
   Future<void> saveUserData(UserData userData) async {
     try {
@@ -34,6 +39,10 @@ class LocalStorageService {
       // Update last sync timestamp
       final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
       await _storage.write(key: _lastSyncKey, value: timestamp);
+      // Update in-memory notifier so listeners (UI) can react immediately
+      try {
+        userDataNotifier.value = userData;
+      } catch (_) {}
     } catch (e) {
       throw Exception('Failed to save user data to local storage: $e');
     }
@@ -49,7 +58,12 @@ class LocalStorageService {
       }
 
       final jsonMap = jsonDecode(jsonString) as Map<String, dynamic>;
-      return UserData.fromJson(jsonMap);
+      final ud = UserData.fromJson(jsonMap);
+      // Keep the notifier in sync with cached value
+      try {
+        userDataNotifier.value = ud;
+      } catch (_) {}
+      return ud;
     } catch (e) {
       // If there's an error reading/parsing, clear the corrupted data
       await clearUserData();
@@ -62,6 +76,9 @@ class LocalStorageService {
     try {
       await _storage.delete(key: _userDataKey);
       await _storage.delete(key: _lastSyncKey);
+      try {
+        userDataNotifier.value = null;
+      } catch (_) {}
     } catch (e) {
       throw Exception('Failed to clear user data from local storage: $e');
     }
