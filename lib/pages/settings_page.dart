@@ -267,12 +267,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   color: styles.getStyles('settings_page.subtitle.color') as Color,
                 ),
               ),
-              const SizedBox(height: 32),
-
-              // Dynamically build sections
-              ..._buildSections(),
-
-              const SizedBox(height: 40),
+              const SizedBox(height: 8),
 
               // Save Button
               SizedBox(
@@ -321,6 +316,11 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                 ),
               ),
+              const SizedBox(height: 16),
+
+              // Dynamically build sections
+              ..._buildSections(),
+
               const SizedBox(height: 16),
 
               // Info Text

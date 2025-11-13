@@ -12,6 +12,47 @@
         "languageId": "string (null)",
         "difficulty": "string (|beginner|intermediate|advanced|)"
     },
+    "sproutProgress": {
+        "selectedLanguage": "string (null)",
+        "cropItems": {
+            "wheat": {
+                "isLocked": "boolean (false)",
+                "quantity": "number (0)"
+            },
+            "carrot": {
+                "isLocked": "boolean (true)",
+                "quantity": "number (0)"
+            },
+            "potato": {
+                "isLocked": "boolean (true)",
+                "quantity": "number (0)"
+            },
+            "beetroot": {
+                "isLocked": "boolean (true)",
+                "quantity": "number (0)"
+            },
+            "radish": {
+                "isLocked": "boolean (true)",
+                "quantity": "number (0)"
+            },
+            "onion": {
+                "isLocked": "boolean (true)",
+                "quantity": "number (0)"
+            },
+            "lettuce": {
+                "isLocked": "boolean (true)",
+                "quantity": "number (0)"
+            },
+            "tomato": {
+                "isLocked": "boolean (true)",
+                "quantity": "number (0)"
+            },
+            "garlic": {
+                "isLocked": "boolean (true)",
+                "quantity": "number (0)"
+            }
+        }
+    },
     "rankProgress": {
         "experiencePoints": "number (0)"
     },

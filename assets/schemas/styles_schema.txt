@@ -1339,5 +1339,23 @@
                 }
             }
         }
+    },
+    "sprout_researches": {
+        "crop_items": {
+            "wheat": "images/icons/sprout_researches/crop_items/wheat.png",
+            "carrot": "images/icons/sprout_researches/crop_items/carrot.png",
+            "potato": "images/icons/sprout_researches/crop_items/potato.png",
+            "beetroot": "images/icons/sprout_researches/crop_items/beetroot.png",
+            "radish": "images/icons/sprout_researches/crop_items/radish.png",
+            "onion": "images/icons/sprout_researches/crop_items/onion.png",
+            "lettuce": "images/icons/sprout_researches/crop_items/lettuce.png",
+            "tomato": "images/icons/sprout_researches/crop_items/tomato.png",
+            "garlic": "images/icons/sprout_researches/crop_items/garlic.png"
+        },
+        "locked_overlay": {
+            "icon": {
+                "image": "images/icons/on_cards/lock.png"
+            }
+        }
     }
 }
