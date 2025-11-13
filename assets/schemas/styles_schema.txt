@@ -1342,6 +1342,7 @@
         }
     },
     "module_list_page": {
+        "transition_duration": 500,
         "title": {
             "color": "--colors.white",
             "font_size": "--font_sizes.title",

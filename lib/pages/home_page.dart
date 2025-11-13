@@ -414,8 +414,17 @@ class _HomePageState extends State<HomePage> {
 
   /// Handle course card tap
   void _onCourseCardTap(String languageId, String difficulty) {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => ModuleListPage(languageId: languageId, difficulty: difficulty),
+    Navigator.of(context).push(PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => ModuleListPage(languageId: languageId, difficulty: difficulty),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final curved = CurvedAnimation(parent: animation, curve: Curves.easeInOut);
+        final offsetTween = Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero);
+        return SlideTransition(
+          position: offsetTween.animate(curved),
+          child: child,
+        );
+      },
+      transitionDuration: Duration(milliseconds: AppStyles().getStyles('module_list_page.transition_duration') as int),
     ));
   }
 }
