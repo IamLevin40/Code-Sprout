@@ -10,13 +10,16 @@
                 "Replace this with actual learning material.",
                 "Include key concepts and explanations."
             ],
-            "3_input_code": [
+            "3_input_valid_code": [
                 "// Add sample code here",
                 "// Use language-appropriate syntax"
             ],
-            "4_plain": [
-                "Add explanation of the code above.",
-                "Explain what each part does."
+            "4_input_error_code": [
+                "// Add sample code here",
+                "// Use language-appropriate syntax"
+            ],
+            "5_output_code": [
+                "// Add output line here"
             ]
         }
     },

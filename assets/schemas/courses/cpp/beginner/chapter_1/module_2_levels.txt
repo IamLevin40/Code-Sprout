@@ -10,7 +10,7 @@
                 "In C++, you must declare a variable's type before using it.",
                 "Common data types include int (integers), double (decimal numbers), char (characters), and bool (true/false)."
             ],
-            "3_input_code": [
+            "3_input_valid_code": [
                 "int age = 25;",
                 "double price = 19.99;",
                 "char grade = 'A';",

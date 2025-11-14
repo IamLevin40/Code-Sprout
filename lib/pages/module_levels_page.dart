@@ -4,6 +4,7 @@ import '../models/course_data_schema.dart';
 import '../models/course_data.dart';
 import '../services/local_storage_service.dart';
 import '../models/user_data.dart';
+import '../widgets/level_contents/lecture_content.dart';
 
 class ModuleLevelsPage extends StatefulWidget {
   final String languageId;
@@ -77,6 +78,60 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
       'levelSchemaPath': levelSchemaPath,
       'levelsMap': levelData?.levels ?? {},
     };
+  }
+
+  Future<void> _handleNext(int totalLevels) async {
+    // If not last level, go to next level locally
+    if (_currentLevelIndex < totalLevels) {
+      setState(() => _currentLevelIndex += 1);
+      return;
+    }
+
+    // Last level -> module accomplished: advance module for user and go back
+    final ud = LocalStorageService.instance.userDataNotifier.value;
+    if (ud == null) {
+      if (context.mounted) Navigator.of(context).pop();
+      return;
+    }
+
+    final userMap = ud.toFirestore();
+    final updated = await CourseDataSchema().advanceModule(
+      userData: userMap,
+      languageId: widget.languageId,
+      difficulty: widget.difficulty,
+      completedChapter: widget.chapterNumber,
+      completedModule: widget.moduleNumber,
+    );
+
+    try {
+      final merged = {'uid': ud.uid, ...updated};
+      final newUser = UserData.fromJson(merged);
+
+      await LocalStorageService.instance.saveUserData(newUser);
+
+      try {
+        await newUser.save();
+      } catch (_) {}
+    } catch (_) {}
+
+    if (context.mounted) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('Module Accomplished'),
+          content: const Text('You completed the module. Progress advanced.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // close dialog
+                Navigator.of(context).pop(); // back to module list
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   @override
@@ -264,7 +319,7 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
 
                           const SizedBox(height: 16),
 
-                          // Mode title + description for current level
+                          // Level content area
                           Builder(builder: (_) {
                             final currentKey = 'level_$_currentLevelIndex';
                             final Level? lvl = levelsMap[currentKey];
@@ -273,74 +328,55 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
                             final modeTitle = modeInfo['title'] ?? mode;
                             final modeDesc = modeInfo['description'] ?? '';
 
+                            // Mode title and description
                             return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Text(modeTitle, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                Text(
+                                  modeTitle,
+                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                  textAlign: TextAlign.center,
+                                ),
                                 const SizedBox(height: 8),
-                                Text(modeDesc, style: TextStyle(fontSize: 14, color: Colors.grey.shade700)),
+                                Text(
+                                  modeDesc,
+                                  style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+                                  textAlign: TextAlign.center,
+                                ),
                                 const SizedBox(height: 12),
 
-                                // Next button (testing)
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton(
-                                    onPressed: () async {
-                                      // If not last level, go to next level locally
-                                      if (_currentLevelIndex < totalLevels) {
-                                        setState(() => _currentLevelIndex += 1);
-                                        return;
-                                      }
+                                // Level-specific widget area
+                                Builder(builder: (_) {
+                                  if (mode.toLowerCase() == 'lecture') {
+                                    final lec = lvl?.getLectureContent();
+                                    if (lec != null) {
+                                      return Align(alignment: Alignment.centerLeft, child: LectureContentWidget(lectureContent: lec, onProceed: () => _handleNext(totalLevels)));
+                                    }
+                                  }
 
-                                      // Last level -> module accomplished: advance module for user and go back
-                                      final ud = LocalStorageService.instance.userDataNotifier.value;
-                                      if (ud == null) {
-                                        if (context.mounted) Navigator.of(context).pop();
-                                        return;
-                                      }
+                                  // Fallback content area for other modes (you can replace with actual widgets later)
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: [
+                                      // Placeholder box for mode content
+                                      Container(
+                                        padding: const EdgeInsets.all(12.0),
+                                        margin: const EdgeInsets.only(bottom: 12.0),
+                                        decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(8.0)),
+                                        child: Text('Content for mode "$mode" is not yet implemented.', style: TextStyle(color: Colors.grey.shade800)),
+                                      ),
 
-                                      final userMap = ud.toFirestore();
-                                      final updated = await CourseDataSchema().advanceModule(
-                                        userData: userMap,
-                                        languageId: widget.languageId,
-                                        difficulty: widget.difficulty,
-                                        completedChapter: widget.chapterNumber,
-                                        completedModule: widget.moduleNumber,
-                                      );
-
-                                      try {
-                                        final merged = {'uid': ud.uid, ...updated};
-                                        final newUser = UserData.fromJson(merged);
-
-                                        await LocalStorageService.instance.saveUserData(newUser);
-
-                                        try {
-                                          await newUser.save();
-                                        } catch (_) {}
-                                      } catch (_) {}
-
-                                      if (context.mounted) {
-                                        showDialog(
-                                          context: context,
-                                          builder: (_) => AlertDialog(
-                                            title: const Text('Module Accomplished'),
-                                            content: const Text('You completed the module. Progress advanced.'),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.of(context).pop(); // close dialog
-                                                  Navigator.of(context).pop(); // back to module list
-                                                },
-                                                child: const Text('OK'),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      }
-                                    },
-                                    child: const Text('Next'),
-                                  ),
-                                ),
+                                      // Fallback Next button for non-lecture modes
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: ElevatedButton(
+                                          onPressed: () async => await _handleNext(totalLevels),
+                                          child: const Text('Next'),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }),
                               ],
                             );
                           }),

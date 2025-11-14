@@ -10,7 +10,7 @@
                 "cout (console output) is used with the << operator to display data.",
                 "cin (console input) is used with the >> operator to read data from the user."
             ],
-            "3_input_code": [
+            "3_input_valid_code": [
                 "#include <iostream>",
                 "",
                 "int main() {",
