@@ -72,7 +72,7 @@ class _FillInTheCodeContentWidgetState extends State<FillInTheCodeContentWidget>
       if (cid == null) {
         assigned.add('');
       } else {
-        final choice = _choices.firstWhere((c) => c.id == cid, orElse: () => _ChoiceItem(id: -1, text: ''));
+        final choice = _choices.firstWhere((c) => c.id == cid, orElse: () => const _ChoiceItem(id: -1, text: ''));
         assigned.add(choice.text);
       }
     }
@@ -89,7 +89,7 @@ class _FillInTheCodeContentWidgetState extends State<FillInTheCodeContentWidget>
   @override
   Widget build(BuildContext context) {
     final codeBg = Colors.grey.shade100;
-    final codeText = Colors.black87;
+    const codeText = Colors.black87;
 
     // Build code lines with placeholders replaced by drag targets
     int runningIndex = 0;
@@ -101,7 +101,7 @@ class _FillInTheCodeContentWidgetState extends State<FillInTheCodeContentWidget>
 
       for (int i = 0; i < parts.length; i++) {
         if (parts[i].isNotEmpty) {
-          children.add(TextSpan(text: parts[i], style: TextStyle(color: codeText)));
+          children.add(TextSpan(text: parts[i], style: const TextStyle(color: codeText)));
         }
 
         if (i < parts.length - 1) {
@@ -125,13 +125,13 @@ class _FillInTheCodeContentWidgetState extends State<FillInTheCodeContentWidget>
                 ),
                 child: has
                     ? _buildAssignedDraggable(_choices.firstWhere((c) => c.id == assignedId))
-                    : SizedBox(width: 48, height: 36),
+                    : const SizedBox(width: 48, height: 36),
               );
-            },
-            onWillAccept: (data) => data != null,
-            onAccept: (data) {
-              _assignToContainer(containerIndex, data);
-            },
+                },
+                  onWillAcceptWithDetails: (details) => true,
+                onAcceptWithDetails: (details) {
+                  _assignToContainer(containerIndex, details.data);
+                },
           );
 
           // Use WidgetSpan to place the container inline with code text
@@ -186,11 +186,11 @@ class _FillInTheCodeContentWidgetState extends State<FillInTheCodeContentWidget>
             color: Colors.transparent,
             child: Center(child: bank),
           ),
-          onWillAccept: (data) => data != null,
-          onAccept: (data) {
-            _unassignChoice(data);
-          },
-        ),
+                onWillAcceptWithDetails: (details) => true,
+            onAcceptWithDetails: (details) {
+              _unassignChoice(details.data);
+            },
+          ),
 
         const SizedBox(height: 16),
 
@@ -243,10 +243,10 @@ class _FillInTheCodeContentWidgetState extends State<FillInTheCodeContentWidget>
             color: Colors.white,
             borderRadius: BorderRadius.circular(8),
             boxShadow: isFeedback
-                ? [BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 2))]
-                : [BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1))],
+                ? const [BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 2))]
+                : const [BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1))],
           ),
-          child: Text(
+            child: Text(
             c.text,
             textAlign: TextAlign.center,
             style: DefaultTextStyle.of(context).style.copyWith(fontSize: 14),
@@ -260,5 +260,5 @@ class _FillInTheCodeContentWidgetState extends State<FillInTheCodeContentWidget>
 class _ChoiceItem {
   final int id;
   final String text;
-  _ChoiceItem({required this.id, required this.text});
+  const _ChoiceItem({required this.id, required this.text});
 }

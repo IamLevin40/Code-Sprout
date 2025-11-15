@@ -87,7 +87,7 @@ class _AssembleTheCodeContentWidgetState extends State<AssembleTheCodeContentWid
       final lowerStarters = ['elif', 'else', 'except', 'finally'];
       bool startsLower = false;
       for (final s in lowerStarters) {
-        if (trimmed.startsWith(s + ' ') || trimmed == s) {
+        if (trimmed.startsWith('$s ') || trimmed == s) {
           startsLower = true;
           break;
         }
@@ -111,7 +111,11 @@ class _AssembleTheCodeContentWidgetState extends State<AssembleTheCodeContentWid
   int _countIndentFromString(String s) {
     int count = 0;
     for (int i = 0; i < s.length; i++) {
-      if (s.codeUnitAt(i) == 32) count++; else break; // count spaces
+      if (s.codeUnitAt(i) == 32) {
+        count++;
+      } else {
+        break; // count spaces
+      }
     }
     // assume 2 spaces per indent level (heuristic)
     return (count / 2).floor();
@@ -189,7 +193,7 @@ class _AssembleTheCodeContentWidgetState extends State<AssembleTheCodeContentWid
                             ),
                           );
                         },
-                        onWillAccept: (data) => data != null,
+                        onWillAcceptWithDetails: (details) => true,
                         onAcceptWithDetails: (details) {
                           // compute insert index from drop position
                           final renderBox = _lineRowKeys[lineIndex].currentContext?.findRenderObject() as RenderBox?;

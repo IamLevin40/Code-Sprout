@@ -28,7 +28,7 @@ class LectureContentWidget extends StatelessWidget {
     final plainFontSize = styles.getStyles('module_pages.subtitle.font_size') as double;
 
     // Code block layout constants (left accent bar width)
-    final double barWidth = 8.0;
+    const double barWidth = 8.0;
 
     Widget buildTitleSection(List<String> lines) {
       return Padding(

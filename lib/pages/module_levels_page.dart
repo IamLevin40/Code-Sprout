@@ -96,9 +96,10 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
     }
 
     // Last level -> module accomplished: advance module for user and go back
+    final navigator = Navigator.of(context);
     final ud = LocalStorageService.instance.userDataNotifier.value;
     if (ud == null) {
-      if (context.mounted) Navigator.of(context).pop();
+      if (mounted) navigator.pop();
       return;
     }
 
@@ -122,7 +123,7 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
       } catch (_) {}
     } catch (_) {}
 
-    if (context.mounted) {
+    if (mounted) {
       try {
         final merged = {'uid': ud.uid, ...updated};
         // compute updated progress for the course/difficulty
@@ -132,12 +133,17 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
           difficulty: widget.difficulty.toLowerCase(),
         );
 
-        await ModuleAccomplishedPopup.show(context, progressPercent: progress);
-
-        if (context.mounted) Navigator.of(context).pop(); // back to module list
+        // Defer showing the popup to the next frame so we don't use BuildContext
+        // directly across async gaps. Schedule using addPostFrameCallback.
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          if (!mounted) return;
+          await ModuleAccomplishedPopup.show(context, progressPercent: progress);
+          if (!mounted) return;
+          navigator.pop(); // back to module list
+        });
       } catch (_) {
         // fallback: just pop back
-        if (context.mounted) Navigator.of(context).pop();
+        if (mounted) navigator.pop();
       }
     }
   }
@@ -210,9 +216,10 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
                               alignment: Alignment.topLeft,
                               child: IconButton(
                                 onPressed: () async {
+                                  final navigator = Navigator.of(context);
                                   final leave = await BackConfirmationPopup.show(context);
                                   if (!mounted) return;
-                                  if (leave) Navigator.of(context).pop();
+                                  if (leave) navigator.pop();
                                 },
                                 icon: const Icon(Icons.arrow_back),
                                 color: backIconColor,
@@ -347,7 +354,7 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
                               children: [
                                 Text(
                                   modeTitle,
-                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                                   textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(height: 8),

@@ -313,7 +313,7 @@ class _ModuleListPageState extends State<ModuleListPage> {
                               color: completedCard ? Colors.blue.shade300 : Colors.white,
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(color: Colors.grey.shade400, width: 1.5),
-                              boxShadow: completedCard ? [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))] : null,
+                              boxShadow: completedCard ? const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))] : null,
                             ),
                             child: Row(
                               children: [
@@ -323,7 +323,7 @@ class _ModuleListPageState extends State<ModuleListPage> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text(module.title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                                      Text(module.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                                       const SizedBox(height: 4),
                                       Text('Module $moduleNumber', style: TextStyle(fontSize: 12, color: Colors.grey.shade700)),
                                     ],
@@ -347,7 +347,7 @@ class _ModuleListPageState extends State<ModuleListPage> {
                           final notList = notCompleted[chapterId];
                           if (notList == null) continue;
 
-                          widgets.add(Text('Chapter $chapNum', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)));
+                          widgets.add(Text('Chapter $chapNum', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)));
                           widgets.add(const SizedBox(height: 8));
 
                             for (final entry in notList) {
@@ -369,7 +369,7 @@ class _ModuleListPageState extends State<ModuleListPage> {
                           final compList = completed[chapterId];
                           if (compList == null) continue;
 
-                          widgets.add(Text('Chapter $chapNum', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)));
+                          widgets.add(Text('Chapter $chapNum', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)));
                           widgets.add(const SizedBox(height: 8));
 
                           for (final entry in compList) {
