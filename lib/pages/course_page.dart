@@ -7,6 +7,7 @@ import '../widgets/course_cards/continue_course_cards.dart';
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
 import '../services/local_storage_service.dart';
+import 'module_list_page.dart';
 
 /// Course page displaying all available courses organized by difficulty
 /// Shows main course cards for each language and difficulty level
@@ -28,6 +29,12 @@ class _CoursePageState extends State<CoursePage> {
   String _selectedDifficulty = '';
   List<String> _difficulties = [];
   final Map<String, String> _languageNames = {};
+
+  @override
+  void dispose() {
+    LocalStorageService.instance.userDataNotifier.removeListener(_onUserDataChanged);
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -281,18 +288,17 @@ class _CoursePageState extends State<CoursePage> {
 
   /// Handle course card tap
   void _onCourseCardTap(String languageId, String difficulty) {
-    // TODO: Navigate to course detail page
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Selected $languageId - $difficulty'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    LocalStorageService.instance.userDataNotifier.removeListener(_onUserDataChanged);
-    super.dispose();
+    Navigator.of(context).push(PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => ModuleListPage(languageId: languageId, difficulty: difficulty),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final curved = CurvedAnimation(parent: animation, curve: Curves.easeInOut);
+        final offsetTween = Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero);
+        return SlideTransition(
+          position: offsetTween.animate(curved),
+          child: child,
+        );
+      },
+     transitionDuration: Duration(milliseconds: AppStyles().getStyles('module_pages.transition_duration') as int),
+    ));
   }
 }

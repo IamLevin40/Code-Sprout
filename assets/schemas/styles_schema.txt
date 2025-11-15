@@ -1341,6 +1341,67 @@
             }
         }
     },
+    "module_pages": {
+        "transition_duration": 500,
+        "back": {
+            "color": "--colors.dark_purple",
+            "size": 32
+        },
+        "title": {
+            "color": "--colors.dark_purple",
+            "font_size": "--font_sizes.title",
+            "font_weight": "--font_weights.bold"
+        },
+        "subtitle": {
+            "color": "--colors.dark_purple",
+            "font_size": "--font_sizes.regular"
+        },
+        "icon": {
+            "width": 80,
+            "height": 72,
+            "border_radius": 16,
+            "padding": 12,
+            "background_color": {
+                "begin": {
+                    "position": "top_left",
+                    "color": "--colors.dirty_white"
+                },
+                "end": {
+                    "position": "bottom_right",
+                    "color": "--colors.white"
+                }
+            }
+        },
+        "progress_text": {
+            "color": "--colors.light_purple",
+            "font_size": "--font_sizes.heading",
+            "font_weight": "--font_weights.bold"
+        },
+        "info_row": {
+            "icon_width": 14,
+            "icon_height": 14,
+            "font_size": "--font_sizes.regular",
+            "font_weight": "--font_weights.bold",
+            "text_color": "--colors.dark_gray",
+            "dark": {
+                "chapter_icon": "images/icons/on_cards/chapters_dark.png",
+                "duration_icon": "images/icons/on_cards/duration_dark.png"
+            }
+        },
+        "leaves": {
+            "width": 14,
+            "padding": 4,
+            "icons": {
+                "highlight": "images/icons/on_cards/leaf_highlight.png",
+                "unhighlight": "images/icons/on_cards/leaf_unhighlight.png"
+            },
+            "highlight_shadow": {
+                "color": "--colors.black",
+                "opacity": 70,
+                "blur_radius": 2
+            }
+        }
+    },
     "sprout_researches": {
         "crop_items": {
             "wheat": "images/icons/sprout_researches/crop_items/wheat.png",

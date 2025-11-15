@@ -10,7 +10,7 @@
                 "It was created by Bjarne Stroustrup in 1979 as an extension of the C programming language.",
                 "C++ supports both procedural and object-oriented programming paradigms."
             ],
-            "3_input_code": [
+            "3_input_valid_code": [
                 "#include <iostream>",
                 "",
                 "int main() {",
@@ -18,7 +18,10 @@
                 "    return 0;",
                 "}"
             ],
-            "4_plain": [
+            "4_output_code": [
+                "Hello world!"
+            ],
+            "5_plain": [
                 "The code above is a simple C++ program that prints 'Hello, World!' to the console.",
                 "Every C++ program starts execution from the main() function."
             ]
@@ -57,6 +60,7 @@
             "choices": [
                 ">",
                 "<<",
+                "<<",
                 ";",
                 ">>",
                 "{",
@@ -79,17 +83,17 @@
             "correct_code_lines": [
                 "#include <iostream>",
                 "int main() {",
-                "    std::cout << \"Hello, World!\" << std::endl;",
-                "    return 0;",
+                "   std::cout << \"Hello, World!\" << std::endl;",
+                "   return 0;",
                 "}"
             ],
             "choices": [
                 "#include <iostream>",
                 "int main() {",
                 "std::cout << \"Hello, World!\" << std::endl;",
-                "    std::cout << \"Hello, World!\" << std::endl;",
+                "std::cout << \"Hello, World!\" << std::endl;",
                 "return 0;",
-                "    return 0;",
+                "return 0;",
                 "}",
                 "int start() {",
                 "std::cin >> x;",

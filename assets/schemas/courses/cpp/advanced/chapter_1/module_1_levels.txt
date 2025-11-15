@@ -10,7 +10,7 @@
                 "The base class (parent) provides common functionality, while derived classes (children) can extend or override it.",
                 "Polymorphism enables objects of different classes to be treated as objects of a common base class."
             ],
-            "3_input_code": [
+            "3_input_valid_code": [
                 "#include <iostream>",
                 "",
                 "class Animal {",
