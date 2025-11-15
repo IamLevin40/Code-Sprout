@@ -5,6 +5,7 @@ import '../models/course_data.dart';
 import '../services/local_storage_service.dart';
 import '../models/user_data.dart';
 import '../widgets/level_contents/lecture_content.dart';
+import '../widgets/level_contents/multiple_choice_content.dart';
 
 class ModuleLevelsPage extends StatefulWidget {
   final String languageId;
@@ -347,10 +348,19 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
 
                                 // Level-specific widget area
                                 Builder(builder: (_) {
+                                  // Lecture mode
                                   if (mode.toLowerCase() == 'lecture') {
                                     final lec = lvl?.getLectureContent();
                                     if (lec != null) {
                                       return Align(alignment: Alignment.centerLeft, child: LectureContentWidget(lectureContent: lec, onProceed: () => _handleNext(totalLevels)));
+                                    }
+                                  }
+
+                                  // Multiple choice mode
+                                  if (mode.toLowerCase() == 'multiple_choice') {
+                                    final mc = lvl?.getMultipleChoiceContent();
+                                    if (mc != null) {
+                                      return MultipleChoiceContentWidget(content: mc, onCorrectProceed: () => _handleNext(totalLevels));
                                     }
                                   }
 

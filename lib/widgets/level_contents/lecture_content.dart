@@ -10,10 +10,10 @@ class LectureContentWidget extends StatelessWidget {
   final VoidCallback onProceed;
 
   const LectureContentWidget({
-    Key? key,
+    super.key,
     required this.lectureContent,
     required this.onProceed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
