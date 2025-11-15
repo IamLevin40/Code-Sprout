@@ -9,6 +9,9 @@ import '../widgets/level_contents/multiple_choice_content.dart';
 import '../widgets/level_contents/true_or_false_content.dart';
 import '../widgets/level_contents/fill_in_the_code_content.dart';
 import '../widgets/level_contents/assemble_the_code_content.dart';
+import '../widgets/level_popups/module_accomplished_popup.dart';
+import '../widgets/level_popups/correct_popup.dart';
+import '../widgets/level_popups/incorrect_popup.dart';
 
 class ModuleLevelsPage extends StatefulWidget {
   final String languageId;
@@ -119,22 +122,22 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
     } catch (_) {}
 
     if (context.mounted) {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text('Module Accomplished'),
-          content: const Text('You completed the module. Progress advanced.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // close dialog
-                Navigator.of(context).pop(); // back to module list
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
+      try {
+        final merged = {'uid': ud.uid, ...updated};
+        // compute updated progress for the course/difficulty
+        final progress = await CourseDataSchema().getProgressPercentage(
+          userData: merged,
+          languageId: widget.languageId,
+          difficulty: widget.difficulty.toLowerCase(),
+        );
+
+        await ModuleAccomplishedPopup.show(context, progressPercent: progress);
+
+        if (context.mounted) Navigator.of(context).pop(); // back to module list
+      } catch (_) {
+        // fallback: just pop back
+        if (context.mounted) Navigator.of(context).pop();
+      }
     }
   }
 
@@ -333,6 +336,7 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
                             final modeDesc = modeInfo['description'] ?? '';
 
                             // Mode title and description
+                            final bool isLastLevel = _currentLevelIndex >= totalLevels;
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
@@ -363,7 +367,21 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
                                   if (mode.toLowerCase() == 'multiple_choice') {
                                     final mc = lvl?.getMultipleChoiceContent();
                                     if (mc != null) {
-                                      return MultipleChoiceContentWidget(content: mc, onCorrectProceed: () => _handleNext(totalLevels));
+                                      return MultipleChoiceContentWidget(
+                                        content: mc,
+                                        onAnswer: (correct) async {
+                                          if (correct) {
+                                            if (!isLastLevel) {
+                                              await CorrectLevelPopup.show(context);
+                                              await _handleNext(totalLevels);
+                                            } else {
+                                              await _handleNext(totalLevels);
+                                            }
+                                          } else {
+                                            await IncorrectLevelPopup.show(context);
+                                          }
+                                        },
+                                      );
                                     }
                                   }
 
@@ -371,7 +389,21 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
                                   if (mode.toLowerCase() == 'true_or_false') {
                                     final tf = lvl?.getTrueOrFalseContent();
                                     if (tf != null) {
-                                      return TrueOrFalseContentWidget(content: tf, onCorrectProceed: () => _handleNext(totalLevels));
+                                      return TrueOrFalseContentWidget(
+                                        content: tf,
+                                        onAnswer: (correct) async {
+                                          if (correct) {
+                                            if (!isLastLevel) {
+                                              await CorrectLevelPopup.show(context);
+                                              await _handleNext(totalLevels);
+                                            } else {
+                                              await _handleNext(totalLevels);
+                                            }
+                                          } else {
+                                            await IncorrectLevelPopup.show(context);
+                                          }
+                                        },
+                                      );
                                     }
                                   }
 
@@ -379,7 +411,21 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
                                   if (mode.toLowerCase() == 'fill_in_the_code') {
                                     final fill = lvl?.getFillInTheCodeContent();
                                     if (fill != null) {
-                                      return FillInTheCodeContentWidget(content: fill, onCorrectProceed: () => _handleNext(totalLevels));
+                                      return FillInTheCodeContentWidget(
+                                        content: fill,
+                                        onAnswer: (correct) async {
+                                          if (correct) {
+                                            if (!isLastLevel) {
+                                              await CorrectLevelPopup.show(context);
+                                              await _handleNext(totalLevels);
+                                            } else {
+                                              await _handleNext(totalLevels);
+                                            }
+                                          } else {
+                                            await IncorrectLevelPopup.show(context);
+                                          }
+                                        },
+                                      );
                                     }
                                   }
 
@@ -387,7 +433,21 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
                                   if (mode.toLowerCase() == 'assemble_the_code') {
                                     final ac = lvl?.getAssembleTheCodeContent();
                                     if (ac != null) {
-                                      return AssembleTheCodeContentWidget(content: ac, onCorrectProceed: () => _handleNext(totalLevels));
+                                      return AssembleTheCodeContentWidget(
+                                        content: ac,
+                                        onAnswer: (correct) async {
+                                          if (correct) {
+                                            if (!isLastLevel) {
+                                              await CorrectLevelPopup.show(context);
+                                              await _handleNext(totalLevels);
+                                            } else {
+                                              await _handleNext(totalLevels);
+                                            }
+                                          } else {
+                                            await IncorrectLevelPopup.show(context);
+                                          }
+                                        },
+                                      );
                                     }
                                   }
 

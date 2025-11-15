@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../models/course_data.dart';
-import '../../widgets/level_popups/correct_popup.dart';
-import '../../widgets/level_popups/incorrect_popup.dart';
 
 class AssembleTheCodeContentWidget extends StatefulWidget {
   final AssembleTheCodeContent content;
-  final VoidCallback onCorrectProceed;
+  final ValueChanged<bool> onAnswer; // true = correct, false = incorrect
 
   const AssembleTheCodeContentWidget({
     super.key,
     required this.content,
-    required this.onCorrectProceed,
+    required this.onAnswer,
   });
 
   @override
@@ -137,12 +135,7 @@ class _AssembleTheCodeContentWidgetState extends State<AssembleTheCodeContentWid
     final isCorrect = contentMatches && indentMatches;
 
     if (context.mounted) {
-      if (isCorrect) {
-        await CorrectLevelPopup.show(context);
-        widget.onCorrectProceed();
-      } else {
-        await IncorrectLevelPopup.show(context);
-      }
+      widget.onAnswer(isCorrect);
     }
   }
 

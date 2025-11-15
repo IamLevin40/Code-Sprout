@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import '../../models/styles_schema.dart';
 import '../../models/course_data.dart';
-import '../../widgets/level_popups/correct_popup.dart';
-import '../../widgets/level_popups/incorrect_popup.dart';
 
 class TrueOrFalseContentWidget extends StatelessWidget {
   final TrueOrFalseContent content;
-  final VoidCallback onCorrectProceed;
+  final ValueChanged<bool> onAnswer; // true = correct, false = incorrect
 
   const TrueOrFalseContentWidget({
     super.key,
     required this.content,
-    required this.onCorrectProceed,
+    required this.onAnswer,
   });
 
   @override
@@ -46,16 +44,9 @@ class TrueOrFalseContentWidget extends StatelessWidget {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
               ),
                 onPressed: () async {
-                final correct = correctAnswer == true;
-                if (context.mounted) {
-                  if (correct) {
-                    await CorrectLevelPopup.show(context);
-                    onCorrectProceed();
-                  } else {
-                    await IncorrectLevelPopup.show(context);
-                  }
-                }
-              },
+                  final correct = correctAnswer == true;
+                  onAnswer(correct);
+                },
               child: const Text('True', textAlign: TextAlign.center, style: TextStyle(fontSize: 16)),
             ),
           ),
@@ -72,16 +63,9 @@ class TrueOrFalseContentWidget extends StatelessWidget {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
               ),
                 onPressed: () async {
-                final correct = correctAnswer == false;
-                if (context.mounted) {
-                  if (correct) {
-                    await CorrectLevelPopup.show(context);
-                    onCorrectProceed();
-                  } else {
-                    await IncorrectLevelPopup.show(context);
-                  }
-                }
-              },
+                  final correct = correctAnswer == false;
+                  onAnswer(correct);
+                },
               child: const Text('False', textAlign: TextAlign.center, style: TextStyle(fontSize: 16)),
             ),
           ),

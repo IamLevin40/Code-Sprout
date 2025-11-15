@@ -2,17 +2,15 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../models/styles_schema.dart';
 import '../../models/course_data.dart';
-import '../../widgets/level_popups/correct_popup.dart';
-import '../../widgets/level_popups/incorrect_popup.dart';
 
 class MultipleChoiceContentWidget extends StatefulWidget {
   final MultipleChoiceContent content;
-  final VoidCallback onCorrectProceed;
+  final ValueChanged<bool> onAnswer; // true = correct, false = incorrect
 
   const MultipleChoiceContentWidget({
     super.key,
     required this.content,
-    required this.onCorrectProceed,
+    required this.onAnswer,
   });
 
   @override
@@ -37,16 +35,8 @@ class _MultipleChoiceContentWidgetState extends State<MultipleChoiceContentWidge
 
   Future<void> _onSelect(String selected) async {
     final correct = widget.content.correctAnswer;
-    if (selected == correct) {
-      if (context.mounted) {
-        await CorrectLevelPopup.show(context);
-        widget.onCorrectProceed();
-      }
-    } else {
-      if (context.mounted) {
-        await IncorrectLevelPopup.show(context);
-      }
-    }
+    final isCorrect = selected == correct;
+    widget.onAnswer(isCorrect);
   }
 
   @override
