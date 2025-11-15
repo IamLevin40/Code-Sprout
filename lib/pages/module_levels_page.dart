@@ -6,6 +6,7 @@ import '../services/local_storage_service.dart';
 import '../models/user_data.dart';
 import '../widgets/level_contents/lecture_content.dart';
 import '../widgets/level_contents/multiple_choice_content.dart';
+import '../widgets/level_contents/true_or_false_content.dart';
 
 class ModuleLevelsPage extends StatefulWidget {
   final String languageId;
@@ -361,6 +362,14 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
                                     final mc = lvl?.getMultipleChoiceContent();
                                     if (mc != null) {
                                       return MultipleChoiceContentWidget(content: mc, onCorrectProceed: () => _handleNext(totalLevels));
+                                    }
+                                  }
+
+                                  // True/False mode
+                                  if (mode.toLowerCase() == 'true_or_false') {
+                                    final tf = lvl?.getTrueOrFalseContent();
+                                    if (tf != null) {
+                                      return TrueOrFalseContentWidget(content: tf, onCorrectProceed: () => _handleNext(totalLevels));
                                     }
                                   }
 

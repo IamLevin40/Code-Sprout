@@ -57,7 +57,7 @@ class _MultipleChoiceContentWidgetState extends State<MultipleChoiceContentWidge
         widget.onCorrectProceed();
       }
     } else {
-      // Incorrect -> show dialog then restart level (reshuffle options)
+      // Incorrect -> show dialog then restart level
       if (context.mounted) {
         await showDialog(
           context: context,
