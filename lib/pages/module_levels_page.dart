@@ -12,6 +12,7 @@ import '../widgets/level_contents/assemble_the_code_content.dart';
 import '../widgets/level_popups/module_accomplished_popup.dart';
 import '../widgets/level_popups/correct_popup.dart';
 import '../widgets/level_popups/incorrect_popup.dart';
+import '../widgets/level_popups/back_confirmation_popup.dart';
 
 class ModuleLevelsPage extends StatefulWidget {
   final String languageId;
@@ -208,7 +209,11 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
                             child: Align(
                               alignment: Alignment.topLeft,
                               child: IconButton(
-                                onPressed: () => Navigator.of(context).pop(),
+                                onPressed: () async {
+                                  final leave = await BackConfirmationPopup.show(context);
+                                  if (!mounted) return;
+                                  if (leave) Navigator.of(context).pop();
+                                },
                                 icon: const Icon(Icons.arrow_back),
                                 color: backIconColor,
                                 iconSize: backIconSize,
