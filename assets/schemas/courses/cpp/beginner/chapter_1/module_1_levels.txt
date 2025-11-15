@@ -83,17 +83,17 @@
             "correct_code_lines": [
                 "#include <iostream>",
                 "int main() {",
-                "    std::cout << \"Hello, World!\" << std::endl;",
-                "    return 0;",
+                "   std::cout << \"Hello, World!\" << std::endl;",
+                "   return 0;",
                 "}"
             ],
             "choices": [
                 "#include <iostream>",
                 "int main() {",
                 "std::cout << \"Hello, World!\" << std::endl;",
-                "    std::cout << \"Hello, World!\" << std::endl;",
+                "std::cout << \"Hello, World!\" << std::endl;",
                 "return 0;",
-                "    return 0;",
+                "return 0;",
                 "}",
                 "int start() {",
                 "std::cin >> x;",

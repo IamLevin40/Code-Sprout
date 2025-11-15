@@ -74,7 +74,7 @@
     "level_5": {
         "mode": "assemble_the_code",
         "content": {
-            "question": "Arrange the code to declare and initialize variables correctly",
+            "question": "Arrange the code (int, double, char) to declare and initialize variables correctly.",
             "correct_code_lines": [
                 "int number = 42;",
                 "double temperature = 98.6;",

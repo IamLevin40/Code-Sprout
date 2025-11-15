@@ -8,6 +8,7 @@ import '../widgets/level_contents/lecture_content.dart';
 import '../widgets/level_contents/multiple_choice_content.dart';
 import '../widgets/level_contents/true_or_false_content.dart';
 import '../widgets/level_contents/fill_in_the_code_content.dart';
+import '../widgets/level_contents/assemble_the_code_content.dart';
 
 class ModuleLevelsPage extends StatefulWidget {
   final String languageId;
@@ -379,6 +380,14 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
                                     final fill = lvl?.getFillInTheCodeContent();
                                     if (fill != null) {
                                       return FillInTheCodeContentWidget(content: fill, onCorrectProceed: () => _handleNext(totalLevels));
+                                    }
+                                  }
+
+                                  // Assemble-the-code mode
+                                  if (mode.toLowerCase() == 'assemble_the_code') {
+                                    final ac = lvl?.getAssembleTheCodeContent();
+                                    if (ac != null) {
+                                      return AssembleTheCodeContentWidget(content: ac, onCorrectProceed: () => _handleNext(totalLevels));
                                     }
                                   }
 
