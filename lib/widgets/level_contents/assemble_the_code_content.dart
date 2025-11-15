@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/course_data.dart';
+import '../../widgets/level_popups/correct_popup.dart';
+import '../../widgets/level_popups/incorrect_popup.dart';
 
 class AssembleTheCodeContentWidget extends StatefulWidget {
   final AssembleTheCodeContent content;
@@ -136,28 +138,10 @@ class _AssembleTheCodeContentWidgetState extends State<AssembleTheCodeContentWid
 
     if (context.mounted) {
       if (isCorrect) {
-        await showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-            title: const Text('Correct Answer'),
-            content: const Text('Good job! Proceed to the next level.'),
-            actions: [
-              TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Continue')),
-            ],
-          ),
-        );
+        await CorrectLevelPopup.show(context);
         widget.onCorrectProceed();
       } else {
-        await showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-            title: const Text('Incorrect Answer'),
-            content: const Text('One or more lines are incorrect. Try again.'),
-            actions: [
-              TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Continue')),
-            ],
-          ),
-        );
+        await IncorrectLevelPopup.show(context);
       }
     }
   }

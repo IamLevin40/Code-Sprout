@@ -2,6 +2,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../models/styles_schema.dart';
 import '../../models/course_data.dart';
+import '../../widgets/level_popups/correct_popup.dart';
+import '../../widgets/level_popups/incorrect_popup.dart';
 
 class MultipleChoiceContentWidget extends StatefulWidget {
   final MultipleChoiceContent content;
@@ -36,44 +38,13 @@ class _MultipleChoiceContentWidgetState extends State<MultipleChoiceContentWidge
   Future<void> _onSelect(String selected) async {
     final correct = widget.content.correctAnswer;
     if (selected == correct) {
-      // Correct -> show dialog then proceed to next level
       if (context.mounted) {
-        await showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-            title: const Text('Correct Answer'),
-            content: const Text('Good job! Proceed to the next level.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Continue'),
-              ),
-            ],
-          ),
-        );
-
+        await CorrectLevelPopup.show(context);
         widget.onCorrectProceed();
       }
     } else {
-      // Incorrect -> show dialog then restart level
       if (context.mounted) {
-        await showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-            title: const Text('Incorrect Answer'),
-            content: const Text('That answer is incorrect. Try again.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Continue'),
-              ),
-            ],
-          ),
-        );
+        await IncorrectLevelPopup.show(context);
       }
     }
   }

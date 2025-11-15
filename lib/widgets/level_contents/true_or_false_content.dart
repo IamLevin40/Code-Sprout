@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../models/styles_schema.dart';
 import '../../models/course_data.dart';
+import '../../widgets/level_popups/correct_popup.dart';
+import '../../widgets/level_popups/incorrect_popup.dart';
 
 class TrueOrFalseContentWidget extends StatelessWidget {
   final TrueOrFalseContent content;
@@ -11,25 +13,6 @@ class TrueOrFalseContentWidget extends StatelessWidget {
     required this.content,
     required this.onCorrectProceed,
   });
-
-  Future<void> _showResultDialog(BuildContext context, {required bool correct}) async {
-    final title = correct ? 'Correct Answer' : 'Incorrect Answer';
-    final body = correct ? 'Good job! Proceed to the next level.' : 'That answer is incorrect. Try again.';
-
-    await showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(title),
-        content: Text(body),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Continue'),
-          ),
-        ],
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,10 +45,16 @@ class TrueOrFalseContentWidget extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 18.0, horizontal: 12.0),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
               ),
-              onPressed: () async {
+                onPressed: () async {
                 final correct = correctAnswer == true;
-                await _showResultDialog(context, correct: correct);
-                if (correct) onCorrectProceed();
+                if (context.mounted) {
+                  if (correct) {
+                    await CorrectLevelPopup.show(context);
+                    onCorrectProceed();
+                  } else {
+                    await IncorrectLevelPopup.show(context);
+                  }
+                }
               },
               child: const Text('True', textAlign: TextAlign.center, style: TextStyle(fontSize: 16)),
             ),
@@ -82,10 +71,16 @@ class TrueOrFalseContentWidget extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 18.0, horizontal: 12.0),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
               ),
-              onPressed: () async {
+                onPressed: () async {
                 final correct = correctAnswer == false;
-                await _showResultDialog(context, correct: correct);
-                if (correct) onCorrectProceed();
+                if (context.mounted) {
+                  if (correct) {
+                    await CorrectLevelPopup.show(context);
+                    onCorrectProceed();
+                  } else {
+                    await IncorrectLevelPopup.show(context);
+                  }
+                }
               },
               child: const Text('False', textAlign: TextAlign.center, style: TextStyle(fontSize: 16)),
             ),
