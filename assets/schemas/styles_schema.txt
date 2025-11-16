@@ -1407,6 +1407,46 @@
                     "font_size": "--font_sizes.title",
                     "font_weight": "--font_weights.bold"
                 }
+            },
+            "language_name": {
+                "font_size": "--font_sizes.heading",
+                "font_weight": "--font_weights.bold",
+                "color": "--colors.dark_purple",
+                "shadow": {
+                    "color": "--colors.black",
+                    "opacity": 40,
+                    "blur_radius": 4
+                }
+            },
+            "difficulty": {
+                "font_size": "--font_sizes.title",
+                "font_weight": "--font_weights.bold",
+                "color": "--colors.dark_purple"
+            },
+            "leaves": {
+                "width": 20,
+                "height": 20,
+                "padding": 10,
+                "icons": {
+                    "highlight": "images/icons/on_cards/leaf_highlight.png",
+                    "unhighlight": "images/icons/on_cards/leaf_unhighlight.png"
+                },
+                "highlight_shadow": {
+                    "color": "--colors.black",
+                    "opacity": 70,
+                    "blur_radius": 2
+                }
+            },
+            "info_row": {
+                "icon_width": 14,
+                "icon_height": 14,
+                "font_size": "--font_sizes.regular",
+                "font_weight": "--font_weights.bold",
+                "text_color": "--colors.dark_gray",
+                "dark": {
+                    "chapter_icon": "images/icons/on_cards/chapters_dark.png",
+                    "duration_icon": "images/icons/on_cards/duration_dark.png"
+                }
             }
         },
         "levels_page": {
@@ -1425,6 +1465,21 @@
                         "color": "--colors.white"
                     }
                 }
+            },
+            "title": {
+                "color": "--colors.dark_purple",
+                "font_size": "--font_sizes.title",
+                "font_weight": "--font_weights.bold",
+                "shadow": {
+                    "color": "--colors.black",
+                    "opacity": 40,
+                    "blur_radius": 4
+                }
+            },
+            "subtitle": {
+                "color": "--colors.dark_purple",
+                "font_size": "--font_sizes.regular",
+                "font_weight": "--font_weights.bold"
             }
         },
         "title": {
@@ -1456,17 +1511,6 @@
             "color": "--colors.light_purple",
             "font_size": "--font_sizes.heading",
             "font_weight": "--font_weights.bold"
-        },
-        "info_row": {
-            "icon_width": 14,
-            "icon_height": 14,
-            "font_size": "--font_sizes.regular",
-            "font_weight": "--font_weights.bold",
-            "text_color": "--colors.dark_gray",
-            "dark": {
-                "chapter_icon": "images/icons/on_cards/chapters_dark.png",
-                "duration_icon": "images/icons/on_cards/duration_dark.png"
-            }
         },
         "leaves": {
             "width": 14,

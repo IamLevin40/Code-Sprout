@@ -160,12 +160,29 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
     final backWidth = styles.getStyles('module_pages.back.width') as double;
     final backHeight = styles.getStyles('module_pages.back.height') as double;
 
-    final titleColor = styles.getStyles('module_pages.title.color') as Color;
-    final titleFontSize = styles.getStyles('module_pages.title.font_size') as double;
-    final titleFontWeight = styles.getStyles('module_pages.title.font_weight') as FontWeight;
+    final titleColor = styles.getStyles('module_pages.levels_page.title.color') as Color;
+    final titleFontSize = styles.getStyles('module_pages.levels_page.title.font_size') as double;
+    final titleFontWeight = styles.getStyles('module_pages.levels_page.title.font_weight') as FontWeight;
 
-    final subtitleColor = styles.getStyles('module_pages.subtitle.color') as Color;
-    final subtitleFontSize = styles.getStyles('module_pages.subtitle.font_size') as double;
+    List<Shadow> titleShadows = [];
+    try {
+      final Color baseColor = styles.getStyles('module_pages.levels_page.title.shadow.color') as Color;
+      final sopRaw = styles.getStyles('module_pages.levels_page.title.shadow.opacity');
+      final double sop = (sopRaw is num) ? sopRaw.toDouble() / 100.0 : (sopRaw as double);
+      final sblur = styles.getStyles('module_pages.levels_page.title.shadow.blur_radius') as double;
+      titleShadows = [
+        Shadow(
+          color: baseColor.withAlpha((sop * 255).round()),
+          blurRadius: sblur,
+        )
+      ];
+    } catch (e) {
+      titleShadows = [];
+    }
+
+    final subtitleColor = styles.getStyles('module_pages.levels_page.subtitle.color') as Color;
+    final subtitleFontSize = styles.getStyles('module_pages.levels_page.subtitle.font_size') as double;
+    final subtitleFontWeight = styles.getStyles('module_pages.levels_page.subtitle.font_weight') as FontWeight;
 
     final iconImage = styles.getStyles('course_cards.style_coding.${widget.languageId}.icon') as String;
     final langDisplayWidth = styles.getStyles('module_pages.levels_page.language_display.width') as double;
@@ -240,15 +257,28 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
                             ),
                           ),
 
-                          // center column: title and chapter/module label (centered)
+                          // center column: title and chapter/module label
                           Expanded(
                             flex: 3,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 const SizedBox(height: 4),
-                                Text(modTitle, style: TextStyle(fontSize: titleFontSize, fontWeight: titleFontWeight, color: titleColor), textAlign: TextAlign.center),
-                                Text('Chapter ${widget.chapterNumber}, Module ${widget.moduleNumber}', style: TextStyle(fontSize: subtitleFontSize, color: subtitleColor), textAlign: TextAlign.center),
+                                Text(
+                                  modTitle,
+                                  style: TextStyle(
+                                    fontSize: titleFontSize,
+                                    fontWeight: titleFontWeight,
+                                    color: titleColor,
+                                    shadows: titleShadows,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                Text(
+                                  'Chapter ${widget.chapterNumber}, Module ${widget.moduleNumber}',
+                                  style: TextStyle(fontSize: subtitleFontSize, fontWeight: subtitleFontWeight, color: subtitleColor),
+                                  textAlign: TextAlign.center,
+                                ),
                               ],
                             ),
                           ),
