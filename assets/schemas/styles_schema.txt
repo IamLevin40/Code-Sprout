@@ -1719,6 +1719,42 @@
                         "font_weight": "--font_weights.bold"
                     }
                 }
+            },
+            "true_or_false_mode": {
+                "question_text": {
+                    "color": "--colors.dark_gray",
+                    "font_size": "--font_sizes.title",
+                    "font_weight": "--font_weights.bold"
+                },
+                "choice_card": {
+                    "border_radius": 8,
+                    "border_width": 2,
+                    "background_color": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "--colors.ivory_white"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "--colors.white"
+                        }
+                    },
+                    "stroke_color": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "#87A1BF"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "--colors.gray"
+                        }
+                    },
+                    "text": {
+                        "color": "--colors.dark_purple",
+                        "font_size": "--font_sizes.regular",
+                        "font_weight": "--font_weights.bold"
+                    }
+                }
             }
         },
         "title": {

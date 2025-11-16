@@ -15,9 +15,18 @@ class TrueOrFalseContentWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final styles = AppStyles();
-    final titleColor = styles.getStyles('module_pages.title.color') as Color;
-    final titleFontSize = styles.getStyles('module_pages.title.font_size') as double;
-    final titleFontWeight = styles.getStyles('module_pages.title.font_weight') as FontWeight;
+
+    final titleColor = styles.getStyles('module_pages.level_contents.true_or_false_mode.question_text.color') as Color;
+    final titleFontSize = styles.getStyles('module_pages.level_contents.true_or_false_mode.question_text.font_size') as double;
+    final titleFontWeight = styles.getStyles('module_pages.level_contents.true_or_false_mode.question_text.font_weight') as FontWeight;
+
+    final choiceBorderRadius = styles.getStyles('module_pages.level_contents.true_or_false_mode.choice_card.border_radius') as double;
+    final choiceBorderWidth = styles.getStyles('module_pages.level_contents.true_or_false_mode.choice_card.border_width') as double;
+    final choiceBackground = styles.getStyles('module_pages.level_contents.true_or_false_mode.choice_card.background_color') as LinearGradient;
+    final choiceStroke = styles.getStyles('module_pages.level_contents.true_or_false_mode.choice_card.stroke_color') as LinearGradient;
+    final choiceTextColor = styles.getStyles('module_pages.level_contents.true_or_false_mode.choice_card.text.color') as Color;
+    final choiceTextFontSize = styles.getStyles('module_pages.level_contents.true_or_false_mode.choice_card.text.font_size') as double;
+    final choiceTextFontWeight = styles.getStyles('module_pages.level_contents.true_or_false_mode.choice_card.text.font_weight') as FontWeight;
 
     final question = content.question;
     final bool correctAnswer = content.correctAnswer;
@@ -31,42 +40,80 @@ class TrueOrFalseContentWidget extends StatelessWidget {
           style: TextStyle(color: titleColor, fontSize: titleFontSize, fontWeight: titleFontWeight),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 16),
 
         // True button
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 96.0),
           child: SizedBox(
             width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 18.0, horizontal: 12.0),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: choiceStroke,
+                borderRadius: BorderRadius.circular(choiceBorderRadius),
               ),
-                onPressed: () async {
-                  final correct = correctAnswer == true;
-                  onAnswer(correct);
-                },
-              child: const Text('True', textAlign: TextAlign.center, style: TextStyle(fontSize: 16)),
+              child: Padding(
+                padding: EdgeInsets.all(choiceBorderWidth),
+                child: Material(
+                  color: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(choiceBorderRadius - choiceBorderWidth),
+                  ),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(choiceBorderRadius - choiceBorderWidth),
+                    onTap: () async {
+                      final correct = correctAnswer == true;
+                      onAnswer(correct);
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: choiceBackground,
+                        borderRadius: BorderRadius.circular(choiceBorderRadius - choiceBorderWidth),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+                      child: Text('TRUE', textAlign: TextAlign.center, style: TextStyle(color: choiceTextColor, fontSize: choiceTextFontSize, fontWeight: choiceTextFontWeight)),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ),
 
         // False button
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 96.0),
           child: SizedBox(
             width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 18.0, horizontal: 12.0),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: choiceStroke,
+                borderRadius: BorderRadius.circular(choiceBorderRadius),
               ),
-                onPressed: () async {
-                  final correct = correctAnswer == false;
-                  onAnswer(correct);
-                },
-              child: const Text('False', textAlign: TextAlign.center, style: TextStyle(fontSize: 16)),
+              child: Padding(
+                padding: EdgeInsets.all(choiceBorderWidth),
+                child: Material(
+                  color: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(choiceBorderRadius - choiceBorderWidth),
+                  ),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(choiceBorderRadius - choiceBorderWidth),
+                    onTap: () async {
+                      final correct = correctAnswer == false;
+                      onAnswer(correct);
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: choiceBackground,
+                        borderRadius: BorderRadius.circular(choiceBorderRadius - choiceBorderWidth),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+                      child: Text('FALSE', textAlign: TextAlign.center, style: TextStyle(color: choiceTextColor, fontSize: choiceTextFontSize, fontWeight: choiceTextFontWeight)),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ),
