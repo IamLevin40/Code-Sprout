@@ -10,7 +10,7 @@
                 "cout (console output) is used with the << operator to display data.",
                 "cin (console input) is used with the >> operator to read data from the user."
             ],
-            "3_input_code": [
+            "3_input_valid_code": [
                 "#include <iostream>",
                 "",
                 "int main() {",
@@ -84,26 +84,26 @@
             "correct_code_lines": [
                 "#include <iostream>",
                 "int main() {",
-                "    std::string name;",
-                "    std::cout << \"Enter your name: \";",
-                "    std::cin >> name;",
-                "    std::cout << \"Hello, \" << name << std::endl;",
-                "    return 0;",
+                "   std::string name;",
+                "   std::cout << \"Enter your name: \";",
+                "   std::cin >> name;",
+                "   std::cout << \"Hello, \" << name << std::endl;",
+                "   return 0;",
                 "}"
             ],
             "choices": [
                 "#include <iostream>",
                 "int main() {",
                 "std::string name;",
-                "    std::string name;",
+                "std::string name;",
                 "std::cout << \"Enter your name: \";",
-                "    std::cout << \"Enter your name: \";",
+                "std::cout << \"Enter your name: \";",
                 "std::cin >> name;",
-                "    std::cin >> name;",
+                "std::cin >> name;",
                 "std::cout << \"Hello, \" << name << std::endl;",
-                "    std::cout << \"Hello, \" << name << std::endl;",
+                "std::cout << \"Hello, \" << name << std::endl;",
                 "return 0;",
-                "    return 0;",
+                "return 0;",
                 "}",
                 "std::cin << name;",
                 "std::cout >> \"Enter your name: \";"

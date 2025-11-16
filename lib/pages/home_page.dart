@@ -11,6 +11,7 @@ import '../services/firestore_service.dart';
 import '../widgets/course_cards/continue_course_cards.dart';
 import '../widgets/course_cards/recommended_course_cards.dart';
 import '../widgets/course_cards/discover_course_cards.dart';
+import 'module_list_page.dart';
 
 class HomePage extends StatefulWidget {
   final ValueChanged<int>? onTabSelected;
@@ -413,12 +414,17 @@ class _HomePageState extends State<HomePage> {
 
   /// Handle course card tap
   void _onCourseCardTap(String languageId, String difficulty) {
-    // TODO: Navigate to course detail page
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Selected $languageId - $difficulty'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+    Navigator.of(context).push(PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => ModuleListPage(languageId: languageId, difficulty: difficulty),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final curved = CurvedAnimation(parent: animation, curve: Curves.easeInOut);
+        final offsetTween = Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero);
+        return SlideTransition(
+          position: offsetTween.animate(curved),
+          child: child,
+        );
+      },
+      transitionDuration: Duration(milliseconds: AppStyles().getStyles('module_pages.transition_duration') as int),
+    ));
   }
 }

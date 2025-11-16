@@ -377,9 +377,6 @@ class AppStyles {
     }
   }
 
-  // Note: `toFontWeight` and `toDouble` helpers removed. Callers should
-  // now use `getStyles(path) as FontWeight` or `getStyles(path) as double`.
-
   /// Helper to get color with opacity applied
   Color withOpacity(String colorPath, String opacityPath) {
     final color = getStyles(colorPath) as Color;
@@ -387,6 +384,12 @@ class AppStyles {
     final opacity = opacityValue is int ? opacityValue / 100.0 : opacityValue as double;
     final a = (opacity.clamp(0.0, 1.0) * 255).round().clamp(0, 255);
     return color.withAlpha(a);
+  }
+
+  /// Testing helper: directly set styles data for unit tests to avoid asset loading.
+  /// Not intended for production use.
+  void setStylesForTesting(Map<String, dynamic> data) {
+    _stylesData = data;
   }
 
   /// Check if a path exists in the schema

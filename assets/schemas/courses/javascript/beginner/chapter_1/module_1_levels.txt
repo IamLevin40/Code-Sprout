@@ -10,7 +10,7 @@
                 "It allows you to create interactive and dynamic web pages.",
                 "JavaScript can run in web browsers and on servers using Node.js."
             ],
-            "3_input_code": [
+            "3_input_valid_code": [
                 "console.log(\"Hello, World!\");",
                 "alert(\"Welcome to JavaScript!\");"
             ],
