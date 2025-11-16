@@ -1928,6 +1928,166 @@
                 }
             }
         },
+        "level_popups": {
+            "global": {
+                "transition_duration": 500,
+                "overlay_color": "--colors.dark_purple",
+                "background_color": "--colors.white",
+                "border_radius": 32,
+                "title": {
+                    "color": "--colors.dark_purple",
+                    "font_size": "--font_sizes.title",
+                    "font_weight": "--font_weights.bold"
+                },
+                "subtitle": {
+                    "color": "--colors.gray",
+                    "font_size": "--font_sizes.regular",
+                    "font_weight": "--font_weights.regular"
+                },
+                "button": {
+                    "width": 128,
+                    "height": 32,
+                    "border_radius": 8,
+                    "border_width": 2,
+                    "text": {
+                        "color": "--colors.dark_gray",
+                        "font_size": "--font_sizes.regular",
+                        "font_weight": "--font_weights.bold"
+                    }
+                },
+                "icon": {
+                    "width": 48,
+                    "height": 48
+                }
+            },
+            "correct_popup": {
+                "height": 192,
+                "icon": "images/icons/module_items/correct.png",
+                "continue_button": {
+                    "background_color": "--colors.ivory_white",
+                    "stroke_color": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "--colors.dark_green"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "#204921"
+                        }
+                    }
+                }
+            },
+            "incorrect_popup": {
+                "height": 192,
+                "icon": "images/icons/module_items/incorrect.png",
+                "continue_button": {
+                    "background_color": "--colors.ivory_white",
+                    "stroke_color": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "#E5315F"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "#6B0721"
+                        }
+                    }
+                }
+            },
+            "module_accomplished_popup": {
+                "height": 300,
+                "icon": "images/icons/module_items/accomplished.png",
+                "progress_display": {
+                    "width": 80,
+                    "height": 80,
+                    "border_radius": 16,
+                    "border_width": 2,
+                    "background_color": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "--colors.dirty_white"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "--colors.white"
+                        }
+                    },
+                    "stroke_color": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "#4CAF50"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "#204921"
+                        }
+                    },
+                    "progress_icons": {
+                        "background": "images/icons/module_items/progress_background.png",
+                        "fill": "images/icons/module_items/progress_fill.png",
+                        "width": 48,
+                        "height": 48
+                    },
+                    "progress_text": {
+                        "color": "--colors.dark_purple",
+                        "font_size": "--font_sizes.regular",
+                        "font_weight": "--font_weights.bold"
+                    }
+                },
+                "complete_button": {
+                    "background_color": "--colors.ivory_white",
+                    "stroke_color": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "--colors.dark_green"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "#204921"
+                        }
+                    }
+                }
+            },
+            "back_confirmation_popup": {
+                "height": 192,
+                "icon": "images/icons/module_items/leave.png",
+                "leave_button": {
+                    "background_color": "--colors.ivory_white",
+                    "stroke_color": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "#C1EC5A"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "#87A938"
+                        }
+                    }
+                },
+                "cancel_button": {
+                    "background_color": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "#A2C947"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "#CAF562"
+                        }
+                    },
+                    "stroke_color": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "#C1EC5A"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "#87A938"
+                        }
+                    }
+                }
+            }
+        },
         "title": {
             "color": "--colors.dark_purple",
             "font_size": "--font_sizes.title",

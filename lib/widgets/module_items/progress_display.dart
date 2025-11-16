@@ -68,7 +68,10 @@ class ProgressDisplay extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              Text('${(progress * 100).toStringAsFixed(2)}%', style: TextStyle(color: progTextColor, fontSize: progTextFontSize, fontWeight: progTextFontWeight)),
+              Builder(builder: (ctx) {
+                final base = Theme.of(ctx).textTheme.titleLarge ?? DefaultTextStyle.of(ctx).style;
+                return Text('${(progress * 100).toStringAsFixed(2)}%', style: base.copyWith(color: progTextColor, fontSize: progTextFontSize, fontWeight: progTextFontWeight));
+              }),
             ],
           ),
         ),
