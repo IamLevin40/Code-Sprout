@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import '../../models/styles_schema.dart';
 import '../../models/course_data.dart';
 
-/// A data-driven widget that renders lecture-style level content.
-/// It expects a [LectureContent] object (from the level schema) and
-/// renders each section in ascending order based on the numeric prefix.
 class LectureContentWidget extends StatelessWidget {
   final LectureContent lectureContent;
   final VoidCallback onProceed;
@@ -19,26 +16,49 @@ class LectureContentWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final styles = AppStyles();
 
-    // Reuse module title/subtitle tokens where appropriate for consistent styling
-    final titleColor = styles.getStyles('module_pages.title.color') as Color;
-    final titleFontSize = styles.getStyles('module_pages.title.font_size') as double;
-    final titleFontWeight = styles.getStyles('module_pages.title.font_weight') as FontWeight;
+    final lectureTitleColor = styles.getStyles('module_pages.level_contents.lecture_mode.title.color') as Color;
+    final lectureTitleFontSize = styles.getStyles('module_pages.level_contents.lecture_mode.title.font_size') as double;
+    final lectureTitleFontWeight = styles.getStyles('module_pages.level_contents.lecture_mode.title.font_weight') as FontWeight;
 
-    final plainColor = styles.getStyles('module_pages.subtitle.color') as Color;
-    final plainFontSize = styles.getStyles('module_pages.subtitle.font_size') as double;
+    final plainColor = styles.getStyles('module_pages.level_contents.lecture_mode.plain.color') as Color;
+    final plainFontSize = styles.getStyles('module_pages.level_contents.lecture_mode.plain.font_size') as double;
+    final plainFontWeight = styles.getStyles('module_pages.level_contents.lecture_mode.plain.font_weight') as FontWeight;
 
-    // Code block layout constants (left accent bar width)
-    const double barWidth = 8.0;
+    final inputBackground = styles.getStyles('module_pages.level_contents.lecture_mode.input_code.background_color') as Color;
+    final inputBorderRadius = styles.getStyles('module_pages.level_contents.lecture_mode.input_code.border_radius') as double;
+    final inputTextColor = styles.getStyles('module_pages.level_contents.lecture_mode.input_code.text.color') as Color;
+    final inputTextFontSize = styles.getStyles('module_pages.level_contents.lecture_mode.input_code.text.font_size') as double;
+    final inputTextFontWeight = styles.getStyles('module_pages.level_contents.lecture_mode.input_code.text.font_weight') as FontWeight;
+    final inputAccentWidth = styles.getStyles('module_pages.level_contents.lecture_mode.input_code.accent_bar.width') as double;
+    final inputAccentBorderRadius = styles.getStyles('module_pages.level_contents.lecture_mode.input_code.accent_bar.border_radius') as double;
+    final inputAccentValidColor = styles.getStyles('module_pages.level_contents.lecture_mode.input_code.accent_bar.valid_color') as Color;
+    final inputAccentErrorColor = styles.getStyles('module_pages.level_contents.lecture_mode.input_code.accent_bar.error_color') as Color;
+
+    final outputBackground = styles.getStyles('module_pages.level_contents.lecture_mode.output_code.background_color') as Color;
+    final outputBorderRadius = styles.getStyles('module_pages.level_contents.lecture_mode.output_code.border_radius') as double;
+    final outputTextColor = styles.getStyles('module_pages.level_contents.lecture_mode.output_code.text.color') as Color;
+    final outputTextFontSize = styles.getStyles('module_pages.level_contents.lecture_mode.output_code.text.font_size') as double;
+    final outputTextFontWeight = styles.getStyles('module_pages.level_contents.lecture_mode.output_code.text.font_weight') as FontWeight;
+
+    final proceedWidth = styles.getStyles('module_pages.level_contents.lecture_mode.proceed_button.width') as double;
+    final proceedHeight = styles.getStyles('module_pages.level_contents.lecture_mode.proceed_button.height') as double;
+    final proceedBackground = styles.getStyles('module_pages.level_contents.lecture_mode.proceed_button.background_color') as Color;
+    final proceedBorderWidth = styles.getStyles('module_pages.level_contents.lecture_mode.proceed_button.border_width') as double;
+    final proceedBorderRadius = styles.getStyles('module_pages.level_contents.lecture_mode.proceed_button.border_radius') as double;
+    final proceedStroke = styles.getStyles('module_pages.level_contents.lecture_mode.proceed_button.stroke_color') as LinearGradient;
+    final proceedTextColor = styles.getStyles('module_pages.level_contents.lecture_mode.proceed_button.text.color') as Color;
+    final proceedTextFontSize = styles.getStyles('module_pages.level_contents.lecture_mode.proceed_button.text.font_size') as double;
+    final proceedTextFontWeight = styles.getStyles('module_pages.level_contents.lecture_mode.proceed_button.text.font_weight') as FontWeight;
 
     Widget buildTitleSection(List<String> lines) {
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        padding: const EdgeInsets.only(bottom: 8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: lines
               .map((l) => Text(
                     l,
-                    style: TextStyle(color: titleColor, fontSize: titleFontSize, fontWeight: titleFontWeight),
+                    style: TextStyle(color: lectureTitleColor, fontSize: lectureTitleFontSize, fontWeight: lectureTitleFontWeight),
                   ))
               .toList(),
         ),
@@ -47,49 +67,62 @@ class LectureContentWidget extends StatelessWidget {
 
     Widget buildPlainSection(List<String> lines) {
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6.0),
+        padding: const EdgeInsets.only(bottom: 8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: lines
               .map((l) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2.0),
-                    child: Text(l, style: TextStyle(color: plainColor, fontSize: plainFontSize)),
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Text(l, style: TextStyle(color: plainColor, fontSize: plainFontSize, fontWeight: plainFontWeight)),
                   ))
               .toList(),
         ),
       );
     }
 
-    Widget buildCodeBlock(List<String> lines, {required Color accent, required Color background, required Color textColor}) {
+    Widget buildCodeBlock(
+      List<String> lines, {
+      required Color background,
+      required double borderRadius,
+      double? accentWidth,
+      double? accentBorderRadius,
+      Color? accentColor,
+      required Color textColor,
+      required double textFontSize,
+      required FontWeight textFontWeight,
+    }) {
       return Container(
-        margin: const EdgeInsets.symmetric(vertical: 8.0),
+        margin: const EdgeInsets.only(bottom: 16.0),
         decoration: BoxDecoration(
           color: background,
-          borderRadius: BorderRadius.circular(8.0),
+          borderRadius: BorderRadius.circular(borderRadius),
         ),
         child: IntrinsicHeight(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
-                width: barWidth,
-                height: double.infinity,
-                decoration: BoxDecoration(
-                  color: accent,
-                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(8), bottomLeft: Radius.circular(8)),
+              if (accentColor != null && accentWidth != null)
+                Container(
+                  width: accentWidth,
+                  height: double.infinity,
+                  decoration: BoxDecoration(
+                    color: accentColor,
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(accentBorderRadius ?? borderRadius),
+                    ),
+                  ),
                 ),
-              ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 12.0),
+                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: lines
                         .map((l) => Padding(
-                              padding: const EdgeInsets.only(bottom: 6.0),
+                              padding: const EdgeInsets.only(bottom: 2.0),
                               child: Text(
                                 l,
-                                style: TextStyle(color: textColor, fontSize: 13),
+                                style: TextStyle(color: textColor, fontSize: textFontSize, fontWeight: textFontWeight),
                               ),
                             ))
                         .toList(),
@@ -120,11 +153,39 @@ class LectureContentWidget extends StatelessWidget {
               case 'plain':
                 return buildPlainSection(lines);
               case 'input_valid_code':
-                return buildCodeBlock(lines, accent: Colors.green.shade600, background: Colors.green.shade50, textColor: Colors.black87);
+                return buildCodeBlock(
+                  lines,
+                  background: inputBackground,
+                  borderRadius: inputBorderRadius,
+                  accentWidth: inputAccentWidth,
+                  accentBorderRadius: inputAccentBorderRadius,
+                  accentColor: inputAccentValidColor,
+                  textColor: inputTextColor,
+                  textFontSize: inputTextFontSize,
+                  textFontWeight: inputTextFontWeight,
+                );
               case 'input_error_code':
-                return buildCodeBlock(lines, accent: Colors.red.shade600, background: Colors.red.shade50, textColor: Colors.black87);
+                return buildCodeBlock(
+                  lines,
+                  background: inputBackground,
+                  borderRadius: inputBorderRadius,
+                  accentWidth: inputAccentWidth,
+                  accentBorderRadius: inputAccentBorderRadius,
+                  accentColor: inputAccentErrorColor,
+                  textColor: inputTextColor,
+                  textFontSize: inputTextFontSize,
+                  textFontWeight: inputTextFontWeight,
+                );
               case 'output_code':
-                return buildCodeBlock(lines, accent: Colors.transparent, background: Colors.grey.shade800, textColor: Colors.white);
+                return buildCodeBlock(
+                  lines,
+                  background: outputBackground,
+                  borderRadius: outputBorderRadius,
+                  accentColor: null,
+                  textColor: outputTextColor,
+                  textFontSize: outputTextFontSize,
+                  textFontWeight: outputTextFontWeight,
+                );
               default:
                 return buildPlainSection(lines);
             }
@@ -134,13 +195,37 @@ class LectureContentWidget extends StatelessWidget {
         const SizedBox(height: 16),
 
         // Proceed button
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: onProceed,
-            child: const Text('Proceed'),
+        Center(
+          child: Container(
+            width: proceedWidth,
+            height: proceedHeight,
+            decoration: BoxDecoration(
+              gradient: proceedStroke,
+              borderRadius: BorderRadius.circular(proceedBorderRadius),
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(proceedBorderWidth),
+              child: Material(
+                color: proceedBackground,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(proceedBorderRadius - proceedBorderWidth),
+                ),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(proceedBorderRadius - proceedBorderWidth),
+                  onTap: onProceed,
+                  child: Center(
+                    child: Text(
+                      'Proceed',
+                      style: TextStyle(color: proceedTextColor, fontSize: proceedTextFontSize, fontWeight: proceedTextFontWeight),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
+
+        const SizedBox(height: 16),
       ],
     );
   }

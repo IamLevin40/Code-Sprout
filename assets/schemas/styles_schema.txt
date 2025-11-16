@@ -1625,6 +1625,64 @@
                     "font_size": "--font_sizes.regular",
                     "font_weight": "--font_weights.regular"
                 }
+            },
+            "lecture_mode": {
+                "title": {
+                    "color": "--colors.dark_gray",
+                    "font_size": "--font_sizes.regular",
+                    "font_weight": "--font_weights.bold"
+                },
+                "plain": {
+                    "color": "--colors.dark_gray",
+                    "font_size": "--font_sizes.regular",
+                    "font_weight": "--font_weights.regular"
+                },
+                "input_code": {
+                    "background_color": "--colors.ivory_white",
+                    "border_radius": 4,
+                    "text": {
+                        "color": "--colors.dark_purple",
+                        "font_size": "--font_sizes.regular",
+                        "font_weight": "--font_weights.bold"
+                    },
+                    "accent_bar": {
+                        "width": 8,
+                        "border_radius": 4,
+                        "valid_color": "--colors.dark_green",
+                        "error_color": "--colors.pastel_red"
+                    }
+                },
+                "output_code": {
+                    "background_color": "--colors.dark_purple",
+                    "border_radius": 4,
+                    "text": {
+                        "color": "--colors.white",
+                        "font_size": "--font_sizes.regular",
+                        "font_weight": "--font_weights.regular"
+                    }
+                },
+                "proceed_button": {
+                    "width": 128,
+                    "height": 32,
+                    "background_color": "--colors.ivory_white",
+                    "border_width": 2,
+                    "border_radius": 8,
+                    "stroke_color": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "--colors.dark_green"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "#204921"
+                        }
+                    },
+                    "text": {
+                        "color": "--colors.dark_gray",
+                        "font_size": "--font_sizes.regular",
+                        "font_weight": "--font_weights.bold"
+                    }
+                }
             }
         },
         "title": {
