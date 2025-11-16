@@ -448,7 +448,7 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
                             }),
                           ),
 
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 24),
 
                           // Level content area
                           Builder(builder: (_) {

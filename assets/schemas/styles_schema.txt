@@ -1613,6 +1613,18 @@
                 "locked_bar": {
                     "background_color": "--colors.ivory_white"
                 }
+            },
+            "mode_labels": {
+                "title": {
+                    "color": "--colors.dark_purple",
+                    "font_size": "--font_sizes.title",
+                    "font_weight": "--font_weights.bold"
+                },
+                "description": {
+                    "color": "--colors.gray",
+                    "font_size": "--font_sizes.regular",
+                    "font_weight": "--font_weights.regular"
+                }
             }
         },
         "title": {

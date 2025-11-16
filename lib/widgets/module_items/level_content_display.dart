@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/course_data.dart';
 import '../../models/course_data_schema.dart';
+import '../../models/styles_schema.dart';
 import '../level_contents/lecture_content.dart';
 import '../level_contents/multiple_choice_content.dart';
 import '../level_contents/true_or_false_content.dart';
@@ -9,7 +10,7 @@ import '../level_contents/assemble_the_code_content.dart';
 import '../level_popups/correct_popup.dart';
 import '../level_popups/incorrect_popup.dart';
 
-/// Extracted level content area used by `ModuleLevelsPage`.
+/// Level content area used by `ModuleLevelsPage`.
 class LevelContentDisplay extends StatelessWidget {
   final Level? level;
   final int currentLevelIndex;
@@ -26,28 +27,37 @@ class LevelContentDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final styles = AppStyles();
+
     final mode = level?.mode ?? '';
     final modeInfo = CourseDataSchema().getModeDisplay(mode);
     final modeTitle = modeInfo['title'] ?? mode;
     final modeDesc = modeInfo['description'] ?? '';
+
+    final modeTitleColor = styles.getStyles('module_pages.level_contents.mode_labels.title.color') as Color;
+    final modeTitleFontSize = styles.getStyles('module_pages.level_contents.mode_labels.title.font_size') as double;
+    final modeTitleFontWeight = styles.getStyles('module_pages.level_contents.mode_labels.title.font_weight') as FontWeight;
+    final modeDescColor = styles.getStyles('module_pages.level_contents.mode_labels.description.color') as Color;
+    final modeDescFontSize = styles.getStyles('module_pages.level_contents.mode_labels.description.font_size') as double;
+    final modeDescFontWeight = styles.getStyles('module_pages.level_contents.mode_labels.description.font_weight') as FontWeight;
 
     final bool isLastLevel = currentLevelIndex >= totalLevels;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        // Mode title and description
         Text(
           modeTitle,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: modeTitleFontSize, fontWeight: modeTitleFontWeight, color: modeTitleColor),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 8),
         Text(
           modeDesc,
-          style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+          style: TextStyle(fontSize: modeDescFontSize, fontWeight: modeDescFontWeight, color: modeDescColor),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
 
         // Level-specific widget area
         Builder(builder: (_) {
