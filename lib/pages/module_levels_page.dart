@@ -107,16 +107,21 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
       completedModule: widget.moduleNumber,
     );
 
-    try {
-      final merged = {'uid': ud.uid, ...updated};
-      final newUser = UserData.fromJson(merged);
-
-      await LocalStorageService.instance.saveUserData(newUser);
-
       try {
-        await newUser.save();
+        final merged = {'uid': ud.uid, ...updated};
+        final newUser = UserData.fromJson(merged);
+
+        try {
+          LocalStorageService.instance.userDataNotifier.value = newUser;
+        } catch (_) {}
+
+        LocalStorageService.instance.saveUserData(newUser).catchError((_) {});
+        Future(() async {
+          try {
+            await newUser.save();
+          } catch (_) {}
+        });
       } catch (_) {}
-    } catch (_) {}
 
     if (mounted) {
       try {
