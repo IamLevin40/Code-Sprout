@@ -1588,6 +1588,33 @@
                 }
             }
         },
+        "level_contents": {
+            "level_bars": {
+                "height": 16,
+                "gap": 4,
+                "border_radius": 8,
+                "current_bar": {
+                    "background_color": "--colors.dirty_white",
+                    "border_width": 2,
+                    "stroke_color": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "#424DA4"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "--colors.dark_purple"
+                        }
+                    }
+                },
+                "finished_bar": {
+                    "background_color": "--colors.light_green"
+                },
+                "locked_bar": {
+                    "background_color": "--colors.ivory_white"
+                }
+            }
+        },
         "title": {
             "color": "--colors.dark_purple",
             "font_size": "--font_sizes.title",

@@ -128,8 +128,6 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
           difficulty: widget.difficulty.toLowerCase(),
         );
 
-        // Defer showing the popup to the next frame so we don't use BuildContext
-        // directly across async gaps. Schedule using addPostFrameCallback.
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           if (!mounted) return;
           await ModuleAccomplishedPopup.show(context, progressPercent: progress);
@@ -192,7 +190,6 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
     final leafHighlightPath = styles.getStyles('module_pages.levels_page.leaves.icons.highlight') as String;
     final leafUnhighlightPath = styles.getStyles('module_pages.levels_page.leaves.icons.unhighlight') as String;
 
-    // parse highlight shadow for leaves (module_pages.levels_page.leaves.highlight_shadow)
     Color? leafShadowColor;
     double? leafShadowOpacity;
     double? leafShadowBlur;
@@ -206,6 +203,15 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
       leafShadowOpacity = null;
       leafShadowBlur = null;
     }
+
+    final levelBarHeight = styles.getStyles('module_pages.level_contents.level_bars.height') as double;
+    final levelBarGap = styles.getStyles('module_pages.level_contents.level_bars.gap') as double;
+    final levelBarBorderRadius = styles.getStyles('module_pages.level_contents.level_bars.border_radius') as double;
+    final currentBarBackground = styles.getStyles('module_pages.level_contents.level_bars.current_bar.background_color') as Color;
+    final currentBarBorderWidth = styles.getStyles('module_pages.level_contents.level_bars.current_bar.border_width') as double;
+    final currentBarStroke = styles.getStyles('module_pages.level_contents.level_bars.current_bar.stroke_color') as LinearGradient;
+    final finishedBarBackground = styles.getStyles('module_pages.level_contents.level_bars.finished_bar.background_color') as Color;
+    final lockedBarBackground = styles.getStyles('module_pages.level_contents.level_bars.locked_bar.background_color') as Color;
 
     return Scaffold(
       body: SafeArea(
@@ -402,23 +408,44 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
                         children: [
                           // Level bars row
                           Row(
-                            children: levelKeys.map((lk) {
+                            children: List.generate(levelKeys.length, (i) {
+                              final lk = levelKeys[i];
                               final idx = int.tryParse(lk.split('_').last) ?? 0;
                               final bool finished = idx < _currentLevelIndex;
                               final bool current = idx == _currentLevelIndex;
+                              final bool isFirst = i == 0;
+                              final bool isLast = i == levelKeys.length - 1;
 
                               return Expanded(
                                 child: Container(
-                                  margin: const EdgeInsets.symmetric(horizontal: 6.0),
-                                  height: 10,
-                                  decoration: BoxDecoration(
-                                    color: finished ? Colors.green.shade400 : (current ? Colors.blue.shade400 : Colors.grey.shade300),
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(color: current ? Colors.blue.shade700 : Colors.transparent, width: current ? 2 : 0),
-                                  ),
+                                  margin: EdgeInsets.only(left: isFirst ? 0.0 : levelBarGap, right: isLast ? 0.0 : levelBarGap),
+                                  child: current
+                                      ? Container(
+                                          height: levelBarHeight,
+                                          decoration: BoxDecoration(
+                                            gradient: currentBarStroke,
+                                            borderRadius: BorderRadius.circular(levelBarBorderRadius),
+                                          ),
+                                          child: Padding(
+                                            padding: EdgeInsets.all(currentBarBorderWidth),
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: currentBarBackground,
+                                                borderRadius: BorderRadius.circular((levelBarBorderRadius - currentBarBorderWidth).clamp(0.0, double.infinity)),
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      : Container(
+                                          height: levelBarHeight,
+                                          decoration: BoxDecoration(
+                                            color: finished ? finishedBarBackground : lockedBarBackground,
+                                            borderRadius: BorderRadius.circular(levelBarBorderRadius),
+                                          ),
+                                        ),
                                 ),
                               );
-                            }).toList(),
+                            }),
                           ),
 
                           const SizedBox(height: 16),
