@@ -1,18 +1,13 @@
 import 'package:flutter/material.dart';
+import 'dart:ui' as ui show ImageFilter;
 import '../models/styles_schema.dart';
 import '../models/course_data_schema.dart';
 import '../models/course_data.dart';
 import '../services/local_storage_service.dart';
 import '../models/user_data.dart';
-import '../widgets/level_contents/lecture_content.dart';
-import '../widgets/level_contents/multiple_choice_content.dart';
-import '../widgets/level_contents/true_or_false_content.dart';
-import '../widgets/level_contents/fill_in_the_code_content.dart';
-import '../widgets/level_contents/assemble_the_code_content.dart';
 import '../widgets/level_popups/module_accomplished_popup.dart';
-import '../widgets/level_popups/correct_popup.dart';
-import '../widgets/level_popups/incorrect_popup.dart';
 import '../widgets/level_popups/back_confirmation_popup.dart';
+import '../widgets/module_items/level_content_display.dart';
 
 class ModuleLevelsPage extends StatefulWidget {
   final String languageId;
@@ -112,16 +107,21 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
       completedModule: widget.moduleNumber,
     );
 
-    try {
-      final merged = {'uid': ud.uid, ...updated};
-      final newUser = UserData.fromJson(merged);
-
-      await LocalStorageService.instance.saveUserData(newUser);
-
       try {
-        await newUser.save();
+        final merged = {'uid': ud.uid, ...updated};
+        final newUser = UserData.fromJson(merged);
+
+        try {
+          LocalStorageService.instance.userDataNotifier.value = newUser;
+        } catch (_) {}
+
+        LocalStorageService.instance.saveUserData(newUser).catchError((_) {});
+        Future(() async {
+          try {
+            await newUser.save();
+          } catch (_) {}
+        });
       } catch (_) {}
-    } catch (_) {}
 
     if (mounted) {
       try {
@@ -133,8 +133,6 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
           difficulty: widget.difficulty.toLowerCase(),
         );
 
-        // Defer showing the popup to the next frame so we don't use BuildContext
-        // directly across async gaps. Schedule using addPostFrameCallback.
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           if (!mounted) return;
           await ModuleAccomplishedPopup.show(context, progressPercent: progress);
@@ -152,27 +150,73 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
   Widget build(BuildContext context) {
     final styles = AppStyles();
 
-    final backIconColor = styles.getStyles('module_pages.back.color') as Color;
-    final backIconSize = styles.getStyles('module_pages.back.size') as double;
+    final backIconImage = styles.getStyles('module_pages.back.icon.image') as String;
+    final backIconWidth = styles.getStyles('module_pages.back.icon.width') as double;
+    final backIconHeight = styles.getStyles('module_pages.back.icon.height') as double;
+    final backBgColor = styles.getStyles('module_pages.back.background_color') as Color;
+    final backBorderRadius = styles.getStyles('module_pages.back.border_radius') as double;
+    final backWidth = styles.getStyles('module_pages.back.width') as double;
+    final backHeight = styles.getStyles('module_pages.back.height') as double;
 
-    final titleColor = styles.getStyles('module_pages.title.color') as Color;
-    final titleFontSize = styles.getStyles('module_pages.title.font_size') as double;
-    final titleFontWeight = styles.getStyles('module_pages.title.font_weight') as FontWeight;
+    final titleColor = styles.getStyles('module_pages.levels_page.title.color') as Color;
+    final titleFontSize = styles.getStyles('module_pages.levels_page.title.font_size') as double;
+    final titleFontWeight = styles.getStyles('module_pages.levels_page.title.font_weight') as FontWeight;
 
-    final subtitleColor = styles.getStyles('module_pages.subtitle.color') as Color;
-    final subtitleFontSize = styles.getStyles('module_pages.subtitle.font_size') as double;
+    List<Shadow> titleShadows = [];
+    try {
+      final Color baseColor = styles.getStyles('module_pages.levels_page.title.shadow.color') as Color;
+      final sopRaw = styles.getStyles('module_pages.levels_page.title.shadow.opacity');
+      final double sop = (sopRaw is num) ? sopRaw.toDouble() / 100.0 : (sopRaw as double);
+      final sblur = styles.getStyles('module_pages.levels_page.title.shadow.blur_radius') as double;
+      titleShadows = [
+        Shadow(
+          color: baseColor.withAlpha((sop * 255).round()),
+          blurRadius: sblur,
+        )
+      ];
+    } catch (e) {
+      titleShadows = [];
+    }
 
-    final iconWidth = styles.getStyles('module_pages.icon.width') as double;
-    final iconHeight = styles.getStyles('module_pages.icon.height') as double;
-    final iconBorderRadius = styles.getStyles('module_pages.icon.border_radius') as double;
-    final iconPadding = styles.getStyles('module_pages.icon.padding') as double;
-    final iconBg = styles.getStyles('module_pages.icon.background_color') as LinearGradient;
+    final subtitleColor = styles.getStyles('module_pages.levels_page.subtitle.color') as Color;
+    final subtitleFontSize = styles.getStyles('module_pages.levels_page.subtitle.font_size') as double;
+    final subtitleFontWeight = styles.getStyles('module_pages.levels_page.subtitle.font_weight') as FontWeight;
+
     final iconImage = styles.getStyles('course_cards.style_coding.${widget.languageId}.icon') as String;
+    final langDisplayWidth = styles.getStyles('module_pages.levels_page.language_display.width') as double;
+    final langDisplayHeight = styles.getStyles('module_pages.levels_page.language_display.height') as double;
+    final langDisplayBorderRadius = styles.getStyles('module_pages.levels_page.language_display.border_radius') as double;
+    final langDisplayBorderWidth = styles.getStyles('module_pages.levels_page.language_display.border_width') as double;
+    final langDisplayBgGradient = styles.getStyles('module_pages.levels_page.language_display.background_color') as LinearGradient;
+    final langDisplayStrokeGradient = styles.getStyles('course_cards.style_coding.${widget.languageId}.stroke_color') as LinearGradient;
 
-    final leafSize = styles.getStyles('module_pages.leaves.width') as double;
-    final leafPadding = styles.getStyles('module_pages.leaves.padding') as double;
-    final leafHighlightPath = styles.getStyles('module_pages.leaves.icons.highlight') as String;
-    final leafUnhighlightPath = styles.getStyles('module_pages.leaves.icons.unhighlight') as String;
+    final leafSize = styles.getStyles('module_pages.levels_page.leaves.width') as double;
+    final leafPadding = styles.getStyles('module_pages.levels_page.leaves.padding') as double;
+    final leafHighlightPath = styles.getStyles('module_pages.levels_page.leaves.icons.highlight') as String;
+    final leafUnhighlightPath = styles.getStyles('module_pages.levels_page.leaves.icons.unhighlight') as String;
+
+    Color? leafShadowColor;
+    double? leafShadowOpacity;
+    double? leafShadowBlur;
+    try {
+      leafShadowColor = styles.getStyles('module_pages.levels_page.leaves.highlight_shadow.color') as Color;
+      final lopRaw = styles.getStyles('module_pages.levels_page.leaves.highlight_shadow.opacity');
+      leafShadowOpacity = (lopRaw is num) ? lopRaw.toDouble() / 100.0 : (lopRaw as double);
+      leafShadowBlur = styles.getStyles('module_pages.levels_page.leaves.highlight_shadow.blur_radius') as double;
+    } catch (e) {
+      leafShadowColor = null;
+      leafShadowOpacity = null;
+      leafShadowBlur = null;
+    }
+
+    final levelBarHeight = styles.getStyles('module_pages.level_contents.level_bars.height') as double;
+    final levelBarGap = styles.getStyles('module_pages.level_contents.level_bars.gap') as double;
+    final levelBarBorderRadius = styles.getStyles('module_pages.level_contents.level_bars.border_radius') as double;
+    final currentBarBackground = styles.getStyles('module_pages.level_contents.level_bars.current_bar.background_color') as Color;
+    final currentBarBorderWidth = styles.getStyles('module_pages.level_contents.level_bars.current_bar.border_width') as double;
+    final currentBarStroke = styles.getStyles('module_pages.level_contents.level_bars.current_bar.stroke_color') as LinearGradient;
+    final finishedBarBackground = styles.getStyles('module_pages.level_contents.level_bars.finished_bar.background_color') as Color;
+    final lockedBarBackground = styles.getStyles('module_pages.level_contents.level_bars.locked_bar.background_color') as Color;
 
     return Scaffold(
       body: SafeArea(
@@ -214,30 +258,48 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
                             flex: 1,
                             child: Align(
                               alignment: Alignment.topLeft,
-                              child: IconButton(
-                                onPressed: () async {
+                              child: GestureDetector(
+                                onTap: () async {
                                   final navigator = Navigator.of(context);
                                   final leave = await BackConfirmationPopup.show(context);
                                   if (!mounted) return;
                                   if (leave) navigator.pop();
                                 },
-                                icon: const Icon(Icons.arrow_back),
-                                color: backIconColor,
-                                iconSize: backIconSize,
-                                tooltip: 'Back',
+                                child: Container(
+                                  width: backWidth,
+                                  height: backHeight,
+                                  decoration: BoxDecoration(
+                                    color: backBgColor,
+                                    borderRadius: BorderRadius.circular(backBorderRadius),
+                                  ),
+                                  child: Image.asset(backIconImage, width: backIconWidth, height: backIconHeight),
+                                ),
                               ),
                             ),
                           ),
 
-                          // center column: title and chapter/module label (centered)
+                          // center column: title and chapter/module label
                           Expanded(
                             flex: 3,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 const SizedBox(height: 4),
-                                Text(modTitle, style: TextStyle(fontSize: titleFontSize, fontWeight: titleFontWeight, color: titleColor), textAlign: TextAlign.center),
-                                Text('Chapter ${widget.chapterNumber}, Module ${widget.moduleNumber}', style: TextStyle(fontSize: subtitleFontSize, color: subtitleColor), textAlign: TextAlign.center),
+                                Text(
+                                  modTitle,
+                                  style: TextStyle(
+                                    fontSize: titleFontSize,
+                                    fontWeight: titleFontWeight,
+                                    color: titleColor,
+                                    shadows: titleShadows,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                Text(
+                                  'Chapter ${widget.chapterNumber}, Module ${widget.moduleNumber}',
+                                  style: TextStyle(fontSize: subtitleFontSize, fontWeight: subtitleFontWeight, color: subtitleColor),
+                                  textAlign: TextAlign.center,
+                                ),
                               ],
                             ),
                           ),
@@ -248,30 +310,64 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                // Icon container
+                                // Language display
                                 Container(
-                                  width: iconWidth,
-                                  height: iconHeight,
+                                  width: langDisplayWidth,
+                                  height: langDisplayHeight,
                                   decoration: BoxDecoration(
-                                    gradient: iconBg,
-                                    borderRadius: BorderRadius.circular(iconBorderRadius),
+                                    gradient: langDisplayStrokeGradient,
+                                    borderRadius: BorderRadius.circular(langDisplayBorderRadius),
                                   ),
-                                  padding: EdgeInsets.all(iconPadding),
-                                  child: Image.asset(iconImage, fit: BoxFit.contain),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(langDisplayBorderWidth),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        gradient: langDisplayBgGradient,
+                                        borderRadius: BorderRadius.circular((langDisplayBorderRadius - langDisplayBorderWidth).clamp(0.0, double.infinity)),
+                                      ),
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Image.asset(iconImage, width: langDisplayWidth, height: langDisplayHeight),
+                                    ),
+                                  ),
                                 ),
                                 const SizedBox(height: 12),
 
-                                // Leaves positioned centered under the icon and overlapping its bottom
+                                // Difficulty leaves
                                 Transform.translate(
                                   offset: Offset(0, -leafSize / 2),
                                   child: SizedBox(
-                                    width: iconWidth,
+                                    width: langDisplayWidth + langDisplayBorderWidth,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
                                         for (int i = 0; i < 3; i++) ...[
-                                          SizedBox(width: leafSize, height: leafSize, child: Image.asset(i < highlightedLeaves ? leafHighlightPath : leafUnhighlightPath)),
+                                          SizedBox(
+                                            width: leafSize,
+                                            height: leafSize,
+                                            child: Stack(
+                                              alignment: Alignment.center,
+                                              children: [
+                                                if (i < highlightedLeaves && leafShadowColor != null && leafShadowOpacity != null && leafShadowBlur != null)
+                                                  ImageFiltered(
+                                                    imageFilter: ui.ImageFilter.blur(sigmaX: leafShadowBlur, sigmaY: leafShadowBlur),
+                                                    child: Image.asset(
+                                                      leafHighlightPath,
+                                                      width: leafSize,
+                                                      height: leafSize,
+                                                      color: leafShadowColor.withAlpha((leafShadowOpacity * 255).round()),
+                                                      colorBlendMode: BlendMode.srcIn,
+                                                    ),
+                                                  ),
+
+                                                Image.asset(
+                                                  i < highlightedLeaves ? leafHighlightPath : leafUnhighlightPath,
+                                                  width: leafSize,
+                                                  height: leafSize,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                           if (i < 2) SizedBox(width: leafPadding),
                                         ],
                                       ],
@@ -317,176 +413,58 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
                         children: [
                           // Level bars row
                           Row(
-                            children: levelKeys.map((lk) {
+                            children: List.generate(levelKeys.length, (i) {
+                              final lk = levelKeys[i];
                               final idx = int.tryParse(lk.split('_').last) ?? 0;
                               final bool finished = idx < _currentLevelIndex;
                               final bool current = idx == _currentLevelIndex;
+                              final bool isFirst = i == 0;
+                              final bool isLast = i == levelKeys.length - 1;
 
                               return Expanded(
                                 child: Container(
-                                  margin: const EdgeInsets.symmetric(horizontal: 6.0),
-                                  height: 10,
-                                  decoration: BoxDecoration(
-                                    color: finished ? Colors.green.shade400 : (current ? Colors.blue.shade400 : Colors.grey.shade300),
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(color: current ? Colors.blue.shade700 : Colors.transparent, width: current ? 2 : 0),
-                                  ),
+                                  margin: EdgeInsets.only(left: isFirst ? 0.0 : levelBarGap, right: isLast ? 0.0 : levelBarGap),
+                                  child: current
+                                      ? Container(
+                                          height: levelBarHeight,
+                                          decoration: BoxDecoration(
+                                            gradient: currentBarStroke,
+                                            borderRadius: BorderRadius.circular(levelBarBorderRadius),
+                                          ),
+                                          child: Padding(
+                                            padding: EdgeInsets.all(currentBarBorderWidth),
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: currentBarBackground,
+                                                borderRadius: BorderRadius.circular((levelBarBorderRadius - currentBarBorderWidth).clamp(0.0, double.infinity)),
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      : Container(
+                                          height: levelBarHeight,
+                                          decoration: BoxDecoration(
+                                            color: finished ? finishedBarBackground : lockedBarBackground,
+                                            borderRadius: BorderRadius.circular(levelBarBorderRadius),
+                                          ),
+                                        ),
                                 ),
                               );
-                            }).toList(),
+                            }),
                           ),
 
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 24),
 
                           // Level content area
                           Builder(builder: (_) {
                             final currentKey = 'level_$_currentLevelIndex';
                             final Level? lvl = levelsMap[currentKey];
-                            final mode = lvl?.mode ?? '';
-                            final modeInfo = CourseDataSchema().getModeDisplay(mode);
-                            final modeTitle = modeInfo['title'] ?? mode;
-                            final modeDesc = modeInfo['description'] ?? '';
 
-                            // Mode title and description
-                            final bool isLastLevel = _currentLevelIndex >= totalLevels;
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                  modeTitle,
-                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  modeDesc,
-                                  style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: 12),
-
-                                // Level-specific widget area
-                                Builder(builder: (_) {
-                                  // Lecture mode
-                                  if (mode.toLowerCase() == 'lecture') {
-                                    final lec = lvl?.getLectureContent();
-                                    if (lec != null) {
-                                      return Align(alignment: Alignment.centerLeft, child: LectureContentWidget(lectureContent: lec, onProceed: () => _handleNext(totalLevels)));
-                                    }
-                                  }
-
-                                  // Multiple choice mode
-                                  if (mode.toLowerCase() == 'multiple_choice') {
-                                    final mc = lvl?.getMultipleChoiceContent();
-                                    if (mc != null) {
-                                      return MultipleChoiceContentWidget(
-                                        content: mc,
-                                        onAnswer: (correct) async {
-                                          if (correct) {
-                                            if (!isLastLevel) {
-                                              await CorrectLevelPopup.show(context);
-                                              await _handleNext(totalLevels);
-                                            } else {
-                                              await _handleNext(totalLevels);
-                                            }
-                                          } else {
-                                            await IncorrectLevelPopup.show(context);
-                                          }
-                                        },
-                                      );
-                                    }
-                                  }
-
-                                  // True/False mode
-                                  if (mode.toLowerCase() == 'true_or_false') {
-                                    final tf = lvl?.getTrueOrFalseContent();
-                                    if (tf != null) {
-                                      return TrueOrFalseContentWidget(
-                                        content: tf,
-                                        onAnswer: (correct) async {
-                                          if (correct) {
-                                            if (!isLastLevel) {
-                                              await CorrectLevelPopup.show(context);
-                                              await _handleNext(totalLevels);
-                                            } else {
-                                              await _handleNext(totalLevels);
-                                            }
-                                          } else {
-                                            await IncorrectLevelPopup.show(context);
-                                          }
-                                        },
-                                      );
-                                    }
-                                  }
-
-                                  // Fill-in-the-code mode
-                                  if (mode.toLowerCase() == 'fill_in_the_code') {
-                                    final fill = lvl?.getFillInTheCodeContent();
-                                    if (fill != null) {
-                                      return FillInTheCodeContentWidget(
-                                        content: fill,
-                                        onAnswer: (correct) async {
-                                          if (correct) {
-                                            if (!isLastLevel) {
-                                              await CorrectLevelPopup.show(context);
-                                              await _handleNext(totalLevels);
-                                            } else {
-                                              await _handleNext(totalLevels);
-                                            }
-                                          } else {
-                                            await IncorrectLevelPopup.show(context);
-                                          }
-                                        },
-                                      );
-                                    }
-                                  }
-
-                                  // Assemble-the-code mode
-                                  if (mode.toLowerCase() == 'assemble_the_code') {
-                                    final ac = lvl?.getAssembleTheCodeContent();
-                                    if (ac != null) {
-                                      return AssembleTheCodeContentWidget(
-                                        content: ac,
-                                        onAnswer: (correct) async {
-                                          if (correct) {
-                                            if (!isLastLevel) {
-                                              await CorrectLevelPopup.show(context);
-                                              await _handleNext(totalLevels);
-                                            } else {
-                                              await _handleNext(totalLevels);
-                                            }
-                                          } else {
-                                            await IncorrectLevelPopup.show(context);
-                                          }
-                                        },
-                                      );
-                                    }
-                                  }
-
-                                  // Fallback content area for other modes (you can replace with actual widgets later)
-                                  return Column(
-                                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                                    children: [
-                                      // Placeholder box for mode content
-                                      Container(
-                                        padding: const EdgeInsets.all(12.0),
-                                        margin: const EdgeInsets.only(bottom: 12.0),
-                                        decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(8.0)),
-                                        child: Text('Content for mode "$mode" is not yet implemented.', style: TextStyle(color: Colors.grey.shade800)),
-                                      ),
-
-                                      // Fallback Next button for non-lecture modes
-                                      SizedBox(
-                                        width: double.infinity,
-                                        child: ElevatedButton(
-                                          onPressed: () async => await _handleNext(totalLevels),
-                                          child: const Text('Next'),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                }),
-                              ],
+                            return LevelContentDisplay(
+                              level: lvl,
+                              currentLevelIndex: _currentLevelIndex,
+                              totalLevels: totalLevels,
+                              onNext: () async => await _handleNext(totalLevels),
                             );
                           }),
                         ],

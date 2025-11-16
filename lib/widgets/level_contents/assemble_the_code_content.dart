@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/course_data.dart';
+import '../../models/styles_schema.dart';
 
 class AssembleTheCodeContentWidget extends StatefulWidget {
   final AssembleTheCodeContent content;
@@ -146,21 +147,62 @@ class _AssembleTheCodeContentWidgetState extends State<AssembleTheCodeContentWid
   @override
   Widget build(BuildContext context) {
     final question = widget.content.question;
+    final styles = AppStyles();
 
+    final questionColor = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.question_text.color') as Color;
+    final questionFontSize = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.question_text.font_size') as double;
+    final questionFontWeight = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.question_text.font_weight') as FontWeight;
+
+    final codeAreaBg = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.code_area.background_color') as Color;
+    final codeAreaBorderRadius = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.code_area.border_radius') as double;
+
+    final codeLineBg = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.code_line_area.background_color') as Color;
+    final codeLineBorderRadius = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.code_line_area.border_radius') as double;
+    final containerHeight = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.code_container.height') as double;
+
+    final choiceMinWidth = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.choice_container.min_width') as double;
+    final choiceMinHeight = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.choice_container.min_height') as double;
+    final choiceBorderRadius = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.choice_container.border_radius') as double;
+    final choiceBorderWidth = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.choice_container.border_width') as double;
+    final choiceBackground = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.choice_container.background_color') as LinearGradient;
+    final choiceStroke = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.choice_container.stroke_color') as LinearGradient;
+    final choiceTextColor = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.choice_container.text.color') as Color;
+    final choiceTextSize = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.choice_container.text.font_size') as double;
+    final choiceTextWeight = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.choice_container.text.font_weight') as FontWeight;
+
+    final submitWidth = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.submit_button.width') as double;
+    final submitHeight = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.submit_button.height') as double;
+    final submitBackground = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.submit_button.background_color') as Color;
+    final submitBorderWidth = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.submit_button.border_width') as double;
+    final submitBorderRadius = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.submit_button.border_radius') as double;
+    final submitStroke = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.submit_button.stroke_color') as LinearGradient;
+    final submitTextColor = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.submit_button.text.color') as Color;
+    final submitTextSize = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.submit_button.text.font_size') as double;
+    final submitTextWeight = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.submit_button.text.font_weight') as FontWeight;
+
+    // Build UI
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Question
         if (question.isNotEmpty) ...[
-          Text(question, style: const TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 12),
+          Container(
+            width: double.infinity,
+            alignment: Alignment.center,
+            child: Text(
+              question,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: questionColor, fontSize: questionFontSize, fontWeight: questionFontWeight),
+            ),
+          ),
+          const SizedBox(height: 16),
         ],
 
         // Code area
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(12.0),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8.0)),
+          decoration: BoxDecoration(color: codeAreaBg, borderRadius: BorderRadius.circular(codeAreaBorderRadius)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: List.generate(_lines.length, (lineIndex) {
@@ -172,7 +214,7 @@ class _AssembleTheCodeContentWidgetState extends State<AssembleTheCodeContentWid
               return Container(
                 margin: const EdgeInsets.symmetric(vertical: 6.0),
                 padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(8.0)),
+                decoration: BoxDecoration(color: codeLineBg, borderRadius: BorderRadius.circular(codeLineBorderRadius)),
                 child: Row(
                   children: [
                     SizedBox(width: indent * 16.0),
@@ -181,10 +223,8 @@ class _AssembleTheCodeContentWidgetState extends State<AssembleTheCodeContentWid
                         builder: (context, candidateData, rejectedData) {
                           return Container(
                             key: _lineRowKeys[lineIndex],
-                            constraints: const BoxConstraints(minHeight: 48),
-                            decoration: BoxDecoration(
-                              color: candidateData.isNotEmpty ? Colors.blue.shade50 : Colors.transparent,
-                            ),
+                            constraints: BoxConstraints(minHeight: containerHeight),
+                            decoration: const BoxDecoration(color: Colors.transparent),
                             child: SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
                               child: Row(
@@ -227,19 +267,42 @@ class _AssembleTheCodeContentWidgetState extends State<AssembleTheCodeContentWid
 
         const SizedBox(height: 12),
 
-        // Bank of choices (centered)
+        // Bank of choices
         Center(
           child: Wrap(
             alignment: WrapAlignment.center,
             spacing: 12,
             runSpacing: 12,
-            children: _bankChoices.map((c) => _buildBankDraggable(c)).toList(),
+            children: _bankChoices.map((c) => _buildBankDraggable(c, choiceMinWidth, choiceMinHeight, choiceBorderRadius, choiceBorderWidth, choiceBackground, choiceStroke, choiceTextColor, choiceTextSize, choiceTextWeight)).toList(),
+          ),
+        ),
+
+        const SizedBox(height: 32),
+
+        // Submit button
+        Center(
+          child: Container(
+            width: submitWidth,
+            height: submitHeight,
+            decoration: BoxDecoration(gradient: submitStroke, borderRadius: BorderRadius.circular(submitBorderRadius)),
+            child: Padding(
+              padding: EdgeInsets.all(submitBorderWidth),
+              child: Material(
+                color: submitBackground,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular((submitBorderRadius - submitBorderWidth).clamp(0, submitBorderRadius))),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular((submitBorderRadius - submitBorderWidth).clamp(0, submitBorderRadius)),
+                  onTap: _onSubmit,
+                  child: Center(
+                    child: Text('Submit', style: TextStyle(color: submitTextColor, fontSize: submitTextSize, fontWeight: submitTextWeight)),
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
 
         const SizedBox(height: 16),
-
-        Row(children: [Expanded(child: ElevatedButton(onPressed: _onSubmit, child: const Text('Submit')))]),
       ],
     );
   }
@@ -260,6 +323,7 @@ class _AssembleTheCodeContentWidgetState extends State<AssembleTheCodeContentWid
       final key = _childKeys.putIfAbsent(keyStr, () => GlobalKey());
       // add a small spacer before each chip except the first to control gap
       if (i > 0) children.add(const SizedBox(width: 4));
+      // Render assigned draggable directly
       children.add(Container(key: key, child: _buildAssignedDraggable(choice)));
       if (hoverIndex != null && hoverIndex == i + 1) children.add(_buildGhostPlaceholder());
     }
@@ -268,11 +332,17 @@ class _AssembleTheCodeContentWidgetState extends State<AssembleTheCodeContentWid
   }
 
   Widget _buildGhostPlaceholder() {
+    final styles = AppStyles();
+    final width = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.ghost_placeholder.width') as double;
+    final height = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.ghost_placeholder.height') as double;
+    final borderRadius = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.ghost_placeholder.border_radius') as double;
+    final bg = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.ghost_placeholder.background_color') as Color;
+
     return Container(
-      width: 56,
-      height: 36,
+      width: width,
+      height: height,
       margin: const EdgeInsets.symmetric(horizontal: 4.0),
-      decoration: BoxDecoration(color: Colors.blue.shade200, borderRadius: BorderRadius.circular(6)),
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(borderRadius)),
     );
   }
 
@@ -306,48 +376,84 @@ class _AssembleTheCodeContentWidgetState extends State<AssembleTheCodeContentWid
     return positions.length;
   }
 
-  Widget _buildBankDraggable(_ChoiceItem c) {
+  Widget _buildBankDraggable(
+    _ChoiceItem c,
+    double minWidth,
+    double minHeight,
+    double borderRadius,
+    double borderWidth,
+    LinearGradient background,
+    LinearGradient stroke,
+    Color textColor,
+    double textSize,
+    FontWeight textWeight,
+  ) {
     return Draggable<int>(
       data: c.id,
-      feedback: Material(elevation: 4, borderRadius: BorderRadius.circular(8), child: _buildChip(c, isFeedback: true)),
-      childWhenDragging: Opacity(opacity: 0.3, child: _buildChip(c)),
-      child: _buildChip(c),
+      feedback: Material(elevation: 4, borderRadius: BorderRadius.circular(borderRadius), child: _buildChoiceChip(c, minWidth, minHeight, borderRadius, borderWidth, background, stroke, textColor, textSize, textWeight, isFeedback: true)),
+      childWhenDragging: Opacity(opacity: 0.3, child: _buildChoiceChip(c, minWidth, minHeight, borderRadius, borderWidth, background, stroke, textColor, textSize, textWeight)),
+      child: _buildChoiceChip(c, minWidth, minHeight, borderRadius, borderWidth, background, stroke, textColor, textSize, textWeight),
     );
   }
 
   Widget _buildAssignedDraggable(_ChoiceItem c) {
+    final styles = AppStyles();
+    final minWidth = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.choice_container.min_width') as double;
+    final minHeight = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.choice_container.min_height') as double;
+    final borderRadius = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.choice_container.border_radius') as double;
+    final borderWidth = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.choice_container.border_width') as double;
+    final background = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.choice_container.background_color') as LinearGradient;
+    final stroke = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.choice_container.stroke_color') as LinearGradient;
+    final textColor = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.choice_container.text.color') as Color;
+    final textSize = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.choice_container.text.font_size') as double;
+    final textWeight = styles.getStyles('module_pages.level_contents.assemble_the_code_mode.choice_container.text.font_weight') as FontWeight;
+
     return Draggable<int>(
       data: c.id,
-      feedback: Material(elevation: 4, borderRadius: BorderRadius.circular(8), child: _buildChip(c, isFeedback: true)),
-      childWhenDragging: const SizedBox(width: 8, height: 36),
+      feedback: Material(elevation: 4, borderRadius: BorderRadius.circular(borderRadius), child: _buildChoiceChip(c, minWidth, minHeight, borderRadius, borderWidth, background, stroke, textColor, textSize, textWeight, isFeedback: true)),
+      childWhenDragging: SizedBox(width: minWidth, height: minHeight),
       onDraggableCanceled: (_, __) {
-        // return to bank
         _removeFromLine(c.id);
       },
-      child: Align(alignment: Alignment.centerLeft, child: _buildChip(c, alignLeft: true)),
+      child: _buildChoiceChip(c, minWidth, minHeight, borderRadius, borderWidth, background, stroke, textColor, textSize, textWeight),
     );
   }
 
-  Widget _buildChip(_ChoiceItem c, {bool isFeedback = false, bool alignLeft = false}) {
-    final child = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      margin: const EdgeInsets.symmetric(horizontal: 4.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 400),
-        child: Text(
-          c.text,
-          textAlign: alignLeft ? TextAlign.left : TextAlign.center,
-          style: DefaultTextStyle.of(context).style.copyWith(fontSize: 14),
+  Widget _buildChoiceChip(
+    _ChoiceItem c,
+    double minWidth,
+    double minHeight,
+    double borderRadius,
+    double borderWidth,
+    LinearGradient background,
+    LinearGradient stroke,
+    Color textColor,
+    double textSize,
+    FontWeight textWeight, {
+    bool isFeedback = false,
+  }) {
+    final chip = ConstrainedBox(
+      constraints: BoxConstraints(minWidth: minWidth, minHeight: minHeight),
+      child: IntrinsicWidth(
+        child: Container(
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(borderRadius), gradient: stroke),
+          child: Padding(
+            padding: EdgeInsets.all(borderWidth),
+            child: Container(
+              alignment: Alignment.center,
+              decoration: BoxDecoration(gradient: background, borderRadius: BorderRadius.circular((borderRadius - borderWidth).clamp(0, borderRadius))),
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Text(c.text, textAlign: TextAlign.center, style: TextStyle(color: textColor, fontSize: textSize, fontWeight: textWeight)),
+              ),
+            ),
+          ),
         ),
       ),
     );
 
-    if (isFeedback) return Material(elevation: 4, borderRadius: BorderRadius.circular(8), child: child);
-    return child;
+    if (isFeedback) return Material(elevation: 4, borderRadius: BorderRadius.circular(borderRadius), child: chip);
+    return chip;
   }
 }
 

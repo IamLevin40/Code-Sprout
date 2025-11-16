@@ -42,9 +42,18 @@ class _MultipleChoiceContentWidgetState extends State<MultipleChoiceContentWidge
   @override
   Widget build(BuildContext context) {
     final styles = AppStyles();
-    final titleColor = styles.getStyles('module_pages.title.color') as Color;
-    final titleFontSize = styles.getStyles('module_pages.title.font_size') as double;
-    final titleFontWeight = styles.getStyles('module_pages.title.font_weight') as FontWeight;
+
+    final titleColor = styles.getStyles('module_pages.level_contents.multiple_choice_mode.question_text.color') as Color;
+    final titleFontSize = styles.getStyles('module_pages.level_contents.multiple_choice_mode.question_text.font_size') as double;
+    final titleFontWeight = styles.getStyles('module_pages.level_contents.multiple_choice_mode.question_text.font_weight') as FontWeight;
+
+    final choiceBorderRadius = styles.getStyles('module_pages.level_contents.multiple_choice_mode.choice_card.border_radius') as double;
+    final choiceBorderWidth = styles.getStyles('module_pages.level_contents.multiple_choice_mode.choice_card.border_width') as double;
+    final choiceBackground = styles.getStyles('module_pages.level_contents.multiple_choice_mode.choice_card.background_color') as LinearGradient;
+    final choiceStroke = styles.getStyles('module_pages.level_contents.multiple_choice_mode.choice_card.stroke_color') as LinearGradient;
+    final choiceTextColor = styles.getStyles('module_pages.level_contents.multiple_choice_mode.choice_card.text.color') as Color;
+    final choiceTextFontSize = styles.getStyles('module_pages.level_contents.multiple_choice_mode.choice_card.text.font_size') as double;
+    final choiceTextFontWeight = styles.getStyles('module_pages.level_contents.multiple_choice_mode.choice_card.text.font_weight') as FontWeight;
 
     final question = widget.content.question;
 
@@ -57,23 +66,46 @@ class _MultipleChoiceContentWidgetState extends State<MultipleChoiceContentWidge
           style: TextStyle(color: titleColor, fontSize: titleFontSize, fontWeight: titleFontWeight),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 16),
 
-        // Answer cards
+        // Choice cards
         Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: _options.map((opt) {
             return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 32.0),
               child: SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 18.0, horizontal: 12.0),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: choiceStroke,
+                    borderRadius: BorderRadius.circular(choiceBorderRadius),
                   ),
-                  onPressed: () => _onSelect(opt),
-                  child: Text(opt, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16)),
+                  child: Padding(
+                    padding: EdgeInsets.all(choiceBorderWidth),
+                    child: Material(
+                      color: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(choiceBorderRadius - choiceBorderWidth),
+                      ),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(choiceBorderRadius - choiceBorderWidth),
+                        onTap: () => _onSelect(opt),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: choiceBackground,
+                            borderRadius: BorderRadius.circular(choiceBorderRadius - choiceBorderWidth),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+                          child: Text(
+                            opt,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: choiceTextColor, fontSize: choiceTextFontSize, fontWeight: choiceTextFontWeight),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             );

@@ -1,14 +1,44 @@
 import 'package:flutter/material.dart';
+import '../../models/styles_schema.dart';
+import '../module_items/progress_display.dart';
 
 class ModuleAccomplishedPopup {
   /// Show the module accomplished popup. `progressPercent` is 0.0-100.0
   static Future<void> show(BuildContext context, {required double progressPercent}) {
+    final styles = AppStyles();
+
+    final transitionMs = styles.getStyles('module_pages.level_popups.global.transition_duration') as int;
+    final overlayColor = styles.getStyles('module_pages.level_popups.global.overlay_color') as Color;
+    final popupBg = styles.getStyles('module_pages.level_popups.global.background_color') as Color;
+    final popupBorderRadius = styles.getStyles('module_pages.level_popups.global.border_radius') as double;
+    final titleColor = styles.getStyles('module_pages.level_popups.global.title.color') as Color;
+    final titleFontSize = styles.getStyles('module_pages.level_popups.global.title.font_size') as double;
+    final titleFontWeight = styles.getStyles('module_pages.level_popups.global.title.font_weight') as FontWeight;
+    final subtitleColor = styles.getStyles('module_pages.level_popups.global.subtitle.color') as Color;
+    final subtitleFontSize = styles.getStyles('module_pages.level_popups.global.subtitle.font_size') as double;
+    final subtitleFontWeight = styles.getStyles('module_pages.level_popups.global.subtitle.font_weight') as FontWeight;
+
+    final popupHeight = styles.getStyles('module_pages.level_popups.module_accomplished_popup.height') as double;
+    final iconPath = styles.getStyles('module_pages.level_popups.module_accomplished_popup.icon') as String;
+
+    const progressDisplayStylePath = 'module_pages.level_popups.module_accomplished_popup.progress_display';
+
+    final completeButtonWidth = styles.getStyles('module_pages.level_popups.global.button.width') as double;
+    final completeButtonHeight = styles.getStyles('module_pages.level_popups.global.button.height') as double;
+    final completeButtonBorderRadius = styles.getStyles('module_pages.level_popups.global.button.border_radius') as double;
+    final completeButtonBorderWidth = styles.getStyles('module_pages.level_popups.global.button.border_width') as double;
+    final completeButtonBackground = styles.getStyles('module_pages.level_popups.module_accomplished_popup.complete_button.background_color') as Color;
+    final completeButtonStroke = styles.getStyles('module_pages.level_popups.module_accomplished_popup.complete_button.stroke_color') as LinearGradient;
+    final completeButtonTextColor = styles.getStyles('module_pages.level_popups.global.button.text.color') as Color;
+    final completeButtonTextFontSize = styles.getStyles('module_pages.level_popups.global.button.text.font_size') as double;
+    final completeButtonTextFontWeight = styles.getStyles('module_pages.level_popups.global.button.text.font_weight') as FontWeight;
+
     return showGeneralDialog(
       context: context,
       barrierDismissible: false,
       barrierLabel: 'ModuleAccomplishedPopup',
       barrierColor: Colors.transparent,
-      transitionDuration: const Duration(milliseconds: 420),
+      transitionDuration: Duration(milliseconds: transitionMs),
       pageBuilder: (context, animation, secondaryAnimation) => const SizedBox.shrink(),
       transitionBuilder: (context, animation, secondary, child) {
         final curved = CurvedAnimation(parent: animation, curve: Curves.easeInOut);
@@ -20,7 +50,7 @@ class ModuleAccomplishedPopup {
               onTap: () {},
               child: Opacity(
                 opacity: 0.4 * curved.value,
-                child: Container(color: Colors.black),
+                child: Container(color: overlayColor),
               ),
             ),
 
@@ -30,13 +60,13 @@ class ModuleAccomplishedPopup {
               child: SlideTransition(
                 position: Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero).animate(curved),
                 child: Container(
-                  height: 300,
+                  height: popupHeight,
                   width: double.infinity,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
+                  decoration: BoxDecoration(
+                    color: popupBg,
                     borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      topRight: Radius.circular(16),
+                      topLeft: Radius.circular(popupBorderRadius),
+                      topRight: Radius.circular(popupBorderRadius),
                     ),
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
@@ -44,28 +74,54 @@ class ModuleAccomplishedPopup {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // Icon (trophy-like)
+                      // Icon
                       Container(
-                        width: 48,
-                        height: 48,
-                        decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFFE9F5FF)),
-                        child: const Center(
-                          child: Icon(Icons.emoji_events, color: Color(0xFF2B6CB0), size: 40),
-                        ),
+                        width: styles.getStyles('module_pages.level_popups.global.icon.width') as double,
+                        height: styles.getStyles('module_pages.level_popups.global.icon.height') as double,
+                        decoration: const BoxDecoration(shape: BoxShape.circle),
+                        child: Center(child: Image.asset(iconPath)),
                       ),
-                      const SizedBox(height: 12),
-                      const Text('Module Accomplished!', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
-                      const Text('You have successfully finished this module.', style: TextStyle(fontSize: 16, color: Colors.black54), textAlign: TextAlign.center),
-                      const SizedBox(height: 12),
-                      Text('Progress: ${(progressPercent * 100).toStringAsFixed(1)}%', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 8),
+
+                      // Title
+                      Builder(builder: (ctx) {
+                        final base = Theme.of(ctx).textTheme.titleLarge ?? DefaultTextStyle.of(ctx).style;
+                        return Text('Module Accomplished!', style: base.copyWith(fontSize: titleFontSize, color: titleColor, fontWeight: titleFontWeight));
+                      }),
+                      const SizedBox(height: 4),
+
+                      // Subtitle
+                      Builder(builder: (ctx) {
+                        final base = Theme.of(ctx).textTheme.bodyMedium ?? DefaultTextStyle.of(ctx).style;
+                        return Text('You have successfully finished this module.', style: base.copyWith(fontSize: subtitleFontSize, color: subtitleColor, fontWeight: subtitleFontWeight), textAlign: TextAlign.center);
+                      }),
+                      const SizedBox(height: 16),
+
+                      // Progress display
+                      ProgressDisplay(stylePath: progressDisplayStylePath, progress: progressPercent),
+                      const SizedBox(height: 16),
+                      
+                      // Complete button
                       SizedBox(
-                        width: 128,
-                        height: 32,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0))),
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: const Text('Complete', style: TextStyle(fontSize: 14))
+                        width: completeButtonWidth,
+                        height: completeButtonHeight,
+                        child: Container(
+                          decoration: BoxDecoration(gradient: completeButtonStroke, borderRadius: BorderRadius.circular(completeButtonBorderRadius)),
+                          child: Padding(
+                            padding: EdgeInsets.all(completeButtonBorderWidth),
+                            child: Material(
+                              color: completeButtonBackground,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular((completeButtonBorderRadius - completeButtonBorderWidth).clamp(0, completeButtonBorderRadius))),
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular((completeButtonBorderRadius - completeButtonBorderWidth).clamp(0, completeButtonBorderRadius)),
+                                onTap: () => Navigator.of(context).pop(),
+                                child: Builder(builder: (ctx) {
+                                  final base = Theme.of(ctx).textTheme.labelLarge ?? DefaultTextStyle.of(ctx).style;
+                                  return Center(child: Text('Complete', style: base.copyWith(color: completeButtonTextColor, fontSize: completeButtonTextFontSize, fontWeight: completeButtonTextFontWeight)));
+                                }),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ],

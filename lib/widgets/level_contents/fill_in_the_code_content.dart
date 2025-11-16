@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../models/styles_schema.dart';
 import '../../models/course_data.dart';
 
 class FillInTheCodeContentWidget extends StatefulWidget {
@@ -88,8 +89,34 @@ class _FillInTheCodeContentWidgetState extends State<FillInTheCodeContentWidget>
 
   @override
   Widget build(BuildContext context) {
-    final codeBg = Colors.grey.shade100;
-    const codeText = Colors.black87;
+    final styles = AppStyles();
+
+    final codeAreaBg = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.code_area.background_color') as Color;
+    final codeAreaBorderRadius = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.code_area.border_radius') as double;
+
+    final codeLineBg = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.code_line_area.background_color') as Color;
+    final codeLineBorderRadius = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.code_line_area.border_radius') as double;
+
+    final codeTextColor = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.code_text.color') as Color;
+    final codeTextFontSize = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.code_text.font_size') as double;
+    final codeTextFontWeight = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.code_text.font_weight') as FontWeight;
+
+    final containerMinWidth = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.code_container.min_width') as double;
+    final containerHeight = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.code_container.height') as double;
+    final containerBorderRadius = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.code_container.border_radius') as double;
+    final containerBorderWidth = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.code_container.border_width') as double;
+    final containerBackground = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.code_container.background_color') as LinearGradient;
+    final containerStroke = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.code_container.stroke_color') as LinearGradient;
+
+    final submitWidth = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.submit_button.width') as double;
+    final submitHeight = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.submit_button.height') as double;
+    final submitBackground = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.submit_button.background_color') as Color;
+    final submitBorderWidth = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.submit_button.border_width') as double;
+    final submitBorderRadius = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.submit_button.border_radius') as double;
+    final submitStroke = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.submit_button.stroke_color') as LinearGradient;
+    final submitTextColor = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.submit_button.text.color') as Color;
+    final submitTextFontSize = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.submit_button.text.font_size') as double;
+    final submitTextFontWeight = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.submit_button.text.font_weight') as FontWeight;
 
     // Build code lines with placeholders replaced by drag targets
     int runningIndex = 0;
@@ -101,7 +128,7 @@ class _FillInTheCodeContentWidgetState extends State<FillInTheCodeContentWidget>
 
       for (int i = 0; i < parts.length; i++) {
         if (parts[i].isNotEmpty) {
-          children.add(TextSpan(text: parts[i], style: const TextStyle(color: codeText)));
+          children.add(TextSpan(text: parts[i], style: TextStyle(color: codeTextColor, fontSize: codeTextFontSize, fontWeight: codeTextFontWeight)));
         }
 
         if (i < parts.length - 1) {
@@ -115,26 +142,32 @@ class _FillInTheCodeContentWidgetState extends State<FillInTheCodeContentWidget>
             builder: (context, candidateData, rejectedData) {
               final has = assignedId != null;
               return Container(
-                constraints: const BoxConstraints(minWidth: 48),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                constraints: BoxConstraints(minWidth: containerMinWidth),
                 margin: const EdgeInsets.only(left: 8, right: 8),
                 decoration: BoxDecoration(
-                  color: has ? Colors.white : Colors.grey.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.blueGrey.shade100),
+                  borderRadius: BorderRadius.circular(containerBorderRadius),
+                  gradient: containerStroke,
                 ),
-                child: has
-                    ? _buildAssignedDraggable(_choices.firstWhere((c) => c.id == assignedId))
-                    : const SizedBox(width: 48, height: 36),
+                child: Padding(
+                  padding: EdgeInsets.all(containerBorderWidth),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: containerBackground,
+                      borderRadius: BorderRadius.circular(containerBorderRadius - containerBorderWidth),
+                    ),
+                    child: has
+                        ? _buildAssignedDraggable(_choices.firstWhere((c) => c.id == assignedId), containerMinWidth, containerHeight)
+                        : SizedBox(width: containerMinWidth, height: containerHeight),
+                  ),
+                ),
               );
-                },
-                  onWillAcceptWithDetails: (details) => true,
-                onAcceptWithDetails: (details) {
-                  _assignToContainer(containerIndex, details.data);
-                },
+            },
+            onWillAcceptWithDetails: (details) => true,
+            onAcceptWithDetails: (details) {
+              _assignToContainer(containerIndex, details.data);
+            },
           );
 
-          // Use WidgetSpan to place the container inline with code text
           children.add(WidgetSpan(child: container, alignment: PlaceholderAlignment.middle));
         }
       }
@@ -142,15 +175,15 @@ class _FillInTheCodeContentWidgetState extends State<FillInTheCodeContentWidget>
       codeWidgets.add(
         Container(
           width: double.infinity,
-          margin: const EdgeInsets.symmetric(vertical: 6.0),
-          padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 6.0),
+          margin: const EdgeInsets.symmetric(vertical: 4.0),
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
           decoration: BoxDecoration(
-            color: Colors.grey.shade200,
-            borderRadius: BorderRadius.circular(8.0),
+            color: codeLineBg,
+            borderRadius: BorderRadius.circular(codeLineBorderRadius),
           ),
           child: RichText(
             text: TextSpan(
-              style: DefaultTextStyle.of(context).style.copyWith(fontSize: 14, color: codeText),
+              style: DefaultTextStyle.of(context).style.copyWith(fontSize: codeTextFontSize, color: codeTextColor, fontWeight: codeTextFontWeight),
               children: children,
             ),
           ),
@@ -173,7 +206,7 @@ class _FillInTheCodeContentWidgetState extends State<FillInTheCodeContentWidget>
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(12.0),
-          decoration: BoxDecoration(color: codeBg, borderRadius: BorderRadius.circular(8.0)),
+          decoration: BoxDecoration(color: codeAreaBg, borderRadius: BorderRadius.circular(codeAreaBorderRadius)),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: codeWidgets),
         ),
 
@@ -186,34 +219,50 @@ class _FillInTheCodeContentWidgetState extends State<FillInTheCodeContentWidget>
             color: Colors.transparent,
             child: Center(child: bank),
           ),
-                onWillAcceptWithDetails: (details) => true,
+            onWillAcceptWithDetails: (details) => true,
             onAcceptWithDetails: (details) {
               _unassignChoice(details.data);
             },
           ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 32),
 
-        Row(
-          children: [
-            Expanded(
-              child: ElevatedButton(
-                onPressed: _onSubmit,
-                child: const Text('Submit'),
+        // Submit button
+        Center(
+          child: Container(
+            width: submitWidth,
+            height: submitHeight,
+            decoration: BoxDecoration(gradient: submitStroke, borderRadius: BorderRadius.circular(submitBorderRadius)),
+            child: Padding(
+              padding: EdgeInsets.all(submitBorderWidth),
+              child: Material(
+                color: submitBackground,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(submitBorderRadius - submitBorderWidth)),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(submitBorderRadius - submitBorderWidth),
+                  onTap: _onSubmit,
+                  child: Center(
+                    child: Text('Submit', style: TextStyle(color: submitTextColor, fontSize: submitTextFontSize, fontWeight: submitTextFontWeight)),
+                  ),
+                ),
               ),
             ),
-          ],
+          ),
         ),
+
+        const SizedBox(height: 16),
       ],
     );
   }
 
   Widget _buildBankDraggable(_ChoiceItem c) {
+    final styles = AppStyles();
+    final choiceBorderRadius = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.choice_container.border_radius') as double;
     return Draggable<int>(
       data: c.id,
       feedback: Material(
         elevation: 4,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(choiceBorderRadius),
         child: _buildChoiceChip(c, isFeedback: true),
       ),
       childWhenDragging: Opacity(opacity: 0.3, child: _buildChoiceChip(c)),
@@ -221,11 +270,13 @@ class _FillInTheCodeContentWidgetState extends State<FillInTheCodeContentWidget>
     );
   }
 
-  Widget _buildAssignedDraggable(_ChoiceItem c) {
+  Widget _buildAssignedDraggable(_ChoiceItem c, double width, double height) {
+    final styles = AppStyles();
+    final choiceBorderRadius = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.choice_container.border_radius') as double;
     return Draggable<int>(
       data: c.id,
-      feedback: Material(elevation: 4, borderRadius: BorderRadius.circular(8), child: _buildChoiceChip(c, isFeedback: true)),
-      childWhenDragging: const SizedBox(width: 56, height: 36),
+      feedback: Material(elevation: 4, borderRadius: BorderRadius.circular(choiceBorderRadius), child: _buildChoiceChip(c, isFeedback: true)),
+      childWhenDragging: SizedBox(width: width, height: height),
       onDraggableCanceled: (_, __) {
         _unassignChoice(c.id);
       },
@@ -234,22 +285,39 @@ class _FillInTheCodeContentWidgetState extends State<FillInTheCodeContentWidget>
   }
 
   Widget _buildChoiceChip(_ChoiceItem c, {bool isFeedback = false}) {
+    final styles = AppStyles();
+    final minWidth = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.choice_container.min_width') as double;
+    final minHeight = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.choice_container.min_height') as double;
+    final borderRadius = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.choice_container.border_radius') as double;
+    final borderWidth = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.choice_container.border_width') as double;
+    final background = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.choice_container.background_color') as LinearGradient;
+    final stroke = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.choice_container.stroke_color') as LinearGradient;
+    final textColor = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.choice_container.text.color') as Color;
+    final textSize = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.choice_container.text.font_size') as double;
+    final textWeight = styles.getStyles('module_pages.level_contents.fill_in_the_code_mode.choice_container.text.font_weight') as FontWeight;
+
     return ConstrainedBox(
-      constraints: const BoxConstraints(minWidth: 56),
+      constraints: BoxConstraints(minWidth: minWidth, minHeight: minHeight),
       child: IntrinsicWidth(
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: isFeedback
-                ? const [BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 2))]
-                : const [BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1))],
+            borderRadius: BorderRadius.circular(borderRadius),
+            gradient: stroke,
           ),
-            child: Text(
-            c.text,
-            textAlign: TextAlign.center,
-            style: DefaultTextStyle.of(context).style.copyWith(fontSize: 14),
+          child: Padding(
+            padding: EdgeInsets.all(borderWidth),
+            child: Container(
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                gradient: background,
+                borderRadius: BorderRadius.circular(borderRadius - borderWidth),
+              ),
+              child: Text(
+                c.text,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: textColor, fontSize: textSize, fontWeight: textWeight),
+              ),
+            ),
           ),
         ),
       ),
