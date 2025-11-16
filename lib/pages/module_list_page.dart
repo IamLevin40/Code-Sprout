@@ -91,8 +91,6 @@ class _ModuleListPageState extends State<ModuleListPage> {
     final langDisplayBorderWidth = styles.getStyles('module_pages.list_page.language_display.border_width') as double;
     final langDisplayStrokeGradient = styles.getStyles('course_cards.style_coding.${widget.languageId}.stroke_color') as LinearGradient;
 
-    
-
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -344,6 +342,68 @@ class _ModuleListPageState extends State<ModuleListPage> {
                       final int curChap = info['currentChapter'] as int;
                       final int curMod = info['currentModule'] as int;
 
+                      final listingTitleColor = styles.getStyles('module_pages.module_listing.title.color') as Color;
+                      final listingTitleFontSize = styles.getStyles('module_pages.module_listing.title.font_size') as double;
+                      final listingTitleFontWeight = styles.getStyles('module_pages.module_listing.title.font_weight') as FontWeight;
+
+                      final chapterLabelColor = styles.getStyles('module_pages.module_listing.chapter_label.color') as Color;
+                      final chapterLabelFontSize = styles.getStyles('module_pages.module_listing.chapter_label.font_size') as double;
+                      final chapterLabelFontWeight = styles.getStyles('module_pages.module_listing.chapter_label.font_weight') as FontWeight;
+
+                      final globalCardHeight = styles.getStyles('module_pages.module_listing.global_card.height') as double;
+                      final globalCardBorderRadius = styles.getStyles('module_pages.module_listing.global_card.border_radius') as double;
+                      final globalCardBorderWidth = styles.getStyles('module_pages.module_listing.global_card.border_width') as double;
+                      final globalIconWidth = styles.getStyles('module_pages.module_listing.global_card.icon.width') as double;
+                      final globalIconHeight = styles.getStyles('module_pages.module_listing.global_card.icon.height') as double;
+                      final globalIconBorderRadius = styles.getStyles('module_pages.module_listing.global_card.icon.border_radius') as double;
+                      final globalIconBgGradient = styles.getStyles('module_pages.module_listing.global_card.icon.background_color') as LinearGradient;
+
+                      final currentIconPath = styles.getStyles('module_pages.module_listing.current_card.icon') as String;
+                      final currentTitleFontSize = styles.getStyles('module_pages.module_listing.current_card.module_title.font_size') as double;
+                      final currentTitleFontWeight = styles.getStyles('module_pages.module_listing.current_card.module_title.font_weight') as FontWeight;
+                      final currentTitleColor = styles.getStyles('module_pages.module_listing.current_card.module_title.color') as Color;
+                      List<Shadow> currentTitleShadows = [];
+                      try {
+                        final Color baseColor = styles.getStyles('module_pages.module_listing.current_card.module_title.shadow.color') as Color;
+                        final sopRaw = styles.getStyles('module_pages.module_listing.current_card.module_title.shadow.opacity');
+                        final double sop = (sopRaw is num) ? sopRaw.toDouble() / 100.0 : (sopRaw as double);
+                        final sblur = styles.getStyles('module_pages.module_listing.current_card.module_title.shadow.blur_radius') as double;
+                        currentTitleShadows = [Shadow(color: baseColor.withAlpha((sop * 255).round()), blurRadius: sblur)];
+                      } catch (e) {
+                        currentTitleShadows = [];
+                      }
+                      final currentNumberColor = styles.getStyles('module_pages.module_listing.current_card.module_number_label.color') as Color;
+                      final currentNumberFontSize = styles.getStyles('module_pages.module_listing.current_card.module_number_label.font_size') as double;
+                      final currentNumberFontWeight = styles.getStyles('module_pages.module_listing.current_card.module_number_label.font_weight') as FontWeight;
+
+                      final finishedIconPath = styles.getStyles('module_pages.module_listing.finished_card.icon') as String;
+                      final finishedTitleFontSize = styles.getStyles('module_pages.module_listing.finished_card.module_title.font_size') as double;
+                      final finishedTitleFontWeight = styles.getStyles('module_pages.module_listing.finished_card.module_title.font_weight') as FontWeight;
+                      final finishedTitleColor = styles.getStyles('module_pages.module_listing.finished_card.module_title.color') as Color;
+                      List<Shadow> finishedTitleShadows = [];
+                      try {
+                        final Color baseColor = styles.getStyles('module_pages.module_listing.finished_card.module_title.shadow.color') as Color;
+                        final sopRaw = styles.getStyles('module_pages.module_listing.finished_card.module_title.shadow.opacity');
+                        final double sop = (sopRaw is num) ? sopRaw.toDouble() / 100.0 : (sopRaw as double);
+                        final sblur = styles.getStyles('module_pages.module_listing.finished_card.module_title.shadow.blur_radius') as double;
+                        finishedTitleShadows = [Shadow(color: baseColor.withAlpha((sop * 255).round()), blurRadius: sblur)];
+                      } catch (e) {
+                        finishedTitleShadows = [];
+                      }
+                      final finishedNumberColor = styles.getStyles('module_pages.module_listing.finished_card.module_number_label.color') as Color;
+                      final finishedNumberFontSize = styles.getStyles('module_pages.module_listing.finished_card.module_number_label.font_size') as double;
+                      final finishedNumberFontWeight = styles.getStyles('module_pages.module_listing.finished_card.module_number_label.font_weight') as FontWeight;
+
+                      final lockedIconPath = styles.getStyles('module_pages.module_listing.locked_card.icon') as String;
+                      final lockedBgColor = styles.getStyles('module_pages.module_listing.locked_card.background_color') as Color;
+                      final lockedStrokeGradient = styles.getStyles('module_pages.module_listing.locked_card.stroke_color') as LinearGradient;
+                      final lockedTitleColor = styles.getStyles('module_pages.module_listing.locked_card.module_title.color') as Color;
+                      final lockedTitleFontSize = styles.getStyles('module_pages.module_listing.locked_card.module_title.font_size') as double;
+                      final lockedTitleFontWeight = styles.getStyles('module_pages.module_listing.locked_card.module_title.font_weight') as FontWeight;
+                      final lockedNumberColor = styles.getStyles('module_pages.module_listing.locked_card.module_number_label.color') as Color;
+                      final lockedNumberFontSize = styles.getStyles('module_pages.module_listing.locked_card.module_number_label.font_size') as double;
+                      final lockedNumberFontWeight = styles.getStyles('module_pages.module_listing.locked_card.module_number_label.font_weight') as FontWeight;
+
                       // Partition modules
                       final Map<String, List<MapEntry<String, Module>>> completed = {};
                       final Map<String, List<MapEntry<String, Module>>> notCompleted = {};
@@ -384,49 +444,115 @@ class _ModuleListPageState extends State<ModuleListPage> {
                         final module = entry.value;
                         final moduleNumber = int.tryParse(moduleKey.split('_').last) ?? 0;
 
-                        final leftIcon = completedCard
-                            ? Icons.check_circle_outline
-                            : (pressable ? Icons.play_circle_fill : Icons.lock_outline);
+                        // determine card type
+                        final bool isFinished = completedCard;
+                        final bool isCurrent = (!completedCard && pressable);
 
-                                return GestureDetector(
-                                  onTap: pressable
-                                      ? () {
-                                          // Navigate to ModuleLevelsPage for this module
-                                          Navigator.of(context).push(MaterialPageRoute(
-                                            builder: (_) => ModuleLevelsPage(
-                                              languageId: widget.languageId,
-                                              difficulty: widget.difficulty,
-                                              chapterNumber: chapterNum,
-                                              moduleNumber: moduleNumber,
-                                              moduleTitle: module.title,
-                                            ),
-                                          ));
-                                        }
-                                      : null,
+                        // fetch language-specific gradients for current/finished
+                        final langBgGradient = styles.getStyles('course_cards.style_coding.${widget.languageId}.background_color') as LinearGradient;
+                        final langStrokeGradient = styles.getStyles('course_cards.style_coding.${widget.languageId}.stroke_color') as LinearGradient;
+
+                        // choose token values per card state
+                        String iconPath;
+                        TextStyle titleStyle;
+                        TextStyle numberStyle;
+                        Decoration cardInnerDecoration;
+                        Decoration cardOuterDecoration;
+
+                        if (isCurrent) {
+                          iconPath = currentIconPath;
+                          titleStyle = TextStyle(fontSize: currentTitleFontSize, fontWeight: currentTitleFontWeight, color: currentTitleColor, shadows: currentTitleShadows);
+                          numberStyle = TextStyle(fontSize: currentNumberFontSize, fontWeight: currentNumberFontWeight, color: currentNumberColor);
+
+                          cardOuterDecoration = BoxDecoration(
+                            gradient: langStrokeGradient,
+                            borderRadius: BorderRadius.circular(globalCardBorderRadius),
+                          );
+
+                          cardInnerDecoration = BoxDecoration(
+                            gradient: langBgGradient,
+                            borderRadius: BorderRadius.circular((globalCardBorderRadius - globalCardBorderWidth).clamp(0.0, double.infinity)),
+                          );
+                        } else if (isFinished) {
+                          iconPath = finishedIconPath;
+                          titleStyle = TextStyle(fontSize: finishedTitleFontSize, fontWeight: finishedTitleFontWeight, color: finishedTitleColor, shadows: finishedTitleShadows);
+                          numberStyle = TextStyle(fontSize: finishedNumberFontSize, fontWeight: finishedNumberFontWeight, color: finishedNumberColor);
+
+                          cardOuterDecoration = BoxDecoration(
+                            gradient: langStrokeGradient,
+                            borderRadius: BorderRadius.circular(globalCardBorderRadius),
+                          );
+
+                          cardInnerDecoration = BoxDecoration(
+                            gradient: langBgGradient,
+                            borderRadius: BorderRadius.circular((globalCardBorderRadius - globalCardBorderWidth).clamp(0.0, double.infinity)),
+                          );
+                        } else {
+                          iconPath = lockedIconPath;
+                          titleStyle = TextStyle(fontSize: lockedTitleFontSize, fontWeight: lockedTitleFontWeight, color: lockedTitleColor);
+                          numberStyle = TextStyle(fontSize: lockedNumberFontSize, fontWeight: lockedNumberFontWeight, color: lockedNumberColor);
+
+                          cardOuterDecoration = BoxDecoration(
+                            gradient: lockedStrokeGradient,
+                            borderRadius: BorderRadius.circular(globalCardBorderRadius),
+                          );
+
+                          cardInnerDecoration = BoxDecoration(
+                            color: lockedBgColor,
+                            borderRadius: BorderRadius.circular((globalCardBorderRadius - globalCardBorderWidth).clamp(0.0, double.infinity)),
+                          );
+                        }
+
+                        return GestureDetector(
+                          onTap: pressable
+                              ? () {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (_) => ModuleLevelsPage(
+                                      languageId: widget.languageId,
+                                      difficulty: widget.difficulty,
+                                      chapterNumber: chapterNum,
+                                      moduleNumber: moduleNumber,
+                                      moduleTitle: module.title,
+                                    ),
+                                  ));
+                                }
+                              : null,
                           child: Container(
-                            margin: const EdgeInsets.symmetric(vertical: 8.0),
-                            padding: const EdgeInsets.all(12.0),
-                            decoration: BoxDecoration(
-                              color: completedCard ? Colors.blue.shade300 : Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: Colors.grey.shade400, width: 1.5),
-                              boxShadow: completedCard ? const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))] : null,
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(leftIcon, size: 36, color: completedCard ? Colors.white : Colors.grey.shade700),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(module.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                                      const SizedBox(height: 4),
-                                      Text('Module $moduleNumber', style: TextStyle(fontSize: 12, color: Colors.grey.shade700)),
-                                    ],
-                                  ),
+                            margin: const EdgeInsets.symmetric(vertical: 2.0),
+                            child: Container(
+                              height: globalCardHeight,
+                              padding: EdgeInsets.all(globalCardBorderWidth),
+                              decoration: cardOuterDecoration as BoxDecoration?,
+                              child: Container(
+                                decoration: cardInnerDecoration as BoxDecoration?,
+                                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                child: Row(
+                                  children: [
+                                    // Icon box
+                                    Container(
+                                      width: globalIconWidth,
+                                      height: globalIconHeight,
+                                      decoration: BoxDecoration(
+                                        gradient: globalIconBgGradient,
+                                        borderRadius: BorderRadius.circular(globalIconBorderRadius),
+                                      ),
+                                      padding: const EdgeInsets.all(12.0),
+                                      child: Center(child: Image.asset(iconPath, width: globalIconWidth, height: globalIconHeight)),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(module.title, style: titleStyle),
+                                          Text('Module $moduleNumber', style: numberStyle),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
                           ),
                         );
@@ -436,7 +562,7 @@ class _ModuleListPageState extends State<ModuleListPage> {
                       
                       // Not Completed section
                       if (notCompleted.isNotEmpty) {
-                        widgets.add(const Text('Not Completed', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)));
+                        widgets.add(Text('Not Completed', style: TextStyle(fontSize: listingTitleFontSize, fontWeight: listingTitleFontWeight, color: listingTitleColor)));
                         widgets.add(const SizedBox(height: 8));
 
                         for (final chapterId in chapterKeys) {
@@ -444,10 +570,9 @@ class _ModuleListPageState extends State<ModuleListPage> {
                           final notList = notCompleted[chapterId];
                           if (notList == null) continue;
 
-                          widgets.add(Text('Chapter $chapNum', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)));
-                          widgets.add(const SizedBox(height: 8));
+                          widgets.add(Text('Chapter $chapNum', style: TextStyle(fontSize: chapterLabelFontSize, fontWeight: chapterLabelFontWeight, color: chapterLabelColor)));
 
-                            for (final entry in notList) {
+                          for (final entry in notList) {
                             final modNum = int.tryParse(entry.key.split('_').last) ?? 0;
                             final pressable = (chapNum == curChap && modNum == curMod);
                             widgets.add(buildModuleCard(entry, chapterNum: chapNum, pressable: pressable, completedCard: false));
@@ -457,8 +582,8 @@ class _ModuleListPageState extends State<ModuleListPage> {
 
                       // Completed section
                       if (completed.isNotEmpty) {
-                        widgets.add(const SizedBox(height: 12));
-                        widgets.add(const Text('Completed', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)));
+                        widgets.add(const SizedBox(height: 8));
+                        widgets.add(Text('Completed', style: TextStyle(fontSize: listingTitleFontSize, fontWeight: listingTitleFontWeight, color: listingTitleColor)));
                         widgets.add(const SizedBox(height: 8));
 
                         for (final chapterId in chapterKeys) {
@@ -466,8 +591,7 @@ class _ModuleListPageState extends State<ModuleListPage> {
                           final compList = completed[chapterId];
                           if (compList == null) continue;
 
-                          widgets.add(Text('Chapter $chapNum', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)));
-                          widgets.add(const SizedBox(height: 8));
+                          widgets.add(Text('Chapter $chapNum', style: TextStyle(fontSize: chapterLabelFontSize, fontWeight: chapterLabelFontWeight, color: chapterLabelColor)));
 
                           for (final entry in compList) {
                             widgets.add(buildModuleCard(entry, chapterNum: chapNum, pressable: true, completedCard: true));
@@ -475,7 +599,7 @@ class _ModuleListPageState extends State<ModuleListPage> {
                         }
                       }
 
-                      return Column(children: widgets);
+                      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: widgets);
                     },
                   ),
                 ),

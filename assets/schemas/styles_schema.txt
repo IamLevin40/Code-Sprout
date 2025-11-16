@@ -1415,7 +1415,7 @@
                 "shadow": {
                     "color": "--colors.black",
                     "opacity": 40,
-                    "blur_radius": 4
+                    "blur_radius": 2
                 }
             },
             "difficulty": {
@@ -1449,6 +1449,98 @@
                 }
             }
         },
+        "module_listing": {
+            "title": {
+                "color": "--colors.dark_purple",
+                "font_size": "--font_sizes.title",
+                "font_weight": "--font_weights.bold"
+            },
+            "chapter_label": {
+                "color": "--colors.gray",
+                "font_size": "--font_sizes.regular",
+                "font_weight": "--font_weights.bold"
+            },
+            "global_card": {
+                "icon": {
+                    "width": 40,
+                    "height": 40,
+                    "border_radius": 8,
+                    "background_color": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "--colors.dirty_white"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "--colors.white"
+                        }
+                    }
+                },
+                "height": 64,
+                "border_radius": 16,
+                "border_width": 2
+            },
+            "current_card": {
+                "icon": "images/icons/module_items/current.png",
+                "module_title": { 
+                    "color": "--colors.white",
+                    "font_size": "--font_sizes.title",
+                    "font_weight": "--font_weights.bold",
+                    "shadow": {
+                        "color": "--colors.black",
+                        "opacity": 25,
+                        "blur_radius": 4
+                    }
+                },
+                "module_number_label": {
+                    "color": "--colors.white",
+                    "font_size": "--font_sizes.regular",
+                    "font_weight": "--font_weights.bold"
+                }
+            },
+            "finished_card": {
+                "icon": "images/icons/module_items/finished.png",
+                "module_title": { 
+                    "color": "--colors.white",
+                    "font_size": "--font_sizes.title",
+                    "font_weight": "--font_weights.bold",
+                    "shadow": {
+                        "color": "--colors.black",
+                        "opacity": 25,
+                        "blur_radius": 4
+                    }
+                },
+                "module_number_label": {
+                    "color": "--colors.white",
+                    "font_size": "--font_sizes.regular",
+                    "font_weight": "--font_weights.bold"
+                }
+            },
+            "locked_card": {
+                "icon": "images/icons/module_items/locked.png",
+                "background_color": "--colors.white",
+                "stroke_color": {
+                    "begin": {
+                        "position": "top_left",
+                        "color": "#87A1BF"
+                    },
+                    "end": {
+                        "position": "bottom_right",
+                        "color": "--colors.gray"
+                    }
+                },
+                "module_title": { 
+                    "color": "--colors.gray",
+                    "font_size": "--font_sizes.title",
+                    "font_weight": "--font_weights.bold"
+                },
+                "module_number_label": {
+                    "color": "--colors.gray",
+                    "font_size": "--font_sizes.regular",
+                    "font_weight": "--font_weights.bold"
+                }
+            }
+        },
         "levels_page": {
             "language_display": {
                 "width": 48,
@@ -1473,7 +1565,7 @@
                 "shadow": {
                     "color": "--colors.black",
                     "opacity": 40,
-                    "blur_radius": 4
+                    "blur_radius": 2
                 }
             },
             "subtitle": {
