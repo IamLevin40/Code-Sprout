@@ -1344,8 +1344,88 @@
     "module_pages": {
         "transition_duration": 500,
         "back": {
-            "color": "--colors.dark_purple",
-            "size": 32
+            "icon": {
+                "image": "images/icons/navbuttons/back.png",
+                "width": 32,
+                "height": 32
+            },
+            "background_color": "--colors.dirty_white",
+            "border_radius": 8,
+            "width": 32,
+            "height": 32
+        },
+        "list_page": {
+            "language_display": {
+                "width": 96,
+                "height": 96,
+                "border_radius": 16,
+                "border_width": 2,
+                "background_color": {
+                    "begin": {
+                        "position": "top_left",
+                        "color": "--colors.dirty_white"
+                    },
+                    "end": {
+                        "position": "bottom_right",
+                        "color": "--colors.white"
+                    }
+                }
+            },
+            "progress_display": {
+                "width": 128,
+                "height": 128,
+                "border_radius": 16,
+                "border_width": 2,
+                "background_color": {
+                    "begin": {
+                        "position": "top_left",
+                        "color": "--colors.dirty_white"
+                    },
+                    "end": {
+                        "position": "bottom_right",
+                        "color": "--colors.white"
+                    }
+                },
+                "stroke_color": {
+                    "begin": {
+                        "position": "top_left",
+                        "color": "#4CAF50"
+                    },
+                    "end": {
+                        "position": "bottom_right",
+                        "color": "#204921"
+                    }
+                },
+                "progress_icons": {
+                    "background": "images/icons/module_items/progress_background.png",
+                    "fill": "images/icons/module_items/progress_fill.png",
+                    "width": 72,
+                    "height": 72
+                },
+                "progress_text": {
+                    "color": "--colors.dark_purple",
+                    "font_size": "--font_sizes.title",
+                    "font_weight": "--font_weights.bold"
+                }
+            }
+        },
+        "levels_page": {
+            "language_display": {
+                "width": 48,
+                "height": 48,
+                "border_radius": 16,
+                "border_width": 2,
+                "background_color": {
+                    "begin": {
+                        "position": "top_left",
+                        "color": "--colors.dirty_white"
+                    },
+                    "end": {
+                        "position": "bottom_right",
+                        "color": "--colors.white"
+                    }
+                }
+            }
         },
         "title": {
             "color": "--colors.dark_purple",

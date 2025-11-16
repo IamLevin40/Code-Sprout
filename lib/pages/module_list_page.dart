@@ -5,6 +5,7 @@ import '../models/course_data.dart';
 import '../services/local_storage_service.dart';
 import '../models/user_data.dart';
 import 'module_levels_page.dart';
+import '../widgets/module_items/progress_display.dart';
 
 class ModuleListPage extends StatefulWidget {
   final String languageId;
@@ -72,23 +73,28 @@ class _ModuleListPageState extends State<ModuleListPage> {
   @override
   Widget build(BuildContext context) {
     final styles = AppStyles();
+
+    final backIconImage = styles.getStyles('module_pages.back.icon.image') as String;
+    final backIconWidth = styles.getStyles('module_pages.back.icon.width') as double;
+    final backIconHeight = styles.getStyles('module_pages.back.icon.height') as double;
+    final backBgColor = styles.getStyles('module_pages.back.background_color') as Color;
+    final backBorderRadius = styles.getStyles('module_pages.back.border_radius') as double;
+    final backWidth = styles.getStyles('module_pages.back.width') as double;
+    final backHeight = styles.getStyles('module_pages.back.height') as double;
+
+    final iconImage = styles.getStyles('course_cards.style_coding.${widget.languageId}.icon') as String;
+    final langIconWidth = styles.getStyles('module_pages.list_page.language_display.width') as double;
+    final langIconHeight = styles.getStyles('module_pages.list_page.language_display.height') as double;
+    final langDisplayBgGradient = styles.getStyles('module_pages.list_page.language_display.background_color') as LinearGradient;
+    final langDisplayBorderRadius = styles.getStyles('module_pages.list_page.language_display.border_radius') as double;
+    final langDisplayBorderWidth = styles.getStyles('module_pages.list_page.language_display.border_width') as double;
+    final langDisplayStrokeGradient = styles.getStyles('course_cards.style_coding.${widget.languageId}.stroke_color') as LinearGradient;
+
     final titleColor = styles.getStyles('module_pages.title.color') as Color;
     final titleFontSize = styles.getStyles('module_pages.title.font_size') as double;
     final titleFontWeight = styles.getStyles('module_pages.title.font_weight') as FontWeight;
     final subtitleColor = styles.getStyles('module_pages.subtitle.color') as Color;
     final subtitleFontSize = styles.getStyles('module_pages.subtitle.font_size') as double;
-
-    final iconWidth = styles.getStyles('module_pages.icon.width') as double;
-    final iconHeight = styles.getStyles('module_pages.icon.height') as double;
-    final iconBorderRadius = styles.getStyles('module_pages.icon.border_radius') as double;
-    final iconPadding = styles.getStyles('module_pages.icon.padding') as double;
-    final iconBg = styles.getStyles('module_pages.icon.background_color') as LinearGradient;
-  final iconImage = styles.getStyles('course_cards.style_coding.${widget.languageId}.icon') as String;
-
-    final backIconColor = styles.getStyles('module_pages.back.color') as Color;
-    final backIconSize = styles.getStyles('module_pages.back.size') as double;
-
-    // course info future is provided by the state field `_courseInfoFuture`
 
     return Scaffold(
       body: SafeArea(
@@ -103,12 +109,17 @@ class _ModuleListPageState extends State<ModuleListPage> {
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Align(
                     alignment: Alignment.centerLeft,
-                    child: IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.arrow_back),
-                      color: backIconColor,
-                      iconSize: backIconSize,
-                      tooltip: 'Back',
+                    child: GestureDetector(
+                      onTap: () => Navigator.of(context).pop(),
+                      child: Container(
+                        width: backWidth,
+                        height: backHeight,
+                        decoration: BoxDecoration(
+                          color: backBgColor,
+                          borderRadius: BorderRadius.circular(backBorderRadius),
+                        ),
+                        child: Image.asset(backIconImage, width: backIconWidth, height: backIconHeight),
+                      ),
                     ),
                   ),
                 ),
@@ -130,10 +141,6 @@ class _ModuleListPageState extends State<ModuleListPage> {
                         final int chapterCount = info['chapterCount'] as int;
                         final dynamic est = info['estimatedDuration'];
                         final double progress = info['progress'] as double;
-
-                        final progressColor = styles.getStyles('module_pages.progress_text.color') as Color;
-                        final progressFontSize = styles.getStyles('module_pages.progress_text.font_size') as double;
-                        final progressFontWeight = styles.getStyles('module_pages.progress_text.font_weight') as FontWeight;
 
                         final infoIconChapter = styles.getStyles('module_pages.info_row.dark.chapter_icon') as String;
                         final infoIconDuration = styles.getStyles('module_pages.info_row.dark.duration_icon') as String;
@@ -169,18 +176,45 @@ class _ModuleListPageState extends State<ModuleListPage> {
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Container(
-                                  width: iconWidth,
-                                  height: iconHeight,
-                                  decoration: BoxDecoration(
-                                    gradient: iconBg,
-                                    borderRadius: BorderRadius.circular(iconBorderRadius),
+                                // Left column: language display
+                                Expanded(
+                                  child: Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(right: 12.0),
+                                      child: Container(
+                                        width: langIconWidth,
+                                        height: langIconHeight,
+                                        decoration: BoxDecoration(
+                                          gradient: langDisplayStrokeGradient,
+                                          borderRadius: BorderRadius.circular(langDisplayBorderRadius),
+                                        ),
+                                        child: Padding(
+                                          padding: EdgeInsets.all(langDisplayBorderWidth),
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              gradient: langDisplayBgGradient,
+                                              borderRadius: BorderRadius.circular(langDisplayBorderRadius - langDisplayBorderWidth),
+                                            ),
+                                            padding: const EdgeInsets.all(16.0),
+                                            child: Image.asset(iconImage, width: langIconWidth, height: langIconHeight),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                  padding: EdgeInsets.all(iconPadding),
-                                  child: Image.asset(iconImage, fit: BoxFit.contain),
                                 ),
-                                const Spacer(),
-                                Text('${(progress * 100).toStringAsFixed(1)}%', style: TextStyle(fontSize: progressFontSize, fontWeight: progressFontWeight, color: progressColor)),
+
+                                // Right column: progress display
+                                Expanded(
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 12.0),
+                                      child: ProgressDisplay(stylePath: 'module_pages.list_page.progress_display', progress: progress),
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
 

@@ -152,8 +152,13 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
   Widget build(BuildContext context) {
     final styles = AppStyles();
 
-    final backIconColor = styles.getStyles('module_pages.back.color') as Color;
-    final backIconSize = styles.getStyles('module_pages.back.size') as double;
+    final backIconImage = styles.getStyles('module_pages.back.icon.image') as String;
+    final backIconWidth = styles.getStyles('module_pages.back.icon.width') as double;
+    final backIconHeight = styles.getStyles('module_pages.back.icon.height') as double;
+    final backBgColor = styles.getStyles('module_pages.back.background_color') as Color;
+    final backBorderRadius = styles.getStyles('module_pages.back.border_radius') as double;
+    final backWidth = styles.getStyles('module_pages.back.width') as double;
+    final backHeight = styles.getStyles('module_pages.back.height') as double;
 
     final titleColor = styles.getStyles('module_pages.title.color') as Color;
     final titleFontSize = styles.getStyles('module_pages.title.font_size') as double;
@@ -162,12 +167,13 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
     final subtitleColor = styles.getStyles('module_pages.subtitle.color') as Color;
     final subtitleFontSize = styles.getStyles('module_pages.subtitle.font_size') as double;
 
-    final iconWidth = styles.getStyles('module_pages.icon.width') as double;
-    final iconHeight = styles.getStyles('module_pages.icon.height') as double;
-    final iconBorderRadius = styles.getStyles('module_pages.icon.border_radius') as double;
-    final iconPadding = styles.getStyles('module_pages.icon.padding') as double;
-    final iconBg = styles.getStyles('module_pages.icon.background_color') as LinearGradient;
     final iconImage = styles.getStyles('course_cards.style_coding.${widget.languageId}.icon') as String;
+    final langDisplayWidth = styles.getStyles('module_pages.levels_page.language_display.width') as double;
+    final langDisplayHeight = styles.getStyles('module_pages.levels_page.language_display.height') as double;
+    final langDisplayBorderRadius = styles.getStyles('module_pages.levels_page.language_display.border_radius') as double;
+    final langDisplayBorderWidth = styles.getStyles('module_pages.levels_page.language_display.border_width') as double;
+    final langDisplayBgGradient = styles.getStyles('module_pages.levels_page.language_display.background_color') as LinearGradient;
+    final langDisplayStrokeGradient = styles.getStyles('course_cards.style_coding.${widget.languageId}.stroke_color') as LinearGradient;
 
     final leafSize = styles.getStyles('module_pages.leaves.width') as double;
     final leafPadding = styles.getStyles('module_pages.leaves.padding') as double;
@@ -214,17 +220,22 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
                             flex: 1,
                             child: Align(
                               alignment: Alignment.topLeft,
-                              child: IconButton(
-                                onPressed: () async {
+                              child: GestureDetector(
+                                onTap: () async {
                                   final navigator = Navigator.of(context);
                                   final leave = await BackConfirmationPopup.show(context);
                                   if (!mounted) return;
                                   if (leave) navigator.pop();
                                 },
-                                icon: const Icon(Icons.arrow_back),
-                                color: backIconColor,
-                                iconSize: backIconSize,
-                                tooltip: 'Back',
+                                child: Container(
+                                  width: backWidth,
+                                  height: backHeight,
+                                  decoration: BoxDecoration(
+                                    color: backBgColor,
+                                    borderRadius: BorderRadius.circular(backBorderRadius),
+                                  ),
+                                  child: Image.asset(backIconImage, width: backIconWidth, height: backIconHeight),
+                                ),
                               ),
                             ),
                           ),
@@ -248,24 +259,33 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                // Icon container
+                                // Language display
                                 Container(
-                                  width: iconWidth,
-                                  height: iconHeight,
+                                  width: langDisplayWidth,
+                                  height: langDisplayHeight,
                                   decoration: BoxDecoration(
-                                    gradient: iconBg,
-                                    borderRadius: BorderRadius.circular(iconBorderRadius),
+                                    gradient: langDisplayStrokeGradient,
+                                    borderRadius: BorderRadius.circular(langDisplayBorderRadius),
                                   ),
-                                  padding: EdgeInsets.all(iconPadding),
-                                  child: Image.asset(iconImage, fit: BoxFit.contain),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(langDisplayBorderWidth),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        gradient: langDisplayBgGradient,
+                                        borderRadius: BorderRadius.circular((langDisplayBorderRadius - langDisplayBorderWidth).clamp(0.0, double.infinity)),
+                                      ),
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Image.asset(iconImage, width: langDisplayWidth, height: langDisplayHeight),
+                                    ),
+                                  ),
                                 ),
                                 const SizedBox(height: 12),
 
-                                // Leaves positioned centered under the icon and overlapping its bottom
+                                // Difficulty leaves
                                 Transform.translate(
                                   offset: Offset(0, -leafSize / 2),
                                   child: SizedBox(
-                                    width: iconWidth,
+                                    width: langDisplayWidth + langDisplayBorderWidth,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       mainAxisAlignment: MainAxisAlignment.center,
