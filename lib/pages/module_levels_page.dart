@@ -107,28 +107,60 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
       completedModule: widget.moduleNumber,
     );
 
+    try {
+      final base = Map<String, dynamic>.from(ud.toJson());
+      updated.forEach((k, v) => base[k] = v);
+
+      // Ensure lastInteraction is updated to reflect the played module
+      final li = (base['lastInteraction'] is Map)
+          ? Map<String, dynamic>.from(base['lastInteraction'] as Map)
+          : <String, dynamic>{};
+      li['languageId'] = widget.languageId;
+      li['difficulty'] = widget.difficulty;
+      base['lastInteraction'] = li;
+
+      // Ensure interaction.hasLearnedModule is set to true
+      final interaction = (base['interaction'] is Map)
+          ? Map<String, dynamic>.from(base['interaction'] as Map)
+          : <String, dynamic>{};
+      interaction['hasLearnedModule'] = true;
+      base['interaction'] = interaction;
+
+      final newUser = UserData.fromJson(base);
+
       try {
-        final merged = {'uid': ud.uid, ...updated};
-        final newUser = UserData.fromJson(merged);
-
-        try {
-          LocalStorageService.instance.userDataNotifier.value = newUser;
-        } catch (_) {}
-
-        LocalStorageService.instance.saveUserData(newUser).catchError((_) {});
-        Future(() async {
-          try {
-            await newUser.save();
-          } catch (_) {}
-        });
+        LocalStorageService.instance.userDataNotifier.value = newUser;
       } catch (_) {}
+
+      // Persist locally and remotely in background so UI is not blocked
+      LocalStorageService.instance.saveUserData(newUser).catchError((_) {});
+      Future(() async {
+        try {
+          await newUser.save();
+        } catch (_) {}
+      });
+    } catch (_) {}
 
     if (mounted) {
       try {
-        final merged = {'uid': ud.uid, ...updated};
+        final base = Map<String, dynamic>.from(ud.toJson());
+        updated.forEach((k, v) => base[k] = v);
+        // Make sure lastInteraction and interaction flags are present for progress
+        final li = (base['lastInteraction'] is Map)
+            ? Map<String, dynamic>.from(base['lastInteraction'] as Map)
+            : <String, dynamic>{};
+        li['languageId'] = widget.languageId;
+        li['difficulty'] = widget.difficulty;
+        base['lastInteraction'] = li;
+        final interaction = (base['interaction'] is Map)
+            ? Map<String, dynamic>.from(base['interaction'] as Map)
+            : <String, dynamic>{};
+        interaction['hasLearnedModule'] = true;
+        base['interaction'] = interaction;
+
         // compute updated progress for the course/difficulty
         final progress = await CourseDataSchema().getProgressPercentage(
-          userData: merged,
+          userData: base,
           languageId: widget.languageId,
           difficulty: widget.difficulty.toLowerCase(),
         );
