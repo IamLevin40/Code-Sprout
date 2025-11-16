@@ -176,7 +176,7 @@ class _FillInTheCodeContentWidgetState extends State<FillInTheCodeContentWidget>
         Container(
           width: double.infinity,
           margin: const EdgeInsets.symmetric(vertical: 4.0),
-          padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
           decoration: BoxDecoration(
             color: codeLineBg,
             borderRadius: BorderRadius.circular(codeLineBorderRadius),

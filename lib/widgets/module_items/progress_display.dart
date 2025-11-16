@@ -44,9 +44,9 @@ class ProgressDisplay extends StatelessWidget {
             borderRadius: BorderRadius.circular((progBorderRadius - progBorderWidth).clamp(0.0, double.infinity)),
           ),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(height: 8),
               SizedBox(
                 width: progIconWidth,
                 height: progIconHeight,
@@ -67,7 +67,7 @@ class ProgressDisplay extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 2),
               Builder(builder: (ctx) {
                 final base = Theme.of(ctx).textTheme.titleLarge ?? DefaultTextStyle.of(ctx).style;
                 return Text('${(progress * 100).toStringAsFixed(2)}%', style: base.copyWith(color: progTextColor, fontSize: progTextFontSize, fontWeight: progTextFontWeight));
