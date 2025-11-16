@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui' as ui show ImageFilter;
 import '../models/styles_schema.dart';
 import '../models/course_data_schema.dart';
 import '../models/course_data.dart';
@@ -186,10 +187,25 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
     final langDisplayBgGradient = styles.getStyles('module_pages.levels_page.language_display.background_color') as LinearGradient;
     final langDisplayStrokeGradient = styles.getStyles('course_cards.style_coding.${widget.languageId}.stroke_color') as LinearGradient;
 
-    final leafSize = styles.getStyles('module_pages.leaves.width') as double;
-    final leafPadding = styles.getStyles('module_pages.leaves.padding') as double;
-    final leafHighlightPath = styles.getStyles('module_pages.leaves.icons.highlight') as String;
-    final leafUnhighlightPath = styles.getStyles('module_pages.leaves.icons.unhighlight') as String;
+    final leafSize = styles.getStyles('module_pages.levels_page.leaves.width') as double;
+    final leafPadding = styles.getStyles('module_pages.levels_page.leaves.padding') as double;
+    final leafHighlightPath = styles.getStyles('module_pages.levels_page.leaves.icons.highlight') as String;
+    final leafUnhighlightPath = styles.getStyles('module_pages.levels_page.leaves.icons.unhighlight') as String;
+
+    // parse highlight shadow for leaves (module_pages.levels_page.leaves.highlight_shadow)
+    Color? leafShadowColor;
+    double? leafShadowOpacity;
+    double? leafShadowBlur;
+    try {
+      leafShadowColor = styles.getStyles('module_pages.levels_page.leaves.highlight_shadow.color') as Color;
+      final lopRaw = styles.getStyles('module_pages.levels_page.leaves.highlight_shadow.opacity');
+      leafShadowOpacity = (lopRaw is num) ? lopRaw.toDouble() / 100.0 : (lopRaw as double);
+      leafShadowBlur = styles.getStyles('module_pages.levels_page.leaves.highlight_shadow.blur_radius') as double;
+    } catch (e) {
+      leafShadowColor = null;
+      leafShadowOpacity = null;
+      leafShadowBlur = null;
+    }
 
     return Scaffold(
       body: SafeArea(
@@ -315,7 +331,32 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
                                         for (int i = 0; i < 3; i++) ...[
-                                          SizedBox(width: leafSize, height: leafSize, child: Image.asset(i < highlightedLeaves ? leafHighlightPath : leafUnhighlightPath)),
+                                          SizedBox(
+                                            width: leafSize,
+                                            height: leafSize,
+                                            child: Stack(
+                                              alignment: Alignment.center,
+                                              children: [
+                                                if (i < highlightedLeaves && leafShadowColor != null && leafShadowOpacity != null && leafShadowBlur != null)
+                                                  ImageFiltered(
+                                                    imageFilter: ui.ImageFilter.blur(sigmaX: leafShadowBlur, sigmaY: leafShadowBlur),
+                                                    child: Image.asset(
+                                                      leafHighlightPath,
+                                                      width: leafSize,
+                                                      height: leafSize,
+                                                      color: leafShadowColor.withAlpha((leafShadowOpacity * 255).round()),
+                                                      colorBlendMode: BlendMode.srcIn,
+                                                    ),
+                                                  ),
+
+                                                Image.asset(
+                                                  i < highlightedLeaves ? leafHighlightPath : leafUnhighlightPath,
+                                                  width: leafSize,
+                                                  height: leafSize,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                           if (i < 2) SizedBox(width: leafPadding),
                                         ],
                                       ],

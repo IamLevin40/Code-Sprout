@@ -1480,6 +1480,20 @@
                 "color": "--colors.dark_purple",
                 "font_size": "--font_sizes.regular",
                 "font_weight": "--font_weights.bold"
+            },
+            "leaves": {
+                "width": 14,
+                "height": 14,
+                "padding": 2,
+                "icons": {
+                    "highlight": "images/icons/on_cards/leaf_highlight.png",
+                    "unhighlight": "images/icons/on_cards/leaf_unhighlight.png"
+                },
+                "highlight_shadow": {
+                    "color": "--colors.black",
+                    "opacity": 70,
+                    "blur_radius": 2
+                }
             }
         },
         "title": {
@@ -1490,40 +1504,6 @@
         "subtitle": {
             "color": "--colors.dark_purple",
             "font_size": "--font_sizes.regular"
-        },
-        "icon": {
-            "width": 80,
-            "height": 72,
-            "border_radius": 16,
-            "padding": 12,
-            "background_color": {
-                "begin": {
-                    "position": "top_left",
-                    "color": "--colors.dirty_white"
-                },
-                "end": {
-                    "position": "bottom_right",
-                    "color": "--colors.white"
-                }
-            }
-        },
-        "progress_text": {
-            "color": "--colors.light_purple",
-            "font_size": "--font_sizes.heading",
-            "font_weight": "--font_weights.bold"
-        },
-        "leaves": {
-            "width": 14,
-            "padding": 4,
-            "icons": {
-                "highlight": "images/icons/on_cards/leaf_highlight.png",
-                "unhighlight": "images/icons/on_cards/leaf_unhighlight.png"
-            },
-            "highlight_shadow": {
-                "color": "--colors.black",
-                "opacity": 70,
-                "blur_radius": 2
-            }
         }
     },
     "sprout_researches": {
