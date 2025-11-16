@@ -1849,6 +1849,83 @@
                         "font_weight": "--font_weights.bold"
                     }
                 }
+            },
+            "assemble_the_code_mode": {
+                "question_text": {
+                    "color": "--colors.dark_gray",
+                    "font_size": "--font_sizes.regular",
+                    "font_weight": "--font_weights.bold"
+                },
+                "code_area": {
+                    "background_color": "--colors.ivory_white",
+                    "border_radius": 16
+                },
+                "code_line_area": {
+                    "background_color": "--colors.dirty_white",
+                    "border_radius": 8
+                },
+                "code_container": {
+                    "height": 36
+                },
+                "ghost_placeholder": {
+                    "width": 56,
+                    "height": 36,
+                    "border_radius": 8,
+                    "background_color": "--colors.pastel_blue"
+                },
+                "choice_container": {
+                    "min_width": 56,
+                    "min_height": 36,
+                    "border_radius": 8,
+                    "border_width": 2,
+                    "background_color": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "--colors.ivory_white"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "--colors.white"
+                        }
+                    },
+                    "stroke_color": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "#87A1BF"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "--colors.gray"
+                        }
+                    },
+                    "text": {
+                        "color": "--colors.dark_purple",
+                        "font_size": "--font_sizes.regular",
+                        "font_weight": "--font_weights.bold"
+                    }
+                },
+                "submit_button": {
+                    "width": 128,
+                    "height": 32,
+                    "background_color": "--colors.ivory_white",
+                    "border_width": 2,
+                    "border_radius": 8,
+                    "stroke_color": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "--colors.dark_green"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "#204921"
+                        }
+                    },
+                    "text": {
+                        "color": "--colors.dark_gray",
+                        "font_size": "--font_sizes.regular",
+                        "font_weight": "--font_weights.bold"
+                    }
+                }
             }
         },
         "title": {

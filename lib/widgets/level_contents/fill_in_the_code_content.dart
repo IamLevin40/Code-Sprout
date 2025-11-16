@@ -225,7 +225,7 @@ class _FillInTheCodeContentWidgetState extends State<FillInTheCodeContentWidget>
             },
           ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 32),
 
         // Submit button
         Center(
