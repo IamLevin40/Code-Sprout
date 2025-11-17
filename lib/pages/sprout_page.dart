@@ -8,6 +8,7 @@ import '../models/rank_data.dart';
 import '../widgets/rank_card.dart';
 import '../models/course_data_schema.dart';
 import '../models/sprout_data.dart';
+import '../widgets/sprout_items/current_language_card.dart';
 
 class SproutPage extends StatefulWidget {
   const SproutPage({super.key});
@@ -146,22 +147,19 @@ class _SproutPageState extends State<SproutPage> {
               const SizedBox(height: 16),
             ],
 
-            // Language section
-            Text('Language', style: TextStyle(fontSize: styles.getStyles('sprout_page.language.title.font_size') as double)),
-            const SizedBox(height: 6),
-            DropdownButton<String>(
-              value: _selectedLanguage,
-              items: _languages.map((langId) {
-                final display = _languageNames[langId] ?? langId;
-                return DropdownMenuItem(value: langId, child: Text(display));
-              }).toList(),
-              onChanged: (v) async {
-                if (v == null) return;
+            // Current language card
+            CurrentLanguageCard(
+              selectedLanguageId: _selectedLanguage,
+              languageNames: _languageNames,
+              availableLanguages: _languages,
+              onLanguageSelected: (v) async {
+                if (!mounted) return;
                 setState(() => _selectedLanguage = v);
 
                 if (_userData != null) {
                   try {
                     final updated = await SproutData.setSelectedLanguage(userData: _userData!, languageId: v);
+                    if (!mounted) return;
                     setState(() {
                       _userData = updated;
                     });
@@ -171,7 +169,7 @@ class _SproutPageState extends State<SproutPage> {
                 }
               },
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
             // Visit / Start button section
             SizedBox(
