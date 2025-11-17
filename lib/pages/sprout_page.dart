@@ -172,22 +172,65 @@ class _SproutPageState extends State<SproutPage> {
             const SizedBox(height: 16),
 
             // Visit / Start button section
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Opening sprout for $_selectedLanguage (placeholder)')));
-                },
-                icon: Icon(Icons.rocket_launch, color: styles.getStyles('sprout_page.start_button.icon.color') as Color),
-                label: Text('Start Sprout', style: TextStyle(fontSize: styles.getStyles('sprout_page.start_button.text.font_size') as double)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: styles.getStyles('sprout_page.start_button.background_color') as Color,
-                  foregroundColor: styles.getStyles('sprout_page.start_button.text.color') as Color,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(styles.getStyles('sprout_page.start_button.border_radius') as double)),
-                ),
-              ),
-            ),
+            Builder(builder: (ctx) {
+              final staticFontSize = styles.getStyles('sprout_page.visit_section.static_label.font_size') as double;
+              final staticColor = styles.getStyles('sprout_page.visit_section.static_label.color') as Color;
+              final staticWeight = styles.getStyles('sprout_page.visit_section.static_label.font_weight') as FontWeight;
+
+              final btnWidth = styles.getStyles('sprout_page.visit_section.start_button.width') as double;
+              final btnHeight = styles.getStyles('sprout_page.visit_section.start_button.height') as double;
+              final btnRadius = styles.getStyles('sprout_page.visit_section.start_button.border_radius') as double;
+              final btnBorder = styles.getStyles('sprout_page.visit_section.start_button.border_width') as double;
+              final btnBg = styles.getStyles('sprout_page.visit_section.start_button.background_color') as LinearGradient;
+              final btnStroke = styles.getStyles('sprout_page.visit_section.start_button.stroke_color') as LinearGradient;
+              final btnTextColor = styles.getStyles('sprout_page.visit_section.start_button.text.color') as Color;
+              final btnTextSize = styles.getStyles('sprout_page.visit_section.start_button.text.font_size') as double;
+              final btnTextWeight = styles.getStyles('sprout_page.visit_section.start_button.text.font_weight') as FontWeight;
+
+              return Row(
+                children: [
+                  // Left column: two static labels
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("Let's get more resources!", style: TextStyle(fontSize: staticFontSize, color: staticColor, fontWeight: staticWeight)),
+                        const SizedBox(height: 4),
+                        Text('Time to farm!', style: TextStyle(fontSize: staticFontSize, color: staticColor, fontWeight: staticWeight)),
+                      ],
+                    ),
+                  ),
+
+                  // Right column: Visit The Farm button
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Visiting the farm for $_selectedLanguage (placeholder)')));
+                      },
+                      child: Container(
+                        width: btnWidth,
+                        height: btnHeight,
+                        decoration: BoxDecoration(
+                          gradient: btnStroke,
+                          borderRadius: BorderRadius.circular(btnRadius),
+                        ),
+                        padding: EdgeInsets.all(btnBorder),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: btnBg,
+                            borderRadius: BorderRadius.circular(btnRadius - btnBorder),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text('Visit The Farm', style: TextStyle(color: btnTextColor, fontSize: btnTextSize, fontWeight: btnTextWeight)),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }),
             const SizedBox(height: 20),
 
             // Inventory

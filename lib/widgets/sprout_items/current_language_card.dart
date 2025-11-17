@@ -80,7 +80,6 @@ class CurrentLanguageCard extends StatelessWidget {
                     final fontWeight = styles.getStyles('$base.font_weight') as FontWeight;
                     final color = styles.getStyles('$base.color') as Color;
 
-                    // Shadow (optional in schema) - follow same extraction pattern as other helpers
                     List<Shadow> textShadows = [];
                     try {
                       final Color baseColor = styles.getStyles('$base.shadow.color') as Color;

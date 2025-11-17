@@ -728,7 +728,7 @@
     "sprout_page": {
         "current_language_card": {
             "height": 108,
-            "border_radius": 24,
+            "border_radius": 16,
             "border_width": 2,
             "placeholder": {
                 "color": "--colors.dirty_white"
@@ -795,17 +795,43 @@
                 }
             }
         },
-        "start_button": {
-            "icon": {
-                "color": "--colors.white"
+        "visit_section": {
+            "static_label": {
+                "color": "--colors.dark_gray",
+                "font_size": "--font_sizes.regular",
+                "font_weight": "--font_weights.bold"
             },
-            "text": {
-                "color": "--colors.white",
-                "font_size": "--font_sizes.regular"
-            },
-            "background_color": "--colors.dark_green",
-            "text_color": "--colors.white",
-            "border_radius": 12
+            "start_button": {
+                "width": 128,
+                "height": 40,
+                "border_radius": 8,
+                "border_width": 2,
+                "background_color": {
+                    "begin": {
+                        "position": "top_left",
+                        "color": "#CF093E"
+                    },
+                    "end": {
+                        "position": "bottom_right",
+                        "color": "#EF576D"
+                    }
+                },
+                "stroke_color": {
+                    "begin": {
+                        "position": "top_left",
+                        "color": "#E5315F"
+                    },
+                    "end": {
+                        "position": "bottom_right",
+                        "color": "#6B0721"
+                    }
+                },
+                "text": {
+                    "color": "--colors.white",
+                    "font_size": "--font_sizes.regular",
+                    "font_weight": "--font_weights.bold"
+                }
+            }
         },
         "inventory": {
             "title": {
