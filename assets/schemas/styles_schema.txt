@@ -835,16 +835,70 @@
         },
         "inventory": {
             "title": {
-                "font_size": "--font_sizes.regular",
+                "color": "--colors.dark_purple",
+                "font_size": "--font_sizes.title",
                 "font_weight": "--font_weights.bold"
             },
-            "icon": {
-                "color": "--colors.light_green"
-            },
-            "item": {
-                "font_size": "--font_sizes.regular",
-                "subtitle": {
-                    "color": "--colors.dirty_white"
+            "card": {
+                "height": 48,
+                "border_radius": 8,
+                "border_width": 2,
+                "background_color": {
+                    "begin": {
+                        "position": "top_left",
+                        "color": "--colors.ivory_white"
+                    },
+                    "end": {
+                        "position": "bottom_right",
+                        "color": "--colors.white"
+                    }
+                },
+                "stroke_color": {
+                    "begin": {
+                        "position": "top_left",
+                        "color": "#87A1BF"
+                    },
+                    "end": {
+                        "position": "bottom_right",
+                        "color": "--colors.gray"
+                    }
+                },
+                "icon": {
+                    "width": 24,
+                    "height": 24
+                },
+                "crop_label": {
+                    "color": "--colors.dark_purple",
+                    "font_size": "--font_sizes.regular",
+                    "font_weight": "--font_weights.bold"
+                },
+                "quantity_label": {
+                    "color": "--colors.gray",
+                    "font_size": "--font_sizes.regular",
+                    "font_weight": "--font_weights.regular"
+                },
+                "locked_overlay": {
+                    "background": {
+                        "color": "rgba(250, 250, 250, 0.6)",
+                        "opacity": 60,
+                        "blur_sigma": 4
+                    },
+                    "stroke_thickness": 2,
+                    "stroke_color": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "#87A1BF"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "--colors.gray"
+                        }
+                    },
+                    "locked_label": {
+                        "color": "--colors.dark_gray",
+                        "font_size": "--font_sizes.regular",
+                        "font_weight": "--font_weights.bold"
+                    }
                 }
             }
         }

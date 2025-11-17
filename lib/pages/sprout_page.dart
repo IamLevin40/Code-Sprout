@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/styles_schema.dart';
 import '../services/auth_service.dart';
+import '../miscellaneous/glass_effect.dart';
 import '../services/firestore_service.dart';
 import '../services/local_storage_service.dart';
 import '../models/user_data.dart';
@@ -231,11 +232,17 @@ class _SproutPageState extends State<SproutPage> {
                 ],
               );
             }),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
             // Inventory
-            Text('Inventory', style: TextStyle(fontSize: styles.getStyles('sprout_page.inventory.title.font_size') as double, fontWeight: styles.getStyles('sprout_page.inventory.title.font_weight') as FontWeight)),
-            const SizedBox(height: 8),
+            Text('Inventory', style: 
+              TextStyle(
+                color: styles.getStyles('sprout_page.inventory.title.color') as Color,
+                fontSize: styles.getStyles('sprout_page.inventory.title.font_size') as double, 
+                fontWeight: styles.getStyles('sprout_page.inventory.title.font_weight') as FontWeight
+              )
+            ),
+            const SizedBox(height: 12),
 
             // Inventory grid (3 columns max)
             LayoutBuilder(builder: (context, constraints) {
@@ -245,6 +252,33 @@ class _SproutPageState extends State<SproutPage> {
               final double itemWidth = (maxWidth - (columns - 1) * spacing) / columns;
 
               final cropImages = styles.getStyles('sprout_researches.crop_items') as Map<String, dynamic>;
+              final lockedIconImage = styles.getStyles('sprout_researches.locked_overlay.icon.image') as String;
+
+              final cardHeight = styles.getStyles('sprout_page.inventory.card.height') as double;
+              final cardBorderRadius = styles.getStyles('sprout_page.inventory.card.border_radius') as double;
+              final cardBorderWidth = styles.getStyles('sprout_page.inventory.card.border_width') as double;
+              final cardBg = styles.getStyles('sprout_page.inventory.card.background_color') as LinearGradient;
+              final cardStroke = styles.getStyles('sprout_page.inventory.card.stroke_color') as LinearGradient;
+
+              final iconWidth = styles.getStyles('sprout_page.inventory.card.icon.width') as double;
+              final iconHeight = styles.getStyles('sprout_page.inventory.card.icon.height') as double;
+
+              final cropLabelColor = styles.getStyles('sprout_page.inventory.card.crop_label.color') as Color;
+              final cropLabelSize = styles.getStyles('sprout_page.inventory.card.crop_label.font_size') as double;
+              final cropLabelWeight = styles.getStyles('sprout_page.inventory.card.crop_label.font_weight') as FontWeight;
+
+              final quantityColor = styles.getStyles('sprout_page.inventory.card.quantity_label.color') as Color;
+              final quantitySize = styles.getStyles('sprout_page.inventory.card.quantity_label.font_size') as double;
+              final quantityWeight = styles.getStyles('sprout_page.inventory.card.quantity_label.font_weight') as FontWeight;
+
+              final lockedBgColor = styles.getStyles('sprout_page.inventory.card.locked_overlay.background.color') as Color;
+              final lockedBgOpacity = styles.getStyles('sprout_page.inventory.card.locked_overlay.background.opacity') as double;
+              final lockedBgBlur = styles.getStyles('sprout_page.inventory.card.locked_overlay.background.blur_sigma') as double;
+              final lockedStrokeGradient = styles.getStyles('sprout_page.inventory.card.locked_overlay.stroke_color') as LinearGradient;
+              final lockedStrokeThickness = styles.getStyles('sprout_page.inventory.card.locked_overlay.stroke_thickness') as double;
+              final lockedLabelColor = styles.getStyles('sprout_page.inventory.card.locked_overlay.locked_label.color') as Color;
+              final lockedLabelSize = styles.getStyles('sprout_page.inventory.card.locked_overlay.locked_label.font_size') as double;
+              final lockedLabelWeight = styles.getStyles('sprout_page.inventory.card.locked_overlay.locked_label.font_weight') as FontWeight;
 
               return Wrap(
                 spacing: spacing,
@@ -254,50 +288,92 @@ class _SproutPageState extends State<SproutPage> {
 
                   return SizedBox(
                     width: itemWidth,
-                    child: Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: [
-                            SizedBox(
-                              width: itemWidth * 0.35,
-                              height: itemWidth * 0.35,
-                              child: Stack(
-                                alignment: Alignment.center,
+                    child: Stack(
+                      children: [
+                        // Card
+                        Container(
+                          height: cardHeight,
+                          decoration: BoxDecoration(
+                            gradient: cardStroke,
+                            borderRadius: BorderRadius.circular(cardBorderRadius),
+                          ),
+                          padding: EdgeInsets.all(cardBorderWidth),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: cardBg,
+                              borderRadius: BorderRadius.circular(cardBorderRadius - cardBorderWidth),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                              child: Row(
                                 children: [
-                                  Image.asset(imagePath, fit: BoxFit.contain),
-                                  if (item.isLocked) ...[
-                                    Container(color: const Color.fromARGB(192, 255, 255, 255)),
-                                    Builder(builder: (_) {
-                                      final lockedImg = styles.getStyles('sprout_researches.locked_overlay.icon.image') as String;
-                                      return Image.asset(lockedImg, width: itemWidth * 0.18, height: itemWidth * 0.18, fit: BoxFit.contain);
-                                    }),
-                                  ],
+                                  // Left: icon
+                                  Expanded(
+                                    flex: 1,
+                                    child: Center(
+                                      child: Image.asset(imagePath, width: iconWidth, height: iconHeight, fit: BoxFit.contain),
+                                    ),
+                                  ),
+
+                                  // Right: texts
+                                  Expanded(
+                                    flex: 2,
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(item.displayName, style: TextStyle(color: cropLabelColor, fontSize: cropLabelSize, fontWeight: cropLabelWeight)),
+                                        Text('x${item.quantity}', style: TextStyle(color: quantityColor, fontSize: quantitySize, fontWeight: quantityWeight)),
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    item.isLocked ? 'Locked' : item.displayName,
-                                    style: TextStyle(fontSize: styles.getStyles('sprout_page.inventory.item.font_size') as double),
-                                  ),
-                                  if (!item.isLocked) ...[
-                                    Text(
-                                      'x${item.quantity}',
-                                      style: TextStyle(color: styles.getStyles('sprout_page.inventory.item.subtitle.color') as Color),
+                          ),
+                        ),
+
+                        // Locked overlay if locked
+                        if (item.isLocked)
+                          Positioned.fill(
+                            child: GlassEffect(
+                              background: lockedBgColor,
+                              opacity: lockedBgOpacity,
+                              blurSigma: lockedBgBlur,
+                              strokeGradient: lockedStrokeGradient,
+                              strokeThickness: lockedStrokeThickness,
+                              borderRadius: cardBorderRadius,
+                              padding: EdgeInsets.zero,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // Left: icon
+                                    Expanded(
+                                      flex: 1,
+                                      child: Center(
+                                        child: Image.asset(lockedIconImage, width: iconWidth, height: iconHeight),
+                                      ),
+                                    ),
+
+                                    // Right: "Locked" label
+                                    Expanded(
+                                      flex: 2,
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text('Locked', style: TextStyle(color: lockedLabelColor, fontSize: lockedLabelSize, fontWeight: lockedLabelWeight)),
+                                        ],
+                                      ),
                                     ),
                                   ],
-                                ],
+                                ),
                               ),
                             ),
-                          ],
-                        ),
-                      ),
+                          ),
+                      ],
                     ),
                   );
                 }).toList(),
