@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/styles_schema.dart';
 import '../services/auth_service.dart';
+import '../miscellaneous/glass_effect.dart';
 import '../services/firestore_service.dart';
 import '../services/local_storage_service.dart';
 import '../models/user_data.dart';
@@ -8,6 +9,7 @@ import '../models/rank_data.dart';
 import '../widgets/rank_card.dart';
 import '../models/course_data_schema.dart';
 import '../models/sprout_data.dart';
+import '../widgets/sprout_items/current_language_card.dart';
 
 class SproutPage extends StatefulWidget {
   const SproutPage({super.key});
@@ -146,22 +148,19 @@ class _SproutPageState extends State<SproutPage> {
               const SizedBox(height: 16),
             ],
 
-            // Language section
-            Text('Language', style: TextStyle(fontSize: styles.getStyles('sprout_page.language.title.font_size') as double)),
-            const SizedBox(height: 6),
-            DropdownButton<String>(
-              value: _selectedLanguage,
-              items: _languages.map((langId) {
-                final display = _languageNames[langId] ?? langId;
-                return DropdownMenuItem(value: langId, child: Text(display));
-              }).toList(),
-              onChanged: (v) async {
-                if (v == null) return;
+            // Current language card
+            CurrentLanguageCard(
+              selectedLanguageId: _selectedLanguage,
+              languageNames: _languageNames,
+              availableLanguages: _languages,
+              onLanguageSelected: (v) async {
+                if (!mounted) return;
                 setState(() => _selectedLanguage = v);
 
                 if (_userData != null) {
                   try {
                     final updated = await SproutData.setSelectedLanguage(userData: _userData!, languageId: v);
+                    if (!mounted) return;
                     setState(() {
                       _userData = updated;
                     });
@@ -171,30 +170,79 @@ class _SproutPageState extends State<SproutPage> {
                 }
               },
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
             // Visit / Start button section
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Opening sprout for $_selectedLanguage (placeholder)')));
-                },
-                icon: Icon(Icons.rocket_launch, color: styles.getStyles('sprout_page.start_button.icon.color') as Color),
-                label: Text('Start Sprout', style: TextStyle(fontSize: styles.getStyles('sprout_page.start_button.text.font_size') as double)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: styles.getStyles('sprout_page.start_button.background_color') as Color,
-                  foregroundColor: styles.getStyles('sprout_page.start_button.text.color') as Color,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(styles.getStyles('sprout_page.start_button.border_radius') as double)),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
+            Builder(builder: (ctx) {
+              final staticFontSize = styles.getStyles('sprout_page.visit_section.static_label.font_size') as double;
+              final staticColor = styles.getStyles('sprout_page.visit_section.static_label.color') as Color;
+              final staticWeight = styles.getStyles('sprout_page.visit_section.static_label.font_weight') as FontWeight;
+
+              final btnWidth = styles.getStyles('sprout_page.visit_section.start_button.width') as double;
+              final btnHeight = styles.getStyles('sprout_page.visit_section.start_button.height') as double;
+              final btnRadius = styles.getStyles('sprout_page.visit_section.start_button.border_radius') as double;
+              final btnBorder = styles.getStyles('sprout_page.visit_section.start_button.border_width') as double;
+              final btnBg = styles.getStyles('sprout_page.visit_section.start_button.background_color') as LinearGradient;
+              final btnStroke = styles.getStyles('sprout_page.visit_section.start_button.stroke_color') as LinearGradient;
+              final btnTextColor = styles.getStyles('sprout_page.visit_section.start_button.text.color') as Color;
+              final btnTextSize = styles.getStyles('sprout_page.visit_section.start_button.text.font_size') as double;
+              final btnTextWeight = styles.getStyles('sprout_page.visit_section.start_button.text.font_weight') as FontWeight;
+
+              return Row(
+                children: [
+                  // Left column: two static labels
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("Let's get more resources!", style: TextStyle(fontSize: staticFontSize, color: staticColor, fontWeight: staticWeight)),
+                        const SizedBox(height: 4),
+                        Text('Time to farm!', style: TextStyle(fontSize: staticFontSize, color: staticColor, fontWeight: staticWeight)),
+                      ],
+                    ),
+                  ),
+
+                  // Right column: Visit The Farm button
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Visiting the farm for $_selectedLanguage (placeholder)')));
+                      },
+                      child: Container(
+                        width: btnWidth,
+                        height: btnHeight,
+                        decoration: BoxDecoration(
+                          gradient: btnStroke,
+                          borderRadius: BorderRadius.circular(btnRadius),
+                        ),
+                        padding: EdgeInsets.all(btnBorder),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: btnBg,
+                            borderRadius: BorderRadius.circular(btnRadius - btnBorder),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text('Visit The Farm', style: TextStyle(color: btnTextColor, fontSize: btnTextSize, fontWeight: btnTextWeight)),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }),
+            const SizedBox(height: 16),
 
             // Inventory
-            Text('Inventory', style: TextStyle(fontSize: styles.getStyles('sprout_page.inventory.title.font_size') as double, fontWeight: styles.getStyles('sprout_page.inventory.title.font_weight') as FontWeight)),
-            const SizedBox(height: 8),
+            Text('Inventory', style: 
+              TextStyle(
+                color: styles.getStyles('sprout_page.inventory.title.color') as Color,
+                fontSize: styles.getStyles('sprout_page.inventory.title.font_size') as double, 
+                fontWeight: styles.getStyles('sprout_page.inventory.title.font_weight') as FontWeight
+              )
+            ),
+            const SizedBox(height: 12),
 
             // Inventory grid (3 columns max)
             LayoutBuilder(builder: (context, constraints) {
@@ -204,6 +252,33 @@ class _SproutPageState extends State<SproutPage> {
               final double itemWidth = (maxWidth - (columns - 1) * spacing) / columns;
 
               final cropImages = styles.getStyles('sprout_researches.crop_items') as Map<String, dynamic>;
+              final lockedIconImage = styles.getStyles('sprout_researches.locked_overlay.icon.image') as String;
+
+              final cardHeight = styles.getStyles('sprout_page.inventory.card.height') as double;
+              final cardBorderRadius = styles.getStyles('sprout_page.inventory.card.border_radius') as double;
+              final cardBorderWidth = styles.getStyles('sprout_page.inventory.card.border_width') as double;
+              final cardBg = styles.getStyles('sprout_page.inventory.card.background_color') as LinearGradient;
+              final cardStroke = styles.getStyles('sprout_page.inventory.card.stroke_color') as LinearGradient;
+
+              final iconWidth = styles.getStyles('sprout_page.inventory.card.icon.width') as double;
+              final iconHeight = styles.getStyles('sprout_page.inventory.card.icon.height') as double;
+
+              final cropLabelColor = styles.getStyles('sprout_page.inventory.card.crop_label.color') as Color;
+              final cropLabelSize = styles.getStyles('sprout_page.inventory.card.crop_label.font_size') as double;
+              final cropLabelWeight = styles.getStyles('sprout_page.inventory.card.crop_label.font_weight') as FontWeight;
+
+              final quantityColor = styles.getStyles('sprout_page.inventory.card.quantity_label.color') as Color;
+              final quantitySize = styles.getStyles('sprout_page.inventory.card.quantity_label.font_size') as double;
+              final quantityWeight = styles.getStyles('sprout_page.inventory.card.quantity_label.font_weight') as FontWeight;
+
+              final lockedBgColor = styles.getStyles('sprout_page.inventory.card.locked_overlay.background.color') as Color;
+              final lockedBgOpacity = styles.getStyles('sprout_page.inventory.card.locked_overlay.background.opacity') as double;
+              final lockedBgBlur = styles.getStyles('sprout_page.inventory.card.locked_overlay.background.blur_sigma') as double;
+              final lockedStrokeGradient = styles.getStyles('sprout_page.inventory.card.locked_overlay.stroke_color') as LinearGradient;
+              final lockedStrokeThickness = styles.getStyles('sprout_page.inventory.card.locked_overlay.stroke_thickness') as double;
+              final lockedLabelColor = styles.getStyles('sprout_page.inventory.card.locked_overlay.locked_label.color') as Color;
+              final lockedLabelSize = styles.getStyles('sprout_page.inventory.card.locked_overlay.locked_label.font_size') as double;
+              final lockedLabelWeight = styles.getStyles('sprout_page.inventory.card.locked_overlay.locked_label.font_weight') as FontWeight;
 
               return Wrap(
                 spacing: spacing,
@@ -213,50 +288,92 @@ class _SproutPageState extends State<SproutPage> {
 
                   return SizedBox(
                     width: itemWidth,
-                    child: Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: [
-                            SizedBox(
-                              width: itemWidth * 0.35,
-                              height: itemWidth * 0.35,
-                              child: Stack(
-                                alignment: Alignment.center,
+                    child: Stack(
+                      children: [
+                        // Card
+                        Container(
+                          height: cardHeight,
+                          decoration: BoxDecoration(
+                            gradient: cardStroke,
+                            borderRadius: BorderRadius.circular(cardBorderRadius),
+                          ),
+                          padding: EdgeInsets.all(cardBorderWidth),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: cardBg,
+                              borderRadius: BorderRadius.circular(cardBorderRadius - cardBorderWidth),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                              child: Row(
                                 children: [
-                                  Image.asset(imagePath, fit: BoxFit.contain),
-                                  if (item.isLocked) ...[
-                                    Container(color: const Color.fromARGB(192, 255, 255, 255)),
-                                    Builder(builder: (_) {
-                                      final lockedImg = styles.getStyles('sprout_researches.locked_overlay.icon.image') as String;
-                                      return Image.asset(lockedImg, width: itemWidth * 0.18, height: itemWidth * 0.18, fit: BoxFit.contain);
-                                    }),
-                                  ],
+                                  // Left: icon
+                                  Expanded(
+                                    flex: 1,
+                                    child: Center(
+                                      child: Image.asset(imagePath, width: iconWidth, height: iconHeight, fit: BoxFit.contain),
+                                    ),
+                                  ),
+
+                                  // Right: texts
+                                  Expanded(
+                                    flex: 2,
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(item.displayName, style: TextStyle(color: cropLabelColor, fontSize: cropLabelSize, fontWeight: cropLabelWeight)),
+                                        Text('x${item.quantity}', style: TextStyle(color: quantityColor, fontSize: quantitySize, fontWeight: quantityWeight)),
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    item.isLocked ? 'Locked' : item.displayName,
-                                    style: TextStyle(fontSize: styles.getStyles('sprout_page.inventory.item.font_size') as double),
-                                  ),
-                                  if (!item.isLocked) ...[
-                                    Text(
-                                      'x${item.quantity}',
-                                      style: TextStyle(color: styles.getStyles('sprout_page.inventory.item.subtitle.color') as Color),
+                          ),
+                        ),
+
+                        // Locked overlay if locked
+                        if (item.isLocked)
+                          Positioned.fill(
+                            child: GlassEffect(
+                              background: lockedBgColor,
+                              opacity: lockedBgOpacity,
+                              blurSigma: lockedBgBlur,
+                              strokeGradient: lockedStrokeGradient,
+                              strokeThickness: lockedStrokeThickness,
+                              borderRadius: cardBorderRadius,
+                              padding: EdgeInsets.zero,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // Left: icon
+                                    Expanded(
+                                      flex: 1,
+                                      child: Center(
+                                        child: Image.asset(lockedIconImage, width: iconWidth, height: iconHeight),
+                                      ),
+                                    ),
+
+                                    // Right: "Locked" label
+                                    Expanded(
+                                      flex: 2,
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text('Locked', style: TextStyle(color: lockedLabelColor, fontSize: lockedLabelSize, fontWeight: lockedLabelWeight)),
+                                        ],
+                                      ),
                                     ),
                                   ],
-                                ],
+                                ),
                               ),
                             ),
-                          ],
-                        ),
-                      ),
+                          ),
+                      ],
                     ),
                   );
                 }).toList(),
