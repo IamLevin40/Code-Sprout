@@ -836,7 +836,7 @@
                 },
                 "locked_overlay": {
                     "background": {
-                        "color": "rgba(250, 250, 250, 0.6)",
+                        "color": "rgba(63, 75, 89, 0.6)",
                         "opacity": 60,
                         "blur_sigma": 4
                     },
@@ -844,11 +844,11 @@
                     "stroke_color": {
                         "begin": {
                             "position": "top_left",
-                            "color": "#87A1BF"
+                            "color": "rgba(135, 161, 191, 0.1)"
                         },
                         "end": {
                             "position": "bottom_right",
-                            "color": "--colors.gray"
+                            "color": "rgba(63, 75, 89, 0.1)"
                         }
                     }
                 },
