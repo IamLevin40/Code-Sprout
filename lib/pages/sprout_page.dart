@@ -10,6 +10,7 @@ import '../widgets/rank_card.dart';
 import '../models/course_data_schema.dart';
 import '../models/sprout_data.dart';
 import '../widgets/sprout_items/current_language_card.dart';
+import 'farm_page.dart';
 
 class SproutPage extends StatefulWidget {
   const SproutPage({super.key});
@@ -208,7 +209,22 @@ class _SproutPageState extends State<SproutPage> {
                     alignment: Alignment.centerRight,
                     child: GestureDetector(
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Visiting the farm for $_selectedLanguage (placeholder)')));
+                        if (_selectedLanguage == null || _selectedLanguage!.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Please select a language first')),
+                          );
+                          return;
+                        }
+                        
+                        final languageName = _languageNames[_selectedLanguage] ?? _selectedLanguage!;
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => FarmPage(
+                              languageId: _selectedLanguage!,
+                              languageName: languageName,
+                            ),
+                          ),
+                        );
                       },
                       child: Container(
                         width: btnWidth,
