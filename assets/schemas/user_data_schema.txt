@@ -5,7 +5,7 @@
     },
     "interaction": {
         "hasPlayedTutorial": "boolean (false)",
-        "hasLearnedModule": "boolean (false)",
+        "hasLearnedChapter": "boolean (false)",
         "difficulty": "string (|easy|normal|hard|)"
     },
     "lastInteraction": {
@@ -14,6 +14,13 @@
     },
     "sproutProgress": {
         "selectedLanguage": "string (null)",
+        "isLanguageUnlocked": {
+            "cpp": "boolean (false)",
+            "csharp": "boolean (false)",
+            "java": "boolean (false)",
+            "python": "boolean (false)",
+            "javascript": "boolean (false)"
+        },
         "cropItems": {
             "wheat": {
                 "isLocked": "boolean (false)",

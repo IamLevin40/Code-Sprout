@@ -43,8 +43,8 @@ class _MainNavigationPageState extends State<MainNavigationPage> with WidgetsBin
     final userData = LocalStorageService.instance.userDataNotifier.value;
 
     final enabled = userData == null
-        ? _sproutEnabled
-        : (userData.get('interaction.hasLearnedModule') as bool?) ?? false;
+      ? _sproutEnabled
+      : (userData.get('interaction.hasLearnedChapter') as bool?) ?? false;
 
     final styles = AppStyles();
     final itemsMap = styles.getStyles('bottom_navigation.items') as Map<String, dynamic>;
@@ -69,7 +69,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> with WidgetsBin
 
       final enabled = userData == null
         ? _sproutEnabled
-        : (userData.get('interaction.hasLearnedModule') as bool?) ?? false;
+        : (userData.get('interaction.hasLearnedChapter') as bool?) ?? false;
 
       final styles = AppStyles();
       final itemsMap = styles.getStyles('bottom_navigation.items') as Map<String, dynamic>;

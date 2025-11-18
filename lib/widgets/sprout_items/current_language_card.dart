@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/styles_schema.dart';
 import '../course_cards/global_course_cards.dart';
 import '../../miscellaneous/glass_effect.dart';
+import '../../services/local_storage_service.dart';
 
 class CurrentLanguageCard extends StatelessWidget {
   final String? selectedLanguageId;
@@ -180,13 +181,15 @@ class CurrentLanguageCard extends StatelessWidget {
     final iconDisplayBorder = styles.getStyles('sprout_page.language_selection.language_card.icon_display.border_width') as double;
     final iconDisplayBackground = styles.getStyles('sprout_page.language_selection.language_card.icon_display.background_color') as LinearGradient;
 
-    final unlockedLabelColor = styles.getStyles('sprout_page.language_selection.language_card.unlocked_language_label.color') as Color;
-    final unlockedLabelSize = styles.getStyles('sprout_page.language_selection.language_card.unlocked_language_label.font_size') as double;
-    final unlockedLabelWeight = styles.getStyles('sprout_page.language_selection.language_card.unlocked_language_label.font_weight') as FontWeight;
-
-    final lockedLabelColor = styles.getStyles('sprout_page.language_selection.language_card.locked_language_label.color') as Color;
-    final lockedLabelSize = styles.getStyles('sprout_page.language_selection.language_card.locked_language_label.font_size') as double;
-    final lockedLabelWeight = styles.getStyles('sprout_page.language_selection.language_card.locked_language_label.font_weight') as FontWeight;
+    final unlockedLanguageLabelColor = styles.getStyles('sprout_page.language_selection.language_card.unlocked_language_label.color') as Color;
+    final unlockedLanguageLabelSize = styles.getStyles('sprout_page.language_selection.language_card.unlocked_language_label.font_size') as double;
+    final unlockedLanguageLabelWeight = styles.getStyles('sprout_page.language_selection.language_card.unlocked_language_label.font_weight') as FontWeight;
+    final lockedLanguageLabelColor = styles.getStyles('sprout_page.language_selection.language_card.locked_language_label.color') as Color;
+    final lockedLanguageLabelSize = styles.getStyles('sprout_page.language_selection.language_card.locked_language_label.font_size') as double;
+    final lockedLanguageLabelWeight = styles.getStyles('sprout_page.language_selection.language_card.locked_language_label.font_weight') as FontWeight;
+    final lockedLabelColor = styles.getStyles('sprout_page.language_selection.language_card.locked_label.color') as Color;
+    final lockedLabelSize = styles.getStyles('sprout_page.language_selection.language_card.locked_label.font_size') as double;
+    final lockedLabelWeight = styles.getStyles('sprout_page.language_selection.language_card.locked_label.font_weight') as FontWeight;
 
     final lockedOverlayBg = styles.getStyles('sprout_page.language_selection.language_card.locked_overlay.background.color') as Color;
     final lockedOverlayOpacity = styles.getStyles('sprout_page.language_selection.language_card.locked_overlay.background.opacity') as double;
@@ -194,7 +197,7 @@ class CurrentLanguageCard extends StatelessWidget {
     final lockedOverlayStroke = styles.getStyles('sprout_page.language_selection.language_card.locked_overlay.stroke_color') as LinearGradient;
     final lockedOverlayStrokeThickness = styles.getStyles('sprout_page.language_selection.language_card.locked_overlay.stroke_thickness') as double;
 
-    final Map<String, bool> lockMap = {for (var id in availableLanguages) id: false};
+    final ud = LocalStorageService.instance.userDataNotifier.value;
 
     showGeneralDialog(
       context: context,
@@ -258,7 +261,15 @@ class CurrentLanguageCard extends StatelessWidget {
                             final langIcon = styles.getStyles('course_cards.style_coding.$id.icon') as String;
                             final langStroke = styles.getStyles('course_cards.style_coding.$id.stroke_color') as LinearGradient;
 
-                            final bool isLocked = lockMap[id] ?? false;
+                            final bool isLocked = (() {
+                              if (ud == null) return true;
+                              try {
+                                final unlocked = ud.get('sproutProgress.isLanguageUnlocked.$id') as bool?;
+                                return !(unlocked ?? false);
+                              } catch (_) {
+                                return true;
+                              }
+                            })();
                             return GestureDetector(
                               onTap: isLocked
                                   ? null
@@ -333,7 +344,11 @@ class CurrentLanguageCard extends StatelessWidget {
                                                 children: [
                                                   Text(
                                                     languageNames[id] ?? id,
-                                                    style: TextStyle(color: unlockedLabelColor, fontSize: unlockedLabelSize, fontWeight: unlockedLabelWeight),
+                                                    style: TextStyle(
+                                                      color: isLocked ? unlockedLanguageLabelColor : lockedLanguageLabelColor, 
+                                                      fontSize: isLocked ? unlockedLanguageLabelSize : lockedLanguageLabelSize, 
+                                                      fontWeight: isLocked ? unlockedLanguageLabelWeight : lockedLanguageLabelWeight
+                                                    ),
                                                   ),
                                                   if (isLocked)
                                                     Text('Locked', style: TextStyle(color: lockedLabelColor, fontSize: lockedLabelSize, fontWeight: lockedLabelWeight)),
