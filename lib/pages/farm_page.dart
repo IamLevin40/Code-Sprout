@@ -215,11 +215,10 @@ class _FarmPageState extends State<FarmPage> {
                     Expanded(child: _buildLanguageDisplay(styles)),
                   ],
                 ),
-                const SizedBox(height: 16),
 
                 // Farm grid view
                 Expanded(
-                  flex: 3,
+                  flex: 4,
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.3),
@@ -228,7 +227,6 @@ class _FarmPageState extends State<FarmPage> {
                     child: FarmGridView(farmState: _farmState),
                   ),
                 ),
-                const SizedBox(height: 16),
 
                 // Control buttons
                 Row(
@@ -243,7 +241,7 @@ class _FarmPageState extends State<FarmPage> {
 
                 // Code editor or execution log
                 Expanded(
-                  flex: 2,
+                  flex: 3,
                   child: _showCodeEditor
                       ? CodeEditorWidget(
                           initialCode: _userCode,
@@ -437,7 +435,7 @@ class _FarmPageState extends State<FarmPage> {
               'Execution Log',
               style: TextStyle(
                 color: textColor,
-                fontSize: fontSize + 2,
+                fontSize: fontSize,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -450,7 +448,6 @@ class _FarmPageState extends State<FarmPage> {
                     color: textColor,
                     fontSize: fontSize,
                     fontWeight: fontWeight,
-                    fontFamily: 'monospace',
                   ),
                 ),
               ),

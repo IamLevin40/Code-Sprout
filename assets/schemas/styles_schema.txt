@@ -2421,7 +2421,7 @@
             },
             "text_style": {
                 "color": "#D4D4D4",
-                "font_size": 14,
+                "font_size": "--font_sizes.regular",
                 "font_weight": "--font_weights.regular"
             },
             "line_number_color": "#858585",
@@ -2429,7 +2429,8 @@
                 "icon": "images/icons/navbuttons/close.png",
                 "width": 32,
                 "height": 32
-            }
+            },
+            "highlight_line_color": "--colors.light_purple"
         },
         "execution_log": {
             "background_color": {
