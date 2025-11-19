@@ -71,12 +71,34 @@ Comprehensive language-specific interpreters with full programming language supp
 - **Runtime Error**: Execution failures, exceptions during runtime
 
 #### Custom Farm Functions
-All interpreters support these farming operations:
+
 - `move(direction)` - Move drone one tile in specified direction
 - `till()` - Till soil at current position
 - `water()` - Water soil at current position
 - `plant(crop)` - Plant specified crop at current position
 - `harvest()` - Harvest grown crop (auto-updates user data)
+- `sleep(duration)` - Pauses drone operation for specified seconds (accepts int or double)
+- `getPositionX()` - Returns current X position of the drone (int)
+- `getPositionY()` - Returns current Y position of the drone (int)
+- `getPlotState()` - Returns state of plot at current position (PlotState enum)
+  - C++: `PlotState::Normal`, `PlotState::Tilled`, `PlotState::Watered`
+  - Python: `PlotState.Normal`, `PlotState.Tilled`, `PlotState.Watered`
+  - Java: `PlotState.NORMAL`, `PlotState.TILLED`, `PlotState.WATERED`
+  - C#: `PlotState.Normal`, `PlotState.Tilled`, `PlotState.Watered`
+  - JavaScript: `PlotState.Normal`, `PlotState.Tilled`, `PlotState.Watered`
+- `getCropType()` - Returns crop type at current position (CropType enum)
+  - C++: `CropType::Wheat`, `CropType::Carrot`, `CropType::None`, etc.
+  - Python: `CropType.Wheat`, `CropType.Carrot`, `CropType.None`, etc.
+  - Java: `CropType.WHEAT`, `CropType.CARROT`, `CropType.NONE`, etc.
+  - C#: `CropType.Wheat`, `CropType.Carrot`, `CropType.None`, etc.
+  - JavaScript: `CropType.Wheat`, `CropType.Carrot`, `CropType.None`, etc.
+- `isCropGrown()` - Returns true if crop at current position is fully grown (boolean)
+- `canTill()` - Returns true if plot can be tilled (boolean)
+- `canWater()` - Returns true if plot can be watered (boolean)
+- `canPlant()` - Returns true if plot can be planted (boolean)
+- `canHarvest()` - Returns true if plot can be harvested (boolean)
+- `getPlotGridX()` - Returns number of farm plots horizontally (int)
+- `getPlotGridY()` - Returns number of farm plots vertically (int)
 
 ### 3. Widgets (`lib/widgets/farm_items/`)
 - **farm_plot_widget.dart**: Displays individual plot with state colors and crop/drone overlay
@@ -420,6 +442,386 @@ for (let i = 0; i < 5; i++) {
 console.log("Final total: " + total);
 ```
 
+## Advanced Examples with New Query Functions
+
+### C++ - Smart Farming with Queries
+
+**Using Position and State Queries:**
+```cpp
+int main() {
+    int gridX = getPlotGridX();
+    int gridY = getPlotGridY();
+    
+    for (int y = 0; y < gridY; y++) {
+        for (int x = 0; x < gridX; x++) {
+            // Check current position
+            int posX = getPositionX();
+            int posY = getPositionY();
+            cout << "At position: " << posX << ", " << posY << endl;
+            
+            // Check if plot needs preparation
+            if (getPlotState() == PlotState::Normal) {
+                if (canTill()) {
+                    till();
+                }
+            }
+            
+            if (getPlotState() == PlotState::Tilled) {
+                if (canWater()) {
+                    water();
+                }
+            }
+            
+            // Plant if ready
+            if (canPlant()) {
+                plant(CropType::Wheat);
+            }
+            
+            // Move to next plot
+            if (x < gridX - 1) {
+                move(Direction::east);
+            }
+        }
+        if (y < gridY - 1) {
+            move(Direction::north);
+        }
+    }
+    
+    return 0;
+}
+```
+
+**Using Crop Detection and Harvesting:**
+```cpp
+int main() {
+    // Check all plots for harvestable crops
+    for (int i = 0; i < 9; i++) {
+        if (getCropType() != CropType::None) {
+            cout << "Found crop: ";
+            if (getCropType() == CropType::Wheat) {
+                cout << "Wheat" << endl;
+            }
+            
+            if (isCropGrown()) {
+                if (canHarvest()) {
+                    harvest();
+                    cout << "Harvested!" << endl;
+                }
+            } else {
+                cout << "Not ready yet" << endl;
+                sleep(0.5);  // Wait half a second
+            }
+        }
+        
+        // Move in grid pattern
+        if (i % 3 < 2) {
+            move(Direction::east);
+        } else if (i < 6) {
+            move(Direction::north);
+        }
+    }
+    
+    return 0;
+}
+```
+
+### Python - Efficient Farm Management
+
+**Using Query Functions:**
+```python
+# Get grid dimensions
+grid_width = getPlotGridX()
+grid_height = getPlotGridY()
+
+print(f"Farm grid size: {grid_width}x{grid_height}")
+
+for row in range(grid_height):
+    for col in range(grid_width):
+        # Log current position
+        x = getPositionX()
+        y = getPositionY()
+        print(f"Processing plot at ({x}, {y})")
+        
+        # Check and prepare plot
+        state = getPlotState()
+        if state == PlotState.Normal:
+            if canTill():
+                till()
+        
+        if canWater():
+            water()
+        
+        # Plant based on position
+        if canPlant():
+            if x + y < 3:
+                plant(CropType.Carrot)
+            else:
+                plant(CropType.Potato)
+        
+        # Move to next plot
+        if col < grid_width - 1:
+            move(Direction.East)
+    
+    if row < grid_height - 1:
+        move(Direction.North)
+
+print("Farm setup complete!")
+```
+
+**Snake Case Support:**
+```python
+# Python also supports snake_case function names
+pos_x = get_position_x()
+pos_y = get_position_y()
+grid_x = get_plot_grid_x()
+grid_y = get_plot_grid_y()
+
+print(f"Starting at ({pos_x}, {pos_y})")
+print(f"Grid size: {grid_x} x {grid_y}")
+
+plot_state = get_plot_state()
+crop_type = get_crop_type()
+is_grown = is_crop_grown()
+
+if can_till():
+    till()
+if can_water():
+    water()
+if can_plant():
+    plant(CropType.Wheat)
+```
+
+### Java - Grid Pattern Management
+
+**Using Boolean Check Functions:**
+```java
+public class Main {
+    public static void main(String[] args) {
+        int gridWidth = getPlotGridX();
+        int gridHeight = getPlotGridY();
+        
+        System.out.println("Grid dimensions: " + gridWidth + "x" + gridHeight);
+        
+        for (int y = 0; y < gridHeight; y++) {
+            for (int x = 0; x < gridWidth; x++) {
+                // Prepare plot only if needed
+                if (canTill()) {
+                    till();
+                    System.out.println("Tilled plot at (" + getPositionX() + ", " + getPositionY() + ")");
+                }
+                
+                if (canWater()) {
+                    water();
+                }
+                
+                if (canPlant()) {
+                    plant(CropType.WHEAT);
+                }
+                
+                // Move right if not at edge
+                if (x < gridWidth - 1) {
+                    move(Direction.EAST);
+                }
+            }
+            
+            // Move up if not at top
+            if (y < gridHeight - 1) {
+                move(Direction.NORTH);
+            }
+        }
+        
+        System.out.println("All plots prepared!");
+    }
+}
+```
+
+**Harvest Detection Loop:**
+```java
+public class Main {
+    public static void main(String[] args) {
+        boolean allHarvested = false;
+        int attempts = 0;
+        
+        while (!allHarvested && attempts < 100) {
+            allHarvested = true;
+            
+            for (int i = 0; i < 9; i++) {
+                if (getCropType() != CropType.NONE) {
+                    if (isCropGrown() && canHarvest()) {
+                        harvest();
+                        System.out.println("Harvested crop!");
+                    } else {
+                        allHarvested = false;
+                    }
+                }
+                
+                // Navigate grid
+                if (i % 3 < 2) {
+                    move(Direction.EAST);
+                } else if (i < 6) {
+                    move(Direction.NORTH);
+                }
+            }
+            
+            attempts++;
+            sleep(2);  // Wait 2 seconds between checks
+        }
+    }
+}
+```
+
+### C# - Smart Conditional Farming
+
+**Using Position and State Checks:**
+```csharp
+class Program {
+    static void Main() {
+        int totalPlots = GetPlotGridX() * GetPlotGridY();
+        Console.WriteLine("Total plots: " + totalPlots);
+        
+        for (int i = 0; i < totalPlots; i++) {
+            int x = GetPositionX();
+            int y = GetPositionY();
+            
+            // Get current state
+            var state = GetPlotState();
+            
+            // Smart decision making
+            if (state == PlotState.Normal && CanTill()) {
+                Till();
+                Console.WriteLine($"Tilled plot at ({x}, {y})");
+            }
+            
+            if (CanWater()) {
+                Water();
+            }
+            
+            if (CanPlant()) {
+                // Choose crop based on position
+                if ((x + y) % 2 == 0) {
+                    Plant(CropType.Carrot);
+                } else {
+                    Plant(CropType.Wheat);
+                }
+            }
+            
+            // Move in grid pattern
+            if (x < GetPlotGridX() - 1) {
+                Move(Direction.East);
+            } else if (y < GetPlotGridY() - 1) {
+                Move(Direction.North);
+            }
+        }
+    }
+}
+```
+
+**Case-Insensitive Function Calls:**
+```csharp
+class Program {
+    static void Main() {
+        // C# interpreter supports case-insensitive function names
+        int posX = getpositionx();  // or GetPositionX()
+        int posY = getpositiony();  // or GetPositionY()
+        
+        bool canDoTill = cantill();  // or CanTill()
+        bool canDoWater = canwater();  // or CanWater()
+        
+        if (canDoTill) {
+            till();  // or Till()
+        }
+        
+        if (canDoWater) {
+            water();  // or Water()
+        }
+    }
+}
+```
+
+### JavaScript - Dynamic Farm Control
+
+**Using All Query Functions:**
+```javascript
+let gridX = getPlotGridX();
+let gridY = getPlotGridY();
+
+console.log(`Managing ${gridX}x${gridY} farm grid`);
+
+for (let y = 0; y < gridY; y++) {
+    for (let x = 0; x < gridX; x++) {
+        // Log current status
+        let posX = getPositionX();
+        let posY = getPositionY();
+        let state = getPlotState();
+        let crop = getCropType();
+        
+        console.log(`Plot (${posX}, ${posY}): ${state}, ${crop}`);
+        
+        // Prepare plot
+        if (state == PlotState.Normal && canTill()) {
+            till();
+        }
+        
+        if (state == PlotState.Tilled && canWater()) {
+            water();
+        }
+        
+        if (canPlant()) {
+            plant(CropType.Wheat);
+        }
+        
+        // Check crop status
+        if (crop != CropType.None) {
+            if (isCropGrown()) {
+                console.log("Crop is ready!");
+                if (canHarvest()) {
+                    harvest();
+                }
+            } else {
+                console.log("Crop still growing...");
+            }
+        }
+        
+        // Navigate
+        if (x < gridX - 1) {
+            move(Direction.East);
+        }
+    }
+    if (y < gridY - 1) {
+        move(Direction.North);
+    }
+}
+
+console.log("Farm management complete!");
+```
+
+**Conditional Planting with Sleep:**
+```javascript
+const WHEAT_THRESHOLD = 5;
+let wheatCount = 0;
+
+for (let i = 0; i < 9; i++) {
+    if (canPlant()) {
+        if (wheatCount < WHEAT_THRESHOLD) {
+            plant(CropType.Wheat);
+            wheatCount++;
+        } else {
+            plant(CropType.Carrot);
+        }
+        
+        console.log(`Planted at (${getPositionX()}, ${getPositionY()})`);
+        sleep(0.3);  // Brief pause after each plant
+    }
+    
+    // Move to next plot
+    if (i % 3 < 2) {
+        move(Direction.East);
+    } else if (i < 6) {
+        move(Direction.North);
+    }
+}
+```
+
 ## Testing Checklist
 - ✅ Code compiles without errors
 - ✅ All imports resolved
@@ -441,6 +843,13 @@ console.log("Final total: " + total);
 - ✅ **Expression evaluation** with proper operator precedence
 - ✅ **Python indentation-based** parsing
 - ✅ **JavaScript var/let/const** declarations
+- ✅ **Query functions** (sleep, getPositionX/Y, getPlotState, getCropType, isCropGrown)
+- ✅ **Boolean check functions** (canTill, canWater, canPlant, canHarvest)
+- ✅ **Grid dimension functions** (getPlotGridX, getPlotGridY)
+- ✅ **Enum comparisons in expressions** (PlotState, CropType)
+- ✅ **Python snake_case support** (get_position_x, is_crop_grown, etc.)
+- ✅ **C# case-insensitive functions** (GetPositionX, getpositionx)
+- ✅ **All 80 interpreter tests** passing
 
 ## Interpreter Feature Matrix
 

@@ -858,9 +858,54 @@ class CppInterpreter extends FarmCodeInterpreter {
       case 'harvest':
         executeHarvest();
         break;
+      case 'sleep':
+        await _handleSleep(argsString);
+        break;
+      case 'getPositionX':
+        // Return value function - handled in expression evaluation
+        break;
+      case 'getPositionY':
+        // Return value function - handled in expression evaluation
+        break;
+      case 'getPlotState':
+        // Return value function - handled in expression evaluation
+        break;
+      case 'getCropType':
+        // Return value function - handled in expression evaluation
+        break;
+      case 'isCropGrown':
+        // Return value function - handled in expression evaluation
+        break;
+      case 'canTill':
+        // Return value function - handled in expression evaluation
+        break;
+      case 'canWater':
+        // Return value function - handled in expression evaluation
+        break;
+      case 'canPlant':
+        // Return value function - handled in expression evaluation
+        break;
+      case 'canHarvest':
+        // Return value function - handled in expression evaluation
+        break;
+      case 'getPlotGridX':
+        // Return value function - handled in expression evaluation
+        break;
+      case 'getPlotGridY':
+        // Return value function - handled in expression evaluation
+        break;
       default:
         throw Exception('Semantical Error: Unknown function "$functionName"');
     }
+  }
+
+  /// Handle sleep() function
+  Future<void> _handleSleep(String args) async {
+    final duration = evaluateExpression(args);
+    if (duration is! num) {
+      throw Exception('Type Error: sleep() requires numeric argument');
+    }
+    await executeSleep(duration);
   }
 
   /// Handle move() function
@@ -897,11 +942,11 @@ class CppInterpreter extends FarmCodeInterpreter {
 
   /// Handle plant() function
   void _handlePlant(String args) {
-    final cropPattern = RegExp(r'Crop::(\w+)', caseSensitive: false);
+    final cropPattern = RegExp(r'CropType::(\w+)', caseSensitive: false);
     final match = cropPattern.firstMatch(args);
 
     if (match == null) {
-      throw Exception('Semantical Error: Invalid crop format');
+      throw Exception('Semantical Error: Invalid crop format - use CropType::CropName');
     }
 
     final cropStr = match.group(1)!.toLowerCase();
@@ -912,6 +957,64 @@ class CppInterpreter extends FarmCodeInterpreter {
     }
 
     executePlant(crop);
+  }
+
+  @override
+  dynamic evaluateFunctionCall(String expr) {
+    final functionPattern = RegExp(r'^(\w+)\s*\((.*?)\)\s*$');
+    final match = functionPattern.firstMatch(expr);
+
+    if (match == null) return null;
+
+    final functionName = match.group(1)!;
+
+    switch (functionName) {
+      case 'getPositionX':
+        return executeGetPositionX();
+      case 'getPositionY':
+        return executeGetPositionY();
+      case 'getPlotState':
+        final state = executeGetPlotState();
+        return _plotStateToString(state);
+      case 'getCropType':
+        final crop = executeGetCropType();
+        return _cropTypeToString(crop);
+      case 'isCropGrown':
+        return executeIsCropGrown();
+      case 'canTill':
+        return executeCanTill();
+      case 'canWater':
+        return executeCanWater();
+      case 'canPlant':
+        return executeCanPlant();
+      case 'canHarvest':
+        return executeCanHarvest();
+      case 'getPlotGridX':
+        return executeGetPlotGridX();
+      case 'getPlotGridY':
+        return executeGetPlotGridY();
+      default:
+        return null;
+    }
+  }
+
+  /// Convert PlotState to C++ enum string format
+  String _plotStateToString(PlotState? state) {
+    if (state == null) return 'PlotState::Normal';
+    switch (state) {
+      case PlotState.normal:
+        return 'PlotState::Normal';
+      case PlotState.tilled:
+        return 'PlotState::Tilled';
+      case PlotState.watered:
+        return 'PlotState::Watered';
+    }
+  }
+
+  /// Convert CropType to C++ enum string format
+  String _cropTypeToString(CropType? crop) {
+    if (crop == null) return 'CropType::None';
+    return 'CropType::${crop.displayName}';
   }
 
   /// Convert value to boolean (wrapper for base class method)

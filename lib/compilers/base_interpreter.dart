@@ -124,6 +124,26 @@ abstract class FarmCodeInterpreter {
   dynamic evaluateExpression(String expr) {
     expr = expr.trim();
     
+    // Strip outer parentheses if they wrap the entire expression
+    while (expr.startsWith('(') && expr.endsWith(')')) {
+      int depth = 0;
+      bool isOuterParen = true;
+      for (int i = 0; i < expr.length; i++) {
+        if (expr[i] == '(') depth++;
+        if (expr[i] == ')') depth--;
+        // If depth becomes 0 before the end, outer parens don't wrap everything
+        if (depth == 0 && i < expr.length - 1) {
+          isOuterParen = false;
+          break;
+        }
+      }
+      if (isOuterParen) {
+        expr = expr.substring(1, expr.length - 1).trim();
+      } else {
+        break;
+      }
+    }
+    
     // Handle literals
     if (expr == 'true') return true;
     if (expr == 'false') return false;
@@ -137,6 +157,20 @@ abstract class FarmCodeInterpreter {
     // Handle numbers
     final numVal = num.tryParse(expr);
     if (numVal != null) return numVal;
+
+    // Handle enum literals (e.g., PlotState::Normal, CropType::Wheat)
+    // These are returned as string representations for comparison
+    // Check this before function calls to avoid treating enums as functions
+    if (!expr.contains('(') && (expr.contains('::') || 
+        (expr.contains('.') && !expr.contains(' ')))) {
+      return expr; // Return as-is for string comparison
+    }
+
+    // Handle function calls (must come before variable check)
+    if (expr.contains('(') && expr.contains(')')) {
+      final result = evaluateFunctionCall(expr);
+      if (result != null) return result;
+    }
     
     // Handle variables
     if (RegExp(r'^[a-zA-Z_]\w*$').hasMatch(expr)) {
@@ -246,8 +280,16 @@ abstract class FarmCodeInterpreter {
   bool _compareValues(dynamic left, dynamic right, String op) {
     switch (op) {
       case '==':
+        // Handle string equality for enum comparisons
+        if (left is String && right is String) {
+          return left == right;
+        }
         return left == right;
       case '!=':
+        // Handle string inequality for enum comparisons
+        if (left is String && right is String) {
+          return left != right;
+        }
         return left != right;
       case '<':
         return (left as num) < (right as num);
@@ -356,5 +398,82 @@ abstract class FarmCodeInterpreter {
   /// Helper to add delay between operations for visualization
   Future<void> delay([int milliseconds = 300]) async {
     await Future.delayed(Duration(milliseconds: milliseconds));
+  }
+
+  /// Execute sleep operation - pauses drone operation
+  Future<void> executeSleep(num duration) async {
+    log('Sleeping for $duration seconds...');
+    await Future.delayed(Duration(milliseconds: (duration * 1000).round()));
+    log('Sleep completed');
+  }
+
+  /// Get current X position of drone
+  int executeGetPositionX() {
+    return farmState.dronePosition.x;
+  }
+
+  /// Get current Y position of drone
+  int executeGetPositionY() {
+    return farmState.dronePosition.y;
+  }
+
+  /// Get plot state at current position
+  PlotState? executeGetPlotState() {
+    final plot = farmState.getCurrentPlot();
+    return plot?.state;
+  }
+
+  /// Get crop type at current position
+  CropType? executeGetCropType() {
+    final plot = farmState.getCurrentPlot();
+    return plot?.crop?.cropType;
+  }
+
+  /// Check if crop at current position is fully grown
+  bool executeIsCropGrown() {
+    final plot = farmState.getCurrentPlot();
+    return plot?.crop?.isGrown ?? false;
+  }
+
+  /// Check if current plot can be tilled
+  bool executeCanTill() {
+    final plot = farmState.getCurrentPlot();
+    return plot?.canTill() ?? false;
+  }
+
+  /// Check if current plot can be watered
+  bool executeCanWater() {
+    final plot = farmState.getCurrentPlot();
+    return plot?.canWater() ?? false;
+  }
+
+  /// Check if current plot can be planted
+  bool executeCanPlant() {
+    final plot = farmState.getCurrentPlot();
+    return plot?.canPlant() ?? false;
+  }
+
+  /// Check if current plot can be harvested
+  bool executeCanHarvest() {
+    final plot = farmState.getCurrentPlot();
+    return plot?.canHarvest() ?? false;
+  }
+
+  /// Get grid width (number of plots horizontally)
+  int executeGetPlotGridX() {
+    return farmState.gridWidth;
+  }
+
+  /// Get grid height (number of plots vertically)
+  int executeGetPlotGridY() {
+    return farmState.gridHeight;
+  }
+
+  /// Evaluate function call that returns a value
+  /// This method should be overridden by language-specific interpreters
+  /// to handle their specific syntax (e.g., PlotState::Normal vs PlotState.Normal)
+  dynamic evaluateFunctionCall(String expr) {
+    // Base implementation - subclasses should override for language-specific syntax
+    return null;
   }
 }

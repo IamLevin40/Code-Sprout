@@ -332,7 +332,7 @@ int main() {
         final code = '''
 int main() {
   till();
-  plant(Crop::wheat);
+  plant(CropType::wheat);
   water();
   return 0;
 }
@@ -349,7 +349,7 @@ int main() {
       test('Farm operations - cannot plant on untilled plot', () async {
         final code = '''
 int main() {
-  plant(Crop::wheat);
+  plant(CropType::wheat);
   return 0;
 }
 ''';
@@ -365,7 +365,7 @@ int main() {
 int main() {
   till();
   water();
-  plant(Crop::wheat);
+  plant(CropType::wheat);
   return 0;
 }
 ''';
@@ -383,10 +383,10 @@ int main() {
         final code = '''
 int main() {
   till();
-  plant(Crop::wheat);
+  plant(CropType::wheat);
   move(Direction::east);
   till();
-  plant(Crop::carrot);
+  plant(CropType::carrot);
   return 0;
 }
 ''';
@@ -580,7 +580,7 @@ result = z
       test('Farm operations - correct sequence', () async {
         final code = '''
 till()
-plant(Crop.wheat)
+plant(CropType.wheat)
 water()
 ''';
         final result = await interpreter.execute(code);
@@ -714,7 +714,7 @@ public class Main {
 public class Main {
   public static void main(String[] args) {
     till();
-    plant(Crop.WHEAT);
+    plant(CropType.WHEAT);
     water();
   }
 }
@@ -805,7 +805,7 @@ class Program {
 class Program {
   static void Main() {
     till();
-    plant(Crop.Wheat);
+    plant(CropType.Wheat);
     water();
   }
 }
@@ -903,7 +903,7 @@ while (i < 5) {
       test('Farm operations', () async {
         final code = '''
 till();
-plant(Crop.wheat);
+plant(CropType.wheat);
 water();
 ''';
         final result = await interpreter.execute(code);
@@ -943,7 +943,7 @@ try {
         final interpreter = CppInterpreter(farmState: farmState);
         final code = '''
 int main() {
-  plant(Crop::wheat);
+  plant(CropType::wheat);
   return 0;
 }
 ''';
@@ -956,7 +956,7 @@ int main() {
         final interpreter = PythonInterpreter(farmState: farmState);
         final code = '''
 till()
-plant(Crop.wheat)
+plant(CropType.wheat)
 ''';
         final result = await interpreter.execute(code);
         expect(result.success, true);
@@ -970,7 +970,7 @@ public class Main {
   public static void main(String[] args) {
     till();
     water();
-    plant(Crop.WHEAT);
+    plant(CropType.WHEAT);
   }
 }
 ''';
@@ -987,7 +987,7 @@ public class Main {
 class Program {
   static void Main() {
     till();
-    plant(Crop.Wheat);
+    plant(CropType.Wheat);
     harvest();
   }
 }
@@ -1016,13 +1016,13 @@ move(Direction.west);
         final code = '''
 int main() {
   till();
-  plant(Crop::wheat);
+  plant(CropType::wheat);
   move(Direction::east);
   till();
-  plant(Crop::carrot);
+  plant(CropType::carrot);
   move(Direction::east);
   till();
-  plant(Crop::potato);
+  plant(CropType::potato);
   return 0;
 }
 ''';
@@ -1134,7 +1134,7 @@ public class Main {
         final code = '''
 for i in range(0, 3):
     till()
-    plant(Crop.wheat)
+    plant(CropType.wheat)
     water()
     if i < 2:
         move(Direction.east)
@@ -1153,10 +1153,10 @@ let planted = 0;
 for (let i = 0; i < 3; i++) {
   till();
   if (i == 0) {
-    plant(Crop.wheat);
+    plant(CropType.wheat);
     planted++;
   } else if (i == 1) {
-    plant(Crop.carrot);
+    plant(CropType.carrot);
     planted++;
   }
   if (i < 2) {
@@ -1178,7 +1178,7 @@ int main() {
   int successCount = 0;
   try {
     till();
-    plant(Crop::wheat);
+    plant(CropType::wheat);
     successCount = successCount + 1;
   } catch (...) {
     successCount = 0;
@@ -1189,6 +1189,248 @@ int main() {
         final result = await interpreter.execute(code);
         expect(result.success, true);
         expect(interpreter.currentScope.get('successCount'), 1);
+      });
+    });
+
+    group('New Function Tests', () {
+      late FarmState farmState;
+
+      setUp(() {
+        farmState = FarmState(gridWidth: 3, gridHeight: 3);
+      });
+
+      test('getPositionX and getPositionY return correct position', () async {
+        final interpreter = CppInterpreter(farmState: farmState);
+        final code = '''
+int main() {
+  int x = getPositionX();
+  int y = getPositionY();
+  move(Direction::east);
+  int newX = getPositionX();
+  return 0;
+}
+''';
+        final result = await interpreter.execute(code);
+        expect(result.success, true);
+        expect(interpreter.currentScope.get('x'), 0);
+        expect(interpreter.currentScope.get('y'), 0);
+        expect(interpreter.currentScope.get('newX'), 1);
+      });
+
+      test('getPlotState returns correct state', () async {
+        final interpreter = CppInterpreter(farmState: farmState);
+        final code = '''
+int main() {
+  bool isNormal = (getPlotState() == PlotState::Normal);
+  till();
+  bool isTilled = (getPlotState() == PlotState::Tilled);
+  water();
+  bool isWatered = (getPlotState() == PlotState::Watered);
+  return 0;
+}
+''';
+        final result = await interpreter.execute(code);
+        expect(result.success, true);
+        expect(interpreter.currentScope.get('isNormal'), true);
+        expect(interpreter.currentScope.get('isTilled'), true);
+        expect(interpreter.currentScope.get('isWatered'), true);
+      });
+
+      test('getCropType returns correct crop', () async {
+        final interpreter = CppInterpreter(farmState: farmState);
+        final code = '''
+int main() {
+  till();
+  plant(CropType::Wheat);
+  bool isWheat = (getCropType() == CropType::Wheat);
+  return 0;
+}
+''';
+        final result = await interpreter.execute(code);
+        expect(result.success, true);
+        expect(interpreter.currentScope.get('isWheat'), true);
+      });
+
+      test('isCropGrown returns correct value', () async {
+        final interpreter = CppInterpreter(farmState: farmState);
+        final code = '''
+int main() {
+  till();
+  water();
+  plant(CropType::Wheat);
+  bool grown = isCropGrown();
+  return 0;
+}
+''';
+        final result = await interpreter.execute(code);
+        expect(result.success, true);
+        expect(interpreter.currentScope.get('grown'), false); // Not grown yet
+      });
+
+      test('canTill, canWater, canPlant, canHarvest work correctly', () async {
+        final interpreter = CppInterpreter(farmState: farmState);
+        final code = '''
+int main() {
+  bool tillable1 = canTill();
+  bool plantable1 = canPlant();
+  
+  till();
+  bool tillable2 = canTill();
+  bool plantable2 = canPlant();
+  
+  water();
+  plant(CropType::Wheat);
+  bool harvestable1 = canHarvest();
+  bool waterable = canWater();
+  
+  return 0;
+}
+''';
+        final result = await interpreter.execute(code);
+        expect(result.success, true);
+        expect(interpreter.currentScope.get('tillable1'), true);
+        expect(interpreter.currentScope.get('plantable1'), false);
+        expect(interpreter.currentScope.get('tillable2'), false);
+        expect(interpreter.currentScope.get('plantable2'), true);
+        expect(interpreter.currentScope.get('harvestable1'), false); // Crop not grown yet
+        expect(interpreter.currentScope.get('waterable'), true);
+      });
+
+      test('getPlotGridX and getPlotGridY return grid dimensions', () async {
+        final interpreter = CppInterpreter(farmState: farmState);
+        final code = '''
+int main() {
+  int gridX = getPlotGridX();
+  int gridY = getPlotGridY();
+  return 0;
+}
+''';
+        final result = await interpreter.execute(code);
+        expect(result.success, true);
+        expect(interpreter.currentScope.get('gridX'), 3);
+        expect(interpreter.currentScope.get('gridY'), 3);
+      });
+
+      test('Python syntax for new functions', () async {
+        final interpreter = PythonInterpreter(farmState: farmState);
+        final code = '''
+x = getPositionX()
+y = getPositionY()
+till()
+state = getPlotState()
+is_tilled = (state == PlotState.Tilled)
+grid_x = getPlotGridX()
+grid_y = getPlotGridY()
+''';
+        final result = await interpreter.execute(code);
+        expect(result.success, true);
+        expect(interpreter.currentScope.get('x'), 0);
+        expect(interpreter.currentScope.get('y'), 0);
+        expect(interpreter.currentScope.get('is_tilled'), true);
+        expect(interpreter.currentScope.get('grid_x'), 3);
+        expect(interpreter.currentScope.get('grid_y'), 3);
+      });
+
+      test('Java syntax for new functions', () async {
+        final interpreter = JavaInterpreter(farmState: farmState);
+        final code = '''
+public class Main {
+  public static void main(String[] args) {
+    int x = getPositionX();
+    int y = getPositionY();
+    till();
+    boolean isTillable = canTill();
+    boolean isPlantable = canPlant();
+    int gridX = getPlotGridX();
+  }
+}
+''';
+        final result = await interpreter.execute(code);
+        expect(result.success, true);
+        expect(interpreter.currentScope.get('x'), 0);
+        expect(interpreter.currentScope.get('y'), 0);
+        expect(interpreter.currentScope.get('isTillable'), false);
+        expect(interpreter.currentScope.get('isPlantable'), true);
+        expect(interpreter.currentScope.get('gridX'), 3);
+      });
+
+      test('C# syntax for new functions', () async {
+        final interpreter = CSharpInterpreter(farmState: farmState);
+        final code = '''
+class Program {
+  static void Main() {
+    int x = GetPositionX();
+    int y = GetPositionY();
+    Till();
+    bool canPlantHere = CanPlant();
+    int gridX = GetPlotGridX();
+    int gridY = GetPlotGridY();
+  }
+}
+''';
+        final result = await interpreter.execute(code);
+        expect(result.success, true);
+        expect(interpreter.currentScope.get('x'), 0);
+        expect(interpreter.currentScope.get('y'), 0);
+        expect(interpreter.currentScope.get('canPlantHere'), true);
+        expect(interpreter.currentScope.get('gridX'), 3);
+        expect(interpreter.currentScope.get('gridY'), 3);
+      });
+
+      test('JavaScript syntax for new functions', () async {
+        final interpreter = JavaScriptInterpreter(farmState: farmState);
+        final code = '''
+let x = getPositionX();
+let y = getPositionY();
+till();
+water();
+plant(CropType.Wheat);
+let cropType = getCropType();
+let isWheat = (cropType == CropType.Wheat);
+let grown = isCropGrown();
+''';
+        final result = await interpreter.execute(code);
+        expect(result.success, true);
+        expect(interpreter.currentScope.get('x'), 0);
+        expect(interpreter.currentScope.get('y'), 0);
+        expect(interpreter.currentScope.get('cropType'), 'CropType.Wheat');
+        expect(interpreter.currentScope.get('isWheat'), true);
+        expect(interpreter.currentScope.get('grown'), false);
+      });
+
+      test('Complex workflow using new functions', () async {
+        final interpreter = CppInterpreter(farmState: farmState);
+        final code = '''
+int main() {
+  int gridX = getPlotGridX();
+  int gridY = getPlotGridY();
+  int planted = 0;
+  
+  for (int y = 0; y < gridY; y = y + 1) {
+    for (int x = 0; x < gridX; x = x + 1) {
+      if (canTill()) {
+        till();
+      }
+      if (canPlant()) {
+        plant(CropType::Wheat);
+        planted = planted + 1;
+      }
+      if (getPositionX() < gridX - 1) {
+        move(Direction::east);
+      }
+    }
+    if (getPositionY() < gridY - 1) {
+      move(Direction::north);
+      // Reset X position (simplified - would need west moves in real scenario)
+    }
+  }
+  
+  return 0;
+}
+''';
+        final result = await interpreter.execute(code);
+        expect(result.success, true);
+        expect(interpreter.currentScope.get('planted'), greaterThan(0));
       });
     });
   });

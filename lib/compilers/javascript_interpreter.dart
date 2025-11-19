@@ -49,6 +49,45 @@ class JavaScriptInterpreter extends FarmCodeInterpreter {
     return code;
   }
 
+  /// Find the position of the assignment operator '=' (not '==', '!=', etc.)
+  int _findAssignmentOperator(String expr) {
+    bool inString = false;
+    String? stringChar;
+    int parenDepth = 0;
+
+    for (int i = 0; i < expr.length; i++) {
+      final char = expr[i];
+
+      // Track string literals
+      if ((char == '"' || char == "'" || char == '`') && (i == 0 || expr[i - 1] != '\\')) {
+        if (!inString) {
+          inString = true;
+          stringChar = char;
+        } else if (char == stringChar) {
+          inString = false;
+          stringChar = null;
+        }
+      }
+
+      if (!inString) {
+        if (char == '(') parenDepth++;
+        if (char == ')') parenDepth--;
+
+        // Found '=' that's not part of '==', '!=', '<=', '>='
+        if (char == '=' && parenDepth == 0) {
+          // Check it's not part of a comparison operator
+          final isComparison = (i > 0 && (expr[i - 1] == '=' || expr[i - 1] == '!' || 
+                                           expr[i - 1] == '<' || expr[i - 1] == '>')) ||
+                               (i < expr.length - 1 && expr[i + 1] == '=');
+          if (!isComparison) {
+            return i;
+          }
+        }
+      }
+    }
+    return -1;
+  }
+
   /// Extract block content between braces with proper nesting
   String _extractBlock(String code, int startIndex) {
     int braceCount = 0;
@@ -374,14 +413,11 @@ class JavaScriptInterpreter extends FarmCodeInterpreter {
     // Extract keyword (var/let/const) and rest of declaration
     final rest = stmt.substring(spaceIndex + 1).trim();
 
-    if (rest.contains('=')) {
-      final assignParts = rest.split('=');
-      if (assignParts.length != 2) {
-        throw Exception('Syntactical Error: Invalid variable assignment');
-      }
-
-      final varName = assignParts[0].trim();
-      final valueExpr = assignParts[1].trim();
+    // Find the first '=' that is not part of '==' or other comparison operators
+    final assignIndex = _findAssignmentOperator(rest);
+    if (assignIndex != -1) {
+      final varName = rest.substring(0, assignIndex).trim();
+      final valueExpr = rest.substring(assignIndex + 1).trim();
 
       if (!RegExp(r'^[a-zA-Z_$][\w$]*$').hasMatch(varName)) {
         throw Exception('Lexical Error: Invalid variable name: $varName');
@@ -779,9 +815,60 @@ class JavaScriptInterpreter extends FarmCodeInterpreter {
       case 'harvest':
         executeHarvest();
         break;
+      case 'sleep':
+        await _handleSleep(argsString);
+        break;
       default:
         throw Exception('Semantical Error: Unknown function "$functionName"');
     }
+  }
+
+  Future<void> _handleSleep(String args) async {
+    final duration = evaluateExpression(args);
+    if (duration is! num) {
+      throw Exception('Type Error: sleep() requires numeric argument');
+    }
+    await executeSleep(duration);
+  }
+
+  @override
+  dynamic evaluateFunctionCall(String expr) {
+    final functionPattern = RegExp(r'^(\w+)\s*\((.*?)\)\s*$');
+    final match = functionPattern.firstMatch(expr);
+    if (match == null) return null;
+    final functionName = match.group(1)!;
+    switch (functionName) {
+      case 'getPositionX': return executeGetPositionX();
+      case 'getPositionY': return executeGetPositionY();
+      case 'getPlotState':
+        final state = executeGetPlotState();
+        return _plotStateToString(state);
+      case 'getCropType':
+        final crop = executeGetCropType();
+        return _cropTypeToString(crop);
+      case 'isCropGrown': return executeIsCropGrown();
+      case 'canTill': return executeCanTill();
+      case 'canWater': return executeCanWater();
+      case 'canPlant': return executeCanPlant();
+      case 'canHarvest': return executeCanHarvest();
+      case 'getPlotGridX': return executeGetPlotGridX();
+      case 'getPlotGridY': return executeGetPlotGridY();
+      default: return null;
+    }
+  }
+
+  String _plotStateToString(PlotState? state) {
+    if (state == null) return 'PlotState.Normal';
+    switch (state) {
+      case PlotState.normal: return 'PlotState.Normal';
+      case PlotState.tilled: return 'PlotState.Tilled';
+      case PlotState.watered: return 'PlotState.Watered';
+    }
+  }
+
+  String _cropTypeToString(CropType? crop) {
+    if (crop == null) return 'CropType.None';
+    return 'CropType.${crop.displayName}';
   }
 
   /// Handle move() function
@@ -824,7 +911,7 @@ class JavaScriptInterpreter extends FarmCodeInterpreter {
   void _handlePlant(String args) {
     args = args.replaceAll('"', '').replaceAll("'", '').replaceAll('`', '').trim();
 
-    final cropPattern = RegExp(r'Crop\.(\w+)', caseSensitive: false);
+    final cropPattern = RegExp(r'CropType\.(\w+)', caseSensitive: false);
     final match = cropPattern.firstMatch(args);
 
     String cropStr;

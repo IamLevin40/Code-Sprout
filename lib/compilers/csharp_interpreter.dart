@@ -777,9 +777,60 @@ class CSharpInterpreter extends FarmCodeInterpreter {
       case 'harvest':
         executeHarvest();
         break;
+      case 'sleep':
+        await _handleSleep(argsString);
+        break;
       default:
         throw Exception('Semantical Error: Unknown function "$functionName"');
     }
+  }
+
+  Future<void> _handleSleep(String args) async {
+    final duration = evaluateExpression(args);
+    if (duration is! num) {
+      throw Exception('Type Error: sleep() requires numeric argument');
+    }
+    await executeSleep(duration);
+  }
+
+  @override
+  dynamic evaluateFunctionCall(String expr) {
+    final functionPattern = RegExp(r'^(\w+)\s*\((.*?)\)\s*$');
+    final match = functionPattern.firstMatch(expr);
+    if (match == null) return null;
+    final functionName = match.group(1)!.toLowerCase();
+    switch (functionName) {
+      case 'getpositionx': return executeGetPositionX();
+      case 'getpositiony': return executeGetPositionY();
+      case 'getplotstate':
+        final state = executeGetPlotState();
+        return _plotStateToString(state);
+      case 'getcroptype':
+        final crop = executeGetCropType();
+        return _cropTypeToString(crop);
+      case 'iscropgrown': return executeIsCropGrown();
+      case 'cantill': return executeCanTill();
+      case 'canwater': return executeCanWater();
+      case 'canplant': return executeCanPlant();
+      case 'canharvest': return executeCanHarvest();
+      case 'getplotgridx': return executeGetPlotGridX();
+      case 'getplotgridy': return executeGetPlotGridY();
+      default: return null;
+    }
+  }
+
+  String _plotStateToString(PlotState? state) {
+    if (state == null) return 'PlotState.Normal';
+    switch (state) {
+      case PlotState.normal: return 'PlotState.Normal';
+      case PlotState.tilled: return 'PlotState.Tilled';
+      case PlotState.watered: return 'PlotState.Watered';
+    }
+  }
+
+  String _cropTypeToString(CropType? crop) {
+    if (crop == null) return 'CropType.None';
+    return 'CropType.${crop.displayName}';
   }
 
   /// Handle move() function
@@ -816,7 +867,7 @@ class CSharpInterpreter extends FarmCodeInterpreter {
 
   /// Handle plant() function
   void _handlePlant(String args) {
-    final cropPattern = RegExp(r'Crop\.(\w+)', caseSensitive: false);
+    final cropPattern = RegExp(r'CropType\.(\w+)', caseSensitive: false);
     final match = cropPattern.firstMatch(args);
 
     if (match == null) {

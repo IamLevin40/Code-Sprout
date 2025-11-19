@@ -478,9 +478,90 @@ class PythonInterpreter extends FarmCodeInterpreter {
       case 'harvest':
         executeHarvest();
         break;
+      case 'sleep':
+        await _handleSleep(argsString);
+        break;
       default:
         throw Exception('Semantical Error: Unknown function "$functionName"');
     }
+  }
+
+  /// Handle sleep() function
+  Future<void> _handleSleep(String args) async {
+    final duration = evaluateExpression(args);
+    if (duration is! num) {
+      throw Exception('Type Error: sleep() requires numeric argument');
+    }
+    await executeSleep(duration);
+  }
+
+  @override
+  dynamic evaluateFunctionCall(String expr) {
+    final functionPattern = RegExp(r'^(\w+)\s*\((.*?)\)\s*$');
+    final match = functionPattern.firstMatch(expr);
+
+    if (match == null) return null;
+
+    final functionName = match.group(1)!;
+
+    switch (functionName) {
+      case 'getPositionX':
+      case 'get_position_x':
+        return executeGetPositionX();
+      case 'getPositionY':
+      case 'get_position_y':
+        return executeGetPositionY();
+      case 'getPlotState':
+      case 'get_plot_state':
+        final state = executeGetPlotState();
+        return _plotStateToString(state);
+      case 'getCropType':
+      case 'get_crop_type':
+        final crop = executeGetCropType();
+        return _cropTypeToString(crop);
+      case 'isCropGrown':
+      case 'is_crop_grown':
+        return executeIsCropGrown();
+      case 'canTill':
+      case 'can_till':
+        return executeCanTill();
+      case 'canWater':
+      case 'can_water':
+        return executeCanWater();
+      case 'canPlant':
+      case 'can_plant':
+        return executeCanPlant();
+      case 'canHarvest':
+      case 'can_harvest':
+        return executeCanHarvest();
+      case 'getPlotGridX':
+      case 'get_plot_grid_x':
+        return executeGetPlotGridX();
+      case 'getPlotGridY':
+      case 'get_plot_grid_y':
+        return executeGetPlotGridY();
+      default:
+        return null;
+    }
+  }
+
+  /// Convert PlotState to Python enum string format
+  String _plotStateToString(PlotState? state) {
+    if (state == null) return 'PlotState.Normal';
+    switch (state) {
+      case PlotState.normal:
+        return 'PlotState.Normal';
+      case PlotState.tilled:
+        return 'PlotState.Tilled';
+      case PlotState.watered:
+        return 'PlotState.Watered';
+    }
+  }
+
+  /// Convert CropType to Python enum string format
+  String _cropTypeToString(CropType? crop) {
+    if (crop == null) return 'CropType.None';
+    return 'CropType.${crop.displayName}';
   }
 
   /// Handle move() function
@@ -523,7 +604,7 @@ class PythonInterpreter extends FarmCodeInterpreter {
   void _handlePlant(String args) {
     args = args.replaceAll('"', '').replaceAll("'", '').trim();
     
-    final cropPattern = RegExp(r'Crop\.(\w+)', caseSensitive: false);
+    final cropPattern = RegExp(r'CropType\.(\w+)', caseSensitive: false);
     final match = cropPattern.firstMatch(args);
 
     String cropStr;

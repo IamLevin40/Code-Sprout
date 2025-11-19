@@ -776,9 +776,60 @@ class JavaInterpreter extends FarmCodeInterpreter {
       case 'harvest':
         executeHarvest();
         break;
+      case 'sleep':
+        await _handleSleep(argsString);
+        break;
       default:
         throw Exception('Semantical Error: Unknown function "$functionName"');
     }
+  }
+
+  Future<void> _handleSleep(String args) async {
+    final duration = evaluateExpression(args);
+    if (duration is! num) {
+      throw Exception('Type Error: sleep() requires numeric argument');
+    }
+    await executeSleep(duration);
+  }
+
+  @override
+  dynamic evaluateFunctionCall(String expr) {
+    final functionPattern = RegExp(r'^(\w+)\s*\((.*?)\)\s*$');
+    final match = functionPattern.firstMatch(expr);
+    if (match == null) return null;
+    final functionName = match.group(1)!;
+    switch (functionName) {
+      case 'getPositionX': return executeGetPositionX();
+      case 'getPositionY': return executeGetPositionY();
+      case 'getPlotState':
+        final state = executeGetPlotState();
+        return _plotStateToString(state);
+      case 'getCropType':
+        final crop = executeGetCropType();
+        return _cropTypeToString(crop);
+      case 'isCropGrown': return executeIsCropGrown();
+      case 'canTill': return executeCanTill();
+      case 'canWater': return executeCanWater();
+      case 'canPlant': return executeCanPlant();
+      case 'canHarvest': return executeCanHarvest();
+      case 'getPlotGridX': return executeGetPlotGridX();
+      case 'getPlotGridY': return executeGetPlotGridY();
+      default: return null;
+    }
+  }
+
+  String _plotStateToString(PlotState? state) {
+    if (state == null) return 'PlotState.NORMAL';
+    switch (state) {
+      case PlotState.normal: return 'PlotState.NORMAL';
+      case PlotState.tilled: return 'PlotState.TILLED';
+      case PlotState.watered: return 'PlotState.WATERED';
+    }
+  }
+
+  String _cropTypeToString(CropType? crop) {
+    if (crop == null) return 'CropType.NONE';
+    return 'CropType.${crop.displayName.toUpperCase()}';
   }
 
   /// Handle move() function
@@ -815,7 +866,7 @@ class JavaInterpreter extends FarmCodeInterpreter {
 
   /// Handle plant() function
   void _handlePlant(String args) {
-    final cropPattern = RegExp(r'Crop\.(\w+)', caseSensitive: false);
+    final cropPattern = RegExp(r'CropType\.(\w+)', caseSensitive: false);
     final match = cropPattern.firstMatch(args);
 
     if (match == null) {
