@@ -1,7 +1,8 @@
 import 'base_interpreter.dart';
 import '../models/farm_data.dart';
 
-/// C# code interpreter for farm drone operations
+/// Comprehensive C# code interpreter for farm drone operations
+/// Supports: variables, operators, if-else, switch-case, loops, break/continue, Console.WriteLine, try-catch
 class CSharpInterpreter extends FarmCodeInterpreter {
   CSharpInterpreter({
     required super.farmState,
@@ -20,27 +21,32 @@ class CSharpInterpreter extends FarmCodeInterpreter {
       // Extract Main method body
       final mainBody = _extractMainBody(code);
       if (mainBody == null) {
-        return ExecutionResult.error('Error: Main() method not found', log: executionLog);
+        return ExecutionResult.error(
+          'Syntactical Error: Main() method not found',
+          type: ErrorType.syntactical,
+          log: executionLog,
+        );
       }
 
-      // Parse and execute statements
-      final statements = _parseStatements(mainBody);
+      // Execute statements
+      await _executeBlock(mainBody);
 
-      for (final stmt in statements) {
-        final trimmed = stmt.trim();
-        if (trimmed.isEmpty) continue;
-
-        await delay();
-
-        if (!await _executeStatement(trimmed)) {
-          return ExecutionResult.error('Execution stopped due to error', log: executionLog);
-        }
+      if (!shouldReturn) {
+        log('Code execution completed successfully!');
       }
-
-      log('Code execution completed successfully!');
       return ExecutionResult.success(log: executionLog);
+    } on Exception catch (e) {
+      return ExecutionResult.error(
+        'Runtime Error: ${e.toString()}',
+        type: ErrorType.runtime,
+        log: executionLog,
+      );
     } catch (e) {
-      return ExecutionResult.error('Runtime error: $e', log: executionLog);
+      return ExecutionResult.error(
+        'Unknown Error: $e',
+        type: ErrorType.runtime,
+        log: executionLog,
+      );
     }
   }
 
@@ -51,6 +57,111 @@ class CSharpInterpreter extends FarmCodeInterpreter {
     // Remove single-line comments
     code = code.replaceAll(RegExp(r'//.*?$', multiLine: true), '');
     return code;
+  }
+
+  /// Extract block content between braces with proper nesting
+  String _extractBlock(String code, int startIndex) {
+    int braceCount = 0;
+    bool inString = false;
+    String? stringChar;
+    int blockStart = -1;
+
+    for (int i = startIndex; i < code.length; i++) {
+      final char = code[i];
+
+      if ((char == '"' || char == "'") && (i == 0 || code[i - 1] != '\\')) {
+        if (!inString) {
+          inString = true;
+          stringChar = char;
+        } else if (char == stringChar) {
+          inString = false;
+          stringChar = null;
+        }
+      }
+
+      if (!inString) {
+        if (char == '{') {
+          if (braceCount == 0) blockStart = i + 1;
+          braceCount++;
+        } else if (char == '}') {
+          braceCount--;
+          if (braceCount == 0) {
+            return code.substring(blockStart, i);
+          }
+        }
+      }
+    }
+
+    throw Exception('Syntactical Error: Unmatched braces');
+  }
+
+  /// Find matching closing parenthesis
+  int _findMatchingParen(String code, int openIndex) {
+    int depth = 0;
+    bool inString = false;
+    String? stringChar;
+
+    for (int i = openIndex; i < code.length; i++) {
+      final char = code[i];
+
+      if ((char == '"' || char == "'") && (i == 0 || code[i - 1] != '\\')) {
+        if (!inString) {
+          inString = true;
+          stringChar = char;
+        } else if (char == stringChar) {
+          inString = false;
+          stringChar = null;
+        }
+      }
+
+      if (!inString) {
+        if (char == '(') depth++;
+        if (char == ')') {
+          depth--;
+          if (depth == 0) return i;
+        }
+      }
+    }
+    return -1;
+  }
+
+  /// Split for loop header by semicolons
+  List<String> _splitForHeader(String header) {
+    final parts = <String>[];
+    final buffer = StringBuffer();
+    int parenDepth = 0;
+    bool inString = false;
+    String? stringChar;
+
+    for (int i = 0; i < header.length; i++) {
+      final char = header[i];
+
+      if ((char == '"' || char == "'") && (i == 0 || header[i - 1] != '\\')) {
+        if (!inString) {
+          inString = true;
+          stringChar = char;
+        } else if (char == stringChar) {
+          inString = false;
+          stringChar = null;
+        }
+      }
+
+      if (!inString) {
+        if (char == '(') parenDepth++;
+        if (char == ')') parenDepth--;
+
+        if (char == ';' && parenDepth == 0) {
+          parts.add(buffer.toString());
+          buffer.clear();
+          continue;
+        }
+      }
+
+      buffer.write(char);
+    }
+
+    parts.add(buffer.toString());
+    return parts;
   }
 
   /// Extract the body of Main() method
@@ -82,82 +193,602 @@ class CSharpInterpreter extends FarmCodeInterpreter {
     return code.substring(startIndex, currentIndex - 1);
   }
 
+  /// Execute a block of code
+  Future<void> _executeBlock(String block) async {
+    final statements = _parseStatements(block);
+
+    for (final stmt in statements) {
+      if (shouldBreak || shouldContinue || shouldReturn) break;
+
+      final trimmed = stmt.trim();
+      if (trimmed.isEmpty) continue;
+
+      await delay(200);
+      await _executeStatement(trimmed);
+    }
+  }
+
   /// Parse statements from code block
   List<String> _parseStatements(String code) {
     final List<String> statements = [];
     final buffer = StringBuffer();
     int braceDepth = 0;
     int parenDepth = 0;
+    bool inString = false;
+    String? stringChar;
 
     for (int i = 0; i < code.length; i++) {
       final char = code[i];
 
-      if (char == '{') braceDepth++;
-      if (char == '}') braceDepth--;
-      if (char == '(') parenDepth++;
-      if (char == ')') parenDepth--;
+      if ((char == '"' || char == "'") && (i == 0 || code[i - 1] != '\\')) {
+        if (!inString) {
+          inString = true;
+          stringChar = char;
+        } else if (char == stringChar) {
+          inString = false;
+          stringChar = null;
+        }
+      }
+
+      if (!inString) {
+        if (char == '{') braceDepth++;
+        if (char == '}') braceDepth--;
+        if (char == '(') parenDepth++;
+        if (char == ')') parenDepth--;
+      }
 
       buffer.write(char);
 
-      if (char == ';' && braceDepth == 0 && parenDepth == 0) {
+      if (!inString && char == ';' && braceDepth == 0 && parenDepth == 0) {
         statements.add(buffer.toString().trim());
         buffer.clear();
       }
+    }
+
+    final remaining = buffer.toString().trim();
+    if (remaining.isNotEmpty) {
+      statements.add(remaining);
     }
 
     return statements;
   }
 
   /// Execute a single statement
-  Future<bool> _executeStatement(String stmt) async {
-    // Remove trailing semicolon
-    if (stmt.endsWith(';')) {
-      stmt = stmt.substring(0, stmt.length - 1).trim();
+  Future<void> _executeStatement(String stmt) async {
+    stmt = stmt.trim();
+    if (stmt.isEmpty) return;
+
+    // Control flow checks FIRST (before assignment check)
+    // If statement
+    if (stmt.startsWith('if')) {
+      await _handleIf(stmt);
+      return;
     }
 
-    // Parse function calls
-    final functionPattern = RegExp(r'^(\w+)\s*\((.*?)\)\s*$');
-    final match = functionPattern.firstMatch(stmt);
-
-    if (match != null) {
-      final functionName = match.group(1)!;
-      final argsString = match.group(2)?.trim() ?? '';
-
-      switch (functionName) {
-        case 'move':
-        case 'Move':
-          return _handleMove(argsString);
-        case 'till':
-        case 'Till':
-          return executeTill();
-        case 'water':
-        case 'Water':
-          return executeWater();
-        case 'plant':
-        case 'Plant':
-          return _handlePlant(argsString);
-        case 'harvest':
-        case 'Harvest':
-          return executeHarvest();
-        default:
-          log('Error: Unknown function "$functionName"');
-          return false;
-      }
+    // While loop
+    if (stmt.startsWith('while')) {
+      await _handleWhile(stmt);
+      return;
     }
 
-    log('Error: Invalid statement syntax');
+    // For loop
+    if (stmt.startsWith('for')) {
+      await _handleFor(stmt);
+      return;
+    }
+
+    // Do-while loop
+    if (stmt.startsWith('do')) {
+      await _handleDoWhile(stmt);
+      return;
+    }
+
+    // Switch statement
+    if (stmt.startsWith('switch')) {
+      await _handleSwitch(stmt);
+      return;
+    }
+
+    // Try-catch
+    if (stmt.startsWith('try')) {
+      await _handleTryCatch(stmt);
+      return;
+    }
+
+    // Variable declaration
+    if (_isVariableDeclaration(stmt)) {
+      await _handleVariableDeclaration(stmt);
+      return;
+    }
+
+    // Increment/decrement operators (++, --)
+    if (stmt.contains('++') || stmt.contains('--')) {
+      _handleIncrementDecrement(stmt);
+      return;
+    }
+
+    // Assignment
+    if (_isAssignment(stmt)) {
+      await _handleAssignment(stmt);
+      return;
+    }
+
+    // Break
+    if (stmt.startsWith('break')) {
+      shouldBreak = true;
+      return;
+    }
+
+    // Continue
+    if (stmt.startsWith('continue')) {
+      shouldContinue = true;
+      return;
+    }
+
+    // Return
+    if (stmt.startsWith('return')) {
+      shouldReturn = true;
+      return;
+    }
+
+    // Try-catch
+    if (stmt.startsWith('try')) {
+      await _handleTryCatch(stmt);
+      return;
+    }
+
+    // Console.WriteLine
+    if (stmt.contains('Console.WriteLine')) {
+      await _handleWriteLine(stmt);
+      return;
+    }
+
+    // Function call
+    if (stmt.contains('(') && stmt.contains(')')) {
+      await _handleFunctionCall(stmt);
+      return;
+    }
+
+    throw Exception('Syntactical Error: Unrecognized statement: $stmt');
+  }
+
+  /// Check if statement is a variable declaration
+  bool _isVariableDeclaration(String stmt) {
+    final types = ['int', 'double', 'float', 'char', 'bool', 'string'];
+    for (final type in types) {
+      if (stmt.startsWith(type + ' ')) return true;
+    }
     return false;
   }
 
+  /// Handle variable declaration
+  Future<void> _handleVariableDeclaration(String stmt) async {
+    if (stmt.endsWith(';')) stmt = stmt.substring(0, stmt.length - 1);
+
+    final spaceIndex = stmt.indexOf(' ');
+    if (spaceIndex == -1) {
+      throw Exception('Syntactical Error: Invalid variable declaration');
+    }
+
+    final type = stmt.substring(0, spaceIndex);
+    final rest = stmt.substring(spaceIndex + 1).trim();
+
+    if (rest.contains('=')) {
+      final assignParts = rest.split('=');
+      if (assignParts.length != 2) {
+        throw Exception('Syntactical Error: Invalid variable assignment');
+      }
+
+      final varName = assignParts[0].trim();
+      final valueExpr = assignParts[1].trim();
+
+      if (!RegExp(r'^[a-zA-Z_]\w*$').hasMatch(varName)) {
+        throw Exception('Lexical Error: Invalid variable name: $varName');
+      }
+
+      final value = evaluateExpression(valueExpr);
+      currentScope.define(varName, value);
+      log('Variable $varName declared with value: $value');
+    } else {
+      final varName = rest.trim();
+      if (!RegExp(r'^[a-zA-Z_]\w*$').hasMatch(varName)) {
+        throw Exception('Lexical Error: Invalid variable name: $varName');
+      }
+      currentScope.define(varName, _getDefaultValue(type));
+      log('Variable $varName declared');
+    }
+  }
+
+  /// Get default value for a type
+  dynamic _getDefaultValue(String type) {
+    switch (type) {
+      case 'int':
+      case 'float':
+      case 'double':
+        return 0;
+      case 'bool':
+        return false;
+      case 'char':
+        return '';
+      case 'string':
+        return '';
+      default:
+        return null;
+    }
+  }
+
+  /// Check if statement is an assignment
+  bool _isAssignment(String stmt) {
+    return stmt.contains('=') && !stmt.contains('==') && !stmt.contains('!=') && !stmt.contains('<=') && !stmt.contains('>=');
+  }
+
+  /// Handle assignment
+  Future<void> _handleAssignment(String stmt) async {
+    if (stmt.endsWith(';')) stmt = stmt.substring(0, stmt.length - 1);
+
+    // Find the first = that's not part of ==, !=, >=, <=
+    int assignIndex = -1;
+    for (int i = 0; i < stmt.length; i++) {
+      if (stmt[i] == '=' && 
+          (i == 0 || (stmt[i-1] != '!' && stmt[i-1] != '=' && stmt[i-1] != '>' && stmt[i-1] != '<')) &&
+          (i == stmt.length - 1 || stmt[i+1] != '=')) {
+        assignIndex = i;
+        break;
+      }
+    }
+    
+    if (assignIndex == -1) {
+      throw Exception('Syntactical Error: Invalid assignment');
+    }
+
+    final varName = stmt.substring(0, assignIndex).trim();
+    final valueExpr = stmt.substring(assignIndex + 1).trim();
+
+    if (!currentScope.has(varName)) {
+      throw Exception('Semantical Error: Undefined variable: $varName');
+    }
+
+    final value = evaluateExpression(valueExpr);
+    currentScope.set(varName, value);
+    log('Variable $varName assigned value: $value');
+  }
+
+  /// Handle increment/decrement operators (++, --)
+  void _handleIncrementDecrement(String stmt) {
+    stmt = stmt.trim();
+    if (stmt.endsWith(';')) stmt = stmt.substring(0, stmt.length - 1).trim();
+
+    String varName;
+    bool isIncrement;
+    
+    // Prefix: ++i or --i
+    if (stmt.startsWith('++') || stmt.startsWith('--')) {
+      isIncrement = stmt.startsWith('++');
+      varName = stmt.substring(2).trim();
+    }
+    // Postfix: i++ or i--
+    else if (stmt.endsWith('++') || stmt.endsWith('--')) {
+      isIncrement = stmt.endsWith('++');
+      varName = stmt.substring(0, stmt.length - 2).trim();
+    }
+    else {
+      throw Exception('Syntactical Error: Invalid increment/decrement');
+    }
+
+    if (!currentScope.has(varName)) {
+      throw Exception('Semantical Error: Undefined variable: $varName');
+    }
+
+    final currentValue = currentScope.get(varName);
+    if (currentValue is! num) {
+      throw Exception('Type Error: Cannot increment/decrement non-numeric variable');
+    }
+
+    final newValue = isIncrement ? currentValue + 1 : currentValue - 1;
+    currentScope.set(varName, newValue);
+    log('Variable $varName ${isIncrement ? "incremented" : "decremented"} to: $newValue');
+  }
+
+  /// Handle if statement
+  Future<void> _handleIf(String stmt) async {
+    final condStart = stmt.indexOf('(');
+    final condEnd = _findMatchingParen(stmt, condStart);
+    
+    if (condStart == -1 || condEnd == -1) {
+      throw Exception('Syntactical Error: Invalid if statement');
+    }
+
+    final condition = stmt.substring(condStart + 1, condEnd);
+    final ifBody = _extractBlock(stmt, condEnd);
+    
+    String? elseBody;
+    final elseMatch = RegExp(r'\}\s*else\s*\{').firstMatch(stmt);
+    if (elseMatch != null) {
+      elseBody = _extractBlock(stmt, elseMatch.end - 1);
+    }
+
+    try {
+      final condValue = evaluateExpression(condition);
+      
+      pushScope();
+      if (_toBool(condValue)) {
+        await _executeBlock(ifBody);
+      } else if (elseBody != null) {
+        await _executeBlock(elseBody);
+      }
+      popScope();
+    } catch (e) {
+      throw Exception('Logical Error in if condition: $e');
+    }
+  }
+
+  /// Handle while loop
+  Future<void> _handleWhile(String stmt) async {
+    final condStart = stmt.indexOf('(');
+    final condEnd = _findMatchingParen(stmt, condStart);
+    
+    if (condStart == -1 || condEnd == -1) {
+      throw Exception('Syntactical Error: Invalid while loop');
+    }
+
+    final condition = stmt.substring(condStart + 1, condEnd);
+    final body = _extractBlock(stmt, condEnd);
+
+    while (true) {
+      try {
+        final condValue = evaluateExpression(condition);
+        if (!_toBool(condValue)) break;
+      } catch (e) {
+        throw Exception('Logical Error in while condition: $e');
+      }
+
+      pushScope();
+      shouldBreak = false;
+      shouldContinue = false;
+      
+      await _executeBlock(body);
+      
+      popScope();
+      
+      if (shouldBreak) {
+        shouldBreak = false;
+        break;
+      }
+      if (shouldReturn) break;
+    }
+  }
+
+  /// Handle for loop
+  Future<void> _handleFor(String stmt) async {
+    final condStart = stmt.indexOf('(');
+    final condEnd = _findMatchingParen(stmt, condStart);
+    
+    if (condStart == -1 || condEnd == -1) {
+      throw Exception('Syntactical Error: Invalid for loop');
+    }
+
+    final forHeader = stmt.substring(condStart + 1, condEnd);
+    final parts = _splitForHeader(forHeader);
+    
+    if (parts.length != 3) {
+      throw Exception('Syntactical Error: Invalid for loop header');
+    }
+
+    final init = parts[0].trim();
+    final condition = parts[1].trim();
+    final update = parts[2].trim();
+    final body = _extractBlock(stmt, condEnd);
+
+    pushScope();
+    
+    if (init.isNotEmpty) {
+      await _executeStatement(init + ';');
+    }
+
+    while (true) {
+      try {
+        if (condition.isNotEmpty) {
+          final condValue = evaluateExpression(condition);
+          if (!_toBool(condValue)) break;
+        }
+      } catch (e) {
+        throw Exception('Logical Error in for condition: $e');
+      }
+
+      shouldBreak = false;
+      shouldContinue = false;
+      
+      await _executeBlock(body);
+      
+      if (shouldBreak) {
+        shouldBreak = false;
+        break;
+      }
+      
+      if (shouldReturn) break;
+      
+      // Reset continue flag before update
+      shouldContinue = false;
+      
+      if (!shouldReturn && update.isNotEmpty) {
+        await _executeStatement(update + ';');
+      }
+    }
+
+    popScope();
+  }
+
+  /// Handle do-while loop
+  Future<void> _handleDoWhile(String stmt) async {
+    final match = RegExp(r'do\s*\{(.*?)\}\s*while\s*\((.*?)\)', dotAll: true).firstMatch(stmt);
+    
+    if (match == null) {
+      throw Exception('Syntactical Error: Invalid do-while loop');
+    }
+
+    final body = match.group(1)!;
+    final condition = match.group(2)!;
+
+    do {
+      pushScope();
+      shouldBreak = false;
+      shouldContinue = false;
+      
+      await _executeBlock(body);
+      
+      popScope();
+      
+      if (shouldBreak) {
+        shouldBreak = false;
+        break;
+      }
+      if (shouldReturn) break;
+
+      try {
+        final condValue = evaluateExpression(condition);
+        if (!_toBool(condValue)) break;
+      } catch (e) {
+        throw Exception('Logical Error in do-while condition: $e');
+      }
+    } while (true);
+  }
+
+  /// Handle switch statement
+  Future<void> _handleSwitch(String stmt) async {
+    final match = RegExp(r'switch\s*\((.*?)\)\s*\{(.*?)\}', dotAll: true).firstMatch(stmt);
+    
+    if (match == null) {
+      throw Exception('Syntactical Error: Invalid switch statement');
+    }
+
+    final expr = match.group(1)!;
+    final body = match.group(2)!;
+
+    try {
+      final switchValue = evaluateExpression(expr);
+      
+      final casePattern = RegExp(r'case\s+(.*?):(.*?)(?=case|default|$)', dotAll: true);
+      final defaultPattern = RegExp(r'default\s*:(.*?)$', dotAll: true);
+
+      bool matched = false;
+      
+      for (final caseMatch in casePattern.allMatches(body)) {
+        final caseValue = caseMatch.group(1)!.trim();
+        final caseBody = caseMatch.group(2)!;
+        
+        final caseVal = evaluateExpression(caseValue);
+        
+        if (switchValue == caseVal) {
+          matched = true;
+          pushScope();
+          await _executeBlock(caseBody);
+          popScope();
+          
+          if (shouldBreak) {
+            shouldBreak = false;
+            break;
+          }
+        }
+      }
+
+      if (!matched) {
+        final defaultMatch = defaultPattern.firstMatch(body);
+        if (defaultMatch != null) {
+          final defaultBody = defaultMatch.group(1)!;
+          pushScope();
+          await _executeBlock(defaultBody);
+          popScope();
+        }
+      }
+    } catch (e) {
+      throw Exception('Logical Error in switch: $e');
+    }
+  }
+
+  /// Handle try-catch
+  Future<void> _handleTryCatch(String stmt) async {
+    final match = RegExp(r'try\s*\{(.*?)\}\s*catch\s*\([^)]*\)\s*\{(.*?)\}', dotAll: true).firstMatch(stmt);
+    
+    if (match == null) {
+      throw Exception('Syntactical Error: Invalid try-catch');
+    }
+
+    final tryBody = match.group(1)!;
+    final catchBody = match.group(2)!;
+
+    try {
+      pushScope();
+      await _executeBlock(tryBody);
+      popScope();
+    } catch (e) {
+      log('Exception caught: $e');
+      pushScope();
+      await _executeBlock(catchBody);
+      popScope();
+    }
+  }
+
+  /// Handle Console.WriteLine
+  Future<void> _handleWriteLine(String stmt) async {
+    if (stmt.endsWith(';')) stmt = stmt.substring(0, stmt.length - 1);
+
+    final match = RegExp(r'Console\.WriteLine\((.*?)\)$').firstMatch(stmt);
+    if (match == null) {
+      throw Exception('Syntactical Error: Invalid WriteLine statement');
+    }
+
+    final content = match.group(1)!;
+    
+    try {
+      final value = evaluateExpression(content);
+      log('Output: $value');
+    } catch (e) {
+      log('Output: $content');
+    }
+  }
+
+  /// Handle function call
+  Future<void> _handleFunctionCall(String stmt) async {
+    if (stmt.endsWith(';')) stmt = stmt.substring(0, stmt.length - 1);
+
+    final functionPattern = RegExp(r'^(\w+)\s*\((.*?)\)\s*$');
+    final match = functionPattern.firstMatch(stmt);
+
+    if (match == null) {
+      throw Exception('Syntactical Error: Invalid function call');
+    }
+
+    final functionName = match.group(1)!;
+    final argsString = match.group(2)?.trim() ?? '';
+
+    switch (functionName.toLowerCase()) {
+      case 'move':
+        _handleMove(argsString);
+        break;
+      case 'till':
+        executeTill();
+        break;
+      case 'water':
+        executeWater();
+        break;
+      case 'plant':
+        _handlePlant(argsString);
+        break;
+      case 'harvest':
+        executeHarvest();
+        break;
+      default:
+        throw Exception('Semantical Error: Unknown function "$functionName"');
+    }
+  }
+
   /// Handle move() function
-  bool _handleMove(String args) {
-    // Parse Direction.North, Direction.South, etc.
+  void _handleMove(String args) {
     final dirPattern = RegExp(r'Direction\.(\w+)', caseSensitive: false);
     final match = dirPattern.firstMatch(args);
 
     if (match == null) {
-      log('Error: Invalid direction format. Use Direction.North, Direction.South, Direction.East, or Direction.West');
-      return false;
+      throw Exception('Semantical Error: Invalid direction format');
     }
 
     final dirStr = match.group(1)!.toLowerCase();
@@ -177,32 +808,36 @@ class CSharpInterpreter extends FarmCodeInterpreter {
         direction = Direction.west;
         break;
       default:
-        log('Error: Invalid direction "$dirStr"');
-        return false;
+        throw Exception('Semantical Error: Invalid direction "$dirStr"');
     }
 
-    return executeMove(direction);
+    executeMove(direction);
   }
 
   /// Handle plant() function
-  bool _handlePlant(String args) {
-    // Parse Crop.Wheat, Crop.Carrot, etc.
+  void _handlePlant(String args) {
     final cropPattern = RegExp(r'Crop\.(\w+)', caseSensitive: false);
     final match = cropPattern.firstMatch(args);
 
     if (match == null) {
-      log('Error: Invalid crop format. Use Crop.Wheat, Crop.Carrot, etc.');
-      return false;
+      throw Exception('Semantical Error: Invalid crop format');
     }
 
     final cropStr = match.group(1)!.toLowerCase();
     final crop = CropTypeExtension.fromString(cropStr);
 
     if (crop == null) {
-      log('Error: Unknown crop type "$cropStr"');
-      return false;
+      throw Exception('Semantical Error: Unknown crop type "$cropStr"');
     }
 
-    return executePlant(crop);
+    executePlant(crop);
+  }
+
+  /// Convert value to boolean
+  bool _toBool(dynamic value) {
+    if (value is bool) return value;
+    if (value is num) return value != 0;
+    if (value is String) return value.isNotEmpty;
+    return false;
   }
 }
