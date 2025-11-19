@@ -1,0 +1,143 @@
+{
+    "crop_info": {
+        "wheat": {
+            "item_icon": "images/icons/sprout_researches/crop_items/wheat.png",
+            "growth_duration": 5.0,
+            "harvest_quantity": {
+                "min": 1,
+                "max": 1
+            },
+            "crop_stages": {
+                "1": "images/farm/crops/wheat/stage_1.png",
+                "2": "images/farm/crops/wheat/stage_2.png",
+                "3": "images/farm/crops/wheat/stage_3.png",
+                "4": "images/farm/crops/wheat/stage_4.png",
+                "5": "images/farm/crops/wheat/stage_5.png",
+                "6": "images/farm/crops/wheat/stage_6.png"
+            }
+        },
+        "carrot": {
+            "item_icon": "images/icons/sprout_researches/crop_items/carrot.png",
+            "growth_duration": 7.0,
+            "harvest_quantity": {
+                "min": 2,
+                "max": 3
+            },
+            "crop_stages": {
+                "1": "images/farm/crops/carrot/stage_1.png",
+                "2": "images/farm/crops/carrot/stage_2.png",
+                "3": "images/farm/crops/carrot/stage_3.png",
+                "4": "images/farm/crops/carrot/stage_4.png",
+                "5": "images/farm/crops/carrot/stage_5.png"
+            }
+        },
+        "potato": {
+            "item_icon": "images/icons/sprout_researches/crop_items/potato.png",
+            "growth_duration": 5.0,
+            "harvest_quantity": {
+                "min": 1,
+                "max": 1
+            },
+            "crop_stages": {
+                "1": "images/farm/crops/potato/stage_1.png",
+                "2": "images/farm/crops/potato/stage_2.png",
+                "3": "images/farm/crops/potato/stage_3.png",
+                "4": "images/farm/crops/potato/stage_4.png",
+                "5": "images/farm/crops/potato/stage_5.png",
+                "6": "images/farm/crops/potato/stage_6.png"
+            }
+        },
+        "beetroot": {
+            "item_icon": "images/icons/sprout_researches/crop_items/beetroot.png",
+            "growth_duration": 12.5,
+            "harvest_quantity": {
+                "min": 1,
+                "max": 1
+            },
+            "crop_stages": {
+                "1": "images/farm/crops/beetroot/stage_1.png",
+                "2": "images/farm/crops/beetroot/stage_2.png",
+                "3": "images/farm/crops/beetroot/stage_3.png",
+                "4": "images/farm/crops/beetroot/stage_4.png",
+                "5": "images/farm/crops/beetroot/stage_5.png"
+            }
+        },
+        "radish": {
+            "item_icon": "images/icons/sprout_researches/crop_items/radish.png",
+            "growth_duration": 5.0,
+            "harvest_quantity": {
+                "min": 1,
+                "max": 1
+            },
+            "crop_stages": {
+                "1": "images/farm/crops/radish/stage_1.png",
+                "2": "images/farm/crops/radish/stage_2.png",
+                "3": "images/farm/crops/radish/stage_3.png",
+                "4": "images/farm/crops/radish/stage_4.png"
+            }
+        },
+        "onion": {
+            "item_icon": "images/icons/sprout_researches/crop_items/onion.png",
+            "growth_duration": 7.0,
+            "harvest_quantity": {
+                "min": 1,
+                "max": 1
+            },
+            "crop_stages": {
+                "1": "images/farm/crops/onion/stage_1.png",
+                "2": "images/farm/crops/onion/stage_2.png",
+                "3": "images/farm/crops/onion/stage_3.png",
+                "4": "images/farm/crops/onion/stage_4.png",
+                "5": "images/farm/crops/onion/stage_5.png",
+                "6": "images/farm/crops/onion/stage_6.png"
+            }
+        },
+        "lettuce": {
+            "item_icon": "images/icons/sprout_researches/crop_items/lettuce.png",
+            "growth_duration": 5.0,
+            "harvest_quantity": {
+                "min": 1,
+                "max": 1
+            },
+            "crop_stages": {
+                "1": "images/farm/crops/lettuce/stage_1.png",
+                "2": "images/farm/crops/lettuce/stage_2.png",
+                "3": "images/farm/crops/lettuce/stage_3.png",
+                "4": "images/farm/crops/lettuce/stage_4.png",
+                "5": "images/farm/crops/lettuce/stage_5.png"
+            }
+        },
+        "tomato": {
+            "item_icon": "images/icons/sprout_researches/crop_items/tomato.png",
+            "growth_duration": 15.0,
+            "harvest_quantity": {
+                "min": 1,
+                "max": 4
+            },
+            "crop_stages": {
+                "1": "images/farm/crops/tomato/stage_1.png",
+                "2": "images/farm/crops/tomato/stage_2.png",
+                "3": "images/farm/crops/tomato/stage_3.png",
+                "4": "images/farm/crops/tomato/stage_4.png",
+                "5": "images/farm/crops/tomato/stage_5.png",
+                "6": "images/farm/crops/tomato/stage_6.png",
+                "7": "images/farm/crops/tomato/stage_7.png"
+            }
+        },
+        "garlic": {
+            "item_icon": "images/icons/sprout_researches/crop_items/garlic.png",
+            "growth_duration": 20.0,
+            "harvest_quantity": {
+                "min": 1,
+                "max": 1
+            },
+            "crop_stages": {
+                "1": "images/farm/crops/garlic/stage_1.png",
+                "2": "images/farm/crops/garlic/stage_2.png",
+                "3": "images/farm/crops/garlic/stage_3.png",
+                "4": "images/farm/crops/garlic/stage_4.png",
+                "5": "images/farm/crops/garlic/stage_5.png"
+            }
+        }
+    }
+}

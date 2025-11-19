@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:code_sprout/models/farm_data.dart';
+import 'package:code_sprout/models/farm_data_schema.dart';
 import 'package:code_sprout/compilers/cpp_interpreter.dart';
 import 'package:code_sprout/compilers/python_interpreter.dart';
 import 'package:code_sprout/compilers/java_interpreter.dart';
@@ -7,6 +8,128 @@ import 'package:code_sprout/compilers/csharp_interpreter.dart';
 import 'package:code_sprout/compilers/javascript_interpreter.dart';
 
 void main() {
+  // Set up farm data schema once before all tests
+  // Using setSchemaForTesting to avoid asset loading in tests
+  setUpAll(() {
+    final schema = FarmDataSchema();
+    schema.setSchemaForTesting({
+      'crop_info': {
+        'wheat': {
+          'item_icon': 'assets/images/icons/wheat_icon.png',
+          'growth_duration': 30.0,
+          'harvest_quantity': {'min': 2, 'max': 4},
+          'crop_stages': {
+            '1': 'assets/images/icons/wheat_stage1.png',
+            '2': 'assets/images/icons/wheat_stage2.png',
+            '3': 'assets/images/icons/wheat_stage3.png',
+            '4': 'assets/images/icons/wheat_stage4.png',
+            '5': 'assets/images/icons/wheat_stage5.png',
+            '6': 'assets/images/icons/wheat_stage6.png',
+          }
+        },
+        'carrot': {
+          'item_icon': 'assets/images/icons/carrot_icon.png',
+          'growth_duration': 25.0,
+          'harvest_quantity': {'min': 1, 'max': 3},
+          'crop_stages': {
+            '1': 'assets/images/icons/carrot_stage1.png',
+            '2': 'assets/images/icons/carrot_stage2.png',
+            '3': 'assets/images/icons/carrot_stage3.png',
+            '4': 'assets/images/icons/carrot_stage4.png',
+            '5': 'assets/images/icons/carrot_stage5.png',
+          }
+        },
+        'potato': {
+          'item_icon': 'assets/images/icons/potato_icon.png',
+          'growth_duration': 35.0,
+          'harvest_quantity': {'min': 2, 'max': 5},
+          'crop_stages': {
+            '1': 'assets/images/icons/potato_stage1.png',
+            '2': 'assets/images/icons/potato_stage2.png',
+            '3': 'assets/images/icons/potato_stage3.png',
+            '4': 'assets/images/icons/potato_stage4.png',
+            '5': 'assets/images/icons/potato_stage5.png',
+            '6': 'assets/images/icons/potato_stage6.png',
+          }
+        },
+        'beetroot': {
+          'item_icon': 'assets/images/icons/beetroot_icon.png',
+          'growth_duration': 28.0,
+          'harvest_quantity': {'min': 1, 'max': 3},
+          'crop_stages': {
+            '1': 'assets/images/icons/beetroot_stage1.png',
+            '2': 'assets/images/icons/beetroot_stage2.png',
+            '3': 'assets/images/icons/beetroot_stage3.png',
+            '4': 'assets/images/icons/beetroot_stage4.png',
+            '5': 'assets/images/icons/beetroot_stage5.png',
+          }
+        },
+        'radish': {
+          'item_icon': 'assets/images/icons/radish_icon.png',
+          'growth_duration': 20.0,
+          'harvest_quantity': {'min': 1, 'max': 2},
+          'crop_stages': {
+            '1': 'assets/images/icons/radish_stage1.png',
+            '2': 'assets/images/icons/radish_stage2.png',
+            '3': 'assets/images/icons/radish_stage3.png',
+            '4': 'assets/images/icons/radish_stage4.png',
+          }
+        },
+        'onion': {
+          'item_icon': 'assets/images/icons/onion_icon.png',
+          'growth_duration': 32.0,
+          'harvest_quantity': {'min': 2, 'max': 4},
+          'crop_stages': {
+            '1': 'assets/images/icons/onion_stage1.png',
+            '2': 'assets/images/icons/onion_stage2.png',
+            '3': 'assets/images/icons/onion_stage3.png',
+            '4': 'assets/images/icons/onion_stage4.png',
+            '5': 'assets/images/icons/onion_stage5.png',
+            '6': 'assets/images/icons/onion_stage6.png',
+          }
+        },
+        'lettuce': {
+          'item_icon': 'assets/images/icons/lettuce_icon.png',
+          'growth_duration': 22.0,
+          'harvest_quantity': {'min': 1, 'max': 2},
+          'crop_stages': {
+            '1': 'assets/images/icons/lettuce_stage1.png',
+            '2': 'assets/images/icons/lettuce_stage2.png',
+            '3': 'assets/images/icons/lettuce_stage3.png',
+            '4': 'assets/images/icons/lettuce_stage4.png',
+            '5': 'assets/images/icons/lettuce_stage5.png',
+          }
+        },
+        'tomato': {
+          'item_icon': 'assets/images/icons/tomato_icon.png',
+          'growth_duration': 40.0,
+          'harvest_quantity': {'min': 3, 'max': 6},
+          'crop_stages': {
+            '1': 'assets/images/icons/tomato_stage1.png',
+            '2': 'assets/images/icons/tomato_stage2.png',
+            '3': 'assets/images/icons/tomato_stage3.png',
+            '4': 'assets/images/icons/tomato_stage4.png',
+            '5': 'assets/images/icons/tomato_stage5.png',
+            '6': 'assets/images/icons/tomato_stage6.png',
+            '7': 'assets/images/icons/tomato_stage7.png',
+          }
+        },
+        'garlic': {
+          'item_icon': 'assets/images/icons/garlic_icon.png',
+          'growth_duration': 26.0,
+          'harvest_quantity': {'min': 1, 'max': 3},
+          'crop_stages': {
+            '1': 'assets/images/icons/garlic_stage1.png',
+            '2': 'assets/images/icons/garlic_stage2.png',
+            '3': 'assets/images/icons/garlic_stage3.png',
+            '4': 'assets/images/icons/garlic_stage4.png',
+            '5': 'assets/images/icons/garlic_stage5.png',
+          }
+        },
+      }
+    });
+  });
+
   group('Interpreter Core Tests', () {
     late FarmState farmState;
 
@@ -219,7 +342,8 @@ int main() {
         final plot = farmState.getCurrentPlot();
         expect(plot!.state, PlotState.watered);
         expect(plot.crop?.cropType, CropType.wheat);
-        expect(plot.crop?.isGrown, true);
+        // Crop won't be grown immediately with time-based growth
+        expect(plot.crop?.isGrown, false);
       });
 
       test('Farm operations - cannot plant on untilled plot', () async {
@@ -249,8 +373,10 @@ int main() {
         expect(result.success, true);
         final plot = farmState.getCurrentPlot();
         expect(plot!.state, PlotState.watered);
-        expect(plot.crop, null);
-        expect(result.executionLog.any((msg) => msg.contains('Error')), true);
+        // With planting allowed on watered plots, a crop should be planted
+        expect(plot.crop?.cropType, CropType.wheat);
+        // Crop won't be grown immediately
+        expect(plot.crop?.isGrown, false);
       });
 
       test('Farm operations - move and plant multiple crops', () async {
@@ -850,7 +976,8 @@ public class Main {
 ''';
         final result = await interpreter.execute(code);
         expect(result.success, true);
-        expect(farmState.getCurrentPlot()!.crop, null);
+        // Planting on watered plot is allowed now
+        expect(farmState.getCurrentPlot()!.crop?.cropType, CropType.wheat);
         expect(farmState.getCurrentPlot()!.state, PlotState.watered);
       });
 
@@ -866,9 +993,10 @@ class Program {
 }
 ''';
         final result = await interpreter.execute(code);
+        // Harvest should fail because crop isn't grown yet (time-based growth)
         expect(result.success, true);
-        expect(farmState.getCurrentPlot()!.crop, null);
-        expect(farmState.getCurrentPlot()!.state, PlotState.normal);
+        expect(farmState.getCurrentPlot()!.crop, isNotNull);
+        expect(farmState.getCurrentPlot()!.crop!.isGrown, false);
       });
 
       test('Cannot move out of bounds', () async {

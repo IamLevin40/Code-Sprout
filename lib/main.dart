@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'services/auth_service.dart';
 import 'models/styles_schema.dart';
+import 'models/farm_data_schema.dart';
 import 'miscellaneous/touch_mouse_drag_scroll_behavior.dart';
 import 'pages/register_page.dart';
 import 'pages/login_page.dart';
@@ -14,8 +15,9 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   
-  // Load app styles from schema
+  // Load app styles and farm data schemas
   await AppStyles().loadStyles();
+  await FarmDataSchema().loadSchema();
   
   runApp(const MyApp());
 }

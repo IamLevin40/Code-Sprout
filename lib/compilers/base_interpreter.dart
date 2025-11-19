@@ -340,10 +340,12 @@ abstract class FarmCodeInterpreter {
   /// Execute harvest operation
   bool executeHarvest() {
     log('Harvesting crop...');
-    final crop = farmState.harvestCurrentPlot();
-    if (crop != null) {
-      log('Harvested ${crop.displayName}!');
-      onCropHarvested?.call(crop);
+    final result = farmState.harvestCurrentPlot();
+    if (result != null) {
+      final cropType = result['cropType'] as CropType;
+      final quantity = result['quantity'] as int;
+      log('Harvested $quantity ${cropType.displayName}${quantity > 1 ? 's' : ''}!');
+      onCropHarvested?.call(cropType);
       return true;
     } else {
       log('Error: Nothing to harvest here');

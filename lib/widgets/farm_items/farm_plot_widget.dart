@@ -62,15 +62,44 @@ class FarmPlotWidget extends StatelessWidget {
   Widget _buildCropWidget(AppStyles styles) {
     if (plot.crop == null) return const SizedBox.shrink();
 
-    final cropImages = styles.getStyles('sprout_researches.crop_items') as Map<String, dynamic>;
-    final cropId = plot.crop!.cropType.id;
-    final imagePath = cropImages[cropId] as String;
+    // Use current growth stage image from FarmDataSchema
+    final imagePath = plot.crop!.currentStageImage;
 
+    // Show asset if available; if asset can't be loaded, display a simple
+    // text placeholder showing crop name and stage to avoid runtime errors
+    // when stage images are not present yet.
     return Image.asset(
       imagePath,
       width: 32,
       height: 32,
       fit: BoxFit.contain,
+      errorBuilder: (context, error, stackTrace) {
+        // Fallback placeholder: crop display name + stage index
+        final cropName = plot.crop!.cropType.displayName;
+        final stage = plot.crop!.currentStage;
+        Color placeholderColor = Colors.black;
+        try {
+          if (styles.hasPath('farm_page.farm_grid.crop_placeholder_color')) {
+            placeholderColor = styles.getStyles('farm_page.farm_grid.crop_placeholder_color') as Color;
+          }
+        } catch (_) {
+          // ignore and use default
+        }
+
+        return Container(
+          width: 32,
+          height: 32,
+          alignment: Alignment.center,
+          child: Text(
+            '$cropName\nS$stage',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 8,
+              color: placeholderColor,
+            ),
+          ),
+        );
+      },
     );
   }
 

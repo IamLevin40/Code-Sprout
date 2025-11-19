@@ -6,6 +6,7 @@ import '../services/firestore_service.dart';
 import '../services/local_storage_service.dart';
 import '../models/user_data.dart';
 import '../models/rank_data.dart';
+import '../models/farm_data_schema.dart';
 import '../widgets/rank_card.dart';
 import '../models/course_data_schema.dart';
 import '../models/sprout_data.dart';
@@ -267,7 +268,7 @@ class _SproutPageState extends State<SproutPage> {
               const double spacing = 8.0;
               final double itemWidth = (maxWidth - (columns - 1) * spacing) / columns;
 
-              final cropImages = styles.getStyles('sprout_researches.crop_items') as Map<String, dynamic>;
+              final farmSchema = FarmDataSchema();
               final lockedIconImage = styles.getStyles('sprout_researches.locked_overlay.icon.image') as String;
 
               final cardHeight = styles.getStyles('sprout_page.inventory.card.height') as double;
@@ -300,7 +301,7 @@ class _SproutPageState extends State<SproutPage> {
                 spacing: spacing,
                 runSpacing: spacing,
                 children: _cropItems.map((item) {
-                  final String imagePath = cropImages[item.id] as String;
+                  final String imagePath = farmSchema.getItemIcon(item.id);
 
                   return SizedBox(
                     width: itemWidth,
