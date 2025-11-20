@@ -406,7 +406,7 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
       borderWidth = 2.0;
       strokeGradient = LinearGradient(colors: [Colors.grey.shade300, Colors.grey.shade300]);
       textColor = Colors.black;
-      fontSize = 14.0;
+      fontSize = 12.0;
       closeIcon = null;
       closeSize = 24.0;
       highlightColor = Colors.yellow;
@@ -530,7 +530,7 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
                               child: ConstrainedBox(
                                 constraints: BoxConstraints(minHeight: constraints.maxHeight - 16.0),
                                 child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding: const EdgeInsets.all(0),
                                   child: Align(
                                     alignment: Alignment.topLeft,
                                     child: SelectableText.rich(

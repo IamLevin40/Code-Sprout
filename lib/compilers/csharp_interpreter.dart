@@ -657,6 +657,12 @@ class CSharpInterpreter extends FarmCodeInterpreter {
     final body = _extractBlock(stmt, condEnd);
 
     while (true) {
+      // Check stop flag before loop iteration
+      if (shouldStop) {
+        log('Execution stopped by user');
+        return;
+      }
+      
       try {
         final condValue = evaluateExpression(condition);
         if (!_toBool(condValue)) break;
@@ -708,6 +714,13 @@ class CSharpInterpreter extends FarmCodeInterpreter {
     }
 
     while (true) {
+      // Check stop flag before loop iteration
+      if (shouldStop) {
+        popScope();
+        log('Execution stopped by user');
+        return;
+      }
+      
       try {
         if (condition.isNotEmpty) {
           final condValue = evaluateExpression(condition);
@@ -752,6 +765,12 @@ class CSharpInterpreter extends FarmCodeInterpreter {
     final condition = match.group(2)!;
 
     do {
+      // Check stop flag before loop iteration
+      if (shouldStop) {
+        log('Execution stopped by user');
+        return;
+      }
+      
       pushScope();
       shouldBreak = false;
       shouldContinue = false;

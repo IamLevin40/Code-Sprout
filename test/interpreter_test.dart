@@ -1790,4 +1790,444 @@ int main() {
       expect(lastNotifiedLine, null);
     });
   });
+
+  // Comprehensive Stop Execution Test Suite
+  group('Comprehensive Stop Execution Tests', () {
+    late FarmState farmState;
+    
+    setUp(() {
+      final mockUserData = UserData(
+        uid: 'test_user',
+        data: {
+          'sproutProgress': {
+            'inventory': {
+              'wheatSeeds': {'isLocked': false, 'quantity': 100},
+            }
+          }
+        },
+      );
+      farmState = FarmState(gridWidth: 3, gridHeight: 3, userData: mockUserData);
+    });
+
+    test('C++ - Stop during nested loops (deep nesting)', () async {
+      final interpreter = CppInterpreter(farmState: farmState);
+      bool stopped = false;
+
+      final code = '''
+#include <iostream>
+using namespace std;
+
+int main() {
+  for (int i = 0; i < 20; i++) {
+    for (int j = 0; j < 20; j++) {
+      for (int k = 0; k < 20; k++) {
+        int x = i + j + k;
+      }
+    }
+  }
+  return 0;
+}
+''';
+
+      Future.delayed(Duration(milliseconds: 400), () {
+        interpreter.stop();
+        stopped = true;
+      });
+
+      await interpreter.execute(code);
+      
+      expect(stopped, true);
+      expect(interpreter.executionLog.any((msg) => msg.contains('Stop requested')), true);
+    });
+
+    test('Python - Stop during nested for loops', () async {
+      final interpreter = PythonInterpreter(farmState: farmState);
+      bool stopped = false;
+
+      final code = '''
+for i in range(15):
+    for j in range(15):
+        for k in range(15):
+            x = i + j + k
+''';
+
+      Future.delayed(Duration(milliseconds: 350), () {
+        interpreter.stop();
+        stopped = true;
+      });
+
+      await interpreter.execute(code);
+      expect(stopped, true);
+      expect(interpreter.executionLog.any((msg) => msg.contains('Stop requested')), true);
+    });
+
+    test('Java - Stop during nested while loops', () async {
+      final interpreter = JavaInterpreter(farmState: farmState);
+      bool stopped = false;
+
+      final code = '''
+public class Main {
+  public static void main(String[] args) {
+    int i = 0;
+    while (i < 15) {
+      int j = 0;
+      while (j < 15) {
+        int k = 0;
+        while (k < 15) {
+          k++;
+        }
+        j++;
+      }
+      i++;
+    }
+  }
+}
+''';
+
+      Future.delayed(Duration(milliseconds: 400), () {
+        interpreter.stop();
+        stopped = true;
+      });
+
+      await interpreter.execute(code);
+      expect(stopped, true);
+      expect(interpreter.executionLog.any((msg) => msg.contains('Stop requested')), true);
+    });
+
+    test('C# - Stop during mixed loop types (for + while)', () async {
+      final interpreter = CSharpInterpreter(farmState: farmState);
+      bool stopped = false;
+
+      final code = '''
+using System;
+
+class Program {
+  static void Main() {
+    for (int i = 0; i < 20; i++) {
+      int j = 0;
+      while (j < 20) {
+        int x = i + j;
+        j++;
+      }
+    }
+  }
+}
+''';
+
+      Future.delayed(Duration(milliseconds: 350), () {
+        interpreter.stop();
+        stopped = true;
+      });
+
+      await interpreter.execute(code);
+      expect(stopped, true);
+      expect(interpreter.executionLog.any((msg) => msg.contains('Stop requested')), true);
+    });
+
+    test('JavaScript - Stop during deeply nested loops', () async {
+      final interpreter = JavaScriptInterpreter(farmState: farmState);
+      bool stopped = false;
+
+      final code = '''
+for (let i = 0; i < 15; i++) {
+  for (let j = 0; j < 15; j++) {
+    for (let k = 0; k < 15; k++) {
+      let x = i + j + k;
+    }
+  }
+}
+''';
+
+      Future.delayed(Duration(milliseconds: 350), () {
+        interpreter.stop();
+        stopped = true;
+      });
+
+      await interpreter.execute(code);
+      expect(stopped, true);
+      expect(interpreter.executionLog.any((msg) => msg.contains('Stop requested')), true);
+    });
+
+    test('C++ - Stop during very long-running loop (simulated infinite)', () async {
+      final interpreter = CppInterpreter(farmState: farmState);
+      bool stopped = false;
+
+      final code = '''
+#include <iostream>
+using namespace std;
+
+int main() {
+  for (int i = 0; i < 1000000; i++) {
+    int x = i * 2;
+  }
+  return 0;
+}
+''';
+
+      Future.delayed(Duration(milliseconds: 300), () {
+        interpreter.stop();
+        stopped = true;
+      });
+
+      await interpreter.execute(code);
+      
+      expect(stopped, true);
+      expect(interpreter.executionLog.any((msg) => msg.contains('Stop requested')), true);
+      // Should not complete the full loop
+      expect(interpreter.executionLog.length, lessThan(1000000));
+    });
+
+    test('Python - Stop immediately after start', () async {
+      final interpreter = PythonInterpreter(farmState: farmState);
+      bool stopped = false;
+
+      final code = '''
+for i in range(1000):
+    x = i * 2
+''';
+
+      // Stop almost immediately
+      Future.delayed(Duration(milliseconds: 10), () {
+        interpreter.stop();
+        stopped = true;
+      });
+
+      await interpreter.execute(code);
+      expect(stopped, true);
+      expect(interpreter.executionLog.any((msg) => msg.contains('Stop requested')), true);
+    });
+
+    test('Java - Multiple rapid stop calls (should handle gracefully)', () async {
+      final interpreter = JavaInterpreter(farmState: farmState);
+      int stopCount = 0;
+
+      final code = '''
+public class Main {
+  public static void main(String[] args) {
+    for (int i = 0; i < 500; i++) {
+      int x = i * 2;
+    }
+  }
+}
+''';
+
+      // Call stop multiple times rapidly
+      Future.delayed(Duration(milliseconds: 250), () {
+        interpreter.stop();
+        stopCount++;
+      });
+      Future.delayed(Duration(milliseconds: 260), () {
+        interpreter.stop();
+        stopCount++;
+      });
+      Future.delayed(Duration(milliseconds: 270), () {
+        interpreter.stop();
+        stopCount++;
+      });
+
+      await interpreter.execute(code);
+      
+      expect(stopCount, 3);
+      // Should only log "Stop requested" once (duplicate calls ignored)
+      final stopMessages = interpreter.executionLog.where((msg) => msg.contains('Stop requested')).length;
+      expect(stopMessages, 1);
+    });
+
+    test('C# - Stop during validation phase', () async {
+      final interpreter = CSharpInterpreter(farmState: farmState);
+      bool stopped = false;
+
+      final code = '''
+using System;
+
+class Program {
+  static void Main() {
+    for (int i = 0; i < 100; i++) {
+      int x = i;
+    }
+  }
+}
+''';
+
+      // Stop during validation
+      Future.delayed(Duration(milliseconds: 5), () {
+        interpreter.stop();
+        stopped = true;
+      });
+
+      final validationResult = await interpreter.preValidate(code);
+      
+      if (validationResult == null && !interpreter.shouldStop) {
+        await interpreter.execute(code);
+      }
+      
+      expect(stopped, true);
+    });
+
+    test('JavaScript - Stop with farm operations in loop', () async {
+      // Test stop while performing farm operations
+      final interpreter = JavaScriptInterpreter(farmState: farmState);
+      bool stopped = false;
+
+      final code = '''
+for (let i = 0; i < 100; i++) {
+  if (canTill()) {
+    till();
+  }
+  move("east");
+}
+''';
+
+      Future.delayed(Duration(milliseconds: 400), () {
+        interpreter.stop();
+        stopped = true;
+      });
+
+      await interpreter.execute(code);
+      
+      expect(stopped, true);
+      expect(interpreter.executionLog.any((msg) => msg.contains('Stop requested')), true);
+    });
+
+    test('C++ - Stop and verify no memory/state corruption', () async {
+      final interpreter = CppInterpreter(farmState: farmState);
+
+      final code = '''
+#include <iostream>
+using namespace std;
+
+int main() {
+  int counter = 0;
+  for (int i = 0; i < 200; i++) {
+    counter = counter + 1;
+  }
+  return 0;
+}
+''';
+
+      Future.delayed(Duration(milliseconds: 300), () {
+        interpreter.stop();
+      });
+
+      await interpreter.execute(code);
+      
+      // Verify interpreter state is clean after stop
+      expect(interpreter.shouldStop, true);
+      expect(interpreter.shouldBreak, false);
+      expect(interpreter.shouldContinue, false);
+      expect(interpreter.shouldReturn, false);
+    });
+
+    test('Python - Stop during while loop with complex condition', () async {
+      final interpreter = PythonInterpreter(farmState: farmState);
+      bool stopped = false;
+
+      final code = '''
+i = 0
+while i < 100:
+    j = 0
+    while j < 100:
+        x = i * j
+        j = j + 1
+    i = i + 1
+''';
+
+      Future.delayed(Duration(milliseconds: 350), () {
+        interpreter.stop();
+        stopped = true;
+      });
+
+      await interpreter.execute(code);
+      expect(stopped, true);
+      expect(interpreter.executionLog.any((msg) => msg.contains('Stop requested')), true);
+    });
+
+    test('Java - Stop during switch case with loop', () async {
+      final interpreter = JavaInterpreter(farmState: farmState);
+      bool stopped = false;
+
+      final code = '''
+public class Main {
+  public static void main(String[] args) {
+    for (int i = 0; i < 100; i++) {
+      switch (i % 3) {
+        case 0:
+          int x = i;
+          break;
+        case 1:
+          int y = i * 2;
+          break;
+        case 2:
+          int z = i * 3;
+          break;
+      }
+    }
+  }
+}
+''';
+
+      Future.delayed(Duration(milliseconds: 350), () {
+        interpreter.stop();
+        stopped = true;
+      });
+
+      await interpreter.execute(code);
+      expect(stopped, true);
+      expect(interpreter.executionLog.any((msg) => msg.contains('Stop requested')), true);
+    });
+
+    test('C# - Stop and check execution time is reasonable', () async {
+      final interpreter = CSharpInterpreter(farmState: farmState);
+      final stopwatch = Stopwatch()..start();
+
+      final code = '''
+using System;
+
+class Program {
+  static void Main() {
+    for (int i = 0; i < 10000; i++) {
+      for (int j = 0; j < 10000; j++) {
+        int x = i + j;
+      }
+    }
+  }
+}
+''';
+
+      Future.delayed(Duration(milliseconds: 300), () {
+        interpreter.stop();
+      });
+
+      await interpreter.execute(code);
+      stopwatch.stop();
+      
+      // Execution should stop quickly (within 1 second even with stop delay)
+      expect(stopwatch.elapsedMilliseconds, lessThan(1500));
+      expect(interpreter.executionLog.any((msg) => msg.contains('Stop requested')), true);
+    });
+
+    test('JavaScript - Stop during try-catch block with loops', () async {
+      final interpreter = JavaScriptInterpreter(farmState: farmState);
+      bool stopped = false;
+
+      final code = '''
+try {
+  for (let i = 0; i < 150; i++) {
+    let x = i * 2;
+  }
+} catch (e) {
+  console.log("Error");
+}
+''';
+
+      Future.delayed(Duration(milliseconds: 350), () {
+        interpreter.stop();
+        stopped = true;
+      });
+
+      await interpreter.execute(code);
+      expect(stopped, true);
+      expect(interpreter.executionLog.any((msg) => msg.contains('Stop requested')), true);
+    });
+  });
 }

@@ -722,6 +722,12 @@ class CppInterpreter extends FarmCodeInterpreter {
     final body = _extractBlock(stmt, condEnd);
 
     while (true) {
+      // Check stop flag before loop iteration
+      if (shouldStop) {
+        log('Execution stopped by user');
+        return;
+      }
+      
       try {
         final condValue = evaluateExpression(condition);
         if (!_toBool(condValue)) break;
@@ -776,6 +782,13 @@ class CppInterpreter extends FarmCodeInterpreter {
 
     // Loop
     while (true) {
+      // Check stop flag before loop iteration
+      if (shouldStop) {
+        popScope();
+        log('Execution stopped by user');
+        return;
+      }
+      
       try {
         if (condition.isNotEmpty) {
           final condValue = evaluateExpression(condition);

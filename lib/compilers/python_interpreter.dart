@@ -371,6 +371,12 @@ class PythonInterpreter extends FarmCodeInterpreter {
 
     // Execute loop (Python doesn't have block scope)
     while (true) {
+      // Check stop flag before loop iteration
+      if (shouldStop) {
+        log('Execution stopped by user');
+        return i;
+      }
+      
       try {
         final condValue = evaluateExpression(condition);
         if (!_toBool(condValue)) break;
@@ -432,6 +438,12 @@ class PythonInterpreter extends FarmCodeInterpreter {
 
     // Execute loop (Python doesn't have block scope)
     for (int val = start; val < end; val++) {
+      // Check stop flag before loop iteration
+      if (shouldStop) {
+        log('Execution stopped by user');
+        return i;
+      }
+      
       if (currentScope.has(varName)) {
         currentScope.set(varName, val);
       } else {
