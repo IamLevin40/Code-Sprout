@@ -15,24 +15,28 @@ class ExecutionResult {
   final String? errorMessage;
   final ErrorType? errorType;
   final List<String> executionLog;
+  final int? errorLine; // Line number where error occurred (1-based)
 
   ExecutionResult({
     required this.success,
     this.errorMessage,
     this.errorType,
     List<String>? executionLog,
+    this.errorLine,
   }) : executionLog = executionLog ?? [];
 
   ExecutionResult.success({List<String>? log})
       : success = true,
         errorMessage = null,
         errorType = null,
+        errorLine = null,
         executionLog = log ?? [];
 
-  ExecutionResult.error(String message, {ErrorType? type, List<String>? log})
+  ExecutionResult.error(String message, {ErrorType? type, List<String>? log, int? errorLine})
       : success = false,
         errorMessage = message,
         errorType = type,
+        errorLine = errorLine,
         executionLog = log ?? [];
 }
 
@@ -85,10 +89,19 @@ abstract class FarmCodeInterpreter {
   bool shouldBreak = false;
   bool shouldContinue = false;
   bool shouldReturn = false;
+  bool shouldStop = false; // Flag for stopping execution
+  
+  // Execution callbacks for line tracking and log updates
+  Function(int?)? onLineExecuting; // Callback when executing a line (1-based, null = done)
+  Function(int?, bool)? onLineError; // Callback when error on a line (line number, isError)
+  Function(String)? onLogUpdate; // Callback when log is updated
 
   FarmCodeInterpreter({
     required this.farmState,
     this.onCropHarvested,
+    this.onLineExecuting,
+    this.onLineError,
+    this.onLogUpdate,
   });
 
   /// Parse and execute code
@@ -97,6 +110,28 @@ abstract class FarmCodeInterpreter {
   /// Log a message during execution
   void log(String message) {
     executionLog.add(message);
+    onLogUpdate?.call(message); // Notify listener of new log entry
+  }
+  
+  /// Stop execution gracefully (will finish current statement)
+  void stop() {
+    if (!shouldStop) {
+      shouldStop = true;
+      log('Stop requested - finishing current operation...');
+    }
+  }
+  
+  /// Pre-validate code for syntax/semantic errors before execution
+  Future<ExecutionResult?> preValidate(String code);
+  
+  /// Notify line execution
+  void notifyLineExecuting(int? lineNumber) {
+    onLineExecuting?.call(lineNumber);
+  }
+  
+  /// Notify line error
+  void notifyLineError(int? lineNumber, bool isError) {
+    onLineError?.call(lineNumber, isError);
   }
 
   /// Clear execution log and reset state

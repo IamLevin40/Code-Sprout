@@ -2419,7 +2419,7 @@
                 "width": 32,
                 "height": 32
             },
-            "highlight_line_color": "--colors.light_purple"
+            "highlight_line_color": "--colors.light_green"
         },
         "execution_log": {
             "background_color": {

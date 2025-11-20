@@ -7,7 +7,51 @@ class PythonInterpreter extends FarmCodeInterpreter {
   PythonInterpreter({
     required super.farmState,
     super.onCropHarvested,
+    super.onLineExecuting,
+    super.onLineError,
+    super.onLogUpdate,
   });
+
+  @override
+  Future<ExecutionResult?> preValidate(String code) async {
+    clearLog();
+    log('Validating Python code...');
+
+    try {
+      // Remove comments
+      code = _removeComments(code);
+
+      // Basic syntax check - verify indentation and structure
+      final lines = code.split('\n');
+      int prevIndent = 0;
+      for (int i = 0; i < lines.length; i++) {
+        final line = lines[i];
+        if (line.trim().isEmpty) continue;
+        
+        final indent = _getIndentLevel(line);
+        // Check for invalid indent jumps (more than 4 spaces at once)
+        if (indent > prevIndent + 4) {
+          return ExecutionResult.error(
+            'Syntactical Error: Invalid indentation at line ${i + 1}',
+            type: ErrorType.syntactical,
+            log: executionLog,
+            errorLine: i + 1,
+          );
+        }
+        prevIndent = indent;
+      }
+
+      log('Validation passed!');
+      return null; // null means validation passed
+    } catch (e) {
+      return ExecutionResult.error(
+        'Validation Error: $e',
+        type: ErrorType.syntactical,
+        log: executionLog,
+        errorLine: 1,
+      );
+    }
+  }
 
   @override
   Future<ExecutionResult> execute(String code) async {
@@ -67,6 +111,13 @@ class PythonInterpreter extends FarmCodeInterpreter {
     int i = 0;
 
     while (i < lines.length) {
+      // Check stop flag
+      if (shouldStop) {
+        log('Execution stopped by user');
+        notifyLineExecuting(null);
+        return;
+      }
+      
       if (shouldBreak || shouldContinue || shouldReturn) break;
 
       final line = lines[i];
@@ -84,7 +135,17 @@ class PythonInterpreter extends FarmCodeInterpreter {
         continue;
       }
 
+      // Notify which line is being executed
+      notifyLineExecuting(i + 1);
+      
       await delay(200);
+      
+      // Check stop flag again after delay (responsive stopping)
+      if (shouldStop) {
+        log('Execution stopped by user');
+        notifyLineExecuting(null);
+        return;
+      }
 
       // If-elif-else
       if (trimmed.startsWith('if ')) {

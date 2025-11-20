@@ -31,12 +31,18 @@ class _FarmPageState extends State<FarmPage> {
   String _userCode = '';
   List<String> _executionLog = [];
   bool _isExecuting = false;
+  final ValueNotifier<int?> _executingLineNotifier = ValueNotifier<int?>(null);
+  final ValueNotifier<int?> _errorLineNotifier = ValueNotifier<int?>(null);
+  final ValueNotifier<List<String>> _logNotifier = ValueNotifier<List<String>>([]);
+  FarmCodeInterpreter? _currentInterpreter;
+  late TextEditingController _codeController;
 
   @override
   void initState() {
     super.initState();
     _farmState = FarmState();
     _userCode = _getDefaultCode();
+    _codeController = TextEditingController(text: _userCode);
     _farmState.addListener(_onFarmStateChanged);
     // initialize farm state with cached user data and keep in sync
     try {
@@ -50,8 +56,16 @@ class _FarmPageState extends State<FarmPage> {
 
   @override
   void dispose() {
+    // Stop any running execution before disposal
+    if (_isExecuting && _currentInterpreter != null) {
+      _currentInterpreter!.stop();
+    }
     _farmState.removeListener(_onFarmStateChanged);
     _farmState.dispose();
+    _executingLineNotifier.dispose();
+    _errorLineNotifier.dispose();
+    _logNotifier.dispose();
+    _codeController.dispose();
     super.dispose();
   }
 
@@ -125,31 +139,97 @@ class _FarmPageState extends State<FarmPage> {
         return CppInterpreter(
           farmState: _farmState,
           onCropHarvested: _onCropHarvested,
+          onLineExecuting: (line) {
+            if (mounted) _executingLineNotifier.value = line;
+          },
+          onLineError: (line, isError) {
+            if (mounted) _errorLineNotifier.value = isError ? line : null;
+          },
+          onLogUpdate: (message) {
+            if (mounted) {
+              _logNotifier.value = List.from(_logNotifier.value)..add(message);
+            }
+          },
         );
       case 'csharp':
         return CSharpInterpreter(
           farmState: _farmState,
           onCropHarvested: _onCropHarvested,
+          onLineExecuting: (line) {
+            if (mounted) _executingLineNotifier.value = line;
+          },
+          onLineError: (line, isError) {
+            if (mounted) _errorLineNotifier.value = isError ? line : null;
+          },
+          onLogUpdate: (message) {
+            if (mounted) {
+              _logNotifier.value = List.from(_logNotifier.value)..add(message);
+            }
+          },
         );
       case 'java':
         return JavaInterpreter(
           farmState: _farmState,
           onCropHarvested: _onCropHarvested,
+          onLineExecuting: (line) {
+            if (mounted) _executingLineNotifier.value = line;
+          },
+          onLineError: (line, isError) {
+            if (mounted) _errorLineNotifier.value = isError ? line : null;
+          },
+          onLogUpdate: (message) {
+            if (mounted) {
+              _logNotifier.value = List.from(_logNotifier.value)..add(message);
+            }
+          },
         );
       case 'python':
         return PythonInterpreter(
           farmState: _farmState,
           onCropHarvested: _onCropHarvested,
+          onLineExecuting: (line) {
+            if (mounted) _executingLineNotifier.value = line;
+          },
+          onLineError: (line, isError) {
+            if (mounted) _errorLineNotifier.value = isError ? line : null;
+          },
+          onLogUpdate: (message) {
+            if (mounted) {
+              _logNotifier.value = List.from(_logNotifier.value)..add(message);
+            }
+          },
         );
       case 'javascript':
         return JavaScriptInterpreter(
           farmState: _farmState,
           onCropHarvested: _onCropHarvested,
+          onLineExecuting: (line) {
+            if (mounted) _executingLineNotifier.value = line;
+          },
+          onLineError: (line, isError) {
+            if (mounted) _errorLineNotifier.value = isError ? line : null;
+          },
+          onLogUpdate: (message) {
+            if (mounted) {
+              _logNotifier.value = List.from(_logNotifier.value)..add(message);
+            }
+          },
         );
       default:
         return CppInterpreter(
           farmState: _farmState,
           onCropHarvested: _onCropHarvested,
+          onLineExecuting: (line) {
+            if (mounted) _executingLineNotifier.value = line;
+          },
+          onLineError: (line, isError) {
+            if (mounted) _errorLineNotifier.value = isError ? line : null;
+          },
+          onLogUpdate: (message) {
+            if (mounted) {
+              _logNotifier.value = List.from(_logNotifier.value)..add(message);
+            }
+          },
         );
     }
   }
@@ -163,32 +243,125 @@ class _FarmPageState extends State<FarmPage> {
   }
 
   Future<void> _startExecution() async {
+    if (_isExecuting) return;
+    
+    if (!mounted) return;
+    
     setState(() {
       _isExecuting = true;
       _executionLog.clear();
+      _logNotifier.value = [];
+      _executingLineNotifier.value = null;
+      _errorLineNotifier.value = null;
       _farmState.setExecuting(true);
     });
 
     final interpreter = _getInterpreter();
-    final result = await interpreter.execute(_userCode);
+    _currentInterpreter = interpreter;
+    
+    try {
+      // Pre-validate code for errors
+      final validationResult = await interpreter.preValidate(_userCode);
+      
+      // Check if stopped during validation
+      if (!mounted || interpreter.shouldStop) {
+        _cleanupExecution();
+        return;
+      }
+      
+      if (validationResult != null && !validationResult.success) {
+        // Validation failed - show error and stop
+        if (mounted) {
+          setState(() {
+            _isExecuting = false;
+            _executionLog = validationResult.executionLog;
+            _logNotifier.value = List.from(validationResult.executionLog);
+            _farmState.setExecuting(false);
+            if (validationResult.errorLine != null) {
+              _errorLineNotifier.value = validationResult.errorLine;
+            }
+          });
+          
+          if (validationResult.errorMessage != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(validationResult.errorMessage!)),
+            );
+          }
+        }
+        _currentInterpreter = null;
+        return;
+      }
 
-    setState(() {
-      _isExecuting = false;
-      _executionLog = result.executionLog;
-      _farmState.setExecuting(false);
-    });
+      // Execute code
+      final result = await interpreter.execute(_userCode);
 
-    if (!result.success && result.errorMessage != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result.errorMessage!)),
-      );
+      // Check if stopped or widget disposed during execution
+      if (!mounted || interpreter.shouldStop) {
+        _cleanupExecution();
+        return;
+      }
+
+      if (mounted) {
+        setState(() {
+          _isExecuting = false;
+          _executionLog = result.executionLog;
+          _logNotifier.value = List.from(result.executionLog);
+          _farmState.setExecuting(false);
+          _executingLineNotifier.value = null; // Clear line highlighting
+          if (result.errorLine != null) {
+            _errorLineNotifier.value = result.errorLine;
+          }
+        });
+
+        if (!result.success && result.errorMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(result.errorMessage!)),
+          );
+        }
+      }
+    } catch (e) {
+      // Handle any unexpected errors during execution
+      if (mounted) {
+        setState(() {
+          _isExecuting = false;
+          _farmState.setExecuting(false);
+          _executingLineNotifier.value = null;
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Execution error: $e')),
+        );
+      }
+    } finally {
+      _currentInterpreter = null;
     }
+  }
+  
+  void _cleanupExecution() {
+    if (mounted) {
+      setState(() {
+        _isExecuting = false;
+        _farmState.setExecuting(false);
+        _executingLineNotifier.value = null;
+      });
+    }
+    _currentInterpreter = null;
   }
 
   void _stopExecution() {
-    setState(() {
-      _isExecuting = false;
-      _farmState.setExecuting(false);
+    if (_currentInterpreter != null) {
+      _currentInterpreter!.stop();
+    }
+    
+    // Use a small delay to allow async operations to complete
+    Future.microtask(() {
+      if (mounted) {
+        setState(() {
+          _isExecuting = false;
+          _farmState.setExecuting(false);
+          _executingLineNotifier.value = null;
+        });
+      }
     });
   }
 
@@ -249,6 +422,10 @@ class _FarmPageState extends State<FarmPage> {
                           onClose: () {
                             setState(() => _showCodeEditor = false);
                           },
+                          controller: _codeController,
+                          executingLineNotifier: _executingLineNotifier,
+                          errorLineNotifier: _errorLineNotifier,
+                          isReadOnly: _isExecuting,
                         )
                       : _buildExecutionLog(styles),
                 ),
@@ -267,7 +444,14 @@ class _FarmPageState extends State<FarmPage> {
     final borderRadius = styles.getStyles('farm_page.back_button.border_radius') as double;
 
     return GestureDetector(
-      onTap: () => Navigator.of(context).pop(),
+      onTap: () {
+        // Stop execution if running before navigating back
+        if (_isExecuting && _currentInterpreter != null) {
+          _currentInterpreter!.stop();
+          _farmState.setExecuting(false);
+        }
+        Navigator.of(context).pop();
+      },
       child: Container(
         width: size,
         height: size,
@@ -439,15 +623,20 @@ class _FarmPageState extends State<FarmPage> {
             ),
             const SizedBox(height: 8),
             Expanded(
-              child: SingleChildScrollView(
-                child: Text(
-                  _executionLog.isEmpty ? 'No execution yet...' : _executionLog.join('\n'),
-                  style: TextStyle(
-                    color: textColor,
-                    fontSize: fontSize,
-                    fontWeight: fontWeight,
-                  ),
-                ),
+              child: ValueListenableBuilder<List<String>>(
+                valueListenable: _logNotifier,
+                builder: (context, logs, _) {
+                  return SingleChildScrollView(
+                    child: Text(
+                      logs.isEmpty ? 'No execution yet...' : logs.join('\n'),
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: fontSize,
+                        fontWeight: fontWeight,
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ],

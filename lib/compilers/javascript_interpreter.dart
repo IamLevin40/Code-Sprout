@@ -4,10 +4,79 @@ import '../models/farm_data.dart';
 /// Comprehensive JavaScript code interpreter for farm drone operations
 /// Supports: variables (var/let/const), operators, if-else, switch-case, loops, break/continue, console.log, try-catch
 class JavaScriptInterpreter extends FarmCodeInterpreter {
+  String _originalCode = '';
+
   JavaScriptInterpreter({
     required super.farmState,
     super.onCropHarvested,
+    super.onLineExecuting,
+    super.onLineError,
+    super.onLogUpdate,
   });
+
+  @override
+  Future<ExecutionResult?> preValidate(String code) async {
+    clearLog();
+    log('Validating JavaScript code...');
+
+    try {
+      // Remove comments for parsing
+      code = _removeComments(code);
+
+      // Parse statements and validate syntax
+      try {
+        final statements = _parseStatements(code);
+        
+        // Validate each statement for common syntax errors
+        for (int i = 0; i < statements.length; i++) {
+          final stmt = statements[i].trim();
+          if (stmt.isEmpty) continue;
+          
+          // Check for missing semicolons (less strict in JS)
+          final needsSemicolon = !stmt.endsWith('{') && 
+                                  !stmt.endsWith('}') && 
+                                  !stmt.startsWith('if') && 
+                                  !stmt.startsWith('else') &&
+                                  !stmt.startsWith('for') &&
+                                  !stmt.startsWith('while') &&
+                                  !stmt.startsWith('do') &&
+                                  !stmt.startsWith('switch') &&
+                                  !stmt.startsWith('case') &&
+                                  !stmt.startsWith('default') &&
+                                  !stmt.startsWith('try') &&
+                                  !stmt.startsWith('catch') &&
+                                  !stmt.startsWith('function') &&
+                                  !stmt.contains('{');
+          
+          if (needsSemicolon && !stmt.endsWith(';')) {
+            return ExecutionResult.error(
+              'Syntactical Error: Missing semicolon on line ${i + 1}',
+              type: ErrorType.syntactical,
+              log: executionLog,
+              errorLine: i + 1,
+            );
+          }
+        }
+      } catch (e) {
+        return ExecutionResult.error(
+          'Syntactical Error: ${e.toString()}',
+          type: ErrorType.syntactical,
+          log: executionLog,
+          errorLine: 1,
+        );
+      }
+
+      log('Validation passed!');
+      return null; // null means validation passed
+    } catch (e) {
+      return ExecutionResult.error(
+        'Validation Error: $e',
+        type: ErrorType.syntactical,
+        log: executionLog,
+        errorLine: 1,
+      );
+    }
+  }
 
   @override
   Future<ExecutionResult> execute(String code) async {
@@ -15,11 +84,14 @@ class JavaScriptInterpreter extends FarmCodeInterpreter {
     log('Starting JavaScript code execution...');
 
     try {
+      // Store original code for line mapping
+      _originalCode = code;
+      
       // Remove comments
-      code = _removeComments(code);
+      final cleanedCode = _removeComments(code);
 
       // Execute statements
-      await _executeBlock(code);
+      await _executeBlock(cleanedCode);
 
       if (!shouldReturn) {
         log('Code execution completed successfully!');
@@ -197,15 +269,55 @@ class JavaScriptInterpreter extends FarmCodeInterpreter {
   Future<void> _executeBlock(String block) async {
     final statements = _parseStatements(block);
 
-    for (final stmt in statements) {
+    for (int i = 0; i < statements.length; i++) {
+      // Check stop flag
+      if (shouldStop) {
+        log('Execution stopped by user');
+        notifyLineExecuting(null);
+        return;
+      }
+      
       if (shouldBreak || shouldContinue || shouldReturn) break;
 
+      final stmt = statements[i];
       final trimmed = stmt.trim();
       if (trimmed.isEmpty) continue;
 
+      // Find actual line number in original source code
+      final lineNum = _findStatementLine(stmt);
+      notifyLineExecuting(lineNum);
+      
       await delay(200);
+      
+      // Check stop flag again after delay (responsive stopping)
+      if (shouldStop) {
+        log('Execution stopped by user');
+        notifyLineExecuting(null);
+        return;
+      }
+      
       await _executeStatement(trimmed);
     }
+    
+    // Clear line highlighting when done
+    notifyLineExecuting(null);
+  }
+  
+  /// Map statement to its line number in original code
+  int _findStatementLine(String statement) {
+    final lines = _originalCode.split('\n');
+    final stmtKey = statement.trim().replaceAll(RegExp(r'\s+'), ' ');
+    
+    for (int i = 0; i < lines.length; i++) {
+      final line = lines[i].trim().replaceAll(RegExp(r'\s+'), ' ');
+      if (line.isEmpty) continue;
+      
+      // Check if this line contains a significant part of the statement
+      if (stmtKey.length > 5 && line.contains(stmtKey.substring(0, (stmtKey.length * 0.6).floor()))) {
+        return i + 1; // Return 1-based line number
+      }
+    }
+    return 1; // Default to line 1 if not found
   }
 
   /// Parse statements from code

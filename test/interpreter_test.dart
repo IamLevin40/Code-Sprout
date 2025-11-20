@@ -1472,4 +1472,322 @@ int main() {
       });
     });
   });
+
+  // Test group for line mapping accuracy
+  group('Line Mapping Accuracy Tests', () {
+    late FarmState farmState;
+    
+    setUp(() {
+      final mockUserData = UserData(
+        uid: 'test_user',
+        data: {
+          'sproutProgress': {
+            'inventory': {
+              'wheatSeeds': {'isLocked': false, 'quantity': 100},
+            }
+          }
+        },
+      );
+      farmState = FarmState(gridWidth: 3, gridHeight: 3, userData: mockUserData);
+    });
+
+    test('C++ - Line highlighting matches source code lines', () async {
+      final List<int?> executedLines = [];
+      final interpreter = CppInterpreter(
+        farmState: farmState,
+        onLineExecuting: (line) => executedLines.add(line),
+      );
+
+      // Code with specific statements on known lines
+      final code = '''
+#include <iostream>
+using namespace std;
+
+int main() {
+  int x = 5;
+  int y = 10;
+  int z = x + y;
+  return 0;
+}
+''';
+
+      await interpreter.execute(code);
+      
+      // Verify that line 5 (int x = 5;) was tracked
+      expect(executedLines, contains(5));
+      // Verify that line 6 (int y = 10;) was tracked
+      expect(executedLines, contains(6));
+      // Verify that line 7 (int z = x + y;) was tracked
+      expect(executedLines, contains(7));
+    });
+
+    test('Python - Line highlighting matches source code lines', () async {
+      final List<int?> executedLines = [];
+      final interpreter = PythonInterpreter(
+        farmState: farmState,
+        onLineExecuting: (line) => executedLines.add(line),
+      );
+
+      final code = '''
+x = 5
+y = 10
+z = x + y
+print(z)
+''';
+
+      await interpreter.execute(code);
+      
+      // Python is line-based, should track lines 1, 2, 3, 4
+      expect(executedLines, contains(1));
+      expect(executedLines, contains(2));
+      expect(executedLines, contains(3));
+      expect(executedLines, contains(4));
+    });
+
+    test('Java - Line highlighting matches source code lines', () async {
+      final List<int?> executedLines = [];
+      final interpreter = JavaInterpreter(
+        farmState: farmState,
+        onLineExecuting: (line) => executedLines.add(line),
+      );
+
+      final code = '''
+public class Main {
+  public static void main(String[] args) {
+    int x = 5;
+    int y = 10;
+    int z = x + y;
+    System.out.println(z);
+  }
+}
+''';
+
+      await interpreter.execute(code);
+      
+      // Verify statements on lines 3, 4, 5, 6
+      expect(executedLines, contains(3));
+      expect(executedLines, contains(4));
+      expect(executedLines, contains(5));
+      expect(executedLines, contains(6));
+    });
+
+    test('C# - Line highlighting matches source code lines', () async {
+      final List<int?> executedLines = [];
+      final interpreter = CSharpInterpreter(
+        farmState: farmState,
+        onLineExecuting: (line) => executedLines.add(line),
+      );
+
+      final code = '''
+using System;
+
+class Program {
+  static void Main() {
+    int x = 5;
+    int y = 10;
+    int z = x + y;
+    Console.WriteLine(z);
+  }
+}
+''';
+
+      await interpreter.execute(code);
+      
+      // Verify statements on lines 5, 6, 7, 8
+      expect(executedLines, contains(5));
+      expect(executedLines, contains(6));
+      expect(executedLines, contains(7));
+      expect(executedLines, contains(8));
+    });
+
+    test('JavaScript - Line highlighting matches source code lines', () async {
+      final List<int?> executedLines = [];
+      final interpreter = JavaScriptInterpreter(
+        farmState: farmState,
+        onLineExecuting: (line) => executedLines.add(line),
+      );
+
+      final code = '''
+let x = 5;
+let y = 10;
+let z = x + y;
+console.log(z);
+''';
+
+      await interpreter.execute(code);
+      
+      // Verify lines 1, 2, 3, 4
+      expect(executedLines, contains(1));
+      expect(executedLines, contains(2));
+      expect(executedLines, contains(3));
+      expect(executedLines, contains(4));
+    });
+  });
+
+  // Test group for graceful stop execution
+  group('Graceful Stop Execution Tests', () {
+    late FarmState farmState;
+    
+    setUp(() {
+      final mockUserData = UserData(
+        uid: 'test_user',
+        data: {
+          'sproutProgress': {
+            'inventory': {}
+          }
+        },
+      );
+      farmState = FarmState(gridWidth: 3, gridHeight: 3, userData: mockUserData);
+    });
+
+    test('C++ - Stop execution gracefully without crashing', () async {
+      final interpreter = CppInterpreter(farmState: farmState);
+      bool executionStopped = false;
+
+      // Code with a loop that would run for a while
+      final code = '''
+#include <iostream>
+using namespace std;
+
+int main() {
+  for (int i = 0; i < 100; i++) {
+    int x = i * 2;
+  }
+  return 0;
+}
+''';
+
+      // Start execution and stop it mid-way
+      Future.delayed(Duration(milliseconds: 300), () {
+        interpreter.stop();
+        executionStopped = true;
+      });
+
+      await interpreter.execute(code);
+      
+      // Verify that execution was stopped
+      expect(executionStopped, true);
+      // Verify that stop message appears in log
+      expect(interpreter.executionLog.any((msg) => msg.contains('Stop requested')), true);
+      // Most importantly: this test should not crash
+    });
+
+    test('Python - Stop execution gracefully', () async {
+      final interpreter = PythonInterpreter(farmState: farmState);
+      bool executionStopped = false;
+
+      final code = '''
+for i in range(100):
+    x = i * 2
+''';
+
+      Future.delayed(Duration(milliseconds: 300), () {
+        interpreter.stop();
+        executionStopped = true;
+      });
+
+      await interpreter.execute(code);
+      expect(executionStopped, true);
+      expect(interpreter.executionLog.any((msg) => msg.contains('Stop requested')), true);
+    });
+
+    test('Java - Stop execution gracefully', () async {
+      final interpreter = JavaInterpreter(farmState: farmState);
+      bool executionStopped = false;
+
+      final code = '''
+public class Main {
+  public static void main(String[] args) {
+    for (int i = 0; i < 100; i++) {
+      int x = i * 2;
+    }
+  }
+}
+''';
+
+      Future.delayed(Duration(milliseconds: 300), () {
+        interpreter.stop();
+        executionStopped = true;
+      });
+
+      await interpreter.execute(code);
+      expect(executionStopped, true);
+      expect(interpreter.executionLog.any((msg) => msg.contains('Stop requested')), true);
+    });
+
+    test('C# - Stop execution gracefully', () async {
+      final interpreter = CSharpInterpreter(farmState: farmState);
+      bool executionStopped = false;
+
+      final code = '''
+using System;
+
+class Program {
+  static void Main() {
+    for (int i = 0; i < 100; i++) {
+      int x = i * 2;
+    }
+  }
+}
+''';
+
+      Future.delayed(Duration(milliseconds: 300), () {
+        interpreter.stop();
+        executionStopped = true;
+      });
+
+      await interpreter.execute(code);
+      expect(executionStopped, true);
+      expect(interpreter.executionLog.any((msg) => msg.contains('Stop requested')), true);
+    });
+
+    test('JavaScript - Stop execution gracefully', () async {
+      final interpreter = JavaScriptInterpreter(farmState: farmState);
+      bool executionStopped = false;
+
+      final code = '''
+for (let i = 0; i < 100; i++) {
+  let x = i * 2;
+}
+''';
+
+      Future.delayed(Duration(milliseconds: 300), () {
+        interpreter.stop();
+        executionStopped = true;
+      });
+
+      await interpreter.execute(code);
+      expect(executionStopped, true);
+      expect(interpreter.executionLog.any((msg) => msg.contains('Stop requested')), true);
+    });
+
+    test('Stop clears line highlighting', () async {
+      int? lastNotifiedLine = null;
+      final interpreter = CppInterpreter(
+        farmState: farmState,
+        onLineExecuting: (line) => lastNotifiedLine = line,
+      );
+
+      final code = '''
+#include <iostream>
+using namespace std;
+
+int main() {
+  for (int i = 0; i < 50; i++) {
+    int x = i;
+  }
+  return 0;
+}
+''';
+
+      Future.delayed(Duration(milliseconds: 250), () {
+        interpreter.stop();
+      });
+
+      await interpreter.execute(code);
+      
+      // After stopping, line highlighting should be cleared (null)
+      expect(lastNotifiedLine, null);
+    });
+  });
 }

@@ -7,15 +7,20 @@ class CppInterpreter extends FarmCodeInterpreter {
   CppInterpreter({
     required super.farmState,
     super.onCropHarvested,
+    super.onLineExecuting,
+    super.onLineError,
+    super.onLogUpdate,
   });
 
   @override
-  Future<ExecutionResult> execute(String code) async {
+  Future<ExecutionResult?> preValidate(String code) async {
     clearLog();
-    log('Starting C++ code execution...');
+    log('Validating C++ code...');
 
     try {
-      // Remove comments
+      final originalCode = code;
+      
+      // Remove comments for parsing
       code = _removeComments(code);
 
       // Extract main function body
@@ -25,13 +30,132 @@ class CppInterpreter extends FarmCodeInterpreter {
           'Syntactical Error: main() function not found',
           type: ErrorType.syntactical,
           log: executionLog,
+          errorLine: 1,
         );
       }
 
-      // Execute statements
-      await _executeBlock(mainBody);
+      // Parse statements and validate syntax
+      try {
+        final statements = _parseStatements(mainBody);
+        
+        // Validate each statement for common syntax errors
+        for (int i = 0; i < statements.length; i++) {
+          final stmt = statements[i].trim();
+          if (stmt.isEmpty) continue;
+          
+          // Check for missing semicolons (statements that should end with ;)
+          final needsSemicolon = !stmt.endsWith('{') && 
+                                  !stmt.endsWith('}') && 
+                                  !stmt.startsWith('if') && 
+                                  !stmt.startsWith('else') &&
+                                  !stmt.startsWith('for') &&
+                                  !stmt.startsWith('while') &&
+                                  !stmt.startsWith('do') &&
+                                  !stmt.startsWith('switch') &&
+                                  !stmt.startsWith('case') &&
+                                  !stmt.startsWith('default') &&
+                                  !stmt.startsWith('try') &&
+                                  !stmt.startsWith('catch') &&
+                                  !stmt.contains('{');
+          
+          if (needsSemicolon && !stmt.endsWith(';')) {
+            // Find the actual line number in original code
+            int lineNum = _findLineNumber(originalCode, stmt);
+            return ExecutionResult.error(
+              'Syntactical Error: Missing semicolon at line $lineNum',
+              type: ErrorType.syntactical,
+              log: executionLog,
+              errorLine: lineNum,
+            );
+          }
+          
+          // Check for unmatched braces in statement
+          int braceCount = 0;
+          bool inString = false;
+          for (int j = 0; j < stmt.length; j++) {
+            final char = stmt[j];
+            if (char == '"' && (j == 0 || stmt[j-1] != '\\')) {
+              inString = !inString;
+            }
+            if (!inString) {
+              if (char == '{') braceCount++;
+              if (char == '}') braceCount--;
+            }
+          }
+          if (braceCount != 0) {
+            int lineNum = _findLineNumber(originalCode, stmt);
+            return ExecutionResult.error(
+              'Syntactical Error: Unmatched braces at line $lineNum',
+              type: ErrorType.syntactical,
+              log: executionLog,
+              errorLine: lineNum,
+            );
+          }
+        }
+      } catch (e) {
+        return ExecutionResult.error(
+          'Syntactical Error: ${e.toString()}',
+          type: ErrorType.syntactical,
+          log: executionLog,
+          errorLine: 1,
+        );
+      }
 
-      if (!shouldReturn) {
+      log('Validation passed!');
+      return null; // null means validation passed
+    } catch (e) {
+      return ExecutionResult.error(
+        'Validation Error: $e',
+        type: ErrorType.syntactical,
+        log: executionLog,
+        errorLine: 1,
+      );
+    }
+  }
+  
+  /// Find line number in original code for a statement
+  int _findLineNumber(String originalCode, String stmt) {
+    final lines = originalCode.split('\n');
+    final searchText = stmt.replaceAll(RegExp(r'\s+'), ' ').trim();
+    
+    for (int i = 0; i < lines.length; i++) {
+      final line = lines[i].replaceAll(RegExp(r'\s+'), ' ').trim();
+      if (line.contains(searchText.substring(0, (searchText.length / 2).floor()))) {
+        return i + 1;
+      }
+    }
+    return 1;
+  }
+
+  // Store original code for line mapping
+  String _originalCode = '';
+  
+  @override
+  Future<ExecutionResult> execute(String code) async {
+    clearLog();
+    log('Starting C++ code execution...');
+    
+    // Store original code for line number mapping
+    _originalCode = code;
+
+    try {
+      // Remove comments
+      final cleanedCode = _removeComments(code);
+
+      // Extract main function body
+      final mainBody = _extractMainBody(cleanedCode);
+      if (mainBody == null) {
+        return ExecutionResult.error(
+          'Syntactical Error: main() function not found',
+          type: ErrorType.syntactical,
+          log: executionLog,
+        );
+      }
+
+      // Execute statements with line mapping
+      await _executeBlockWithLineMapping(mainBody, cleanedCode);
+
+      if (!shouldReturn && !shouldStop) {
         log('Code execution completed successfully!');
       }
       return ExecutionResult.success(log: executionLog);
@@ -47,6 +171,9 @@ class CppInterpreter extends FarmCodeInterpreter {
         type: ErrorType.runtime,
         log: executionLog,
       );
+    } finally {
+      // Always clear line highlighting when done
+      notifyLineExecuting(null);
     }
   }
 
@@ -118,19 +245,64 @@ class CppInterpreter extends FarmCodeInterpreter {
     return code.substring(startIndex, currentIndex - 1);
   }
 
-  /// Execute a block of code
-  Future<void> _executeBlock(String block) async {
+  /// Map statement to its line number in original code
+  int _findStatementLine(String statement) {
+    final lines = _originalCode.split('\n');
+    final stmtKey = statement.trim().replaceAll(RegExp(r'\s+'), ' ');
+    
+    for (int i = 0; i < lines.length; i++) {
+      final line = lines[i].trim().replaceAll(RegExp(r'\s+'), ' ');
+      if (line.isEmpty) continue;
+      
+      // Check if this line contains a significant part of the statement
+      if (stmtKey.length > 5 && line.contains(stmtKey.substring(0, (stmtKey.length * 0.6).floor()))) {
+        return i + 1; // Return 1-based line number
+      }
+    }
+    return 1; // Default to line 1 if not found
+  }
+  
+  /// Execute a block of code with accurate line mapping
+  Future<void> _executeBlockWithLineMapping(String block, String cleanedCode) async {
     final statements = _parseStatements(block);
 
-    for (final stmt in statements) {
+    for (int i = 0; i < statements.length; i++) {
+      // Check stop flag at the beginning of each statement
+      if (shouldStop) {
+        log('Execution stopped by user');
+        notifyLineExecuting(null);
+        return;
+      }
+      
       if (shouldBreak || shouldContinue || shouldReturn) break;
 
+      final stmt = statements[i];
       final trimmed = stmt.trim();
       if (trimmed.isEmpty) continue;
 
+      // Find actual line number in original source code
+      final lineNum = _findStatementLine(stmt);
+      notifyLineExecuting(lineNum);
+      
       await delay(200);
+      
+      // Check stop flag before executing (responsive stopping)
+      if (shouldStop) {
+        log('Execution stopped by user');
+        notifyLineExecuting(null);
+        return;
+      }
+      
       await _executeStatement(trimmed);
     }
+    
+    // Clear line highlighting when done
+    notifyLineExecuting(null);
+  }
+  
+  /// Execute a block of code (legacy method, redirects to mapped version)
+  Future<void> _executeBlock(String block) async {
+    await _executeBlockWithLineMapping(block, block);
   }
 
   /// Parse statements from code block

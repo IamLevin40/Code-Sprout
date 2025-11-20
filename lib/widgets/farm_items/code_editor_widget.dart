@@ -8,7 +8,9 @@ class CodeEditorWidget extends StatefulWidget {
   final Function(String) onCodeChanged;
   final VoidCallback onClose;
   final ValueNotifier<int?>? executingLineNotifier;
+  final ValueNotifier<int?>? errorLineNotifier;
   final TextEditingController? controller;
+  final bool isReadOnly;
 
   const CodeEditorWidget({
     super.key,
@@ -16,7 +18,9 @@ class CodeEditorWidget extends StatefulWidget {
     required this.onCodeChanged,
     required this.onClose,
     this.executingLineNotifier,
+    this.errorLineNotifier,
     this.controller,
+    this.isReadOnly = false,
   });
 
   @override
@@ -28,6 +32,7 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
   late bool _ownsController;
   late FocusNode _focusNode;
   int? _highlightLine;
+  int? _errorLine;
   late ScrollController _scrollController;
   
   @override
@@ -50,11 +55,13 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
 
     // Listen for external executing line changes if provided
     widget.executingLineNotifier?.addListener(_onExecutingLineChanged);
+    widget.errorLineNotifier?.addListener(_onErrorLineChanged);
   }
 
   @override
   void dispose() {
     widget.executingLineNotifier?.removeListener(_onExecutingLineChanged);
+    widget.errorLineNotifier?.removeListener(_onErrorLineChanged);
     _focusNode.dispose();
     _scrollController.dispose();
     if (_ownsController) {
@@ -68,6 +75,14 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
     final line = notifier.value; // 1-based index or null
     setState(() {
       _highlightLine = line;
+    });
+  }
+
+  void _onErrorLineChanged() {
+    final notifier = widget.errorLineNotifier!;
+    final line = notifier.value; // 1-based index or null
+    setState(() {
+      _errorLine = line;
     });
   }
 
@@ -472,52 +487,76 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
                     color: textColor,
                     fontSize: fontSize,
                   );
-                  final tp = TextPainter(
-                    text: TextSpan(text: 'M', style: textStyle),
-                    textDirection: TextDirection.ltr,
-                  )..layout();
-                  final lineHeight = tp.height;
 
-                  return Stack(
-                    children: [
-                      if (_highlightLine != null) ...[
-                        // compute top offset inside the padded area
-                        Positioned(
-                          top: ((_highlightLine! - 1) * lineHeight) -
-                              (_scrollController.hasClients ? _scrollController.offset : 0.0),
-                          left: 0,
-                          right: 0,
-                          height: lineHeight,
-                          child: IgnorePointer(
-                            child: Container(
-                              color: highlightColor.withOpacity(0.18),
-                            ),
-                          ),
+                  // Build TextSpan with line highlighting
+                  TextSpan buildHighlightedText() {
+                    final lines = _controller.text.split('\n');
+                    final List<TextSpan> lineSpans = [];
+                    
+                    for (int i = 0; i < lines.length; i++) {
+                      final lineNumber = i + 1;
+                      final isExecuting = _highlightLine == lineNumber;
+                      final isError = _errorLine == lineNumber;
+                      
+                      Color? backgroundColor;
+                      if (isError) {
+                        backgroundColor = Colors.red.withOpacity(0.5);
+                      } else if (isExecuting) {
+                        backgroundColor = highlightColor.withOpacity(0.5);
+                      }
+                      
+                      lineSpans.add(TextSpan(
+                        text: lines[i] + (i < lines.length - 1 ? '\n' : ''),
+                        style: textStyle.copyWith(
+                          backgroundColor: backgroundColor,
                         ),
-                      ],
-                      Focus(
-                        onKey: _handleKey,
-                        child: Theme(
-                          data: Theme.of(context).copyWith(
-                            textSelectionTheme: TextSelectionThemeData(
-                              selectionColor: highlightColor,
-                            ),
-                          ),
-                          child: TextField(
-                            controller: _controller,
-                            scrollController: _scrollController,
-                            maxLines: null,
-                            expands: true,
-                            style: textStyle,
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                              hintText: '// Write your code here...',
-                              hintStyle: TextStyle(color: Colors.grey),
-                            ),
-                          ),
+                      ));
+                    }
+                    
+                    return TextSpan(children: lineSpans);
+                  }
+
+                  return Focus(
+                    onKey: _handleKey,
+                    child: Theme(
+                      data: Theme.of(context).copyWith(
+                        textSelectionTheme: TextSelectionThemeData(
+                          selectionColor: highlightColor,
                         ),
                       ),
-                    ],
+                      child: widget.isReadOnly
+                          ? SingleChildScrollView(
+                              controller: _scrollController,
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(minHeight: constraints.maxHeight - 16.0),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Align(
+                                    alignment: Alignment.topLeft,
+                                    child: SelectableText.rich(
+                                      buildHighlightedText(),
+                                      style: textStyle,
+                                      textAlign: TextAlign.start,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                          : TextField(
+                              controller: _controller,
+                              scrollController: _scrollController,
+                              readOnly: false,
+                              maxLines: null,
+                              expands: true,
+                              textAlignVertical: TextAlignVertical.top,
+                              style: textStyle,
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                hintText: '// Write your code here...',
+                                hintStyle: TextStyle(color: Colors.grey),
+                              ),
+                            ),
+                    ),
                   );
                 }),
               ),
