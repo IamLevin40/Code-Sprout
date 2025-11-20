@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'farm_data_schema.dart';
+import 'user_data.dart';
+import '../services/local_storage_service.dart';
 
 /// Enum representing the state of a farm plot
 enum PlotState {
@@ -20,6 +22,19 @@ enum CropType {
   lettuce,
   tomato,
   garlic,
+}
+
+/// Enum representing seed types that can be planted
+enum SeedType {
+  wheatSeeds,
+  carrotSeeds,
+  potatoSeeds,
+  beetrootSeeds,
+  radishSeeds,
+  onionSeeds,
+  lettuceSeeds,
+  tomatoSeeds,
+  garlicSeeds,
 }
 
 /// Enum representing cardinal directions for drone movement
@@ -65,6 +80,101 @@ extension CropTypeExtension on CropType {
       if (crop.id == lower) return crop;
     }
     return null;
+  }
+}
+
+/// Extension to get string representation of seed type matching user data schema
+extension SeedTypeExtension on SeedType {
+  String get id {
+    switch (this) {
+      case SeedType.wheatSeeds:
+        return 'wheatSeeds';
+      case SeedType.carrotSeeds:
+        return 'carrotSeeds';
+      case SeedType.potatoSeeds:
+        return 'potatoSeeds';
+      case SeedType.beetrootSeeds:
+        return 'beetrootSeeds';
+      case SeedType.radishSeeds:
+        return 'radishSeeds';
+      case SeedType.onionSeeds:
+        return 'onionSeeds';
+      case SeedType.lettuceSeeds:
+        return 'lettuceSeeds';
+      case SeedType.tomatoSeeds:
+        return 'tomatoSeeds';
+      case SeedType.garlicSeeds:
+        return 'garlicSeeds';
+    }
+  }
+
+  String get displayName {
+    // Convert camelCase to display name (e.g., wheatSeeds -> Wheat Seeds)
+    final base = id.replaceAll('Seeds', '');
+    return '${base[0].toUpperCase()}${base.substring(1)} Seeds';
+  }
+
+  /// Get the corresponding CropType for this seed
+  CropType get cropType {
+    switch (this) {
+      case SeedType.wheatSeeds:
+        return CropType.wheat;
+      case SeedType.carrotSeeds:
+        return CropType.carrot;
+      case SeedType.potatoSeeds:
+        return CropType.potato;
+      case SeedType.beetrootSeeds:
+        return CropType.beetroot;
+      case SeedType.radishSeeds:
+        return CropType.radish;
+      case SeedType.onionSeeds:
+        return CropType.onion;
+      case SeedType.lettuceSeeds:
+        return CropType.lettuce;
+      case SeedType.tomatoSeeds:
+        return CropType.tomato;
+      case SeedType.garlicSeeds:
+        return CropType.garlic;
+    }
+  }
+
+  /// Get the crop id for referencing in farm_data_schema
+  String get cropId {
+    return cropType.id;
+  }
+
+  static SeedType? fromString(String value) {
+    // Normalize the input by removing underscores and converting to lowercase
+    final normalized = value.replaceAll('_', '').toLowerCase();
+    
+    for (final seed in SeedType.values) {
+      if (seed.id.toLowerCase() == normalized) return seed;
+    }
+    return null;
+  }
+
+  /// Get SeedType from CropType
+  static SeedType? fromCropType(CropType cropType) {
+    switch (cropType) {
+      case CropType.wheat:
+        return SeedType.wheatSeeds;
+      case CropType.carrot:
+        return SeedType.carrotSeeds;
+      case CropType.potato:
+        return SeedType.potatoSeeds;
+      case CropType.beetroot:
+        return SeedType.beetrootSeeds;
+      case CropType.radish:
+        return SeedType.radishSeeds;
+      case CropType.onion:
+        return SeedType.onionSeeds;
+      case CropType.lettuce:
+        return SeedType.lettuceSeeds;
+      case CropType.tomato:
+        return SeedType.tomatoSeeds;
+      case CropType.garlic:
+        return SeedType.garlicSeeds;
+    }
   }
 }
 
@@ -220,11 +330,15 @@ class FarmState extends ChangeNotifier {
   bool isExecuting = false;
   Timer? _growthUpdateTimer;
   final FarmDataSchema _schema = FarmDataSchema();
+  
+  /// User data for inventory management (seeds and crops)
+  UserData? userData;
 
   FarmState({
     this.gridWidth = 3,
     this.gridHeight = 3,
     DronePosition? initialDronePosition,
+    this.userData,
   })  : _grid = List.generate(
           gridHeight,
           (y) => List.generate(
@@ -235,6 +349,15 @@ class FarmState extends ChangeNotifier {
         dronePosition = initialDronePosition ?? DronePosition(x: 0, y: 0) {
     // Start periodic growth update timer (updates every second)
     _startGrowthUpdateTimer();
+  }
+
+  /// Update user data reference
+  void setUserData(UserData? data) {
+    userData = data;
+    try {
+      if (data != null) LocalStorageService.instance.userDataNotifier.value = data;
+    } catch (_) {}
+    notifyListeners();
   }
 
   /// Start timer to periodically update crop growth states
@@ -356,8 +479,8 @@ class FarmState extends ChangeNotifier {
     return true;
   }
 
-  /// Plant a crop on the current plot
-  bool plantCrop(CropType cropType) {
+  /// Plant a seed on the current plot (requires seed in inventory)
+  bool plantSeed(SeedType seedType) {
     final plot = getCurrentPlot();
     if (plot == null) return false;
 
@@ -366,6 +489,18 @@ class FarmState extends ChangeNotifier {
       return false;
     }
 
+    // Check if user has at least one seed in inventory
+    if (userData != null) {
+      final seedQty = userData!.get('sproutProgress.inventory.${seedType.id}.quantity') as int? ?? 0;
+      if (seedQty <= 0) {
+        debugPrint('No ${seedType.displayName} in inventory');
+        return false;
+      }
+    }
+
+    // Convert seed type to crop type
+    final cropType = seedType.cropType;
+
     // If planting on a watered plot, start growth immediately.
     if (plot.state == PlotState.watered) {
       plot.crop = PlantedCrop(cropType: cropType, growthStartedAt: DateTime.now());
@@ -373,6 +508,28 @@ class FarmState extends ChangeNotifier {
       // Planting on tilled plot: crop exists but growth hasn't started yet
       plot.crop = PlantedCrop(cropType: cropType, growthStartedAt: null);
     }
+    
+    // Decrease seed quantity in inventory if userData is available
+    if (userData != null) {
+      try {
+        final base = Map<String, dynamic>.from(userData!.toJson());
+        final parts = 'sproutProgress.inventory.${seedType.id}.quantity'.split('.');
+        final currentQty = (userData!.get('sproutProgress.inventory.${seedType.id}.quantity') as int?) ?? 0;
+        final newQty = (currentQty - 1).clamp(0, 1 << 30);
+        _setNestedValue(base, parts, newQty);
+
+        // Persist locally and remotely (fire-and-forget)
+        _saveUserDataJson(base);
+        // Update in-memory reference immediately for reads
+        try {
+          userData = UserData.fromJson(base);
+          LocalStorageService.instance.userDataNotifier.value = userData!;
+        } catch (_) {}
+      } catch (e) {
+        debugPrint('Failed to persist seed decrement: $e');
+      }
+    }
+    
     notifyListeners();
     return true;
   }
@@ -394,7 +551,26 @@ class FarmState extends ChangeNotifier {
     plot.crop = null;
     plot.state = PlotState.normal; // Reset to normal after harvest
     notifyListeners();
-    
+
+    // Persist harvested crop quantity into userData (increment)
+    if (userData != null) {
+      try {
+        final base = Map<String, dynamic>.from(userData!.toJson());
+        final parts = 'sproutProgress.inventory.${cropType.id}.quantity'.split('.');
+        final currentQty = (userData!.get('sproutProgress.inventory.${cropType.id}.quantity') as int?) ?? 0;
+        final newQty = currentQty + quantity;
+        _setNestedValue(base, parts, newQty);
+
+        _saveUserDataJson(base);
+        try {
+          userData = UserData.fromJson(base);
+          LocalStorageService.instance.userDataNotifier.value = userData!;
+        } catch (_) {}
+      } catch (e) {
+        debugPrint('Failed to persist harvest quantity: $e');
+      }
+    }
+
     return {
       'cropType': cropType,
       'quantity': quantity,
@@ -417,5 +593,65 @@ class FarmState extends ChangeNotifier {
   void setExecuting(bool executing) {
     isExecuting = executing;
     notifyListeners();
+  }
+
+  /// Check if user has at least one seed of the specified type
+  bool hasSeed(SeedType seedType) {
+    if (userData == null) return false;
+    final seedQty = userData!.get('sproutProgress.inventory.${seedType.id}.quantity') as int? ?? 0;
+    return seedQty > 0;
+  }
+
+  /// Get the quantity of a specific seed type in inventory
+  int getSeedInventoryCount(SeedType seedType) {
+    if (userData == null) return 0;
+    return userData!.get('sproutProgress.inventory.${seedType.id}.quantity') as int? ?? 0;
+  }
+
+  /// Get the quantity of a specific crop type in inventory
+  int getCropInventoryCount(CropType cropType) {
+    if (userData == null) return 0;
+    return userData!.get('sproutProgress.inventory.${cropType.id}.quantity') as int? ?? 0;
+  }
+
+  /// Helper: set a nested value inside a Map given dot-separated path parts
+  void _setNestedValue(Map<String, dynamic> map, List<String> parts, dynamic value) {
+    Map<String, dynamic> current = map;
+    for (var i = 0; i < parts.length - 1; i++) {
+      final key = parts[i];
+      if (current[key] == null || current[key] is! Map) {
+        current[key] = <String, dynamic>{};
+      }
+      current = current[key] as Map<String, dynamic>;
+    }
+    current[parts.last] = value;
+  }
+
+  /// Helper: persist a full user JSON map locally and remotely, update notifier
+  void _saveUserDataJson(Map<String, dynamic> base) {
+    try {
+      final newUser = UserData.fromJson(base);
+      try {
+        LocalStorageService.instance.userDataNotifier.value = newUser;
+      } catch (_) {}
+
+      // Save to local storage (may be async)
+      try {
+        LocalStorageService.instance.saveUserData(newUser).catchError((e) => debugPrint('saveUserData error: $e'));
+      } catch (e) {
+        debugPrint('Failed to call saveUserData: $e');
+      }
+
+      // Persist to remote in background
+      Future(() async {
+        try {
+          await newUser.save();
+        } catch (e) {
+          debugPrint('UserData.save error: $e');
+        }
+      });
+    } catch (e) {
+      debugPrint('Failed to persist user data json: $e');
+    }
   }
 }

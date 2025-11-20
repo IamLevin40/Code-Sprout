@@ -540,9 +540,81 @@ class PythonInterpreter extends FarmCodeInterpreter {
       case 'getPlotGridY':
       case 'get_plot_grid_y':
         return executeGetPlotGridY();
+      case 'hasSeed':
+      case 'has_seed':
+        return _handleHasSeed(match.group(2)!);
+      case 'getSeedInventoryCount':
+      case 'get_seed_inventory_count':
+        return _handleGetSeedInventoryCount(match.group(2)!);
+      case 'getCropInventoryCount':
+      case 'get_crop_inventory_count':
+        return _handleGetCropInventoryCount(match.group(2)!);
       default:
         return null;
     }
+  }
+
+  /// Handle hasSeed() function
+  bool _handleHasSeed(String args) {
+    args = args.replaceAll('"', '').replaceAll("'", '').trim();
+    final seedPattern = RegExp(r'SeedType\.(\w+)', caseSensitive: false);
+    final match = seedPattern.firstMatch(args);
+
+    String seedStr;
+    if (match != null) {
+      seedStr = match.group(1)!;
+    } else {
+      seedStr = args;
+    }
+
+    final seed = SeedTypeExtension.fromString(seedStr);
+    if (seed == null) {
+      throw Exception('Semantical Error: Unknown seed type "$seedStr"');
+    }
+
+    return executeHasSeed(seed);
+  }
+
+  /// Handle getSeedInventoryCount() function
+  int _handleGetSeedInventoryCount(String args) {
+    args = args.replaceAll('"', '').replaceAll("'", '').trim();
+    final seedPattern = RegExp(r'SeedType\.(\w+)', caseSensitive: false);
+    final match = seedPattern.firstMatch(args);
+
+    String seedStr;
+    if (match != null) {
+      seedStr = match.group(1)!;
+    } else {
+      seedStr = args;
+    }
+
+    final seed = SeedTypeExtension.fromString(seedStr);
+    if (seed == null) {
+      throw Exception('Semantical Error: Unknown seed type "$seedStr"');
+    }
+
+    return executeGetSeedInventoryCount(seed);
+  }
+
+  /// Handle getCropInventoryCount() function
+  int _handleGetCropInventoryCount(String args) {
+    args = args.replaceAll('"', '').replaceAll("'", '').trim();
+    final cropPattern = RegExp(r'CropType\.(\w+)', caseSensitive: false);
+    final match = cropPattern.firstMatch(args);
+
+    String cropStr;
+    if (match != null) {
+      cropStr = match.group(1)!.toLowerCase();
+    } else {
+      cropStr = args.toLowerCase();
+    }
+
+    final crop = CropTypeExtension.fromString(cropStr);
+    if (crop == null) {
+      throw Exception('Semantical Error: Unknown crop type "$cropStr"');
+    }
+
+    return executeGetCropInventoryCount(crop);
   }
 
   /// Convert PlotState to Python enum string format
@@ -600,27 +672,27 @@ class PythonInterpreter extends FarmCodeInterpreter {
     executeMove(direction);
   }
 
-  /// Handle plant() function
+  /// Handle plant() function (now uses SeedType)
   void _handlePlant(String args) {
     args = args.replaceAll('"', '').replaceAll("'", '').trim();
     
-    final cropPattern = RegExp(r'CropType\.(\w+)', caseSensitive: false);
-    final match = cropPattern.firstMatch(args);
+    final seedPattern = RegExp(r'SeedType\.(\w+)', caseSensitive: false);
+    final match = seedPattern.firstMatch(args);
 
-    String cropStr;
+    String seedStr;
     if (match != null) {
-      cropStr = match.group(1)!.toLowerCase();
+      seedStr = match.group(1)!;
     } else {
-      cropStr = args.toLowerCase();
+      seedStr = args;
     }
 
-    final crop = CropTypeExtension.fromString(cropStr);
+    final seed = SeedTypeExtension.fromString(seedStr);
 
-    if (crop == null) {
-      throw Exception('Semantical Error: Unknown crop type "$cropStr"');
+    if (seed == null) {
+      throw Exception('Semantical Error: Unknown seed type "$seedStr"');
     }
 
-    executePlant(crop);
+    executePlant(seed);
   }
 
   /// Convert value to boolean

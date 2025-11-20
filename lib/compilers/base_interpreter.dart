@@ -367,14 +367,14 @@ abstract class FarmCodeInterpreter {
     return success;
   }
 
-  /// Execute plant operation
-  bool executePlant(CropType crop) {
-    log('Planting ${crop.displayName}...');
-    final success = farmState.plantCrop(crop);
+  /// Execute plant operation (now uses SeedType)
+  bool executePlant(SeedType seed) {
+    log('Planting ${seed.displayName}...');
+    final success = farmState.plantSeed(seed);
     if (success) {
-      log('${crop.displayName} planted successfully');
+      log('${seed.displayName} planted successfully');
     } else {
-      log('Error: Cannot plant on this plot');
+      log('Error: Cannot plant on this plot (check if you have seeds)');
     }
     return success;
   }
@@ -467,6 +467,21 @@ abstract class FarmCodeInterpreter {
   /// Get grid height (number of plots vertically)
   int executeGetPlotGridY() {
     return farmState.gridHeight;
+  }
+
+  /// Check if user has at least one seed of the specified type
+  bool executeHasSeed(SeedType seedType) {
+    return farmState.hasSeed(seedType);
+  }
+
+  /// Get the quantity of a specific seed type in inventory
+  int executeGetSeedInventoryCount(SeedType seedType) {
+    return farmState.getSeedInventoryCount(seedType);
+  }
+
+  /// Get the quantity of a specific crop type in inventory
+  int executeGetCropInventoryCount(CropType cropType) {
+    return farmState.getCropInventoryCount(cropType);
   }
 
   /// Evaluate function call that returns a value

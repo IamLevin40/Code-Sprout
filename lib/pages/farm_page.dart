@@ -9,8 +9,7 @@ import '../compilers/csharp_interpreter.dart';
 import '../compilers/java_interpreter.dart';
 import '../compilers/python_interpreter.dart';
 import '../compilers/javascript_interpreter.dart';
-import '../services/firestore_service.dart';
-import '../services/auth_service.dart';
+import '../services/local_storage_service.dart';
 
 class FarmPage extends StatefulWidget {
   final String languageId;
@@ -39,6 +38,14 @@ class _FarmPageState extends State<FarmPage> {
     _farmState = FarmState();
     _userCode = _getDefaultCode();
     _farmState.addListener(_onFarmStateChanged);
+    // initialize farm state with cached user data and keep in sync
+    try {
+      final ud = LocalStorageService.instance.userDataNotifier.value;
+      if (ud != null) _farmState.setUserData(ud);
+      LocalStorageService.instance.userDataNotifier.addListener(() {
+        _farmState.setUserData(LocalStorageService.instance.userDataNotifier.value);
+      });
+    } catch (_) {}
   }
 
   @override
@@ -62,7 +69,7 @@ class _FarmPageState extends State<FarmPage> {
             '    move(Direction::East);\n'
             '    till();\n'
             '    water();\n'
-            '    plant(Crop::Wheat);\n'
+            '    plant(SeedType::WheatSeeds);\n'
             '    harvest();\n\n'
             '    return 0;\n'
             '}';
@@ -75,7 +82,7 @@ class _FarmPageState extends State<FarmPage> {
             '        move(Direction.East);\n'
             '        till();\n'
             '        water();\n'
-            '        plant(Crop.Wheat);\n'
+            '        plant(SeedType.WheatSeeds);\n'
             '        harvest();\n'
             '    }\n'
             '}';
@@ -87,7 +94,7 @@ class _FarmPageState extends State<FarmPage> {
             '        move(Direction.EAST);\n'
             '        till();\n'
             '        water();\n'
-            '        plant(Crop.WHEAT);\n'
+            '        plant(SeedType.WHEAT_SEEDS);\n'
             '        harvest();\n'
             '    }\n'
             '}';
@@ -97,7 +104,7 @@ class _FarmPageState extends State<FarmPage> {
             'move(Direction.East)\n'
             'till()\n'
             'water()\n'
-            'plant(Crop.Wheat)\n'
+            'plant(SeedType.wheatSeeds)\n'
             'harvest()';
       case 'javascript':
         return '// JavaScript Farm Drone Code\n'
@@ -105,7 +112,7 @@ class _FarmPageState extends State<FarmPage> {
             'move(Direction.East);\n'
             'till();\n'
             'water();\n'
-            'plant(Crop.Wheat);\n'
+            'plant(SeedType.wheatSeeds);\n'
             'harvest();';
       default:
         return '// Write your code here';
@@ -148,20 +155,11 @@ class _FarmPageState extends State<FarmPage> {
   }
 
   Future<void> _onCropHarvested(CropType cropType) async {
-    // Update user data with harvested crop
+    // Persistence is handled by FarmState; ensure local notifier is in sync.
     try {
-      final auth = AuthService();
-      final currentUser = auth.currentUser;
-      if (currentUser != null) {
-        final userData = await FirestoreService.getUserData(currentUser.uid);
-        if (userData != null) {
-          final currentQty = userData.get('sproutProgress.cropItems.${cropType.id}.quantity') as int? ?? 0;
-          await userData.updateField('sproutProgress.cropItems.${cropType.id}.quantity', currentQty + 1);
-        }
-      }
-    } catch (e) {
-      debugPrint('Error updating crop quantity: $e');
-    }
+      final ud = LocalStorageService.instance.userDataNotifier.value;
+      if (ud != null) _farmState.setUserData(ud);
+    } catch (_) {}
   }
 
   Future<void> _startExecution() async {

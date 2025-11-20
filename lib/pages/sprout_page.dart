@@ -21,7 +21,7 @@ class SproutPage extends StatefulWidget {
 }
 
 class _SproutPageState extends State<SproutPage> {
-  List<CropItem> _cropItems = [];
+  List<InventoryItem> _inventoryItems = [];
 
   final CourseDataSchema _courseSchema = CourseDataSchema();
   List<String> _languages = [];
@@ -48,9 +48,9 @@ class _SproutPageState extends State<SproutPage> {
     });
 
     // Recompute derived data (crop items) when user data changes
-    SproutDataHelpers.getCropItemsForUser(ud).then((items) {
+    SproutDataHelpers.getInventoryItemsForUser(ud).then((items) {
       if (!mounted) return;
-      setState(() => _cropItems = items);
+      setState(() => _inventoryItems = items);
     }).catchError((_) {});
   }
 
@@ -105,8 +105,8 @@ class _SproutPageState extends State<SproutPage> {
     }
     // load crop items after initial set
     try {
-      final items = await SproutDataHelpers.getCropItemsForUser(ud);
-      if (mounted) setState(() => _cropItems = items);
+      final items = await SproutDataHelpers.getInventoryItemsForUser(ud);
+      if (mounted) setState(() => _inventoryItems = items);
     } catch (_) {}
   }
 
@@ -300,8 +300,19 @@ class _SproutPageState extends State<SproutPage> {
               return Wrap(
                 spacing: spacing,
                 runSpacing: spacing,
-                children: _cropItems.map((item) {
-                  final String imagePath = farmSchema.getItemIcon(item.id);
+                children: _inventoryItems.map((item) {
+                  // Determine if it's a seed or crop to get the correct icon
+                  String imagePath;
+                  if (item.id.endsWith('Seeds')) {
+                    // It's a seed - get the crop id from the seed name
+                    final cropId = item.id.replaceAll('Seeds', '').toLowerCase();
+                    // Handle first character case properly
+                    final formattedCropId = cropId[0].toLowerCase() + cropId.substring(1);
+                    imagePath = farmSchema.getSeedIcon(formattedCropId);
+                  } else {
+                    // It's a crop item
+                    imagePath = farmSchema.getItemIcon(item.id);
+                  }
 
                   return SizedBox(
                     width: itemWidth,
@@ -334,12 +345,24 @@ class _SproutPageState extends State<SproutPage> {
 
                                   // Right: texts
                                   Expanded(
-                                    flex: 2,
+                                    flex: 3,
                                     child: Column(
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text(item.displayName, style: TextStyle(color: cropLabelColor, fontSize: cropLabelSize, fontWeight: cropLabelWeight)),
+                                        SizedBox(
+                                          height: cropLabelSize * 1.3,
+                                          child: FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            alignment: Alignment.centerLeft,
+                                            child: Text(
+                                              item.displayName,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.visible,
+                                              style: TextStyle(color: cropLabelColor, fontSize: cropLabelSize, fontWeight: cropLabelWeight),
+                                            ),
+                                          ),
+                                        ),
                                         Text('x${item.quantity}', style: TextStyle(color: quantityColor, fontSize: quantitySize, fontWeight: quantityWeight)),
                                       ],
                                     ),
@@ -376,7 +399,7 @@ class _SproutPageState extends State<SproutPage> {
 
                                     // Right: "Locked" label
                                     Expanded(
-                                      flex: 2,
+                                      flex: 3,
                                       child: Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         crossAxisAlignment: CrossAxisAlignment.start,

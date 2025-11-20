@@ -8,6 +8,7 @@ Successfully implemented a gamified coding farm page where users can code a farm
 ### 1. Data Models (`lib/models/farm_data.dart`)
 - **PlotState Enum**: Normal, Tilled, Watered
 - **CropType Enum**: wheat, carrot, potato, beetroot, radish, onion, lettuce, tomato, garlic
+- **SeedType Enum**: wheatSeeds, carrotSeeds, potatoSeeds, beetrootSeeds, radishSeeds, onionSeeds, lettuceSeeds, tomatoSeeds, garlicSeeds (NEW)
 - **Direction Enum**: north, south, east, west
 - **PlantedCrop**: Tracks crop type, growth status, and planting time
 - **FarmPlot**: Represents individual plot with state and crop
@@ -75,8 +76,8 @@ Comprehensive language-specific interpreters with full programming language supp
 - `move(direction)` - Move drone one tile in specified direction
 - `till()` - Till soil at current position
 - `water()` - Water soil at current position
-- `plant(crop)` - Plant specified crop at current position
-- `harvest()` - Harvest grown crop (auto-updates user data)
+- `plant(seedType)` - **UPDATED**: Plant specified seed type at current position. Requires at least one seed in inventory. Automatically decreases seed quantity.
+- `harvest()` - Harvest grown crop (auto-updates user data, adds to crop inventory)
 - `sleep(duration)` - Pauses drone operation for specified seconds (accepts int or double)
 - `getPositionX()` - Returns current X position of the drone (int)
 - `getPositionY()` - Returns current Y position of the drone (int)
@@ -98,6 +99,17 @@ Comprehensive language-specific interpreters with full programming language supp
 - `canPlant()` - Returns true if plot can be planted (boolean)
 - `canHarvest()` - Returns true if plot can be harvested (boolean)
 - `getPlotGridX()` - Returns number of farm plots horizontally (int)
+- `getPlotGridY()` - Returns number of farm plots vertically (int)
+- **`hasSeed(seedType)` - NEW**: Returns true if user has at least one of specified seed type in inventory (boolean)
+- **`getSeedInventoryCount(seedType)` - NEW**: Returns quantity of specified seed type in user's inventory (int)
+- **`getCropInventoryCount(cropType)` - NEW**: Returns quantity of specified crop type in user's inventory (int)
+
+**Seed Type Formats by Language:**
+- C++: `SeedType::WheatSeeds`, `SeedType::CarrotSeeds`, etc.
+- Python: `SeedType.wheatSeeds`, `SeedType.carrotSeeds`, etc.
+- Java: `SeedType.WHEAT_SEEDS`, `SeedType.CARROT_SEEDS`, etc.
+- C#: `SeedType.WheatSeeds`, `SeedType.CarrotSeeds`, etc.
+- JavaScript: `SeedType.wheatSeeds`, `SeedType.carrotSeeds`, etc.
 - `getPlotGridY()` - Returns number of farm plots vertically (int)
 
 ### 3. Widgets (`lib/widgets/farm_items/`)
@@ -181,7 +193,7 @@ int main() {
     move(Direction::East);
     till();
     water();
-    plant(Crop::Wheat);
+    plant(SeedType::WheatSeeds);
     harvest();
     return 0;
 }
@@ -197,7 +209,7 @@ int main() {
         for (int j = 0; j < cols; j++) {
             till();
             water();
-            plant(Crop::Carrot);
+            plant(SeedType::CarrotSeeds);
             
             if (j < cols - 1) {
                 move(Direction::East);
@@ -223,9 +235,9 @@ int main() {
         till();
         
         if (crop_type == 1) {
-            plant(Crop::Wheat);
+            plant(SeedType::WheatSeeds);
         } else {
-            plant(Crop::Carrot);
+            plant(SeedType::CarrotSeeds);
         }
         
         cout << "Crop planted successfully" << endl;
@@ -244,7 +256,7 @@ int main() {
 move(Direction.East)
 till()
 water()
-plant(Crop.Wheat)
+plant(SeedType.wheatSeeds)
 harvest()
 ```
 
@@ -257,7 +269,7 @@ for i in range(rows):
     for j in range(cols):
         till()
         water()
-        plant(Crop.Potato)
+        plant(SeedType.potatoSeeds)
         
         if j < cols - 1:
             move(Direction.East)
@@ -273,13 +285,13 @@ print("Planting complete!")
 crop_choice = 2
 
 if crop_choice == 1:
-    plant(Crop.Wheat)
+    plant(SeedType.wheatSeeds)
     print("Planted wheat")
 elif crop_choice == 2:
-    plant(Crop.Carrot)
+    plant(SeedType.carrotSeeds)
     print("Planted carrot")
 else:
-    plant(Crop.Potato)
+    plant(SeedType.potatoSeeds)
     print("Planted potato")
 ```
 
@@ -289,7 +301,7 @@ try:
     move(Direction.East)
     till()
     water()
-    plant(Crop.Beetroot)
+    plant(SeedType.beetrootSeeds)
     print("Operation successful")
 except:
     print("Error occurred")
@@ -303,7 +315,7 @@ public static void main(String[] args) {
     move(Direction.EAST);
     till();
     water();
-    plant(Crop.WHEAT);
+    plant(SeedType.WHEAT_SEEDS);
     harvest();
 }
 ```
@@ -316,7 +328,7 @@ public static void main(String[] args) {
     for (int i = 0; i < gridSize; i++) {
         till();
         water();
-        plant(Crop.TOMATO);
+        plant(SeedType.TOMATO_SEEDS);
         
         if (i < gridSize - 1) {
             move(Direction.EAST);
@@ -334,13 +346,13 @@ public static void main(String[] args) {
     
     switch (action) {
         case 1:
-            plant(Crop.WHEAT);
+            plant(SeedType.WHEAT_SEEDS);
             break;
         case 2:
-            plant(Crop.CARROT);
+            plant(SeedType.CARROT_SEEDS);
             break;
         default:
-            plant(Crop.POTATO);
+            plant(SeedType.POTATO_SEEDS);
             break;
     }
     
@@ -356,7 +368,7 @@ static void Main(string[] args) {
     move(Direction.East);
     till();
     water();
-    plant(Crop.Wheat);
+    plant(SeedType.WheatSeeds);
     harvest();
 }
 ```
@@ -369,7 +381,7 @@ static void Main(string[] args) {
     for (int i = 0; i < count; i++) {
         till();
         water();
-        plant(Crop.Lettuce);
+        plant(SeedType.LettuceSeeds);
         move(Direction.East);
     }
     
@@ -385,7 +397,7 @@ static void Main(string[] args) {
     do {
         till();
         water();
-        plant(Crop.Onion);
+        plant(SeedType.OnionSeeds);
         planted++;
         move(Direction.East);
     } while (planted < 3);
@@ -401,7 +413,7 @@ static void Main(string[] args) {
 move(Direction.East);
 till();
 water();
-plant(Crop.Wheat);
+plant(SeedType.wheatSeeds);
 harvest();
 ```
 
@@ -414,7 +426,7 @@ for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
         till();
         water();
-        plant(Crop.Radish);
+        plant(SeedType.radishSeeds);
         
         if (j < cols - 1) {
             move(Direction.East);
@@ -474,7 +486,7 @@ int main() {
             
             // Plant if ready
             if (canPlant()) {
-                plant(CropType::Wheat);
+                plant(SeedType::WheatSeeds);
             }
             
             // Move to next plot
@@ -552,11 +564,11 @@ for row in range(grid_height):
             water()
         
         # Plant based on position
-        if canPlant():
+            if canPlant():
             if x + y < 3:
-                plant(CropType.Carrot)
+                plant(SeedType.carrotSeeds)
             else:
-                plant(CropType.Potato)
+                plant(SeedType.potatoSeeds)
         
         # Move to next plot
         if col < grid_width - 1:
@@ -588,7 +600,7 @@ if can_till():
 if can_water():
     water()
 if can_plant():
-    plant(CropType.Wheat)
+    plant(SeedType.wheatSeeds)
 ```
 
 ### Java - Grid Pattern Management
@@ -615,7 +627,7 @@ public class Main {
                 }
                 
                 if (canPlant()) {
-                    plant(CropType.WHEAT);
+                    plant(SeedType.WHEAT_SEEDS);
                 }
                 
                 // Move right if not at edge
@@ -696,12 +708,12 @@ class Program {
                 Water();
             }
             
-            if (CanPlant()) {
+                    if (CanPlant()) {
                 // Choose crop based on position
                 if ((x + y) % 2 == 0) {
-                    Plant(CropType.Carrot);
+                    Plant(SeedType.CarrotSeeds);
                 } else {
-                    Plant(CropType.Wheat);
+                    Plant(SeedType.WheatSeeds);
                 }
             }
             
@@ -767,7 +779,7 @@ for (let y = 0; y < gridY; y++) {
         }
         
         if (canPlant()) {
-            plant(CropType.Wheat);
+            plant(SeedType.wheatSeeds);
         }
         
         // Check crop status
@@ -801,12 +813,12 @@ const WHEAT_THRESHOLD = 5;
 let wheatCount = 0;
 
 for (let i = 0; i < 9; i++) {
-    if (canPlant()) {
-        if (wheatCount < WHEAT_THRESHOLD) {
-            plant(CropType.Wheat);
+        if (canPlant()) {
+            if (wheatCount < WHEAT_THRESHOLD) {
+            plant(SeedType.wheatSeeds);
             wheatCount++;
         } else {
-            plant(CropType.Carrot);
+            plant(SeedType.carrotSeeds);
         }
         
         console.log(`Planted at (${getPositionX()}, ${getPositionY()})`);
@@ -947,6 +959,107 @@ for (let i = 0; i < 9; i++) {
 
 ### Known Limitations
 - Comments within strings may cause parsing issues
+
+## Seed-Based Planting System (NEW)
+
+### Overview
+The farming mechanics now implement a realistic seed-based planting system where users must have seeds in their inventory to plant crops. This replaces the previous direct crop planting system.
+
+### Key Changes
+
+#### 1. Data Schema Updates
+**User Data Schema** (`assets/schemas/user_data_schema.txt`):
+- Renamed `sproutProgress.cropItems` to `sproutProgress.inventory`
+- Inventory now contains both seeds and crops:
+  - **Seeds**: wheatSeeds, carrotSeeds, potatoSeeds, etc. (default: wheatSeeds has 10, others locked with 0)
+  - **Crops**: wheat, carrot, potato, etc. (harvested crops go here)
+
+**Farm Data Schema** (`assets/schemas/farm_data_schema.txt`):
+- Added `seed_icon` property to each crop in `crop_info`
+- Seed icons are displayed in the inventory for seed items
+
+#### 2. Data Model Updates
+**sprout_data.dart**:
+- Renamed `CropItem` class to `InventoryItem` (more generic for seeds and crops)
+- Updated helper functions:
+  - `getCropItemsForUser()` → `getInventoryItemsForUser()`
+  - `updateCropQuantity()` → `updateInventoryQuantity()`
+  - `applyCropQuantityDelta()` → `applyInventoryQuantityDelta()`
+- Display names now handle both seeds ("Wheat Seeds") and crops ("Wheat")
+
+#### 3. Farming Mechanics Updates
+**FarmState** (`farm_data.dart`):
+- Added `userData` property for inventory management
+- Added `plantSeed(SeedType)` method (replaces `plantCrop`)
+- Planting now requires:
+  1. Valid plot state (tilled or watered)
+  2. At least one seed of the specified type in inventory
+  3. Automatically decreases seed quantity by 1 when planted
+- Added helper methods:
+  - `hasSeed(SeedType)` - Check if user has seeds
+  - `getSeedInventoryCount(SeedType)` - Get seed quantity
+  - `getCropInventoryCount(CropType)` - Get crop quantity
+
+#### 4. Interpreter Updates
+All language interpreters (C++, C#, Java, Python, JavaScript) updated to support:
+- `plant(SeedType)` - Uses seed types instead of crop types
+- `hasSeed(SeedType)` - Boolean check for seed availability
+- `getSeedInventoryCount(SeedType)` - Returns seed count
+- `getCropInventoryCount(CropType)` - Returns crop count
+
+**Format Examples**:
+```cpp
+// C++
+plant(SeedType::WheatSeeds);
+if (hasSeed(SeedType::CarrotSeeds)) {
+    int count = getSeedInventoryCount(SeedType::CarrotSeeds);
+}
+```
+
+```python
+# Python
+plant(SeedType.wheatSeeds)
+if hasSeed(SeedType.carrotSeeds):
+    count = getSeedInventoryCount(SeedType.carrotSeeds)
+```
+
+```java
+// Java
+plant(SeedType.WHEAT_SEEDS);
+if (hasSeed(SeedType.CARROT_SEEDS)) {
+    int count = getSeedInventoryCount(SeedType.CARROT_SEEDS);
+}
+```
+
+#### 5. UI Updates
+**Sprout Page Inventory**:
+- Uses `Wrap` widget for automatic row expansion
+- Dynamically displays seed icons for seed items using `farm_data_schema.seed_icon`
+- Dynamically displays crop icons for harvested crops using `farm_data_schema.item_icon`
+- Inventory grid expands vertically to accommodate growing number of items
+
+### Planting Flow
+1. User writes code with `plant(SeedType.wheatSeeds)`
+2. Drone executes plant command
+3. System checks if user has at least one wheat seed in inventory
+4. If yes:
+   - Converts SeedType to corresponding CropType (wheatSeeds → wheat)
+   - Plants crop on plot
+   - Decreases seed quantity in inventory by 1
+5. If no: Plant operation fails with error message
+
+### Harvesting Flow
+1. User harvests a fully grown crop
+2. Crop yields a quantity (defined in farm_data_schema)
+3. Crop item (not seed) is added to inventory
+4. Plot returns to normal state
+
+### Testing
+All 76 unit tests pass, including:
+- Seed-based planting with inventory checks
+- New inventory functions (hasSeed, getSeedInventoryCount, getCropInventoryCount)
+- Multi-language support for SeedType enum formats
+- Backward compatibility tests
 - Very deeply nested expressions may hit recursion limits
 - Python indentation must be exactly 4 spaces (no tabs or mixed spacing)
 - Switch-case fall-through behavior varies slightly between languages

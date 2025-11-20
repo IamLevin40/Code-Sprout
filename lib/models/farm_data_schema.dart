@@ -50,6 +50,15 @@ class FarmDataSchema {
     return info['item_icon'] as String;
   }
 
+  /// Get seed icon path for a crop type
+  String getSeedIcon(String cropType) {
+    final info = getCropInfo(cropType);
+    if (info == null) {
+      throw Exception('Crop type not found: $cropType');
+    }
+    return info['seed_icon'] as String;
+  }
+
   /// Get growth duration in seconds for a crop type
   double getGrowthDuration(String cropType) {
     final info = getCropInfo(cropType);

@@ -815,8 +815,68 @@ class CSharpInterpreter extends FarmCodeInterpreter {
       case 'canharvest': return executeCanHarvest();
       case 'getplotgridx': return executeGetPlotGridX();
       case 'getplotgridy': return executeGetPlotGridY();
+      case 'hasseed': return _handleHasSeed(match.group(2)!);
+      case 'getseedinventorycount': return _handleGetSeedInventoryCount(match.group(2)!);
+      case 'getcropinventorycount': return _handleGetCropInventoryCount(match.group(2)!);
       default: return null;
     }
+  }
+
+  /// Handle hasSeed() function
+  bool _handleHasSeed(String args) {
+    final seedPattern = RegExp(r'SeedType\.(\w+)', caseSensitive: false);
+    final match = seedPattern.firstMatch(args);
+
+    if (match == null) {
+      throw Exception('Semantical Error: Invalid seed format');
+    }
+
+    final seedStr = match.group(1)!;
+    final seed = SeedTypeExtension.fromString(seedStr);
+
+    if (seed == null) {
+      throw Exception('Semantical Error: Unknown seed type "$seedStr"');
+    }
+
+    return executeHasSeed(seed);
+  }
+
+  /// Handle getSeedInventoryCount() function
+  int _handleGetSeedInventoryCount(String args) {
+    final seedPattern = RegExp(r'SeedType\.(\w+)', caseSensitive: false);
+    final match = seedPattern.firstMatch(args);
+
+    if (match == null) {
+      throw Exception('Semantical Error: Invalid seed format');
+    }
+
+    final seedStr = match.group(1)!;
+    final seed = SeedTypeExtension.fromString(seedStr);
+
+    if (seed == null) {
+      throw Exception('Semantical Error: Unknown seed type "$seedStr"');
+    }
+
+    return executeGetSeedInventoryCount(seed);
+  }
+
+  /// Handle getCropInventoryCount() function
+  int _handleGetCropInventoryCount(String args) {
+    final cropPattern = RegExp(r'CropType\.(\w+)', caseSensitive: false);
+    final match = cropPattern.firstMatch(args);
+
+    if (match == null) {
+      throw Exception('Semantical Error: Invalid crop format');
+    }
+
+    final cropStr = match.group(1)!.toLowerCase();
+    final crop = CropTypeExtension.fromString(cropStr);
+
+    if (crop == null) {
+      throw Exception('Semantical Error: Unknown crop type "$cropStr"');
+    }
+
+    return executeGetCropInventoryCount(crop);
   }
 
   String _plotStateToString(PlotState? state) {
@@ -865,23 +925,23 @@ class CSharpInterpreter extends FarmCodeInterpreter {
     executeMove(direction);
   }
 
-  /// Handle plant() function
+  /// Handle plant() function (now uses SeedType)
   void _handlePlant(String args) {
-    final cropPattern = RegExp(r'CropType\.(\w+)', caseSensitive: false);
-    final match = cropPattern.firstMatch(args);
+    final seedPattern = RegExp(r'SeedType\.(\w+)', caseSensitive: false);
+    final match = seedPattern.firstMatch(args);
 
     if (match == null) {
-      throw Exception('Semantical Error: Invalid crop format');
+      throw Exception('Semantical Error: Invalid seed format');
     }
 
-    final cropStr = match.group(1)!.toLowerCase();
-    final crop = CropTypeExtension.fromString(cropStr);
+    final seedStr = match.group(1)!;
+    final seed = SeedTypeExtension.fromString(seedStr);
 
-    if (crop == null) {
-      throw Exception('Semantical Error: Unknown crop type "$cropStr"');
+    if (seed == null) {
+      throw Exception('Semantical Error: Unknown seed type "$seedStr"');
     }
 
-    executePlant(crop);
+    executePlant(seed);
   }
 
   /// Convert value to boolean

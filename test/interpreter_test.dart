@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:code_sprout/models/farm_data.dart';
 import 'package:code_sprout/models/farm_data_schema.dart';
+import 'package:code_sprout/models/user_data.dart';
 import 'package:code_sprout/compilers/cpp_interpreter.dart';
 import 'package:code_sprout/compilers/python_interpreter.dart';
 import 'package:code_sprout/compilers/java_interpreter.dart';
@@ -16,6 +17,7 @@ void main() {
       'crop_info': {
         'wheat': {
           'item_icon': 'assets/images/icons/wheat_icon.png',
+          'seed_icon': 'assets/images/icons/wheat_seeds.png',
           'growth_duration': 30.0,
           'harvest_quantity': {'min': 2, 'max': 4},
           'crop_stages': {
@@ -29,6 +31,7 @@ void main() {
         },
         'carrot': {
           'item_icon': 'assets/images/icons/carrot_icon.png',
+          'seed_icon': 'assets/images/icons/carrot_seeds.png',
           'growth_duration': 25.0,
           'harvest_quantity': {'min': 1, 'max': 3},
           'crop_stages': {
@@ -41,6 +44,7 @@ void main() {
         },
         'potato': {
           'item_icon': 'assets/images/icons/potato_icon.png',
+          'seed_icon': 'assets/images/icons/potato_seeds.png',
           'growth_duration': 35.0,
           'harvest_quantity': {'min': 2, 'max': 5},
           'crop_stages': {
@@ -54,6 +58,7 @@ void main() {
         },
         'beetroot': {
           'item_icon': 'assets/images/icons/beetroot_icon.png',
+          'seed_icon': 'assets/images/icons/beetroot_seeds.png',
           'growth_duration': 28.0,
           'harvest_quantity': {'min': 1, 'max': 3},
           'crop_stages': {
@@ -66,6 +71,7 @@ void main() {
         },
         'radish': {
           'item_icon': 'assets/images/icons/radish_icon.png',
+          'seed_icon': 'assets/images/icons/radish_seeds.png',
           'growth_duration': 20.0,
           'harvest_quantity': {'min': 1, 'max': 2},
           'crop_stages': {
@@ -77,6 +83,7 @@ void main() {
         },
         'onion': {
           'item_icon': 'assets/images/icons/onion_icon.png',
+          'seed_icon': 'assets/images/icons/onion_seeds.png',
           'growth_duration': 32.0,
           'harvest_quantity': {'min': 2, 'max': 4},
           'crop_stages': {
@@ -90,6 +97,7 @@ void main() {
         },
         'lettuce': {
           'item_icon': 'assets/images/icons/lettuce_icon.png',
+          'seed_icon': 'assets/images/icons/lettuce_seeds.png',
           'growth_duration': 22.0,
           'harvest_quantity': {'min': 1, 'max': 2},
           'crop_stages': {
@@ -102,6 +110,7 @@ void main() {
         },
         'tomato': {
           'item_icon': 'assets/images/icons/tomato_icon.png',
+          'seed_icon': 'assets/images/icons/tomato_seeds.png',
           'growth_duration': 40.0,
           'harvest_quantity': {'min': 3, 'max': 6},
           'crop_stages': {
@@ -116,6 +125,7 @@ void main() {
         },
         'garlic': {
           'item_icon': 'assets/images/icons/garlic_icon.png',
+          'seed_icon': 'assets/images/icons/garlic_seeds.png',
           'growth_duration': 26.0,
           'harvest_quantity': {'min': 1, 'max': 3},
           'crop_stages': {
@@ -134,7 +144,35 @@ void main() {
     late FarmState farmState;
 
     setUp(() {
-      farmState = FarmState(gridWidth: 3, gridHeight: 3);
+      // Create mock user data with seeds in inventory for testing
+      final mockUserData = UserData(
+        uid: 'test_user',
+        data: {
+          'sproutProgress': {
+            'inventory': {
+              'wheatSeeds': {'isLocked': false, 'quantity': 100},
+              'carrotSeeds': {'isLocked': false, 'quantity': 100},
+              'potatoSeeds': {'isLocked': false, 'quantity': 100},
+              'beetrootSeeds': {'isLocked': false, 'quantity': 100},
+              'radishSeeds': {'isLocked': false, 'quantity': 100},
+              'onionSeeds': {'isLocked': false, 'quantity': 100},
+              'lettuceSeeds': {'isLocked': false, 'quantity': 100},
+              'tomatoSeeds': {'isLocked': false, 'quantity': 100},
+              'garlicSeeds': {'isLocked': false, 'quantity': 100},
+              'wheat': {'isLocked': false, 'quantity': 0},
+              'carrot': {'isLocked': false, 'quantity': 0},
+              'potato': {'isLocked': false, 'quantity': 0},
+              'beetroot': {'isLocked': false, 'quantity': 0},
+              'radish': {'isLocked': false, 'quantity': 0},
+              'onion': {'isLocked': false, 'quantity': 0},
+              'lettuce': {'isLocked': false, 'quantity': 0},
+              'tomato': {'isLocked': false, 'quantity': 0},
+              'garlic': {'isLocked': false, 'quantity': 0},
+            }
+          }
+        },
+      );
+      farmState = FarmState(gridWidth: 3, gridHeight: 3, userData: mockUserData);
     });
 
     group('C++ Interpreter Tests', () {
@@ -332,7 +370,7 @@ int main() {
         final code = '''
 int main() {
   till();
-  plant(CropType::wheat);
+  plant(SeedType::wheatSeeds);
   water();
   return 0;
 }
@@ -349,7 +387,7 @@ int main() {
       test('Farm operations - cannot plant on untilled plot', () async {
         final code = '''
 int main() {
-  plant(CropType::wheat);
+  plant(SeedType::wheatSeeds);
   return 0;
 }
 ''';
@@ -365,7 +403,7 @@ int main() {
 int main() {
   till();
   water();
-  plant(CropType::wheat);
+  plant(SeedType::wheatSeeds);
   return 0;
 }
 ''';
@@ -383,10 +421,10 @@ int main() {
         final code = '''
 int main() {
   till();
-  plant(CropType::wheat);
+  plant(SeedType::wheatSeeds);
   move(Direction::east);
   till();
-  plant(CropType::carrot);
+  plant(SeedType::carrotSeeds);
   return 0;
 }
 ''';
@@ -580,7 +618,7 @@ result = z
       test('Farm operations - correct sequence', () async {
         final code = '''
 till()
-plant(CropType.wheat)
+plant(SeedType.wheatSeeds)
 water()
 ''';
         final result = await interpreter.execute(code);
@@ -714,7 +752,7 @@ public class Main {
 public class Main {
   public static void main(String[] args) {
     till();
-    plant(CropType.WHEAT);
+    plant(SeedType.WHEAT_SEEDS);
     water();
   }
 }
@@ -805,7 +843,7 @@ class Program {
 class Program {
   static void Main() {
     till();
-    plant(CropType.Wheat);
+    plant(SeedType.WheatSeeds);
     water();
   }
 }
@@ -903,7 +941,7 @@ while (i < 5) {
       test('Farm operations', () async {
         final code = '''
 till();
-plant(CropType.wheat);
+plant(SeedType.wheatSeeds);
 water();
 ''';
         final result = await interpreter.execute(code);
@@ -943,7 +981,7 @@ try {
         final interpreter = CppInterpreter(farmState: farmState);
         final code = '''
 int main() {
-  plant(CropType::wheat);
+  plant(SeedType::wheatSeeds);
   return 0;
 }
 ''';
@@ -956,7 +994,7 @@ int main() {
         final interpreter = PythonInterpreter(farmState: farmState);
         final code = '''
 till()
-plant(CropType.wheat)
+plant(SeedType.wheatSeeds)
 ''';
         final result = await interpreter.execute(code);
         expect(result.success, true);
@@ -970,7 +1008,7 @@ public class Main {
   public static void main(String[] args) {
     till();
     water();
-    plant(CropType.WHEAT);
+    plant(SeedType.WHEAT_SEEDS);
   }
 }
 ''';
@@ -987,7 +1025,7 @@ public class Main {
 class Program {
   static void Main() {
     till();
-    plant(CropType.Wheat);
+    plant(SeedType.WheatSeeds);
     harvest();
   }
 }
@@ -1016,13 +1054,13 @@ move(Direction.west);
         final code = '''
 int main() {
   till();
-  plant(CropType::wheat);
+  plant(SeedType::wheatSeeds);
   move(Direction::east);
   till();
-  plant(CropType::carrot);
+  plant(SeedType::carrotSeeds);
   move(Direction::east);
   till();
-  plant(CropType::potato);
+  plant(SeedType::potatoSeeds);
   return 0;
 }
 ''';
@@ -1134,7 +1172,7 @@ public class Main {
         final code = '''
 for i in range(0, 3):
     till()
-    plant(CropType.wheat)
+    plant(SeedType.wheatSeeds)
     water()
     if i < 2:
         move(Direction.east)
@@ -1153,10 +1191,10 @@ let planted = 0;
 for (let i = 0; i < 3; i++) {
   till();
   if (i == 0) {
-    plant(CropType.wheat);
+    plant(SeedType.wheatSeeds);
     planted++;
   } else if (i == 1) {
-    plant(CropType.carrot);
+    plant(SeedType.carrotSeeds);
     planted++;
   }
   if (i < 2) {
@@ -1178,7 +1216,7 @@ int main() {
   int successCount = 0;
   try {
     till();
-    plant(CropType::wheat);
+    plant(SeedType::wheatSeeds);
     successCount = successCount + 1;
   } catch (...) {
     successCount = 0;
@@ -1241,7 +1279,7 @@ int main() {
         final code = '''
 int main() {
   till();
-  plant(CropType::Wheat);
+  plant(SeedType::WheatSeeds);
   bool isWheat = (getCropType() == CropType::Wheat);
   return 0;
 }
@@ -1257,7 +1295,7 @@ int main() {
 int main() {
   till();
   water();
-  plant(CropType::Wheat);
+  plant(SeedType::WheatSeeds);
   bool grown = isCropGrown();
   return 0;
 }
@@ -1279,7 +1317,7 @@ int main() {
   bool plantable2 = canPlant();
   
   water();
-  plant(CropType::Wheat);
+  plant(SeedType::WheatSeeds);
   bool harvestable1 = canHarvest();
   bool waterable = canWater();
   
@@ -1384,7 +1422,7 @@ let x = getPositionX();
 let y = getPositionY();
 till();
 water();
-plant(CropType.Wheat);
+plant(SeedType.wheatSeeds);
 let cropType = getCropType();
 let isWheat = (cropType == CropType.Wheat);
 let grown = isCropGrown();
@@ -1412,7 +1450,7 @@ int main() {
         till();
       }
       if (canPlant()) {
-        plant(CropType::Wheat);
+        plant(SeedType::WheatSeeds);
         planted = planted + 1;
       }
       if (getPositionX() < gridX - 1) {

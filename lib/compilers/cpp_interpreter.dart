@@ -942,21 +942,21 @@ class CppInterpreter extends FarmCodeInterpreter {
 
   /// Handle plant() function
   void _handlePlant(String args) {
-    final cropPattern = RegExp(r'CropType::(\w+)', caseSensitive: false);
-    final match = cropPattern.firstMatch(args);
+    final seedPattern = RegExp(r'SeedType::(\w+)', caseSensitive: false);
+    final match = seedPattern.firstMatch(args);
 
     if (match == null) {
-      throw Exception('Semantical Error: Invalid crop format - use CropType::CropName');
+      throw Exception('Semantical Error: Invalid seed format - use SeedType::SeedName');
     }
 
-    final cropStr = match.group(1)!.toLowerCase();
-    final crop = CropTypeExtension.fromString(cropStr);
+    final seedStr = match.group(1)!;
+    final seed = SeedTypeExtension.fromString(seedStr);
 
-    if (crop == null) {
-      throw Exception('Semantical Error: Unknown crop type "$cropStr"');
+    if (seed == null) {
+      throw Exception('Semantical Error: Unknown seed type "$seedStr"');
     }
 
-    executePlant(crop);
+    executePlant(seed);
   }
 
   @override
@@ -993,9 +993,72 @@ class CppInterpreter extends FarmCodeInterpreter {
         return executeGetPlotGridX();
       case 'getPlotGridY':
         return executeGetPlotGridY();
+      case 'hasSeed':
+        return _handleHasSeed(match.group(2)!);
+      case 'getSeedInventoryCount':
+        return _handleGetSeedInventoryCount(match.group(2)!);
+      case 'getCropInventoryCount':
+        return _handleGetCropInventoryCount(match.group(2)!);
       default:
         return null;
     }
+  }
+
+  /// Handle hasSeed() function
+  bool _handleHasSeed(String args) {
+    final seedPattern = RegExp(r'SeedType::(\w+)', caseSensitive: false);
+    final match = seedPattern.firstMatch(args);
+
+    if (match == null) {
+      throw Exception('Semantical Error: Invalid seed format - use SeedType::SeedName');
+    }
+
+    final seedStr = match.group(1)!;
+    final seed = SeedTypeExtension.fromString(seedStr);
+
+    if (seed == null) {
+      throw Exception('Semantical Error: Unknown seed type "$seedStr"');
+    }
+
+    return executeHasSeed(seed);
+  }
+
+  /// Handle getSeedInventoryCount() function
+  int _handleGetSeedInventoryCount(String args) {
+    final seedPattern = RegExp(r'SeedType::(\w+)', caseSensitive: false);
+    final match = seedPattern.firstMatch(args);
+
+    if (match == null) {
+      throw Exception('Semantical Error: Invalid seed format - use SeedType::SeedName');
+    }
+
+    final seedStr = match.group(1)!;
+    final seed = SeedTypeExtension.fromString(seedStr);
+
+    if (seed == null) {
+      throw Exception('Semantical Error: Unknown seed type "$seedStr"');
+    }
+
+    return executeGetSeedInventoryCount(seed);
+  }
+
+  /// Handle getCropInventoryCount() function
+  int _handleGetCropInventoryCount(String args) {
+    final cropPattern = RegExp(r'CropType::(\w+)', caseSensitive: false);
+    final match = cropPattern.firstMatch(args);
+
+    if (match == null) {
+      throw Exception('Semantical Error: Invalid crop format - use CropType::CropName');
+    }
+
+    final cropStr = match.group(1)!.toLowerCase();
+    final crop = CropTypeExtension.fromString(cropStr);
+
+    if (crop == null) {
+      throw Exception('Semantical Error: Unknown crop type "$cropStr"');
+    }
+
+    return executeGetCropInventoryCount(crop);
   }
 
   /// Convert PlotState to C++ enum string format
