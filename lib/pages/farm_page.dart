@@ -46,6 +46,10 @@ class _FarmPageState extends State<FarmPage> {
   FarmCodeInterpreter? _currentInterpreter;
   late TextEditingController _codeController;
   late InteractiveViewportController _viewportController;
+  bool _centeredOnce = false;
+  bool _showExecutionLog = false;
+  late ScrollController _logScrollController;
+  bool _autoScrollEnabled = true;
 
   @override
   void initState() {
@@ -59,6 +63,8 @@ class _FarmPageState extends State<FarmPage> {
       maxScale: 3.0,
       scrollZoomSpeed: 0.15,
     );
+    _logScrollController = ScrollController();
+    _logScrollController.addListener(_onLogScroll);
     _farmState.addListener(_onFarmStateChanged);
     // initialize farm state with cached user data and keep in sync
     try {
@@ -71,6 +77,24 @@ class _FarmPageState extends State<FarmPage> {
     
     // Load code files from Firestore
     _loadCodeFiles();
+
+    // Ensure viewport centers once after the first frame (styles and layout available)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_centeredOnce) {
+        try {
+          final styles = AppStyles();
+          final double plotSize = styles.getStyles('farm_page.farm_grid.plot_size') as double;
+          final double spacing = styles.getStyles('farm_page.farm_grid.plot_spacing') as double;
+          final double totalPlotSize = plotSize + spacing;
+
+          _viewportController.resetToCenter(
+            gridSize: Size(_farmState.gridWidth.toDouble(), _farmState.gridHeight.toDouble()),
+            plotSize: Size(totalPlotSize, totalPlotSize),
+          );
+          _centeredOnce = true;
+        } catch (_) {}
+      }
+    });
   }
   
   Future<void> _loadCodeFiles() async {
@@ -132,11 +156,50 @@ class _FarmPageState extends State<FarmPage> {
     _logNotifier.dispose();
     _codeController.dispose();
     _viewportController.dispose();
+    _logScrollController.dispose();
     super.dispose();
   }
 
+  void _onLogScroll() {
+    if (!_logScrollController.hasClients) return;
+    
+    // Check if user is at the bottom (within 50 pixels)
+    final maxScroll = _logScrollController.position.maxScrollExtent;
+    final currentScroll = _logScrollController.position.pixels;
+    final isAtBottom = maxScroll - currentScroll < 50;
+    
+    // Enable auto-scroll when at bottom, disable when scrolling up
+    if (isAtBottom && !_autoScrollEnabled) {
+      setState(() {
+        _autoScrollEnabled = true;
+      });
+    } else if (!isAtBottom && _autoScrollEnabled) {
+      setState(() {
+        _autoScrollEnabled = false;
+      });
+    }
+  }
+
   void _onFarmStateChanged() {
-    if (mounted) setState(() {});
+    if (mounted) {
+      setState(() {});
+
+      // If the farm state updated asynchronously (e.g. loaded from storage), ensure we center once
+      if (!_centeredOnce) {
+        try {
+          final styles = AppStyles();
+          final double plotSize = styles.getStyles('farm_page.farm_grid.plot_size') as double;
+          final double spacing = styles.getStyles('farm_page.farm_grid.plot_spacing') as double;
+          final double totalPlotSize = plotSize + spacing;
+
+          _viewportController.resetToCenter(
+            gridSize: Size(_farmState.gridWidth.toDouble(), _farmState.gridHeight.toDouble()),
+            plotSize: Size(totalPlotSize, totalPlotSize),
+          );
+          _centeredOnce = true;
+        } catch (_) {}
+      }
+    }
   }
 
   FarmCodeInterpreter _getInterpreter() {
@@ -248,7 +311,7 @@ class _FarmPageState extends State<FarmPage> {
     } catch (_) {}
   }
 
-  Future<void> _startExecution() async {
+  Future<void> _runExecution() async {
     if (_isExecuting) return;
     
     if (!mounted) return;
@@ -260,6 +323,7 @@ class _FarmPageState extends State<FarmPage> {
       _executingLineNotifier.value = null;
       _errorLineNotifier.value = null;
       _farmState.setExecuting(true);
+      _autoScrollEnabled = true; // Reset auto-scroll to enabled
     });
 
     final interpreter = _getInterpreter();
@@ -280,23 +344,24 @@ class _FarmPageState extends State<FarmPage> {
       
       if (validationResult != null && !validationResult.success) {
         // Validation failed - show error and stop
-        if (mounted) {
-          setState(() {
-            _isExecuting = false;
-            _executionLog = validationResult.executionLog;
-            _logNotifier.value = List.from(validationResult.executionLog);
-            _farmState.setExecuting(false);
-            if (validationResult.errorLine != null) {
-              _errorLineNotifier.value = validationResult.errorLine;
-            }
-          });
-          
-          if (validationResult.errorMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(validationResult.errorMessage!)),
-            );
+      if (mounted) {
+        setState(() {
+          _isExecuting = false;
+          _executionLog = validationResult.executionLog;
+          _logNotifier.value = List.from(validationResult.executionLog);
+          _farmState.setExecuting(false);
+          _showExecutionLog = false; // Hide log when execution fails
+          if (validationResult.errorLine != null) {
+            _errorLineNotifier.value = validationResult.errorLine;
           }
+        });
+        
+        if (validationResult.errorMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(validationResult.errorMessage!)),
+          );
         }
+      }
         _currentInterpreter = null;
         return;
       }
@@ -316,6 +381,7 @@ class _FarmPageState extends State<FarmPage> {
           _executionLog = result.executionLog;
           _logNotifier.value = List.from(result.executionLog);
           _farmState.setExecuting(false);
+          _showExecutionLog = false; // Hide log when execution completes
           _executingLineNotifier.value = null; // Clear line highlighting
           if (result.errorLine != null) {
             _errorLineNotifier.value = result.errorLine;
@@ -334,6 +400,7 @@ class _FarmPageState extends State<FarmPage> {
         setState(() {
           _isExecuting = false;
           _farmState.setExecuting(false);
+          _showExecutionLog = false; // Hide log when execution errors
           _executingLineNotifier.value = null;
         });
         
@@ -351,6 +418,7 @@ class _FarmPageState extends State<FarmPage> {
       setState(() {
         _isExecuting = false;
         _farmState.setExecuting(false);
+        _showExecutionLog = false; // Hide log on cleanup
         _executingLineNotifier.value = null;
       });
     }
@@ -369,6 +437,7 @@ class _FarmPageState extends State<FarmPage> {
           _isExecuting = false;
           _farmState.setExecuting(false);
           _executingLineNotifier.value = null;
+          _showExecutionLog = false; // Hide log when execution stops
         });
       }
     });
@@ -554,8 +623,8 @@ class _FarmPageState extends State<FarmPage> {
               // Layer 2: Top Bar and Control Buttons
               _buildControlLayer(styles),
               
-              // Layer 3: Execution Log Overlay (Only shown when executing)
-              if (_isExecuting) _buildExecutionLogOverlay(styles),
+              // Layer 3: Execution Log Overlay (Only shown when log button pressed)
+              if (_showExecutionLog) _buildExecutionLogOverlay(styles),
               
               // Layer 4: Code Editor Overlay (Only shown when code button pressed)
               if (_showCodeEditor) _buildCodeEditorOverlay(styles),
@@ -598,9 +667,9 @@ class _FarmPageState extends State<FarmPage> {
           
           const Spacer(),
           
-          // Top control: Start button with file selector
-          if (!_isExecuting) _buildStartButtonWithFileSelector(styles),
-          if (_isExecuting) _buildStopButton(styles),
+          // Top control: Run button when not executing, Stop and Log buttons when executing
+          if (!_isExecuting) _buildRunButtonWithFileSelector(styles),
+          if (_isExecuting) _buildStopAndLogButtons(styles),
           
           const SizedBox(height: 8),
           
@@ -625,7 +694,7 @@ class _FarmPageState extends State<FarmPage> {
     return Positioned(
       left: 16,
       right: 16,
-      bottom: 16,
+      bottom: 64,
       height: 200,
       child: _buildExecutionLog(styles),
     );
@@ -760,12 +829,32 @@ class _FarmPageState extends State<FarmPage> {
     );
   }
 
-  Widget _buildStopButton(AppStyles styles) {
-    return _buildControlButton(
-      styles: styles,
-      label: 'Stop',
-      styleKey: 'farm_page.control_buttons.stop_button',
-      onTap: _stopExecution,
+  Widget _buildStopAndLogButtons(AppStyles styles) {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildControlButton(
+            styles: styles,
+            label: 'Stop',
+            styleKey: 'farm_page.control_buttons.stop_button',
+            onTap: _stopExecution,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _buildControlButton(
+            styles: styles,
+            label: 'Log',
+            styleKey: 'farm_page.control_buttons.code_button',
+            icon: Icons.receipt_long,
+            onTap: () {
+              setState(() {
+                _showExecutionLog = !_showExecutionLog;
+              });
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -877,7 +966,7 @@ class _FarmPageState extends State<FarmPage> {
     );
   }
 
-  Widget _buildStartButtonWithFileSelector(AppStyles styles) {
+  Widget _buildRunButtonWithFileSelector(AppStyles styles) {
     return Column(
       children: [
         // File selector for execution
@@ -910,9 +999,9 @@ class _FarmPageState extends State<FarmPage> {
         const SizedBox(height: 4),
         _buildControlButton(
           styles: styles,
-          label: 'Start',
+          label: 'Run',
           styleKey: 'farm_page.control_buttons.start_button',
-          onTap: _startExecution,
+          onTap: _runExecution,
         ),
       ],
     );
@@ -1003,6 +1092,11 @@ class _FarmPageState extends State<FarmPage> {
     final textColor = styles.getStyles('farm_page.execution_log.text_color') as Color;
     final fontSize = styles.getStyles('farm_page.execution_log.font_size') as double;
     final fontWeight = styles.getStyles('farm_page.execution_log.font_weight') as FontWeight;
+    
+    // Get close button styles from inventory popup
+    final closeIcon = styles.getStyles('sprout_page.language_selection.close_button.icon') as String;
+    final closeW = styles.getStyles('sprout_page.language_selection.close_button.width') as double;
+    final closeH = styles.getStyles('sprout_page.language_selection.close_button.height') as double;
 
     return Container(
       width: double.infinity,
@@ -1020,20 +1114,48 @@ class _FarmPageState extends State<FarmPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Execution Log',
-              style: TextStyle(
-                color: textColor,
-                fontSize: fontSize,
-                fontWeight: FontWeight.bold,
-              ),
+            // Header with title and close button
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Execution Log',
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _showExecutionLog = false;
+                    });
+                  },
+                  child: Image.asset(closeIcon, width: closeW, height: closeH),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             Expanded(
               child: ValueListenableBuilder<List<String>>(
                 valueListenable: _logNotifier,
                 builder: (context, logs, _) {
+                  // Auto-scroll to bottom when new logs arrive and auto-scroll is enabled
+                  if (_autoScrollEnabled && _logScrollController.hasClients) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (_logScrollController.hasClients && _autoScrollEnabled) {
+                        _logScrollController.animateTo(
+                          _logScrollController.position.maxScrollExtent,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeOut,
+                        );
+                      }
+                    });
+                  }
+                  
                   return SingleChildScrollView(
+                    controller: _logScrollController,
                     child: Text(
                       logs.isEmpty ? 'No execution yet...' : logs.join('\n'),
                       style: TextStyle(
