@@ -19,8 +19,8 @@ void main() {
       // Verify Stack is used for layering
       expect(find.byType(Stack), findsWidgets);
       
-      // Verify farm grid is present
-      expect(find.byType(AspectRatio), findsOneWidget);
+      // Verify farm grid is present with infinite viewport
+      expect(find.byType(Positioned), findsWidgets);
     });
 
     testWidgets('Top bar with back button and language display exists', (WidgetTester tester) async {
@@ -375,6 +375,127 @@ void main() {
       expect(find.byIcon(Icons.code), findsWidgets);
       expect(find.byIcon(Icons.inventory_2), findsWidgets);
       expect(find.byIcon(Icons.menu_book), findsWidgets);
+    });
+  });
+
+  group('Interactive Viewport Tests', () {
+    testWidgets('Zoom control buttons are present', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FarmPage(
+            languageId: 'cpp',
+            languageName: 'C++',
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Verify zoom in button
+      expect(find.byIcon(Icons.zoom_in), findsOneWidget);
+      
+      // Verify zoom out button
+      expect(find.byIcon(Icons.zoom_out), findsOneWidget);
+      
+      // Verify reset center button
+      expect(find.byIcon(Icons.center_focus_strong), findsOneWidget);
+    });
+
+    testWidgets('Farm grid uses InteractiveViewport', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FarmPage(
+            languageId: 'python',
+            languageName: 'Python',
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Verify InteractiveViewport is present
+      expect(find.byType(Transform), findsWidgets);
+      
+      // Verify ClipRect for overflow prevention
+      expect(find.byType(ClipRect), findsWidgets);
+      
+      // Verify OverflowBox for infinite dimensions
+      expect(find.byType(OverflowBox), findsWidgets);
+    });
+
+    testWidgets('Zoom buttons are properly positioned below top bar', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FarmPage(
+            languageId: 'java',
+            languageName: 'Java',
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Find all zoom control buttons
+      final zoomInFinder = find.byIcon(Icons.zoom_in);
+      final resetFinder = find.byIcon(Icons.center_focus_strong);
+      final zoomOutFinder = find.byIcon(Icons.zoom_out);
+
+      expect(zoomInFinder, findsOneWidget);
+      expect(resetFinder, findsOneWidget);
+      expect(zoomOutFinder, findsOneWidget);
+
+      // Verify they are in a Row
+      final zoomRow = tester.widget<Row>(
+        find.ancestor(
+          of: zoomInFinder,
+          matching: find.byType(Row),
+        ).first,
+      );
+      expect(zoomRow.mainAxisAlignment, MainAxisAlignment.center);
+    });
+
+    testWidgets('Farm grid is positioned to fill entire screen', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FarmPage(
+            languageId: 'cpp',
+            languageName: 'C++',
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Verify Positioned.fill is used for the grid layer
+      final positionedWidgets = tester.widgetList<Positioned>(find.byType(Positioned));
+      
+      // At least one Positioned widget should have full positioning (fill)
+      final hasFilledPositioned = positionedWidgets.any((positioned) =>
+        positioned.left == 0 &&
+        positioned.top == 0 &&
+        positioned.right == 0 &&
+        positioned.bottom == 0
+      );
+      
+      expect(hasFilledPositioned, isTrue);
+    });
+
+    testWidgets('No RenderFlex overflow errors with viewport', (WidgetTester tester) async {
+      // This test ensures no overflow errors occur with the new viewport system
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FarmPage(
+            languageId: 'python',
+            languageName: 'Python',
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // If there were overflow errors, they would appear in the error log
+      // This test passes if no exceptions are thrown during pump
+      expect(tester.takeException(), isNull);
     });
   });
 }

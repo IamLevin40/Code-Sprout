@@ -16,6 +16,7 @@ import '../compilers/javascript_interpreter.dart';
 import '../services/local_storage_service.dart';
 import '../services/code_files_service.dart';
 import '../miscellaneous/glass_effect.dart';
+import '../miscellaneous/interactive_viewport_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class FarmPage extends StatefulWidget {
@@ -44,6 +45,7 @@ class _FarmPageState extends State<FarmPage> {
   final ValueNotifier<List<String>> _logNotifier = ValueNotifier<List<String>>([]);
   FarmCodeInterpreter? _currentInterpreter;
   late TextEditingController _codeController;
+  late InteractiveViewportController _viewportController;
 
   @override
   void initState() {
@@ -51,6 +53,12 @@ class _FarmPageState extends State<FarmPage> {
     _farmState = FarmState();
     _codeFiles = LanguageCodeFiles.createDefault(widget.languageId);
     _codeController = TextEditingController(text: _codeFiles.currentFile.content);
+    _viewportController = InteractiveViewportController(
+      initialScale: 1.0,
+      minScale: 0.5,
+      maxScale: 3.0,
+      scrollZoomSpeed: 0.15,
+    );
     _farmState.addListener(_onFarmStateChanged);
     // initialize farm state with cached user data and keep in sync
     try {
@@ -123,6 +131,7 @@ class _FarmPageState extends State<FarmPage> {
     _errorLineNotifier.dispose();
     _logNotifier.dispose();
     _codeController.dispose();
+    _viewportController.dispose();
     super.dispose();
   }
 
@@ -557,15 +566,12 @@ class _FarmPageState extends State<FarmPage> {
     );
   }
   
-  // Layer 1: Centered Farm Grid
+  // Layer 1: Farm Grid with Infinite Viewport
   Widget _buildFarmGridLayer(AppStyles styles) {
-    return Center(
-      child: AspectRatio(
-        aspectRatio: 1.0,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 80.0),
-          child: FarmGridView(farmState: _farmState),
-        ),
+    return Positioned.fill(
+      child: FarmGridView(
+        farmState: _farmState,
+        controller: _viewportController,
       ),
     );
   }
@@ -584,6 +590,11 @@ class _FarmPageState extends State<FarmPage> {
               Expanded(child: _buildLanguageDisplay(styles)),
             ],
           ),
+          
+          const SizedBox(height: 8),
+          
+          // Zoom control buttons
+          _buildZoomControls(styles),
           
           const Spacer(),
           
@@ -806,6 +817,54 @@ class _FarmPageState extends State<FarmPage> {
                   label,
                   style: TextStyle(color: textColor, fontSize: fontSize, fontWeight: fontWeight),
                 ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildZoomControls(AppStyles styles) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _buildZoomButton(styles, Icons.zoom_in, () => _viewportController.zoomIn()),
+        const SizedBox(width: 8),
+        _buildZoomButton(styles, Icons.center_focus_strong, () {
+          // Calculate grid center based on farm dimensions
+          final double plotSize = styles.getStyles('farm_page.farm_grid.plot_size') as double;
+          final double spacing = styles.getStyles('farm_page.farm_grid.plot_spacing') as double;
+          final double totalPlotSize = plotSize + spacing; // Plot + spacing around it
+          
+          _viewportController.resetToCenter(
+            gridSize: Size(
+              _farmState.gridWidth.toDouble(),
+              _farmState.gridHeight.toDouble(),
+            ),
+            plotSize: Size(totalPlotSize, totalPlotSize),
+          );
+        }),
+        const SizedBox(width: 8),
+        _buildZoomButton(styles, Icons.zoom_out, () => _viewportController.zoomOut()),
+      ],
+    );
+  }
+
+  Widget _buildZoomButton(AppStyles styles, IconData icon, VoidCallback onTap) {
+    final size = styles.getStyles('farm_page.back_button.width') as double;
+    final bgColor = styles.getStyles('farm_page.back_button.background_color') as Color;
+    final borderRadius = styles.getStyles('farm_page.back_button.border_radius') as double;
+    final iconColor = styles.getStyles('farm_page.language_display.text.color') as Color;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: size * 0.8,
+        height: size * 0.8,
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(borderRadius),
+        ),
+        child: Center(
+          child: Icon(icon, color: iconColor, size: size * 0.4),
         ),
       ),
     );
