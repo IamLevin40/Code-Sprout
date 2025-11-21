@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/styles_schema.dart';
 import '../../models/user_data.dart';
 import '../../models/sprout_data.dart';
+import '../../services/local_storage_service.dart';
 import '../sprout_items/inventory_grid_display.dart';
 
 /// Shows an animated inventory popup dialog
@@ -39,17 +40,40 @@ class _InventoryPopupDialog extends StatefulWidget {
 
 class _InventoryPopupDialogState extends State<_InventoryPopupDialog> {
   List<InventoryItem> _inventoryItems = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _loadInventory();
+    // Listen to real-time user data changes from LocalStorageService
+    LocalStorageService.instance.userDataNotifier.addListener(_onUserDataChanged);
+  }
+
+  @override
+  void dispose() {
+    // Remove listener when dialog is closed
+    LocalStorageService.instance.userDataNotifier.removeListener(_onUserDataChanged);
+    super.dispose();
+  }
+
+  void _onUserDataChanged() {
+    // Reload inventory whenever user data changes (e.g., when crops are harvested)
+    _loadInventory();
   }
 
   Future<void> _loadInventory() async {
-    final items = await SproutDataHelpers.getInventoryItemsForUser(widget.userData);
+    if (!mounted) return;
+    
+    // Get the latest user data from the notifier
+    final currentUserData = LocalStorageService.instance.userDataNotifier.value ?? widget.userData;
+    
+    final items = await SproutDataHelpers.getInventoryItemsForUser(currentUserData);
     if (mounted) {
-      setState(() => _inventoryItems = items);
+      setState(() {
+        _inventoryItems = items;
+        _isLoading = false;
+      });
     }
   }
 
@@ -96,16 +120,22 @@ class _InventoryPopupDialogState extends State<_InventoryPopupDialog> {
             ),
             const SizedBox(height: 20),
 
-            // Inventory grid (3 columns)
+            // Inventory grid (3 columns) with loading indicator
             Expanded(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return InventoryGridDisplay(
-                    inventoryItems: _inventoryItems,
-                    maxWidth: constraints.maxWidth,
-                  );
-                },
-              ),
+              child: _isLoading
+                  ? Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(titleColor),
+                      ),
+                    )
+                  : LayoutBuilder(
+                      builder: (context, constraints) {
+                        return InventoryGridDisplay(
+                          inventoryItems: _inventoryItems,
+                          maxWidth: constraints.maxWidth,
+                        );
+                      },
+                    ),
             ),
           ],
         ),
