@@ -738,7 +738,7 @@ class JavaScriptInterpreter extends FarmCodeInterpreter {
     pushScope();
     
     if (init.isNotEmpty) {
-      await _executeStatement(init + ';');
+      await _executeStatement('$init;');
     }
 
     while (true) {
@@ -774,7 +774,7 @@ class JavaScriptInterpreter extends FarmCodeInterpreter {
       shouldContinue = false;
       
       if (!shouldReturn && update.isNotEmpty) {
-        await _executeStatement(update + ';');
+        await _executeStatement('$update;');
       }
     }
 

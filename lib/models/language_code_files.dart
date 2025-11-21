@@ -164,7 +164,7 @@ class LanguageCodeFiles {
     // Create new file
     files.add(CodeFile(
       fileName: fileName,
-      content: '// ${fileName}\n',
+      content: '// $fileName\n',
     ));
 
     // Switch to new file

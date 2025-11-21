@@ -183,7 +183,7 @@ void main() {
       });
 
       test('Variable declaration and assignment', () async {
-        final code = '''
+        const code = '''
 int main() {
   int x = 10;
   int y = 20;
@@ -199,7 +199,7 @@ int main() {
       });
 
       test('Arithmetic operators', () async {
-        final code = '''
+        const code = '''
 int main() {
   int a = 10 + 5;
   int b = 20 - 8;
@@ -219,7 +219,7 @@ int main() {
       });
 
       test('Comparison operators', () async {
-        final code = '''
+        const code = '''
 int main() {
   bool a = 10 > 5;
   bool b = 10 < 5;
@@ -241,7 +241,7 @@ int main() {
       });
 
       test('Logical operators', () async {
-        final code = '''
+        const code = '''
 int main() {
   bool a = true && true;
   bool b = true && false;
@@ -259,7 +259,7 @@ int main() {
       });
 
       test('If-else control flow', () async {
-        final code = '''
+        const code = '''
 int main() {
   int x = 10;
   int result = 0;
@@ -273,14 +273,14 @@ int main() {
 ''';
         final result = await interpreter.execute(code);
         if (!result.success) {
-          print('ERROR: ${result.errorMessage}');
+          // print('ERROR: ${result.errorMessage}');
         }
         expect(result.success, true);
         expect(interpreter.currentScope.get('result'), 1);
       });
 
       test('For loop', () async {
-        final code = '''
+        const code = '''
 int main() {
   int sum = 0;
   for (int i = 1; i <= 5; i = i + 1) {
@@ -291,14 +291,14 @@ int main() {
 ''';
         final result = await interpreter.execute(code);
         if (!result.success) {
-          print('ERROR: ${result.errorMessage}');
+          // print('ERROR: ${result.errorMessage}');
         }
         expect(result.success, true);
         expect(interpreter.currentScope.get('sum'), 15); // 1+2+3+4+5
       });
 
       test('While loop', () async {
-        final code = '''
+        const code = '''
 int main() {
   int count = 0;
   int i = 0;
@@ -315,7 +315,7 @@ int main() {
       });
 
       test('Break statement in loop', () async {
-        final code = '''
+        const code = '''
 int main() {
   int sum = 0;
   for (int i = 1; i <= 10; i = i + 1) {
@@ -333,7 +333,7 @@ int main() {
       });
 
       test('Continue statement in loop', () async {
-        final code = '''
+        const code = '''
 int main() {
   int sum = 0;
   for (int i = 1; i <= 5; i = i + 1) {
@@ -351,7 +351,7 @@ int main() {
       });
 
       test('Nested blocks and variable scoping', () async {
-        final code = '''
+        const code = '''
 int main() {
   int x = 10;
   {
@@ -367,7 +367,7 @@ int main() {
       });
 
       test('Farm operations - till, plant, water sequence', () async {
-        final code = '''
+        const code = '''
 int main() {
   till();
   plant(SeedType::wheatSeeds);
@@ -385,7 +385,7 @@ int main() {
       });
 
       test('Farm operations - cannot plant on untilled plot', () async {
-        final code = '''
+        const code = '''
 int main() {
   plant(SeedType::wheatSeeds);
   return 0;
@@ -399,7 +399,7 @@ int main() {
       });
 
       test('Farm operations - cannot plant after watering', () async {
-        final code = '''
+        const code = '''
 int main() {
   till();
   water();
@@ -418,7 +418,7 @@ int main() {
       });
 
       test('Farm operations - move and plant multiple crops', () async {
-        final code = '''
+        const code = '''
 int main() {
   till();
   plant(SeedType::wheatSeeds);
@@ -437,7 +437,7 @@ int main() {
       });
 
       test('Try-catch error handling', () async {
-        final code = '''
+        const code = '''
 int main() {
   int result = 0;
   try {
@@ -454,7 +454,7 @@ int main() {
       });
 
       test('Division by zero error handling', () async {
-        final code = '''
+        const code = '''
 int main() {
   int x = 10;
   int y = 0;
@@ -468,7 +468,7 @@ int main() {
       });
 
       test('Operator precedence', () async {
-        final code = '''
+        const code = '''
 int main() {
   int a = 2 + 3 * 4;
   int b = 10 - 2 * 3;
@@ -492,7 +492,7 @@ int main() {
       });
 
       test('Variable assignment (no type declaration)', () async {
-        final code = '''
+        const code = '''
 x = 10
 y = 20
 sum = x + y
@@ -505,7 +505,7 @@ sum = x + y
       });
 
       test('Arithmetic operators', () async {
-        final code = '''
+        const code = '''
 a = 10 + 5
 b = 20 - 8
 c = 6 * 7
@@ -522,7 +522,7 @@ e = 17 % 5
       });
 
       test('Boolean expressions', () async {
-        final code = '''
+        const code = '''
 a = 10 > 5
 b = 10 < 5
 c = 10 == 10
@@ -537,7 +537,7 @@ d = 10 != 5
       });
 
       test('If-elif-else control flow', () async {
-        final code = '''
+        const code = '''
 x = 10
 result = 0
 if x > 15:
@@ -553,7 +553,7 @@ else:
       });
 
       test('For loop with range', () async {
-        final code = '''
+        const code = '''
 sum = 0
 for i in range(1, 6):
     sum = sum + i
@@ -564,7 +564,7 @@ for i in range(1, 6):
       });
 
       test('While loop', () async {
-        final code = '''
+        const code = '''
 count = 0
 i = 0
 while i < 5:
@@ -577,7 +577,7 @@ while i < 5:
       });
 
       test('Break in loop', () async {
-        final code = '''
+        const code = '''
 sum = 0
 for i in range(1, 11):
     if i == 5:
@@ -590,7 +590,7 @@ for i in range(1, 11):
       });
 
       test('Continue in loop', () async {
-        final code = '''
+        const code = '''
 sum = 0
 for i in range(1, 6):
     if i == 3:
@@ -603,7 +603,7 @@ for i in range(1, 6):
       });
 
       test('Indentation-based blocks', () async {
-        final code = '''
+        const code = '''
 x = 10
 if x > 5:
     y = 20
@@ -616,7 +616,7 @@ result = z
       });
 
       test('Farm operations - correct sequence', () async {
-        final code = '''
+        const code = '''
 till()
 plant(SeedType.wheatSeeds)
 water()
@@ -629,7 +629,7 @@ water()
       });
 
       test('Try-except error handling', () async {
-        final code = '''
+        const code = '''
 result = 0
 try:
     result = 10
@@ -642,7 +642,7 @@ except:
       });
 
       test('String concatenation', () async {
-        final code = '''
+        const code = '''
 first = "Hello"
 second = "World"
 message = first + " " + second
@@ -661,7 +661,7 @@ message = first + " " + second
       });
 
       test('Variable declaration with types', () async {
-        final code = '''
+        const code = '''
 public class Main {
   public static void main(String[] args) {
     int x = 10;
@@ -678,7 +678,7 @@ public class Main {
       });
 
       test('Arithmetic operations', () async {
-        final code = '''
+        const code = '''
 public class Main {
   public static void main(String[] args) {
     int a = 15 + 10;
@@ -695,7 +695,7 @@ public class Main {
       });
 
       test('If-else statement', () async {
-        final code = '''
+        const code = '''
 public class Main {
   public static void main(String[] args) {
     int x = 8;
@@ -714,7 +714,7 @@ public class Main {
       });
 
       test('For loop', () async {
-        final code = '''
+        const code = '''
 public class Main {
   public static void main(String[] args) {
     int sum = 0;
@@ -730,7 +730,7 @@ public class Main {
       });
 
       test('While loop', () async {
-        final code = '''
+        const code = '''
 public class Main {
   public static void main(String[] args) {
     int count = 0;
@@ -748,7 +748,7 @@ public class Main {
       });
 
       test('Farm operations', () async {
-        final code = '''
+        const code = '''
 public class Main {
   public static void main(String[] args) {
     till();
@@ -764,7 +764,7 @@ public class Main {
       });
 
       test('Try-catch error handling', () async {
-        final code = '''
+        const code = '''
 public class Main {
   public static void main(String[] args) {
     int result = 0;
@@ -790,7 +790,7 @@ public class Main {
       });
 
       test('Variable declaration', () async {
-        final code = '''
+        const code = '''
 class Program {
   static void Main() {
     int x = 10;
@@ -806,7 +806,7 @@ class Program {
       });
 
       test('Boolean operations', () async {
-        final code = '''
+        const code = '''
 class Program {
   static void Main() {
     bool a = true && false;
@@ -823,7 +823,7 @@ class Program {
       });
 
       test('For loop', () async {
-        final code = '''
+        const code = '''
 class Program {
   static void Main() {
     int total = 0;
@@ -839,7 +839,7 @@ class Program {
       });
 
       test('Farm operations', () async {
-        final code = '''
+        const code = '''
 class Program {
   static void Main() {
     till();
@@ -863,7 +863,7 @@ class Program {
       });
 
       test('var declaration', () async {
-        final code = '''
+        const code = '''
 var x = 10;
 var y = 20;
 var sum = x + y;
@@ -875,7 +875,7 @@ var sum = x + y;
       });
 
       test('let declaration', () async {
-        final code = '''
+        const code = '''
 let a = 5;
 let b = 10;
 let product = a * b;
@@ -887,7 +887,7 @@ let product = a * b;
       });
 
       test('const declaration', () async {
-        final code = '''
+        const code = '''
 const PI = 3.14;
 const radius = 5;
 const area = PI * radius * radius;
@@ -898,7 +898,7 @@ const area = PI * radius * radius;
       });
 
       test('If-else statement', () async {
-        final code = '''
+        const code = '''
 let x = 7;
 let result = 0;
 if (x > 5) {
@@ -913,7 +913,7 @@ if (x > 5) {
       });
 
       test('For loop', () async {
-        final code = '''
+        const code = '''
 let sum = 0;
 for (let i = 1; i <= 5; i++) {
   sum = sum + i;
@@ -925,7 +925,7 @@ for (let i = 1; i <= 5; i++) {
       });
 
       test('While loop', () async {
-        final code = '''
+        const code = '''
 let count = 0;
 let i = 0;
 while (i < 5) {
@@ -939,7 +939,7 @@ while (i < 5) {
       });
 
       test('Farm operations', () async {
-        final code = '''
+        const code = '''
 till();
 plant(SeedType.wheatSeeds);
 water();
@@ -951,7 +951,7 @@ water();
       });
 
       test('String concatenation', () async {
-        final code = '''
+        const code = '''
 let first = "Hello";
 let second = "World";
 let message = first + " " + second;
@@ -962,7 +962,7 @@ let message = first + " " + second;
       });
 
       test('Try-catch error handling', () async {
-        final code = '''
+        const code = '''
 let result = 0;
 try {
   result = 10;
@@ -979,7 +979,7 @@ try {
     group('Farm Domain Rules Tests', () {
       test('Cannot plant on normal plot', () async {
         final interpreter = CppInterpreter(farmState: farmState);
-        final code = '''
+        const code = '''
 int main() {
   plant(SeedType::wheatSeeds);
   return 0;
@@ -992,7 +992,7 @@ int main() {
 
       test('Must till before planting', () async {
         final interpreter = PythonInterpreter(farmState: farmState);
-        final code = '''
+        const code = '''
 till()
 plant(SeedType.wheatSeeds)
 ''';
@@ -1003,7 +1003,7 @@ plant(SeedType.wheatSeeds)
 
       test('Watering after tilling prevents planting', () async {
         final interpreter = JavaInterpreter(farmState: farmState);
-        final code = '''
+        const code = '''
 public class Main {
   public static void main(String[] args) {
     till();
@@ -1021,7 +1021,7 @@ public class Main {
 
       test('Can harvest after planting', () async {
         final interpreter = CSharpInterpreter(farmState: farmState);
-        final code = '''
+        const code = '''
 class Program {
   static void Main() {
     till();
@@ -1039,7 +1039,7 @@ class Program {
 
       test('Cannot move out of bounds', () async {
         final interpreter = JavaScriptInterpreter(farmState: farmState);
-        final code = '''
+        const code = '''
 move(Direction.west);
 move(Direction.west);
 ''';
@@ -1051,7 +1051,7 @@ move(Direction.west);
 
       test('Multiple plots farming workflow', () async {
         final interpreter = CppInterpreter(farmState: farmState);
-        final code = '''
+        const code = '''
 int main() {
   till();
   plant(SeedType::wheatSeeds);
@@ -1080,7 +1080,7 @@ int main() {
       });
 
       test('Complex arithmetic expressions', () async {
-        final code = '''
+        const code = '''
 int main() {
   int a = 2 + 3;
   int b = a * 4;
@@ -1096,7 +1096,7 @@ int main() {
       });
 
       test('Nested logical expressions', () async {
-        final code = '''
+        const code = '''
 int main() {
   bool a = true && true;
   bool b = a || false;
@@ -1112,7 +1112,7 @@ int main() {
       });
 
       test('Comparison chains', () async {
-        final code = '''
+        const code = '''
 int main() {
   int x = 10;
   bool a = x > 5;
@@ -1130,7 +1130,7 @@ int main() {
     group('Error Handling Tests', () {
       test('C++ - Undefined variable error', () async {
         final interpreter = CppInterpreter(farmState: farmState);
-        final code = '''
+        const code = '''
 int main() {
   int x = y + 10;
   return 0;
@@ -1143,7 +1143,7 @@ int main() {
 
       test('Python - Syntax error', () async {
         final interpreter = PythonInterpreter(farmState: farmState);
-        final code = '''
+        const code = '''
 if x > 5
     y = 10
 ''';
@@ -1153,7 +1153,7 @@ if x > 5
 
       test('Java - Missing main method', () async {
         final interpreter = JavaInterpreter(farmState: farmState);
-        final code = '''
+        const code = '''
 public class Main {
   public void someMethod() {
     int x = 10;
@@ -1169,7 +1169,7 @@ public class Main {
     group('Complex Workflow Tests', () {
       test('Full farming cycle with loops', () async {
         final interpreter = PythonInterpreter(farmState: farmState);
-        final code = '''
+        const code = '''
 for i in range(0, 3):
     till()
     plant(SeedType.wheatSeeds)
@@ -1186,7 +1186,7 @@ for i in range(0, 3):
 
       test('Conditional farming based on position', () async {
         final interpreter = JavaScriptInterpreter(farmState: farmState);
-        final code = '''
+        const code = '''
 let planted = 0;
 for (let i = 0; i < 3; i++) {
   till();
@@ -1211,7 +1211,7 @@ for (let i = 0; i < 3; i++) {
 
       test('Error recovery with try-catch', () async {
         final interpreter = CppInterpreter(farmState: farmState);
-        final code = '''
+        const code = '''
 int main() {
   int successCount = 0;
   try {
@@ -1239,7 +1239,7 @@ int main() {
 
       test('getPositionX and getPositionY return correct position', () async {
         final interpreter = CppInterpreter(farmState: farmState);
-        final code = '''
+        const code = '''
 int main() {
   int x = getPositionX();
   int y = getPositionY();
@@ -1257,7 +1257,7 @@ int main() {
 
       test('getPlotState returns correct state', () async {
         final interpreter = CppInterpreter(farmState: farmState);
-        final code = '''
+        const code = '''
 int main() {
   bool isNormal = (getPlotState() == PlotState::Normal);
   till();
@@ -1276,7 +1276,7 @@ int main() {
 
       test('getCropType returns correct crop', () async {
         final interpreter = CppInterpreter(farmState: farmState);
-        final code = '''
+        const code = '''
 int main() {
   till();
   plant(SeedType::WheatSeeds);
@@ -1291,7 +1291,7 @@ int main() {
 
       test('isCropGrown returns correct value', () async {
         final interpreter = CppInterpreter(farmState: farmState);
-        final code = '''
+        const code = '''
 int main() {
   till();
   water();
@@ -1307,7 +1307,7 @@ int main() {
 
       test('canTill, canWater, canPlant, canHarvest work correctly', () async {
         final interpreter = CppInterpreter(farmState: farmState);
-        final code = '''
+        const code = '''
 int main() {
   bool tillable1 = canTill();
   bool plantable1 = canPlant();
@@ -1336,7 +1336,7 @@ int main() {
 
       test('getPlotGridX and getPlotGridY return grid dimensions', () async {
         final interpreter = CppInterpreter(farmState: farmState);
-        final code = '''
+        const code = '''
 int main() {
   int gridX = getPlotGridX();
   int gridY = getPlotGridY();
@@ -1351,7 +1351,7 @@ int main() {
 
       test('Python syntax for new functions', () async {
         final interpreter = PythonInterpreter(farmState: farmState);
-        final code = '''
+        const code = '''
 x = getPositionX()
 y = getPositionY()
 till()
@@ -1371,7 +1371,7 @@ grid_y = getPlotGridY()
 
       test('Java syntax for new functions', () async {
         final interpreter = JavaInterpreter(farmState: farmState);
-        final code = '''
+        const code = '''
 public class Main {
   public static void main(String[] args) {
     int x = getPositionX();
@@ -1394,7 +1394,7 @@ public class Main {
 
       test('C# syntax for new functions', () async {
         final interpreter = CSharpInterpreter(farmState: farmState);
-        final code = '''
+        const code = '''
 class Program {
   static void Main() {
     int x = GetPositionX();
@@ -1417,7 +1417,7 @@ class Program {
 
       test('JavaScript syntax for new functions', () async {
         final interpreter = JavaScriptInterpreter(farmState: farmState);
-        final code = '''
+        const code = '''
 let x = getPositionX();
 let y = getPositionY();
 till();
@@ -1438,7 +1438,7 @@ let grown = isCropGrown();
 
       test('Complex workflow using new functions', () async {
         final interpreter = CppInterpreter(farmState: farmState);
-        final code = '''
+        const code = '''
 int main() {
   int gridX = getPlotGridX();
   int gridY = getPlotGridY();
@@ -1499,7 +1499,7 @@ int main() {
       );
 
       // Code with specific statements on known lines
-      final code = '''
+      const code = '''
 #include <iostream>
 using namespace std;
 
@@ -1528,7 +1528,7 @@ int main() {
         onLineExecuting: (line) => executedLines.add(line),
       );
 
-      final code = '''
+      const code = '''
 x = 5
 y = 10
 z = x + y
@@ -1551,7 +1551,7 @@ print(z)
         onLineExecuting: (line) => executedLines.add(line),
       );
 
-      final code = '''
+      const code = '''
 public class Main {
   public static void main(String[] args) {
     int x = 5;
@@ -1578,7 +1578,7 @@ public class Main {
         onLineExecuting: (line) => executedLines.add(line),
       );
 
-      final code = '''
+      const code = '''
 using System;
 
 class Program {
@@ -1607,7 +1607,7 @@ class Program {
         onLineExecuting: (line) => executedLines.add(line),
       );
 
-      final code = '''
+      const code = '''
 let x = 5;
 let y = 10;
 let z = x + y;
@@ -1645,7 +1645,7 @@ console.log(z);
       bool executionStopped = false;
 
       // Code with a loop that would run for a while
-      final code = '''
+      const code = '''
 #include <iostream>
 using namespace std;
 
@@ -1658,7 +1658,7 @@ int main() {
 ''';
 
       // Start execution and stop it mid-way
-      Future.delayed(Duration(milliseconds: 300), () {
+      Future.delayed(const Duration(milliseconds: 300), () {
         interpreter.stop();
         executionStopped = true;
       });
@@ -1676,12 +1676,12 @@ int main() {
       final interpreter = PythonInterpreter(farmState: farmState);
       bool executionStopped = false;
 
-      final code = '''
+      const code = '''
 for i in range(100):
     x = i * 2
 ''';
 
-      Future.delayed(Duration(milliseconds: 300), () {
+      Future.delayed(const Duration(milliseconds: 300), () {
         interpreter.stop();
         executionStopped = true;
       });
@@ -1695,7 +1695,7 @@ for i in range(100):
       final interpreter = JavaInterpreter(farmState: farmState);
       bool executionStopped = false;
 
-      final code = '''
+      const code = '''
 public class Main {
   public static void main(String[] args) {
     for (int i = 0; i < 100; i++) {
@@ -1705,7 +1705,7 @@ public class Main {
 }
 ''';
 
-      Future.delayed(Duration(milliseconds: 300), () {
+      Future.delayed(const Duration(milliseconds: 300), () {
         interpreter.stop();
         executionStopped = true;
       });
@@ -1719,7 +1719,7 @@ public class Main {
       final interpreter = CSharpInterpreter(farmState: farmState);
       bool executionStopped = false;
 
-      final code = '''
+      const code = '''
 using System;
 
 class Program {
@@ -1731,7 +1731,7 @@ class Program {
 }
 ''';
 
-      Future.delayed(Duration(milliseconds: 300), () {
+      Future.delayed(const Duration(milliseconds: 300), () {
         interpreter.stop();
         executionStopped = true;
       });
@@ -1745,13 +1745,13 @@ class Program {
       final interpreter = JavaScriptInterpreter(farmState: farmState);
       bool executionStopped = false;
 
-      final code = '''
+      const code = '''
 for (let i = 0; i < 100; i++) {
   let x = i * 2;
 }
 ''';
 
-      Future.delayed(Duration(milliseconds: 300), () {
+      Future.delayed(const Duration(milliseconds: 300), () {
         interpreter.stop();
         executionStopped = true;
       });
@@ -1762,13 +1762,13 @@ for (let i = 0; i < 100; i++) {
     });
 
     test('Stop clears line highlighting', () async {
-      int? lastNotifiedLine = null;
+      int? lastNotifiedLine;
       final interpreter = CppInterpreter(
         farmState: farmState,
         onLineExecuting: (line) => lastNotifiedLine = line,
       );
 
-      final code = '''
+      const code = '''
 #include <iostream>
 using namespace std;
 
@@ -1780,7 +1780,7 @@ int main() {
 }
 ''';
 
-      Future.delayed(Duration(milliseconds: 250), () {
+      Future.delayed(const Duration(milliseconds: 250), () {
         interpreter.stop();
       });
 
@@ -1813,7 +1813,7 @@ int main() {
       final interpreter = CppInterpreter(farmState: farmState);
       bool stopped = false;
 
-      final code = '''
+      const code = '''
 #include <iostream>
 using namespace std;
 
@@ -1829,7 +1829,7 @@ int main() {
 }
 ''';
 
-      Future.delayed(Duration(milliseconds: 400), () {
+      Future.delayed(const Duration(milliseconds: 400), () {
         interpreter.stop();
         stopped = true;
       });
@@ -1844,14 +1844,14 @@ int main() {
       final interpreter = PythonInterpreter(farmState: farmState);
       bool stopped = false;
 
-      final code = '''
+      const code = '''
 for i in range(15):
     for j in range(15):
         for k in range(15):
             x = i + j + k
 ''';
 
-      Future.delayed(Duration(milliseconds: 350), () {
+      Future.delayed(const Duration(milliseconds: 350), () {
         interpreter.stop();
         stopped = true;
       });
@@ -1865,7 +1865,7 @@ for i in range(15):
       final interpreter = JavaInterpreter(farmState: farmState);
       bool stopped = false;
 
-      final code = '''
+      const code = '''
 public class Main {
   public static void main(String[] args) {
     int i = 0;
@@ -1884,7 +1884,7 @@ public class Main {
 }
 ''';
 
-      Future.delayed(Duration(milliseconds: 400), () {
+      Future.delayed(const Duration(milliseconds: 400), () {
         interpreter.stop();
         stopped = true;
       });
@@ -1898,7 +1898,7 @@ public class Main {
       final interpreter = CSharpInterpreter(farmState: farmState);
       bool stopped = false;
 
-      final code = '''
+      const code = '''
 using System;
 
 class Program {
@@ -1914,7 +1914,7 @@ class Program {
 }
 ''';
 
-      Future.delayed(Duration(milliseconds: 350), () {
+      Future.delayed(const Duration(milliseconds: 350), () {
         interpreter.stop();
         stopped = true;
       });
@@ -1928,7 +1928,7 @@ class Program {
       final interpreter = JavaScriptInterpreter(farmState: farmState);
       bool stopped = false;
 
-      final code = '''
+      const code = '''
 for (let i = 0; i < 15; i++) {
   for (let j = 0; j < 15; j++) {
     for (let k = 0; k < 15; k++) {
@@ -1938,7 +1938,7 @@ for (let i = 0; i < 15; i++) {
 }
 ''';
 
-      Future.delayed(Duration(milliseconds: 350), () {
+      Future.delayed(const Duration(milliseconds: 350), () {
         interpreter.stop();
         stopped = true;
       });
@@ -1952,7 +1952,7 @@ for (let i = 0; i < 15; i++) {
       final interpreter = CppInterpreter(farmState: farmState);
       bool stopped = false;
 
-      final code = '''
+      const code = '''
 #include <iostream>
 using namespace std;
 
@@ -1964,7 +1964,7 @@ int main() {
 }
 ''';
 
-      Future.delayed(Duration(milliseconds: 300), () {
+      Future.delayed(const Duration(milliseconds: 300), () {
         interpreter.stop();
         stopped = true;
       });
@@ -1981,13 +1981,13 @@ int main() {
       final interpreter = PythonInterpreter(farmState: farmState);
       bool stopped = false;
 
-      final code = '''
+      const code = '''
 for i in range(1000):
     x = i * 2
 ''';
 
       // Stop almost immediately
-      Future.delayed(Duration(milliseconds: 10), () {
+      Future.delayed(const Duration(milliseconds: 10), () {
         interpreter.stop();
         stopped = true;
       });
@@ -2001,7 +2001,7 @@ for i in range(1000):
       final interpreter = JavaInterpreter(farmState: farmState);
       int stopCount = 0;
 
-      final code = '''
+      const code = '''
 public class Main {
   public static void main(String[] args) {
     for (int i = 0; i < 500; i++) {
@@ -2012,15 +2012,15 @@ public class Main {
 ''';
 
       // Call stop multiple times rapidly
-      Future.delayed(Duration(milliseconds: 250), () {
+      Future.delayed(const Duration(milliseconds: 250), () {
         interpreter.stop();
         stopCount++;
       });
-      Future.delayed(Duration(milliseconds: 260), () {
+      Future.delayed(const Duration(milliseconds: 260), () {
         interpreter.stop();
         stopCount++;
       });
-      Future.delayed(Duration(milliseconds: 270), () {
+      Future.delayed(const Duration(milliseconds: 270), () {
         interpreter.stop();
         stopCount++;
       });
@@ -2037,7 +2037,7 @@ public class Main {
       final interpreter = CSharpInterpreter(farmState: farmState);
       bool stopped = false;
 
-      final code = '''
+      const code = '''
 using System;
 
 class Program {
@@ -2050,7 +2050,7 @@ class Program {
 ''';
 
       // Stop during validation
-      Future.delayed(Duration(milliseconds: 5), () {
+      Future.delayed(const Duration(milliseconds: 5), () {
         interpreter.stop();
         stopped = true;
       });
@@ -2069,7 +2069,7 @@ class Program {
       final interpreter = JavaScriptInterpreter(farmState: farmState);
       bool stopped = false;
 
-      final code = '''
+      const code = '''
 for (let i = 0; i < 100; i++) {
   if (canTill()) {
     till();
@@ -2078,7 +2078,7 @@ for (let i = 0; i < 100; i++) {
 }
 ''';
 
-      Future.delayed(Duration(milliseconds: 400), () {
+      Future.delayed(const Duration(milliseconds: 400), () {
         interpreter.stop();
         stopped = true;
       });
@@ -2092,7 +2092,7 @@ for (let i = 0; i < 100; i++) {
     test('C++ - Stop and verify no memory/state corruption', () async {
       final interpreter = CppInterpreter(farmState: farmState);
 
-      final code = '''
+      const code = '''
 #include <iostream>
 using namespace std;
 
@@ -2105,7 +2105,7 @@ int main() {
 }
 ''';
 
-      Future.delayed(Duration(milliseconds: 300), () {
+      Future.delayed(const Duration(milliseconds: 300), () {
         interpreter.stop();
       });
 
@@ -2122,7 +2122,7 @@ int main() {
       final interpreter = PythonInterpreter(farmState: farmState);
       bool stopped = false;
 
-      final code = '''
+      const code = '''
 i = 0
 while i < 100:
     j = 0
@@ -2132,7 +2132,7 @@ while i < 100:
     i = i + 1
 ''';
 
-      Future.delayed(Duration(milliseconds: 350), () {
+      Future.delayed(const Duration(milliseconds: 350), () {
         interpreter.stop();
         stopped = true;
       });
@@ -2146,7 +2146,7 @@ while i < 100:
       final interpreter = JavaInterpreter(farmState: farmState);
       bool stopped = false;
 
-      final code = '''
+      const code = '''
 public class Main {
   public static void main(String[] args) {
     for (int i = 0; i < 100; i++) {
@@ -2166,7 +2166,7 @@ public class Main {
 }
 ''';
 
-      Future.delayed(Duration(milliseconds: 350), () {
+      Future.delayed(const Duration(milliseconds: 350), () {
         interpreter.stop();
         stopped = true;
       });
@@ -2180,7 +2180,7 @@ public class Main {
       final interpreter = CSharpInterpreter(farmState: farmState);
       final stopwatch = Stopwatch()..start();
 
-      final code = '''
+      const code = '''
 using System;
 
 class Program {
@@ -2194,7 +2194,7 @@ class Program {
 }
 ''';
 
-      Future.delayed(Duration(milliseconds: 300), () {
+      Future.delayed(const Duration(milliseconds: 300), () {
         interpreter.stop();
       });
 
@@ -2210,7 +2210,7 @@ class Program {
       final interpreter = JavaScriptInterpreter(farmState: farmState);
       bool stopped = false;
 
-      final code = '''
+      const code = '''
 try {
   for (let i = 0; i < 150; i++) {
     let x = i * 2;
@@ -2220,7 +2220,7 @@ try {
 }
 ''';
 
-      Future.delayed(Duration(milliseconds: 350), () {
+      Future.delayed(const Duration(milliseconds: 350), () {
         interpreter.stop();
         stopped = true;
       });

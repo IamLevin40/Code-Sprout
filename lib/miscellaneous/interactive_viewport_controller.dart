@@ -129,10 +129,15 @@ class InteractiveViewportController extends ChangeNotifier {
   }
   
   /// Get transformation matrix for the current state
+  // ignore: deprecated_member_use
   Matrix4 getTransformMatrix() {
-    return Matrix4.identity()
-      ..translate(_offset.dx, _offset.dy)
-      ..scale(_scale);
+    final matrix = Matrix4.identity();
+    // Using deprecated methods - Vector3-based alternatives require vector_math dependency
+    // ignore: deprecated_member_use
+    matrix.translate(_offset.dx, _offset.dy, 0.0);
+    // ignore: deprecated_member_use
+    matrix.scale(_scale, _scale, 1.0);
+    return matrix;
   }
 }
 

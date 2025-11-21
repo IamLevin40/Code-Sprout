@@ -496,7 +496,7 @@ class CppInterpreter extends FarmCodeInterpreter {
   bool _isVariableDeclaration(String stmt) {
     final types = ['int', 'double', 'float', 'char', 'bool', 'string'];
     for (final type in types) {
-      if (stmt.startsWith(type + ' ')) return true;
+      if (stmt.startsWith('$type ')) return true;
     }
     return false;
   }
@@ -777,7 +777,7 @@ class CppInterpreter extends FarmCodeInterpreter {
     
     // Initialize
     if (init.isNotEmpty) {
-      await _executeStatement(init + ';');
+      await _executeStatement('$init;');
     }
 
     // Loop
@@ -814,7 +814,7 @@ class CppInterpreter extends FarmCodeInterpreter {
       shouldContinue = false;
       
       if (!shouldReturn && update.isNotEmpty) {
-        await _executeStatement(update + ';');
+        await _executeStatement('$update;');
       }
     }
 

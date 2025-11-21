@@ -112,8 +112,8 @@ void main() {
       final controller = InteractiveViewportController();
       
       // 3x3 grid with 100x100 plots
-      final gridSize = const Size(3, 3);
-      final plotSize = const Size(100, 100);
+      const gridSize = Size(3, 3);
+      const plotSize = Size(100, 100);
       
       controller.resetToCenter(gridSize: gridSize, plotSize: plotSize);
       
@@ -127,8 +127,8 @@ void main() {
       final controller = InteractiveViewportController();
       
       // 4x4 grid with 80x80 plots
-      final gridSize = const Size(4, 4);
-      final plotSize = const Size(80, 80);
+      const gridSize = Size(4, 4);
+      const plotSize = Size(80, 80);
       
       controller.resetToCenter(gridSize: gridSize, plotSize: plotSize);
       
@@ -178,10 +178,10 @@ void main() {
 
     test('handleScroll zooms in with negative scroll delta', () {
       final controller = InteractiveViewportController(initialScale: 1.0);
-      final event = PointerScrollEvent(
-        scrollDelta: const Offset(0, -100), // Scroll up (zoom in)
+      const event = PointerScrollEvent(
+        scrollDelta: Offset(0, -100), // Scroll up (zoom in)
       );
-      final viewportSize = const Size(800, 600);
+      const viewportSize = Size(800, 600);
       
       controller.handleScroll(event, const Offset(400, 300), viewportSize);
       
@@ -190,10 +190,10 @@ void main() {
 
     test('handleScroll zooms out with positive scroll delta', () {
       final controller = InteractiveViewportController(initialScale: 1.5);
-      final event = PointerScrollEvent(
-        scrollDelta: const Offset(0, 100), // Scroll down (zoom out)
+      const event = PointerScrollEvent(
+        scrollDelta: Offset(0, 100), // Scroll down (zoom out)
       );
-      final viewportSize = const Size(800, 600);
+      const viewportSize = Size(800, 600);
       
       controller.handleScroll(event, const Offset(400, 300), viewportSize);
       
@@ -205,10 +205,10 @@ void main() {
         initialScale: 1.0,
         initialOffset: Offset.zero,
       );
-      final focalPoint = const Offset(500, 350);
-      final viewportSize = const Size(800, 600);
-      final event = PointerScrollEvent(
-        scrollDelta: const Offset(0, -100), // Zoom in
+      const focalPoint = Offset(500, 350);
+      const viewportSize = Size(800, 600);
+      const event = PointerScrollEvent(
+        scrollDelta: Offset(0, -100), // Zoom in
       );
       
       // Calculate content point at focal point before zoom
@@ -281,9 +281,11 @@ void main() {
       final matrix = controller.getTransformMatrix();
       
       // Verify scaling is applied (Z-axis is also scaled)
-      final expectedMatrix = Matrix4.identity()
-        ..translate(0.0, 0.0)
-        ..scale(2.0, 2.0, 2.0);
+      final expectedMatrix = Matrix4.identity();
+      // ignore: deprecated_member_use
+      expectedMatrix.translate(0.0, 0.0, 0.0);
+      // ignore: deprecated_member_use
+      expectedMatrix.scale(2.0, 2.0, 2.0);
       
       expect(matrix.storage, expectedMatrix.storage);
     });
@@ -431,9 +433,9 @@ void main() {
       final initialScale = controller.scale;
       
       // Simulate scroll event
-      final scrollEvent = PointerScrollEvent(
-        position: const Offset(200, 200),
-        scrollDelta: const Offset(0, -100), // Scroll up (zoom in)
+      const scrollEvent = PointerScrollEvent(
+        position: Offset(200, 200),
+        scrollDelta: Offset(0, -100), // Scroll up (zoom in)
       );
       
       await tester.sendEventToBinding(scrollEvent);
@@ -553,9 +555,9 @@ void main() {
       final initialScale = controller.scale;
       
       // Simulate scroll event
-      final scrollEvent = PointerScrollEvent(
-        position: const Offset(200, 200),
-        scrollDelta: const Offset(0, -100),
+      const scrollEvent = PointerScrollEvent(
+        position: Offset(200, 200),
+        scrollDelta: Offset(0, -100),
       );
       
       await tester.sendEventToBinding(scrollEvent);
@@ -662,16 +664,16 @@ void main() {
     });
 
     test('Zoom towards different focal points produces different offsets', () {
-      final viewportSize = const Size(800, 600);
+      const viewportSize = Size(800, 600);
       
       // Controller 1: Zoom towards top-left
       final controller1 = InteractiveViewportController();
-      final event1 = PointerScrollEvent(scrollDelta: const Offset(0, -100));
+      const event1 = PointerScrollEvent(scrollDelta: Offset(0, -100));
       controller1.handleScroll(event1, const Offset(100, 100), viewportSize);
       
       // Controller 2: Zoom towards bottom-right
       final controller2 = InteractiveViewportController();
-      final event2 = PointerScrollEvent(scrollDelta: const Offset(0, -100));
+      const event2 = PointerScrollEvent(scrollDelta: Offset(0, -100));
       controller2.handleScroll(event2, const Offset(700, 500), viewportSize);
       
       // Both should have same scale
@@ -683,7 +685,7 @@ void main() {
 
     test('Pan then zoom maintains relative position', () {
       final controller = InteractiveViewportController();
-      final viewportSize = const Size(800, 600);
+      const viewportSize = Size(800, 600);
       
       // Pan first
       controller.updateOffset(const Offset(100, 50));
@@ -691,7 +693,7 @@ void main() {
       
       // Zoom at center
       final centerPoint = Offset(viewportSize.width / 2, viewportSize.height / 2);
-      final zoomEvent = PointerScrollEvent(scrollDelta: const Offset(0, -100));
+      const zoomEvent = PointerScrollEvent(scrollDelta: Offset(0, -100));
       controller.handleScroll(zoomEvent, centerPoint, viewportSize);
       
       // Offset should change due to zoom, but pan effect should still be present

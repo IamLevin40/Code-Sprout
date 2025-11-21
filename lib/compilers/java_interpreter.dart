@@ -477,7 +477,7 @@ class JavaInterpreter extends FarmCodeInterpreter {
   bool _isVariableDeclaration(String stmt) {
     final types = ['int', 'double', 'float', 'char', 'boolean', 'String'];
     for (final type in types) {
-      if (stmt.startsWith(type + ' ')) return true;
+      if (stmt.startsWith('$type ')) return true;
     }
     return false;
   }
@@ -709,7 +709,7 @@ class JavaInterpreter extends FarmCodeInterpreter {
     pushScope();
     
     if (init.isNotEmpty) {
-      await _executeStatement(init + ';');
+      await _executeStatement('$init;');
     }
 
     while (true) {
@@ -745,7 +745,7 @@ class JavaInterpreter extends FarmCodeInterpreter {
       shouldContinue = false;
       
       if (!shouldReturn && update.isNotEmpty) {
-        await _executeStatement(update + ';');
+        await _executeStatement('$update;');
       }
     }
 

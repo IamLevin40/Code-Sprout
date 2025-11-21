@@ -118,8 +118,8 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
     );
   }
 
-  KeyEventResult _handleKey(FocusNode node, RawKeyEvent event) {
-    if (event is! RawKeyDownEvent) return KeyEventResult.ignored;
+  KeyEventResult _handleKey(FocusNode node, KeyEvent event) {
+    if (event is! KeyDownEvent) return KeyEventResult.ignored;
 
     // Enter / Return => smart auto-indent
     if (event.logicalKey == LogicalKeyboardKey.enter || event.logicalKey == LogicalKeyboardKey.numpadEnter) {
@@ -139,8 +139,8 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
       final prevChar = pos > 0 ? text[pos - 1] : null;
       final nextChar = pos < text.length ? text[pos] : null;
       if (prevChar == '{' && nextChar == '}') {
-        final innerIndent = baseIndent + '    ';
-        final insert = '\n' + innerIndent + '\n' + baseIndent;
+        final innerIndent = '$baseIndent    ';
+        final insert = '\n$innerIndent\n$baseIndent';
         // place caret after first newline + innerIndent
         _insertText(insert, caretOffsetFromStart: 1 + innerIndent.length);
         return KeyEventResult.handled;
@@ -149,15 +149,15 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
       // Otherwise, carry indentation and increase if line ends with '{'
       String indent = baseIndent;
       if (linePrefix.trimRight().endsWith('{') || linePrefix.trimRight().endsWith(':')) {
-        indent = baseIndent + '    ';
+        indent = '$baseIndent    ';
       }
-      final insert = '\n' + indent;
+      final insert = '\n$indent';
       _insertText(insert, caretOffsetFromStart: 1 + indent.length);
       return KeyEventResult.handled;
     }
 
     // Shift+Tab => unindent
-    if (event.logicalKey == LogicalKeyboardKey.tab && event.isShiftPressed) {
+    if (event.logicalKey == LogicalKeyboardKey.tab && HardwareKeyboard.instance.isShiftPressed) {
       _unindentText();
       return KeyEventResult.handled;
     }
@@ -252,7 +252,11 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
       final lineStart = lastNl == -1 ? 0 : lastNl + 1;
       int removeCount = 0;
       for (int i = 0; i < 4 && lineStart + i < text.length; i++) {
-        if (text[lineStart + i] == ' ') removeCount++; else break;
+        if (text[lineStart + i] == ' ') {
+          removeCount++;
+        } else {
+          break;
+        }
       }
       if (removeCount > 0) {
         final newText = text.replaceRange(lineStart, lineStart + removeCount, '');
@@ -282,7 +286,11 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
       for (final line in lines) {
         int removed = 0;
         for (int i = 0; i < 4 && i < line.length; i++) {
-          if (line[i] == ' ') removed++; else break;
+          if (line[i] == ' ') {
+            removed++;
+          } else {
+            break;
+          }
         }
         final newLine = line.substring(removed);
         newLines.add(newLine);
@@ -355,7 +363,7 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
     int? newRelEnd;
 
     for (final line in lines) {
-      final newLine = '    ' + line;
+      final newLine = '    $line';
       newLines.add(newLine);
 
       final oldLineLen = line.length;
@@ -417,7 +425,7 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
       closeSize = styles.getStyles('farm_page.code_editor.close_button.width') as double;
       highlightColor = styles.getStyles('farm_page.code_editor.highlight_line_color') as Color;
     } catch (_) {
-      bgGradient = LinearGradient(colors: [Colors.white, Colors.white]);
+      bgGradient = const LinearGradient(colors: [Colors.white, Colors.white]);
       borderRadius = 8.0;
       borderWidth = 2.0;
       strokeGradient = LinearGradient(colors: [Colors.grey.shade300, Colors.grey.shade300]);
@@ -516,9 +524,9 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
                       
                       Color? backgroundColor;
                       if (isError) {
-                        backgroundColor = Colors.red.withOpacity(0.5);
+                        backgroundColor = Colors.red.withValues(alpha: 0.5);
                       } else if (isExecuting) {
-                        backgroundColor = highlightColor.withOpacity(0.5);
+                        backgroundColor = highlightColor.withValues(alpha: 0.5);
                       }
                       
                       lineSpans.add(TextSpan(
@@ -533,7 +541,7 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
                   }
 
                   return Focus(
-                    onKey: _handleKey,
+                    onKeyEvent: _handleKey,
                     child: Theme(
                       data: Theme.of(context).copyWith(
                         textSelectionTheme: TextSelectionThemeData(
@@ -590,7 +598,7 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 102, 87, 87).withOpacity(0.1),
+              color: const Color.fromARGB(255, 102, 87, 87).withValues(alpha: 0.1),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(12),
                 topRight: Radius.circular(12),
@@ -623,7 +631,7 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 102, 87, 87).withOpacity(0.2),
+                      color: const Color.fromARGB(255, 102, 87, 87).withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(

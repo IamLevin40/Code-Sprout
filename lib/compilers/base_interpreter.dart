@@ -32,11 +32,10 @@ class ExecutionResult {
         errorLine = null,
         executionLog = log ?? [];
 
-  ExecutionResult.error(String message, {ErrorType? type, List<String>? log, int? errorLine})
+  ExecutionResult.error(String message, {ErrorType? type, List<String>? log, this.errorLine})
       : success = false,
         errorMessage = message,
         errorType = type,
-        errorLine = errorLine,
         executionLog = log ?? [];
 }
 
@@ -368,7 +367,7 @@ abstract class FarmCodeInterpreter {
   /// Execute move operation
   bool executeMove(Direction direction) {
     final dirName = direction.toString().split('.').last;
-    log('Moving drone ${dirName}...');
+    log('Moving drone $dirName...');
     final success = farmState.moveDrone(direction);
     if (success) {
       log('Drone moved to (${farmState.dronePosition.x}, ${farmState.dronePosition.y})');

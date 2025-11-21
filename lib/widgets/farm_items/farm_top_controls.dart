@@ -49,7 +49,7 @@ class FarmTopControls extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 102, 87, 87).withOpacity(0.2),
+                color: const Color.fromARGB(255, 102, 87, 87).withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(

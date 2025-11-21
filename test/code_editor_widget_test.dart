@@ -125,7 +125,7 @@ void main() {
         ),
       ));
 
-      controller.selection = TextSelection.collapsed(offset: 0);
+      controller.selection = const TextSelection.collapsed(offset: 0);
       await tester.tap(find.byIcon(Icons.format_indent_increase));
       await tester.pumpAndSettle();
 
@@ -146,7 +146,7 @@ void main() {
         ),
       ));
 
-      controller.selection = TextSelection.collapsed(offset: 4);
+      controller.selection = const TextSelection.collapsed(offset: 4);
       await tester.tap(find.byIcon(Icons.format_indent_decrease));
       await tester.pumpAndSettle();
 
@@ -404,7 +404,7 @@ void main() {
       await tester.tap(find.byType(TextField));
       await tester.pumpAndSettle();
 
-      controller.selection = TextSelection.collapsed(offset: 0);
+      controller.selection = const TextSelection.collapsed(offset: 0);
       await tester.sendKeyEvent(LogicalKeyboardKey.tab);
       await tester.pumpAndSettle();
 

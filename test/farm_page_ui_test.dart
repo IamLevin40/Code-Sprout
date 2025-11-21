@@ -6,7 +6,7 @@ void main() {
   group('Farm Page UI Structure Tests', () {
     testWidgets('Farm page builds with Stack-based layering', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: FarmPage(
             languageId: 'cpp',
             languageName: 'C++',
@@ -25,7 +25,7 @@ void main() {
 
     testWidgets('Top bar with back button and language display exists', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: FarmPage(
             languageId: 'python',
             languageName: 'Python',
@@ -44,7 +44,7 @@ void main() {
 
     testWidgets('Control buttons are properly laid out', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: FarmPage(
             languageId: 'java',
             languageName: 'Java',
@@ -68,7 +68,7 @@ void main() {
   group('Layering System Tests', () {
     testWidgets('Execution log only appears when executing', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: FarmPage(
             languageId: 'cpp',
             languageName: 'C++',
@@ -84,7 +84,7 @@ void main() {
 
     testWidgets('Code editor only appears when Code button is pressed', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: FarmPage(
             languageId: 'cpp',
             languageName: 'C++',
@@ -110,7 +110,7 @@ void main() {
   group('Inventory Popup Tests', () {
     testWidgets('Inventory button opens inventory dialog', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: FarmPage(
             languageId: 'cpp',
             languageName: 'C++',
@@ -133,7 +133,7 @@ void main() {
 
     testWidgets('Inventory dialog can be closed', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: FarmPage(
             languageId: 'cpp',
             languageName: 'C++',
@@ -166,7 +166,7 @@ void main() {
   group('File Management Integration Tests', () {
     testWidgets('File selector shows current file name', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: FarmPage(
             languageId: 'cpp',
             languageName: 'C++',
@@ -182,7 +182,7 @@ void main() {
 
     testWidgets('Start button shows file selector for execution', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: FarmPage(
             languageId: 'python',
             languageName: 'Python',
@@ -204,7 +204,7 @@ void main() {
   group('Button Functionality Tests', () {
     testWidgets('Research button shows coming soon message', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: FarmPage(
             languageId: 'cpp',
             languageName: 'C++',
@@ -224,7 +224,7 @@ void main() {
 
     testWidgets('Back button navigation works', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: FarmPage(
             languageId: 'cpp',
             languageName: 'C++',
@@ -285,7 +285,7 @@ void main() {
   group('Layout Responsiveness Tests', () {
     testWidgets('Farm grid maintains aspect ratio', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: FarmPage(
             languageId: 'cpp',
             languageName: 'C++',
@@ -305,7 +305,7 @@ void main() {
 
     testWidgets('Control buttons row is properly spaced', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: FarmPage(
             languageId: 'cpp',
             languageName: 'C++',
@@ -328,7 +328,7 @@ void main() {
   group('State Management Tests', () {
     testWidgets('Code editor toggle state works', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: FarmPage(
             languageId: 'cpp',
             languageName: 'C++',
@@ -357,7 +357,7 @@ void main() {
   group('Icon Support Tests', () {
     testWidgets('Buttons display icons correctly', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: FarmPage(
             languageId: 'cpp',
             languageName: 'C++',
@@ -381,7 +381,7 @@ void main() {
   group('Interactive Viewport Tests', () {
     testWidgets('Zoom control buttons are present', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: FarmPage(
             languageId: 'cpp',
             languageName: 'C++',
@@ -403,7 +403,7 @@ void main() {
 
     testWidgets('Farm grid uses InteractiveViewport', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: FarmPage(
             languageId: 'python',
             languageName: 'Python',
@@ -425,7 +425,7 @@ void main() {
 
     testWidgets('Zoom buttons are properly positioned below top bar', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: FarmPage(
             languageId: 'java',
             languageName: 'Java',
@@ -456,7 +456,7 @@ void main() {
 
     testWidgets('Farm grid is positioned to fill entire screen', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: FarmPage(
             languageId: 'cpp',
             languageName: 'C++',
@@ -483,7 +483,7 @@ void main() {
     testWidgets('No RenderFlex overflow errors with viewport', (WidgetTester tester) async {
       // This test ensures no overflow errors occur with the new viewport system
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: FarmPage(
             languageId: 'python',
             languageName: 'Python',
