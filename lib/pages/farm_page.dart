@@ -6,6 +6,8 @@ import '../widgets/farm_items/farm_grid_view.dart';
 import '../widgets/farm_items/code_editor_widget.dart';
 import '../widgets/farm_items/code_execution_log_widget.dart';
 import '../widgets/farm_items/inventory_popup_display.dart';
+import '../widgets/farm_items/farm_top_controls.dart';
+import '../widgets/farm_items/farm_bottom_controls.dart';
 import '../compilers/base_interpreter.dart';
 import '../compilers/cpp_interpreter.dart';
 import '../compilers/csharp_interpreter.dart';
@@ -616,16 +618,16 @@ class _FarmPageState extends State<FarmPage> {
           child: Stack(
             children: [
               // Layer 1: Farm Grid View (Bottom Layer - Centered)
-              _buildFarmGridLayer(styles),
+              _buildFarmGridLayer(),
               
               // Layer 2: Top Bar and Control Buttons
-              _buildControlLayer(styles),
+              _buildControlLayer(),
               
               // Layer 3: Execution Log Overlay (Only shown when log button pressed)
-              if (_showExecutionLog) _buildExecutionLogOverlay(styles),
+              if (_showExecutionLog) _buildExecutionLogOverlay(),
               
               // Layer 4: Code Editor Overlay (Only shown when code button pressed)
-              if (_showCodeEditor) _buildCodeEditorOverlay(styles),
+              if (_showCodeEditor) _buildCodeEditorOverlay(),
             ],
           ),
         ),
@@ -634,7 +636,7 @@ class _FarmPageState extends State<FarmPage> {
   }
   
   // Layer 1: Farm Grid with Infinite Viewport
-  Widget _buildFarmGridLayer(AppStyles styles) {
+  Widget _buildFarmGridLayer() {
     return Positioned.fill(
       child: FarmGridView(
         farmState: _farmState,
@@ -644,7 +646,7 @@ class _FarmPageState extends State<FarmPage> {
   }
   
   // Layer 2: Top Bar and Control Buttons
-  Widget _buildControlLayer(AppStyles styles) {
+  Widget _buildControlLayer() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -652,35 +654,48 @@ class _FarmPageState extends State<FarmPage> {
           // Top bar with back button and language display
           Row(
             children: [
-              _buildBackButton(styles),
+              _buildBackButton(),
               const SizedBox(width: 16),
-              Expanded(child: _buildLanguageDisplay(styles)),
+              Expanded(child: _buildLanguageDisplay()),
             ],
           ),
           
           const SizedBox(height: 8),
           
           // Zoom control buttons
-          _buildZoomControls(styles),
+          _buildZoomControls(),
           
           const Spacer(),
           
-          // Top control: Run button when not executing, Stop and Log buttons when executing
-          if (!_isExecuting) _buildRunButtonWithFileSelector(styles),
-          if (_isExecuting) _buildStopAndLogButtons(styles),
+          // Top controls: Run/Stop/Log buttons
+          FarmTopControls(
+            isExecuting: _isExecuting,
+            codeFiles: _codeFiles,
+            selectedExecutionFileIndex: _selectedExecutionFileIndex,
+            onRunPressed: _runExecution,
+            onStopPressed: _stopExecution,
+            onLogPressed: () {
+              setState(() {
+                _showExecutionLog = !_showExecutionLog;
+              });
+            },
+            onNextFile: _nextExecutionFile,
+            onPreviousFile: _previousExecutionFile,
+          ),
           
           const SizedBox(height: 8),
           
           // Bottom controls: Code, Inventory, Research buttons
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(child: _buildCodeButton(styles)),
-              const SizedBox(width: 8),
-              Expanded(child: _buildInventoryButton(styles)),
-              const SizedBox(width: 8),
-              Expanded(child: _buildResearchButton(styles)),
-            ],
+          FarmBottomControls(
+            onCodePressed: () {
+              setState(() => _showCodeEditor = !_showCodeEditor);
+            },
+            onInventoryPressed: _showInventoryPopup,
+            onResearchPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Research page coming soon!')),
+              );
+            },
           ),
         ],
       ),
@@ -688,28 +703,29 @@ class _FarmPageState extends State<FarmPage> {
   }
   
   // Layer 3: Execution Log Overlay
-  Widget _buildExecutionLogOverlay(AppStyles styles) {
+  Widget _buildExecutionLogOverlay() {
     return Positioned(
       left: 16,
       right: 16,
       bottom: 64,
       height: 200,
-      child: _buildExecutionLog(styles),
+      child: _buildExecutionLog(),
     );
   }
   
   // Layer 4: Code Editor Overlay
-  Widget _buildCodeEditorOverlay(AppStyles styles) {
+  Widget _buildCodeEditorOverlay() {
     return Positioned(
       left: 16,
       right: 16,
       top: 64,
       bottom: 16,
-      child: _buildCodeEditorWithFileSelector(styles),
+      child: _buildCodeEditorWithFileSelector(),
     );
   }
 
-  Widget _buildBackButton(AppStyles styles) {
+  Widget _buildBackButton() {
+    final styles = AppStyles();
     final icon = styles.getStyles('farm_page.back_button.icon') as String;
     final size = styles.getStyles('farm_page.back_button.width') as double;
     final bgColor = styles.getStyles('farm_page.back_button.background_color') as Color;
@@ -738,7 +754,8 @@ class _FarmPageState extends State<FarmPage> {
     );
   }
 
-  Widget _buildLanguageDisplay(AppStyles styles) {
+  Widget _buildLanguageDisplay() {
+    final styles = AppStyles();
     final height = styles.getStyles('farm_page.language_display.height') as double;
     final borderRadius = styles.getStyles('farm_page.language_display.border_radius') as double;
     final borderWidth = styles.getStyles('farm_page.language_display.border_width') as double;
@@ -790,132 +807,14 @@ class _FarmPageState extends State<FarmPage> {
     );
   }
 
-  Widget _buildCodeButton(AppStyles styles) {
-    return _buildControlButton(
-      styles: styles,
-      label: 'Drone Code',
-      styleKey: 'farm_page.control_buttons.code_button',
-      icon: Icons.code,
-      onTap: () {
-        setState(() => _showCodeEditor = !_showCodeEditor);
-      },
-    );
-  }
-  
-  Widget _buildInventoryButton(AppStyles styles) {
-    return _buildControlButton(
-      styles: styles,
-      label: 'Inventory',
-      styleKey: 'farm_page.control_buttons.start_button', // Reuse start button style
-      icon: Icons.inventory_2,
-      onTap: _showInventoryPopup,
-    );
-  }
-  
-  Widget _buildResearchButton(AppStyles styles) {
-    return _buildControlButton(
-      styles: styles,
-      label: 'Research',
-      styleKey: 'farm_page.control_buttons.code_button', // Reuse code button style
-      icon: Icons.menu_book,
-      onTap: () {
-        // TODO: Navigate to research page
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Research page coming soon!')),
-        );
-      },
-    );
-  }
-
-  Widget _buildStopAndLogButtons(AppStyles styles) {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildControlButton(
-            styles: styles,
-            label: 'Stop',
-            styleKey: 'farm_page.control_buttons.stop_button',
-            onTap: _stopExecution,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: _buildControlButton(
-            styles: styles,
-            label: 'Log',
-            styleKey: 'farm_page.control_buttons.code_button',
-            icon: Icons.receipt_long,
-            onTap: () {
-              setState(() {
-                _showExecutionLog = !_showExecutionLog;
-              });
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildControlButton({
-    required AppStyles styles,
-    required String label,
-    required String styleKey,
-    required VoidCallback onTap,
-    IconData? icon,
-  }) {
-    final height = styles.getStyles('$styleKey.height') as double;
-    final borderRadius = styles.getStyles('$styleKey.border_radius') as double;
-    final borderWidth = styles.getStyles('$styleKey.border_width') as double;
-    final bgGradient = styles.getStyles('$styleKey.background_color') as LinearGradient;
-    final strokeGradient = styles.getStyles('$styleKey.stroke_color') as LinearGradient;
-    final textColor = styles.getStyles('$styleKey.text.color') as Color;
-    final fontSize = styles.getStyles('$styleKey.text.font_size') as double;
-    final fontWeight = styles.getStyles('$styleKey.text.font_weight') as FontWeight;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: height,
-        decoration: BoxDecoration(
-          gradient: strokeGradient,
-          borderRadius: BorderRadius.circular(borderRadius),
-        ),
-        padding: EdgeInsets.all(borderWidth),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: bgGradient,
-            borderRadius: BorderRadius.circular(borderRadius - borderWidth),
-          ),
-          alignment: Alignment.center,
-          child: icon != null
-              ? Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(icon, color: textColor, size: fontSize * 1.5),
-                    const SizedBox(height: 4),
-                    Text(
-                      label,
-                      style: TextStyle(color: textColor, fontSize: fontSize * 0.8, fontWeight: fontWeight),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                )
-              : Text(
-                  label,
-                  style: TextStyle(color: textColor, fontSize: fontSize, fontWeight: fontWeight),
-                ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildZoomControls(AppStyles styles) {
+  Widget _buildZoomControls() {
+    final styles = AppStyles();
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildZoomButton(styles, Icons.zoom_in, () => _viewportController.zoomIn()),
+        _buildZoomButton(Icons.zoom_in, () => _viewportController.zoomIn()),
         const SizedBox(width: 8),
-        _buildZoomButton(styles, Icons.center_focus_strong, () {
+        _buildZoomButton(Icons.center_focus_strong, () {
           // Calculate grid center based on farm dimensions
           final double plotSize = styles.getStyles('farm_page.farm_grid.plot_size') as double;
           final double spacing = styles.getStyles('farm_page.farm_grid.plot_spacing') as double;
@@ -930,12 +829,13 @@ class _FarmPageState extends State<FarmPage> {
           );
         }),
         const SizedBox(width: 8),
-        _buildZoomButton(styles, Icons.zoom_out, () => _viewportController.zoomOut()),
+        _buildZoomButton(Icons.zoom_out, () => _viewportController.zoomOut()),
       ],
     );
   }
 
-  Widget _buildZoomButton(AppStyles styles, IconData icon, VoidCallback onTap) {
+  Widget _buildZoomButton(IconData icon, VoidCallback onTap) {
+    final styles = AppStyles();
     final size = styles.getStyles('farm_page.back_button.width') as double;
     final bgColor = styles.getStyles('farm_page.back_button.background_color') as Color;
     final borderRadius = styles.getStyles('farm_page.back_button.border_radius') as double;
@@ -961,48 +861,7 @@ class _FarmPageState extends State<FarmPage> {
     showInventoryPopup(context, LocalStorageService.instance.userDataNotifier.value);
   }
 
-  Widget _buildRunButtonWithFileSelector(AppStyles styles) {
-    return Column(
-      children: [
-        // File selector for execution
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_left, color: Colors.black),
-              onPressed: _previousExecutionFile,
-              iconSize: 20,
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 102, 87, 87).withOpacity(0.2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                _codeFiles.files[_selectedExecutionFileIndex].fileName,
-                style: const TextStyle(color: Colors.black, fontSize: 12),
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.arrow_right, color: Colors.black),
-              onPressed: _nextExecutionFile,
-              iconSize: 20,
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        _buildControlButton(
-          styles: styles,
-          label: 'Run',
-          styleKey: 'farm_page.control_buttons.start_button',
-          onTap: _runExecution,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCodeEditorWithFileSelector(AppStyles styles) {
+  Widget _buildCodeEditorWithFileSelector() {
     return CodeEditorWidget(
       initialCode: _codeFiles.currentFile.content,
       onCodeChanged: _onCodeChanged,
@@ -1023,7 +882,7 @@ class _FarmPageState extends State<FarmPage> {
     );
   }
 
-  Widget _buildExecutionLog(AppStyles styles) {
+  Widget _buildExecutionLog() {
     return CodeExecutionLogWidget(
       logNotifier: _logNotifier,
       scrollController: _logScrollController,
@@ -1036,4 +895,3 @@ class _FarmPageState extends State<FarmPage> {
     );
   }
 }
-
