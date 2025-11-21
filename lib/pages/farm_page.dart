@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../models/farm_data.dart';
 import '../models/styles_schema.dart';
 import '../models/language_code_files.dart';
+import '../models/user_data.dart';
+import '../models/sprout_data.dart';
+import '../models/farm_data_schema.dart';
 import '../widgets/farm_items/farm_grid_view.dart';
 import '../widgets/farm_items/code_editor_widget.dart';
 import '../compilers/base_interpreter.dart';
@@ -12,6 +15,7 @@ import '../compilers/python_interpreter.dart';
 import '../compilers/javascript_interpreter.dart';
 import '../services/local_storage_service.dart';
 import '../services/code_files_service.dart';
+import '../miscellaneous/glass_effect.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class FarmPage extends StatefulWidget {
@@ -533,54 +537,97 @@ class _FarmPageState extends State<FarmPage> {
       body: Container(
         decoration: BoxDecoration(gradient: bgGradient),
         child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                // Top bar with back button and language display
-                Row(
-                  children: [
-                    _buildBackButton(styles),
-                    const SizedBox(width: 16),
-                    Expanded(child: _buildLanguageDisplay(styles)),
-                  ],
-                ),
-
-                // Farm grid view
-                Expanded(
-                  flex: 4,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: FarmGridView(farmState: _farmState),
-                  ),
-                ),
-
-                // Control buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildCodeButton(styles),
-                    if (!_isExecuting) _buildStartButtonWithFileSelector(styles),
-                    if (_isExecuting) _buildStopButton(styles),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // Code editor or execution log
-                Expanded(
-                  flex: 3,
-                  child: _showCodeEditor
-                      ? _buildCodeEditorWithFileSelector(styles)
-                      : _buildExecutionLog(styles),
-                ),
-              ],
-            ),
+          child: Stack(
+            children: [
+              // Layer 1: Farm Grid View (Bottom Layer - Centered)
+              _buildFarmGridLayer(styles),
+              
+              // Layer 2: Top Bar and Control Buttons
+              _buildControlLayer(styles),
+              
+              // Layer 3: Execution Log Overlay (Only shown when executing)
+              if (_isExecuting) _buildExecutionLogOverlay(styles),
+              
+              // Layer 4: Code Editor Overlay (Only shown when code button pressed)
+              if (_showCodeEditor) _buildCodeEditorOverlay(styles),
+            ],
           ),
         ),
       ),
+    );
+  }
+  
+  // Layer 1: Centered Farm Grid
+  Widget _buildFarmGridLayer(AppStyles styles) {
+    return Center(
+      child: AspectRatio(
+        aspectRatio: 1.0,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 80.0),
+          child: FarmGridView(farmState: _farmState),
+        ),
+      ),
+    );
+  }
+  
+  // Layer 2: Top Bar and Control Buttons
+  Widget _buildControlLayer(AppStyles styles) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          // Top bar with back button and language display
+          Row(
+            children: [
+              _buildBackButton(styles),
+              const SizedBox(width: 16),
+              Expanded(child: _buildLanguageDisplay(styles)),
+            ],
+          ),
+          
+          const Spacer(),
+          
+          // Top control: Start button with file selector
+          if (!_isExecuting) _buildStartButtonWithFileSelector(styles),
+          if (_isExecuting) _buildStopButton(styles),
+          
+          const SizedBox(height: 8),
+          
+          // Bottom controls: Code, Inventory, Research buttons
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(child: _buildCodeButton(styles)),
+              const SizedBox(width: 8),
+              Expanded(child: _buildInventoryButton(styles)),
+              const SizedBox(width: 8),
+              Expanded(child: _buildResearchButton(styles)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+  
+  // Layer 3: Execution Log Overlay
+  Widget _buildExecutionLogOverlay(AppStyles styles) {
+    return Positioned(
+      left: 16,
+      right: 16,
+      bottom: 16,
+      height: 200,
+      child: _buildExecutionLog(styles),
+    );
+  }
+  
+  // Layer 4: Code Editor Overlay
+  Widget _buildCodeEditorOverlay(AppStyles styles) {
+    return Positioned(
+      left: 16,
+      right: 16,
+      top: 64,
+      bottom: 16,
+      child: _buildCodeEditorWithFileSelector(styles),
     );
   }
 
@@ -668,10 +715,36 @@ class _FarmPageState extends State<FarmPage> {
   Widget _buildCodeButton(AppStyles styles) {
     return _buildControlButton(
       styles: styles,
-      label: 'Code',
+      label: 'Drone Code',
       styleKey: 'farm_page.control_buttons.code_button',
+      icon: Icons.code,
       onTap: () {
         setState(() => _showCodeEditor = !_showCodeEditor);
+      },
+    );
+  }
+  
+  Widget _buildInventoryButton(AppStyles styles) {
+    return _buildControlButton(
+      styles: styles,
+      label: 'Inventory',
+      styleKey: 'farm_page.control_buttons.start_button', // Reuse start button style
+      icon: Icons.inventory_2,
+      onTap: _showInventoryPopup,
+    );
+  }
+  
+  Widget _buildResearchButton(AppStyles styles) {
+    return _buildControlButton(
+      styles: styles,
+      label: 'Research',
+      styleKey: 'farm_page.control_buttons.code_button', // Reuse code button style
+      icon: Icons.menu_book,
+      onTap: () {
+        // TODO: Navigate to research page
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Research page coming soon!')),
+        );
       },
     );
   }
@@ -690,8 +763,8 @@ class _FarmPageState extends State<FarmPage> {
     required String label,
     required String styleKey,
     required VoidCallback onTap,
+    IconData? icon,
   }) {
-    final width = styles.getStyles('$styleKey.width') as double;
     final height = styles.getStyles('$styleKey.height') as double;
     final borderRadius = styles.getStyles('$styleKey.border_radius') as double;
     final borderWidth = styles.getStyles('$styleKey.border_width') as double;
@@ -704,7 +777,6 @@ class _FarmPageState extends State<FarmPage> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: width,
         height: height,
         decoration: BoxDecoration(
           gradient: strokeGradient,
@@ -717,12 +789,32 @@ class _FarmPageState extends State<FarmPage> {
             borderRadius: BorderRadius.circular(borderRadius - borderWidth),
           ),
           alignment: Alignment.center,
-          child: Text(
-            label,
-            style: TextStyle(color: textColor, fontSize: fontSize, fontWeight: fontWeight),
-          ),
+          child: icon != null
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(icon, color: textColor, size: fontSize * 1.5),
+                    const SizedBox(height: 4),
+                    Text(
+                      label,
+                      style: TextStyle(color: textColor, fontSize: fontSize * 0.8, fontWeight: fontWeight),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                )
+              : Text(
+                  label,
+                  style: TextStyle(color: textColor, fontSize: fontSize, fontWeight: fontWeight),
+                ),
         ),
       ),
+    );
+  }
+
+  void _showInventoryPopup() {
+    showDialog(
+      context: context,
+      builder: (context) => _InventoryPopupDialog(userData: LocalStorageService.instance.userDataNotifier.value),
     );
   }
 
@@ -890,6 +982,243 @@ class _FarmPageState extends State<FarmPage> {
                         fontSize: fontSize,
                         fontWeight: fontWeight,
                       ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Inventory Popup Dialog Widget
+class _InventoryPopupDialog extends StatefulWidget {
+  final UserData? userData;
+
+  const _InventoryPopupDialog({required this.userData});
+
+  @override
+  State<_InventoryPopupDialog> createState() => _InventoryPopupDialogState();
+}
+
+class _InventoryPopupDialogState extends State<_InventoryPopupDialog> {
+  List<InventoryItem> _inventoryItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadInventory();
+  }
+
+  Future<void> _loadInventory() async {
+    final items = await SproutDataHelpers.getInventoryItemsForUser(widget.userData);
+    if (mounted) {
+      setState(() => _inventoryItems = items);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final styles = AppStyles();
+
+    final pickerHeight = styles.getStyles('sprout_page.language_selection.height') as double;
+    final pickerRadius = styles.getStyles('sprout_page.language_selection.border_radius') as double;
+    final pickerBg = styles.getStyles('sprout_page.language_selection.background_color') as Color;
+
+    final titleColor = styles.getStyles('sprout_page.language_selection.title.color') as Color;
+    final titleSize = styles.getStyles('sprout_page.language_selection.title.font_size') as double;
+    final titleWeight = styles.getStyles('sprout_page.language_selection.title.font_weight') as FontWeight;
+
+    final closeIcon = styles.getStyles('sprout_page.language_selection.close_button.icon') as String;
+    final closeW = styles.getStyles('sprout_page.language_selection.close_button.width') as double;
+    final closeH = styles.getStyles('sprout_page.language_selection.close_button.height') as double;
+
+    final farmSchema = FarmDataSchema();
+    final lockedIconImage = styles.getStyles('sprout_researches.locked_overlay.icon.image') as String;
+
+    final cardHeight = styles.getStyles('sprout_page.inventory.card.height') as double;
+    final cardBorderRadius = styles.getStyles('sprout_page.inventory.card.border_radius') as double;
+    final cardBorderWidth = styles.getStyles('sprout_page.inventory.card.border_width') as double;
+    final cardBg = styles.getStyles('sprout_page.inventory.card.background_color') as LinearGradient;
+    final cardStroke = styles.getStyles('sprout_page.inventory.card.stroke_color') as LinearGradient;
+
+    final iconWidth = styles.getStyles('sprout_page.inventory.card.icon.width') as double;
+    final iconHeight = styles.getStyles('sprout_page.inventory.card.icon.height') as double;
+
+    final cropLabelColor = styles.getStyles('sprout_page.inventory.card.crop_label.color') as Color;
+    final cropLabelSize = styles.getStyles('sprout_page.inventory.card.crop_label.font_size') as double;
+    final cropLabelWeight = styles.getStyles('sprout_page.inventory.card.crop_label.font_weight') as FontWeight;
+
+    final quantityColor = styles.getStyles('sprout_page.inventory.card.quantity_label.color') as Color;
+    final quantitySize = styles.getStyles('sprout_page.inventory.card.quantity_label.font_size') as double;
+    final quantityWeight = styles.getStyles('sprout_page.inventory.card.quantity_label.font_weight') as FontWeight;
+
+    final lockedBgColor = styles.getStyles('sprout_page.inventory.card.locked_overlay.background.color') as Color;
+    final lockedBgOpacity = styles.getStyles('sprout_page.inventory.card.locked_overlay.background.opacity') as double;
+    final lockedBgBlur = styles.getStyles('sprout_page.inventory.card.locked_overlay.background.blur_sigma') as double;
+    final lockedStrokeGradient = styles.getStyles('sprout_page.inventory.card.locked_overlay.stroke_color') as LinearGradient;
+    final lockedStrokeThickness = styles.getStyles('sprout_page.inventory.card.locked_overlay.stroke_thickness') as double;
+    final lockedLabelColor = styles.getStyles('sprout_page.inventory.card.locked_overlay.locked_label.color') as Color;
+    final lockedLabelSize = styles.getStyles('sprout_page.inventory.card.locked_overlay.locked_label.font_size') as double;
+    final lockedLabelWeight = styles.getStyles('sprout_page.inventory.card.locked_overlay.locked_label.font_weight') as FontWeight;
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        height: pickerHeight,
+        decoration: BoxDecoration(
+          color: pickerBg,
+          borderRadius: BorderRadius.circular(pickerRadius),
+        ),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            // Header with title and close button
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Inventory',
+                  style: TextStyle(color: titleColor, fontSize: titleSize, fontWeight: titleWeight),
+                ),
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Image.asset(closeIcon, width: closeW, height: closeH),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Inventory grid (3 columns)
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final double maxWidth = constraints.maxWidth;
+                  const int columns = 3;
+                  const double spacing = 8.0;
+                  final double itemWidth = (maxWidth - (columns - 1) * spacing) / columns;
+
+                  return SingleChildScrollView(
+                    child: Wrap(
+                      spacing: spacing,
+                      runSpacing: spacing,
+                      children: _inventoryItems.map((item) {
+                        // Determine if it's a seed or crop to get the correct icon
+                        String imagePath;
+                        if (item.id.endsWith('Seeds')) {
+                          final cropId = item.id.replaceAll('Seeds', '').toLowerCase();
+                          final formattedCropId = cropId[0].toLowerCase() + cropId.substring(1);
+                          imagePath = farmSchema.getSeedIcon(formattedCropId);
+                        } else {
+                          imagePath = farmSchema.getItemIcon(item.id);
+                        }
+
+                        return SizedBox(
+                          width: itemWidth,
+                          child: Stack(
+                            children: [
+                              // Card
+                              Container(
+                                height: cardHeight,
+                                decoration: BoxDecoration(
+                                  gradient: cardStroke,
+                                  borderRadius: BorderRadius.circular(cardBorderRadius),
+                                ),
+                                padding: EdgeInsets.all(cardBorderWidth),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    gradient: cardBg,
+                                    borderRadius: BorderRadius.circular(cardBorderRadius - cardBorderWidth),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                    child: Row(
+                                      children: [
+                                        // Left: icon
+                                        Expanded(
+                                          flex: 1,
+                                          child: Center(
+                                            child: Image.asset(imagePath, width: iconWidth, height: iconHeight, fit: BoxFit.contain),
+                                          ),
+                                        ),
+
+                                        // Right: texts
+                                        Expanded(
+                                          flex: 3,
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              SizedBox(
+                                                height: cropLabelSize * 1.3,
+                                                child: FittedBox(
+                                                  fit: BoxFit.scaleDown,
+                                                  alignment: Alignment.centerLeft,
+                                                  child: Text(
+                                                    item.displayName,
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.visible,
+                                                    style: TextStyle(color: cropLabelColor, fontSize: cropLabelSize, fontWeight: cropLabelWeight),
+                                                  ),
+                                                ),
+                                              ),
+                                              Text('x${item.quantity}', style: TextStyle(color: quantityColor, fontSize: quantitySize, fontWeight: quantityWeight)),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              // Locked overlay if locked
+                              if (item.isLocked)
+                                Positioned.fill(
+                                  child: GlassEffect(
+                                    background: lockedBgColor,
+                                    opacity: lockedBgOpacity,
+                                    blurSigma: lockedBgBlur,
+                                    strokeGradient: lockedStrokeGradient,
+                                    strokeThickness: lockedStrokeThickness,
+                                    borderRadius: cardBorderRadius,
+                                    padding: EdgeInsets.zero,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          // Left: icon
+                                          Expanded(
+                                            flex: 1,
+                                            child: Center(
+                                              child: Image.asset(lockedIconImage, width: iconWidth, height: iconHeight),
+                                            ),
+                                          ),
+
+                                          // Right: "Locked" label
+                                          Expanded(
+                                            flex: 3,
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text('Locked', style: TextStyle(color: lockedLabelColor, fontSize: lockedLabelSize, fontWeight: lockedLabelWeight)),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
                     ),
                   );
                 },
