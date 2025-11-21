@@ -2,10 +2,25 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Public read-only mapping to allow username -> uid/email resolution
+    // during sign-in. Documents are keyed by username and contain only
+    // the minimal fields: { uid: '<uid>', email: '<email>' }.
+    match /username_map/{username} {
+      // Allow anyone (unauthenticated) to read mapping documents so
+      // clients can resolve username -> email during login. Writes are
+      // performed only by server-side code or during registration by
+      // authenticated users (see users create rule).
+      allow get: if true;
+      allow list: if false; // discourage listing all usernames
+      // Prevent direct unauthenticated create/update/delete on mappings
+      allow create, update, delete: if request.auth != null && request.auth.uid == resource.data.uid;
+    }
     // Rules for users collection
     match /users/{userId} {
-      // Allow authenticated users to read any user document
-      // This is needed for username existence checks during registration
+      // Restrict reads to authenticated users for privacy. Username-based
+      // login uses the `username_map` collection above to resolve the
+      // minimal information required to sign-in, so we keep `users`
+      // documents protected.
       allow read: if request.auth != null;
       
       // Allow authenticated users to create their own document during registration
@@ -16,6 +31,15 @@ service cloud.firestore {
       
       // Allow users to delete their own document only
       allow delete: if request.auth != null && request.auth.uid == userId;
+
+      // Allow users to manage code files stored under their user document
+      // Structure: users/{userId}/codeFiles/{languageId}
+      match /codeFiles/{languageId} {
+        // Owner-only access: only the authenticated user matching userId
+        // may read, list, create, update or delete their code files.
+        allow get, list: if request.auth != null && request.auth.uid == userId;
+        allow create, update, delete: if request.auth != null && request.auth.uid == userId;
+      }
     }
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/farm_data.dart';
 import '../models/styles_schema.dart';
+import '../models/language_code_files.dart';
 import '../widgets/farm_items/farm_grid_view.dart';
 import '../widgets/farm_items/code_editor_widget.dart';
 import '../compilers/base_interpreter.dart';
@@ -10,6 +11,8 @@ import '../compilers/java_interpreter.dart';
 import '../compilers/python_interpreter.dart';
 import '../compilers/javascript_interpreter.dart';
 import '../services/local_storage_service.dart';
+import '../services/code_files_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class FarmPage extends StatefulWidget {
   final String languageId;
@@ -28,7 +31,8 @@ class FarmPage extends StatefulWidget {
 class _FarmPageState extends State<FarmPage> {
   late FarmState _farmState;
   bool _showCodeEditor = false;
-  String _userCode = '';
+  late LanguageCodeFiles _codeFiles;
+  int _selectedExecutionFileIndex = 0; // File selected in start button
   List<String> _executionLog = [];
   bool _isExecuting = false;
   final ValueNotifier<int?> _executingLineNotifier = ValueNotifier<int?>(null);
@@ -41,8 +45,8 @@ class _FarmPageState extends State<FarmPage> {
   void initState() {
     super.initState();
     _farmState = FarmState();
-    _userCode = _getDefaultCode();
-    _codeController = TextEditingController(text: _userCode);
+    _codeFiles = LanguageCodeFiles.createDefault(widget.languageId);
+    _codeController = TextEditingController(text: _codeFiles.currentFile.content);
     _farmState.addListener(_onFarmStateChanged);
     // initialize farm state with cached user data and keep in sync
     try {
@@ -52,6 +56,55 @@ class _FarmPageState extends State<FarmPage> {
         _farmState.setUserData(LocalStorageService.instance.userDataNotifier.value);
       });
     } catch (_) {}
+    
+    // Load code files from Firestore
+    _loadCodeFiles();
+  }
+  
+  Future<void> _loadCodeFiles() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        return;
+      }
+      
+      final loadedFiles = await CodeFilesService.loadOrCreateCodeFiles(
+        userId: user.uid,
+        languageId: widget.languageId,
+      );
+      
+      if (mounted) {
+        setState(() {
+          _codeFiles = loadedFiles;
+          _selectedExecutionFileIndex = _codeFiles.currentFileIndex;
+          _codeController.text = _codeFiles.currentFile.content;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load code files: $e')),
+        );
+      }
+    }
+  }
+  
+  Future<void> _saveCodeFiles() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+      
+      // Update current file content before saving
+      _codeFiles.updateCurrentFileContent(_codeController.text);
+      
+      await CodeFilesService.saveCodeFiles(
+        userId: user.uid,
+        languageId: widget.languageId,
+        codeFiles: _codeFiles,
+      );
+    } catch (e) {
+      // Silent fail - don't interrupt user experience
+    }
   }
 
   @override
@@ -71,66 +124,6 @@ class _FarmPageState extends State<FarmPage> {
 
   void _onFarmStateChanged() {
     if (mounted) setState(() {});
-  }
-
-  String _getDefaultCode() {
-    switch (widget.languageId) {
-      case 'cpp':
-        return '// C++ Farm Drone Code\n'
-            '#include <iostream>\n\n'
-            'int main() {\n'
-            '    // Example: Move and till\n'
-            '    move(Direction::East);\n'
-            '    till();\n'
-            '    water();\n'
-            '    plant(SeedType::WheatSeeds);\n'
-            '    harvest();\n\n'
-            '    return 0;\n'
-            '}';
-      case 'csharp':
-        return '// C# Farm Drone Code\n'
-            'using System;\n\n'
-            'class Program {\n'
-            '    static void Main() {\n'
-            '        // Example: Move and till\n'
-            '        move(Direction.East);\n'
-            '        till();\n'
-            '        water();\n'
-            '        plant(SeedType.WheatSeeds);\n'
-            '        harvest();\n'
-            '    }\n'
-            '}';
-      case 'java':
-        return '// Java Farm Drone Code\n'
-            'public class Main {\n'
-            '    public static void main(String[] args) {\n'
-            '        // Example: Move and till\n'
-            '        move(Direction.EAST);\n'
-            '        till();\n'
-            '        water();\n'
-            '        plant(SeedType.WHEAT_SEEDS);\n'
-            '        harvest();\n'
-            '    }\n'
-            '}';
-      case 'python':
-        return '# Python Farm Drone Code\n'
-            '# Example: Move and till\n'
-            'move(Direction.East)\n'
-            'till()\n'
-            'water()\n'
-            'plant(SeedType.wheatSeeds)\n'
-            'harvest()';
-      case 'javascript':
-        return '// JavaScript Farm Drone Code\n'
-            '// Example: Move and till\n'
-            'move(Direction.East);\n'
-            'till();\n'
-            'water();\n'
-            'plant(SeedType.wheatSeeds);\n'
-            'harvest();';
-      default:
-        return '// Write your code here';
-    }
   }
 
   FarmCodeInterpreter _getInterpreter() {
@@ -260,8 +253,11 @@ class _FarmPageState extends State<FarmPage> {
     _currentInterpreter = interpreter;
     
     try {
+      // Get code from selected execution file
+      final codeToExecute = _codeFiles.files[_selectedExecutionFileIndex].content;
+      
       // Pre-validate code for errors
-      final validationResult = await interpreter.preValidate(_userCode);
+      final validationResult = await interpreter.preValidate(codeToExecute);
       
       // Check if stopped during validation
       if (!mounted || interpreter.shouldStop) {
@@ -293,7 +289,7 @@ class _FarmPageState extends State<FarmPage> {
       }
 
       // Execute code
-      final result = await interpreter.execute(_userCode);
+      final result = await interpreter.execute(codeToExecute);
 
       // Check if stopped or widget disposed during execution
       if (!mounted || interpreter.shouldStop) {
@@ -364,6 +360,169 @@ class _FarmPageState extends State<FarmPage> {
       }
     });
   }
+  
+  // File navigation methods for code editor
+  void _nextEditorFile() {
+    if (_isExecuting) return;
+    
+    // Save current file content before switching
+    _codeFiles.updateCurrentFileContent(_codeController.text);
+    
+    _codeFiles.nextFile();
+    _codeController.text = _codeFiles.currentFile.content;
+    setState(() {});
+    
+    _saveCodeFiles();
+  }
+  
+  void _previousEditorFile() {
+    if (_isExecuting) return;
+    
+    // Save current file content before switching
+    _codeFiles.updateCurrentFileContent(_codeController.text);
+    
+    _codeFiles.previousFile();
+    _codeController.text = _codeFiles.currentFile.content;
+    setState(() {});
+    
+    _saveCodeFiles();
+  }
+  
+  // File navigation methods for execution file selector
+  void _nextExecutionFile() {
+    setState(() {
+      _selectedExecutionFileIndex = (_selectedExecutionFileIndex + 1) % _codeFiles.files.length;
+    });
+  }
+  
+  void _previousExecutionFile() {
+    setState(() {
+      _selectedExecutionFileIndex = (_selectedExecutionFileIndex - 1 + _codeFiles.files.length) % _codeFiles.files.length;
+    });
+  }
+  
+  // Add new file
+  void _showAddFileDialog() {
+    if (_isExecuting) return;
+    
+    final TextEditingController fileNameController = TextEditingController();
+    final extension = LanguageCodeFiles.getFileExtension(widget.languageId);
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Create New File'),
+        content: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: fileNameController,
+                decoration: const InputDecoration(
+                  hintText: 'Enter file name',
+                  border: OutlineInputBorder(),
+                ),
+                autofocus: true,
+                onSubmitted: (_) => _createFile(fileNameController.text + extension, context),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              extension,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => _createFile(fileNameController.text + extension, context),
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  void _createFile(String fileName, BuildContext dialogContext) {
+    final error = _codeFiles.addFile(fileName);
+    
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error)),
+      );
+    } else {
+      Navigator.pop(dialogContext);
+      _codeController.text = _codeFiles.currentFile.content;
+      setState(() {});
+      _saveCodeFiles();
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('File "$fileName" created')),
+      );
+    }
+  }
+  
+  // Delete current file
+  void _deleteCurrentFile() {
+    if (_isExecuting) return;
+    
+    if (_codeFiles.files.length <= 1) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cannot delete the only file')),
+      );
+      return;
+    }
+    
+    final fileName = _codeFiles.currentFileName;
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete File'),
+        content: Text('Are you sure you want to delete "$fileName"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              
+              final success = _codeFiles.deleteCurrentFile();
+              
+              if (success) {
+                // Adjust execution file index if needed
+                if (_selectedExecutionFileIndex >= _codeFiles.files.length) {
+                  _selectedExecutionFileIndex = _codeFiles.files.length - 1;
+                }
+                
+                _codeController.text = _codeFiles.currentFile.content;
+                setState(() {});
+                _saveCodeFiles();
+                
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('File "$fileName" deleted')),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  // Handle code changes
+  void _onCodeChanged(String code) {
+    _codeFiles.updateCurrentFileContent(code);
+    // Auto-save periodically (debounced in real implementation)
+    _saveCodeFiles();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -404,7 +563,7 @@ class _FarmPageState extends State<FarmPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     _buildCodeButton(styles),
-                    if (!_isExecuting) _buildStartButton(styles),
+                    if (!_isExecuting) _buildStartButtonWithFileSelector(styles),
                     if (_isExecuting) _buildStopButton(styles),
                   ],
                 ),
@@ -414,19 +573,7 @@ class _FarmPageState extends State<FarmPage> {
                 Expanded(
                   flex: 3,
                   child: _showCodeEditor
-                      ? CodeEditorWidget(
-                          initialCode: _userCode,
-                          onCodeChanged: (code) {
-                            _userCode = code;
-                          },
-                          onClose: () {
-                            setState(() => _showCodeEditor = false);
-                          },
-                          controller: _codeController,
-                          executingLineNotifier: _executingLineNotifier,
-                          errorLineNotifier: _errorLineNotifier,
-                          isReadOnly: _isExecuting,
-                        )
+                      ? _buildCodeEditorWithFileSelector(styles)
                       : _buildExecutionLog(styles),
                 ),
               ],
@@ -529,15 +676,6 @@ class _FarmPageState extends State<FarmPage> {
     );
   }
 
-  Widget _buildStartButton(AppStyles styles) {
-    return _buildControlButton(
-      styles: styles,
-      label: 'Start',
-      styleKey: 'farm_page.control_buttons.start_button',
-      onTap: _startExecution,
-    );
-  }
-
   Widget _buildStopButton(AppStyles styles) {
     return _buildControlButton(
       styles: styles,
@@ -585,6 +723,124 @@ class _FarmPageState extends State<FarmPage> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildStartButtonWithFileSelector(AppStyles styles) {
+    return Column(
+      children: [
+        // File selector for execution
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.arrow_left, color: Colors.black),
+              onPressed: _previousExecutionFile,
+              iconSize: 20,
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 102, 87, 87).withOpacity(0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                _codeFiles.files[_selectedExecutionFileIndex].fileName,
+                style: const TextStyle(color: Colors.black, fontSize: 12),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.arrow_right, color: Colors.black),
+              onPressed: _nextExecutionFile,
+              iconSize: 20,
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        _buildControlButton(
+          styles: styles,
+          label: 'Start',
+          styleKey: 'farm_page.control_buttons.start_button',
+          onTap: _startExecution,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCodeEditorWithFileSelector(AppStyles styles) {
+    return Column(
+      children: [
+        // File management toolbar
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color.fromARGB(255, 102, 87, 87).withOpacity(0.1),
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(12),
+              topRight: Radius.circular(12),
+            ),
+          ),
+          child: Row(
+            children: [
+              // Add file button
+              IconButton(
+                icon: const Icon(Icons.add, color: Colors.black),
+                onPressed: _showAddFileDialog,
+                iconSize: 20,
+                tooltip: 'Add File',
+              ),
+              // Delete file button
+              IconButton(
+                icon: const Icon(Icons.delete, color: Colors.black),
+                onPressed: _codeFiles.files.length > 1 ? _deleteCurrentFile : null,
+                iconSize: 20,
+                tooltip: 'Delete File',
+              ),
+              const SizedBox(width: 8),
+              // File selector
+              IconButton(
+                icon: const Icon(Icons.arrow_left, color: Colors.black),
+                onPressed: _previousEditorFile,
+                iconSize: 20,
+              ),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 102, 87, 87).withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    _codeFiles.currentFileName,
+                    style: const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.arrow_right, color: Colors.black),
+                onPressed: _nextEditorFile,
+                iconSize: 20,
+              ),
+            ],
+          ),
+        ),
+        // Code editor
+        Expanded(
+          child: CodeEditorWidget(
+            initialCode: _codeFiles.currentFile.content,
+            onCodeChanged: _onCodeChanged,
+            onClose: () {
+              setState(() => _showCodeEditor = false);
+            },
+            controller: _codeController,
+            executingLineNotifier: _executingLineNotifier,
+            errorLineNotifier: _errorLineNotifier,
+            isReadOnly: _isExecuting,
+          ),
+        ),
+      ],
     );
   }
 
