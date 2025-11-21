@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../models/styles_schema.dart';
 
-/// Code editor widget for writing farm drone code
+/// Code editor widget for writing farm drone code with file management toolbar
 class CodeEditorWidget extends StatefulWidget {
   final String initialCode;
   final Function(String) onCodeChanged;
@@ -11,6 +11,15 @@ class CodeEditorWidget extends StatefulWidget {
   final ValueNotifier<int?>? errorLineNotifier;
   final TextEditingController? controller;
   final bool isReadOnly;
+  
+  // File management options (optional)
+  final String? currentFileName;
+  final bool showFileToolbar;
+  final VoidCallback? onAddFile;
+  final VoidCallback? onDeleteFile;
+  final VoidCallback? onNextFile;
+  final VoidCallback? onPreviousFile;
+  final bool canDeleteFile;
 
   const CodeEditorWidget({
     super.key,
@@ -21,6 +30,13 @@ class CodeEditorWidget extends StatefulWidget {
     this.errorLineNotifier,
     this.controller,
     this.isReadOnly = false,
+    this.currentFileName,
+    this.showFileToolbar = false,
+    this.onAddFile,
+    this.onDeleteFile,
+    this.onNextFile,
+    this.onPreviousFile,
+    this.canDeleteFile = true,
   });
 
   @override
@@ -412,7 +428,7 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
       highlightColor = Colors.yellow;
     }
 
-    return Container(
+    final editorWidget = Container(
       width: double.infinity,
       height: 500,
       decoration: BoxDecoration(
@@ -565,5 +581,73 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
         ),
       ),
     );
+
+    // If file toolbar is enabled, wrap the editor with it
+    if (widget.showFileToolbar) {
+      return Column(
+        children: [
+          // File management toolbar
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 102, 87, 87).withOpacity(0.1),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
+            ),
+            child: Row(
+              children: [
+                // Add file button
+                IconButton(
+                  icon: const Icon(Icons.add, color: Colors.black),
+                  onPressed: widget.onAddFile,
+                  iconSize: 20,
+                  tooltip: 'Add File',
+                ),
+                // Delete file button
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.black),
+                  onPressed: widget.canDeleteFile ? widget.onDeleteFile : null,
+                  iconSize: 20,
+                  tooltip: 'Delete File',
+                ),
+                const SizedBox(width: 8),
+                // File selector
+                IconButton(
+                  icon: const Icon(Icons.arrow_left, color: Colors.black),
+                  onPressed: widget.onPreviousFile,
+                  iconSize: 20,
+                ),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 102, 87, 87).withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      widget.currentFileName ?? 'Untitled',
+                      style: const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.arrow_right, color: Colors.black),
+                  onPressed: widget.onNextFile,
+                  iconSize: 20,
+                ),
+              ],
+            ),
+          ),
+          // Code editor
+          Expanded(child: editorWidget),
+        ],
+      );
+    } else {
+      return editorWidget;
+    }
   }
 }
