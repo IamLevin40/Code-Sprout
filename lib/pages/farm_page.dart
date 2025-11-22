@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import '../models/farm_data.dart';
 import '../models/styles_schema.dart';
 import '../models/language_code_files.dart';
+import '../models/research_data.dart';
 import '../widgets/farm_items/farm_grid_view.dart';
 import '../widgets/farm_items/code_editor_widget.dart';
 import '../widgets/farm_items/code_execution_log_widget.dart';
 import '../widgets/farm_items/inventory_popup_display.dart';
 import '../widgets/farm_items/farm_top_controls.dart';
 import '../widgets/farm_items/farm_bottom_controls.dart';
+import '../widgets/farm_items/research_lab_display.dart';
 import '../compilers/base_interpreter.dart';
 import '../compilers/cpp_interpreter.dart';
 import '../compilers/csharp_interpreter.dart';
@@ -36,7 +38,9 @@ class FarmPage extends StatefulWidget {
 
 class _FarmPageState extends State<FarmPage> {
   late FarmState _farmState;
+  late ResearchState _researchState;
   bool _showCodeEditor = false;
+  bool _showResearchLab = false;
   late LanguageCodeFiles _codeFiles;
   int _selectedExecutionFileIndex = 0; // File selected in start button
   List<String> _executionLog = [];
@@ -56,6 +60,7 @@ class _FarmPageState extends State<FarmPage> {
   void initState() {
     super.initState();
     _farmState = FarmState();
+    _researchState = ResearchState();
     _codeFiles = LanguageCodeFiles.createDefault(widget.languageId);
     _codeController = TextEditingController(text: _codeFiles.currentFile.content);
     _viewportController = InteractiveViewportController(
@@ -220,6 +225,7 @@ class _FarmPageState extends State<FarmPage> {
     
     _farmState.removeListener(_onFarmStateChanged);
     _farmState.dispose();
+    _researchState.dispose();
     _executingLineNotifier.dispose();
     _errorLineNotifier.dispose();
     _logNotifier.dispose();
@@ -700,6 +706,9 @@ class _FarmPageState extends State<FarmPage> {
               
               // Layer 4: Code Editor Overlay (Only shown when code button pressed)
               if (_showCodeEditor) _buildCodeEditorOverlay(),
+              
+              // Layer 5: Research Lab Overlay (Only shown when research button pressed)
+              if (_showResearchLab) _buildResearchLabOverlay(),
             ],
           ),
         ),
@@ -765,9 +774,7 @@ class _FarmPageState extends State<FarmPage> {
             },
             onInventoryPressed: _showInventoryPopup,
             onResearchPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Research page coming soon!')),
-              );
+              setState(() => _showResearchLab = !_showResearchLab);
             },
           ),
         ],
@@ -795,6 +802,75 @@ class _FarmPageState extends State<FarmPage> {
       bottom: 16,
       child: _buildCodeEditorWithFileSelector(),
     );
+  }
+  
+  // Layer 5: Research Lab Overlay
+  Widget _buildResearchLabOverlay() {
+    return Positioned(
+      left: 16,
+      right: 16,
+      top: 64,
+      bottom: 16,
+      child: ResearchLabDisplay(
+        researchState: _researchState,
+        userData: LocalStorageService.instance.userDataNotifier.value,
+        onClose: () {
+          setState(() => _showResearchLab = false);
+        },
+        onResearchCompleted: _handleResearchCompleted,
+      ),
+    );
+  }
+  
+  /// Handle research completion: deduct items from inventory and mark as completed
+  void _handleResearchCompleted(String researchId, Map<String, int> requirements) async {
+    try {
+      final userData = LocalStorageService.instance.userDataNotifier.value;
+      if (userData == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('User data not available')),
+        );
+        return;
+      }
+      
+      // Deduct items from inventory
+      for (final entry in requirements.entries) {
+        final itemPath = entry.key;
+        final required = entry.value;
+        final currentValue = userData.get(itemPath) as int? ?? 0;
+        final newValue = currentValue - required;
+        
+        if (newValue < 0) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Insufficient items in inventory')),
+          );
+          return;
+        }
+        
+        userData.set(itemPath, newValue);
+      }
+      
+      // Mark research as completed
+      _researchState.completeResearch(researchId);
+      
+      // Save updated user data to Firestore
+      await LocalStorageService.instance.saveUserData(userData);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Research completed successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to complete research: $e')),
+        );
+      }
+    }
   }
 
   Widget _buildBackButton() {
