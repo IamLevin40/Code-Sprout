@@ -461,17 +461,57 @@ class _SettingsPageState extends State<SettingsPage> {
       final currentPath = '$parentPath.$key';
       
       if (value is SchemaField) {
-        // It's an actual field
-        widgets.add(_buildField(key, value, currentPath, depth));
+        // If this is a reference field (e.g. "reference (inventory_schema.txt)"),
+        // expand it into its referenced structure so it becomes editable in the UI.
+        if (value.dataType.toLowerCase() == 'reference') {
+          // Resolve the expanded structure for this reference path
+          final nestedStructure = _schema!.getStructureAtPath(currentPath);
+
+          widgets.add(_buildNestedMapHeader(key, depth));
+          widgets.add(const SizedBox(height: 12));
+
+          final nestedWidgets = _buildStructureWidgets(currentPath, nestedStructure, depth + 1);
+
+          final styles = AppStyles();
+          widgets.add(Container(
+            margin: EdgeInsets.only(left: (depth + 1) * 16.0),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: styles.getStyles('settings_page.nested_container.background_color') as Color,
+              borderRadius: BorderRadius.circular(styles.getStyles('settings_page.nested_container.border_radius') as double),
+              border: Border.all(
+                color: styles.getStyles('settings_page.nested_container.border.color') as Color,
+                width: styles.getStyles('settings_page.nested_container.border.width') as double,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: nestedWidgets,
+            ),
+          ));
+        } else {
+          // Regular simple field
+          widgets.add(_buildField(key, value, currentPath, depth));
+        }
       } else if (value is Map<String, dynamic>) {
-        // It's a nested map structure
+        // It's a nested map structure.
         widgets.add(_buildNestedMapHeader(key, depth));
         widgets.add(const SizedBox(height: 12));
-        
-        // Recursively build nested structure
-        final nestedStructure = _schema!.getStructureAtPath(currentPath);
+
+        // Two possibilities:
+        // - The map's values are already SchemaField objects (expanded reference)
+        // - The map is a plain nested structure and we should query the schema
+        Map<String, dynamic> nestedStructure;
+        final hasSchemaFieldValues = value.values.any((v) => v is SchemaField || (v is Map && v.values.any((vv) => vv is SchemaField)));
+        if (hasSchemaFieldValues) {
+          // Use the inline map directly. Example: inventory -> { itemId: {isLocked: SchemaField, ...}, ... }
+          nestedStructure = value.map((k, v) => MapEntry(k, v));
+        } else {
+          nestedStructure = _schema!.getStructureAtPath(currentPath);
+        }
+
         final nestedWidgets = _buildStructureWidgets(currentPath, nestedStructure, depth + 1);
-        
+
         final styles = AppStyles();
         widgets.add(Container(
           margin: EdgeInsets.only(left: (depth + 1) * 16.0),
