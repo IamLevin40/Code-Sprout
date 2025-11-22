@@ -589,6 +589,64 @@ class FarmState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Clear the entire farm and return crops as seeds to inventory
+  /// All plots reset to normal state, drone returns to (0,0)
+  /// Each crop is converted back to 1 seed and added to user's inventory
+  void clearFarmToSeeds() {
+    if (userData == null) {
+      // If no user data, just reset the farm
+      resetFarm();
+      return;
+    }
+
+    try {
+      final base = Map<String, dynamic>.from(userData!.toJson());
+      
+      // Count crops on each plot and convert to seeds
+      for (var y = 0; y < gridHeight; y++) {
+        for (var x = 0; x < gridWidth; x++) {
+          final plot = _grid[y][x];
+          
+          // If plot has a crop, convert it to seed
+          if (plot.crop != null) {
+            final cropType = plot.crop!.cropType;
+            final seedType = SeedTypeExtension.fromCropType(cropType);
+            
+            if (seedType != null) {
+              // Get current seed quantity
+              final parts = 'sproutProgress.inventory.${seedType.id}.quantity'.split('.');
+              final currentQty = (userData!.get('sproutProgress.inventory.${seedType.id}.quantity') as int?) ?? 0;
+              
+              // Add 1 seed per crop
+              final newQty = currentQty + 1;
+              _setNestedValue(base, parts, newQty);
+            }
+          }
+          
+          // Reset plot to normal state
+          _grid[y][x] = FarmPlot(x: x, y: y);
+        }
+      }
+      
+      // Reset drone position
+      dronePosition = DronePosition(x: 0, y: 0);
+      isExecuting = false;
+      
+      // Persist user data changes
+      _saveUserDataJson(base);
+      try {
+        userData = UserData.fromJson(base);
+        LocalStorageService.instance.userDataNotifier.value = userData!;
+      } catch (_) {}
+      
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Failed to clear farm and convert crops to seeds: $e');
+      // Fallback to simple reset if error occurs
+      resetFarm();
+    }
+  }
+
   /// Set execution state
   void setExecuting(bool executing) {
     isExecuting = executing;

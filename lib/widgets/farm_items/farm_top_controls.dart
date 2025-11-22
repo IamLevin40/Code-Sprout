@@ -12,6 +12,7 @@ class FarmTopControls extends StatelessWidget {
   final VoidCallback onLogPressed;
   final VoidCallback onNextFile;
   final VoidCallback onPreviousFile;
+  final VoidCallback onClearFarmPressed;
 
   const FarmTopControls({
     super.key,
@@ -23,6 +24,7 @@ class FarmTopControls extends StatelessWidget {
     required this.onLogPressed,
     required this.onNextFile,
     required this.onPreviousFile,
+    required this.onClearFarmPressed,
   });
 
   @override
@@ -65,7 +67,14 @@ class FarmTopControls extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 4),
-        _buildRunButton(),
+        // Run and Clear Farm buttons side by side
+        Row(
+          children: [
+            Expanded(child: _buildRunButton()),
+            const SizedBox(width: 8),
+            Expanded(child: _buildClearFarmButton()),
+          ],
+        ),
       ],
     );
   }
@@ -143,6 +152,43 @@ class FarmTopControls extends StatelessWidget {
           alignment: Alignment.center,
           child: Text(
             'Stop',
+            style: TextStyle(color: textColor, fontSize: fontSize, fontWeight: fontWeight),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildClearFarmButton() {
+    final styles = AppStyles();
+    final height = styles.getStyles('farm_page.control_buttons.start_button.height') as double;
+    final borderRadius = styles.getStyles('farm_page.control_buttons.start_button.border_radius') as double;
+    final borderWidth = styles.getStyles('farm_page.control_buttons.start_button.border_width') as double;
+    
+    // Use stop button colors for the Clear Farm button (reddish theme)
+    final bgGradient = styles.getStyles('farm_page.control_buttons.stop_button.background_color') as LinearGradient;
+    final strokeGradient = styles.getStyles('farm_page.control_buttons.stop_button.stroke_color') as LinearGradient;
+    final textColor = styles.getStyles('farm_page.control_buttons.stop_button.text.color') as Color;
+    final fontSize = styles.getStyles('farm_page.control_buttons.start_button.text.font_size') as double;
+    final fontWeight = styles.getStyles('farm_page.control_buttons.start_button.text.font_weight') as FontWeight;
+
+    return GestureDetector(
+      onTap: onClearFarmPressed,
+      child: Container(
+        height: height,
+        decoration: BoxDecoration(
+          gradient: strokeGradient,
+          borderRadius: BorderRadius.circular(borderRadius),
+        ),
+        padding: EdgeInsets.all(borderWidth),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: bgGradient,
+            borderRadius: BorderRadius.circular(borderRadius - borderWidth),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            'Clear Farm',
             style: TextStyle(color: textColor, fontSize: fontSize, fontWeight: fontWeight),
           ),
         ),
