@@ -34,7 +34,7 @@ class FarmResearchCards extends StatelessWidget {
         farmFeature: 'expansion_1',
         predecessorIds: ['farm_basic_plot'],
         requirements: {
-          'inventory.crops.wheat': 500,
+          'sproutProgress.inventory.wheat.quantity': 500,
         },
       ),
       FarmResearchItem(
@@ -44,8 +44,8 @@ class FarmResearchCards extends StatelessWidget {
         farmFeature: 'irrigation',
         predecessorIds: ['farm_basic_plot'],
         requirements: {
-          'inventory.crops.wheat': 300,
-          'inventory.crops.carrot': 200,
+          'sproutProgress.inventory.wheat.quantity': 300,
+          'sproutProgress.inventory.carrot.quantity': 200,
         },
       ),
       FarmResearchItem(
@@ -55,8 +55,8 @@ class FarmResearchCards extends StatelessWidget {
         farmFeature: 'expansion_2',
         predecessorIds: ['farm_expansion_1', 'farm_irrigation'],
         requirements: {
-          'inventory.crops.potato': 800,
-          'inventory.crops.carrot': 1000,
+          'sproutProgress.inventory.potato.quantity': 800,
+          'sproutProgress.inventory.carrot.quantity': 1000,
         },
       ),
     ];

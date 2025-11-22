@@ -1004,7 +1004,9 @@ class JavaScriptInterpreter extends FarmCodeInterpreter {
       seedStr = args;
     }
 
-    final seed = SeedTypeExtension.fromString(seedStr);
+    // Convert UPPER_CASE (WHEAT_SEEDS) to snake_case (wheat_seeds)
+    final snakeCaseId = seedStr.toLowerCase();
+    final seed = SeedTypeExtension.fromString(snakeCaseId);
     if (seed == null) {
       throw Exception('Semantical Error: Unknown seed type "$seedStr"');
     }
@@ -1025,7 +1027,9 @@ class JavaScriptInterpreter extends FarmCodeInterpreter {
       seedStr = args;
     }
 
-    final seed = SeedTypeExtension.fromString(seedStr);
+    // Convert UPPER_CASE (WHEAT_SEEDS) to snake_case (wheat_seeds)
+    final snakeCaseId = seedStr.toLowerCase();
+    final seed = SeedTypeExtension.fromString(snakeCaseId);
     if (seed == null) {
       throw Exception('Semantical Error: Unknown seed type "$seedStr"');
     }
@@ -1064,8 +1068,9 @@ class JavaScriptInterpreter extends FarmCodeInterpreter {
   }
 
   String _cropTypeToString(CropType? crop) {
-    if (crop == null) return 'CropType.None';
-    return 'CropType.${crop.displayName}';
+    if (crop == null) return 'CropType.NONE';
+    // Convert to UPPER_CASE for JavaScript (wheat -> WHEAT)
+    return 'CropType.${crop.id.toUpperCase()}';
   }
 
   /// Handle move() function
@@ -1118,7 +1123,9 @@ class JavaScriptInterpreter extends FarmCodeInterpreter {
       seedStr = args;
     }
 
-    final seed = SeedTypeExtension.fromString(seedStr);
+    // Convert UPPER_CASE (WHEAT_SEEDS) to snake_case (wheat_seeds)
+    final snakeCaseId = seedStr.toLowerCase();
+    final seed = SeedTypeExtension.fromString(snakeCaseId);
 
     if (seed == null) {
       throw Exception('Semantical Error: Unknown seed type "$seedStr"');

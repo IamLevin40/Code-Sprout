@@ -1,8 +1,6 @@
 {
     "crop_info": {
         "wheat": {
-            "item_icon": "images/icons/sprout_items/crop_items/wheat.png",
-            "seed_icon": "images/icons/sprout_items/seed_items/wheat_seeds.png",
             "growth_duration": 5.0,
             "harvest_quantity": {
                 "min": 1,
@@ -18,8 +16,6 @@
             }
         },
         "carrot": {
-            "item_icon": "images/icons/sprout_items/crop_items/carrot.png",
-            "seed_icon": "images/icons/sprout_items/seed_items/carrot_seeds.png",
             "growth_duration": 7.0,
             "harvest_quantity": {
                 "min": 2,
@@ -34,8 +30,6 @@
             }
         },
         "potato": {
-            "item_icon": "images/icons/sprout_items/crop_items/potato.png",
-            "seed_icon": "images/icons/sprout_items/seed_items/potato_seeds.png",
             "growth_duration": 5.0,
             "harvest_quantity": {
                 "min": 1,
@@ -51,8 +45,6 @@
             }
         },
         "beetroot": {
-            "item_icon": "images/icons/sprout_items/crop_items/beetroot.png",
-            "seed_icon": "images/icons/sprout_items/seed_items/beetroot_seeds.png",
             "growth_duration": 12.5,
             "harvest_quantity": {
                 "min": 1,
@@ -67,8 +59,6 @@
             }
         },
         "radish": {
-            "item_icon": "images/icons/sprout_items/crop_items/radish.png",
-            "seed_icon": "images/icons/sprout_items/seed_items/radish_seeds.png",
             "growth_duration": 5.0,
             "harvest_quantity": {
                 "min": 1,
@@ -82,8 +72,6 @@
             }
         },
         "onion": {
-            "item_icon": "images/icons/sprout_items/crop_items/onion.png",
-            "seed_icon": "images/icons/sprout_items/seed_items/onion_seeds.png",
             "growth_duration": 7.0,
             "harvest_quantity": {
                 "min": 1,
@@ -99,8 +87,6 @@
             }
         },
         "lettuce": {
-            "item_icon": "images/icons/sprout_items/crop_items/lettuce.png",
-            "seed_icon": "images/icons/sprout_items/seed_items/lettuce_seeds.png",
             "growth_duration": 5.0,
             "harvest_quantity": {
                 "min": 1,
@@ -115,8 +101,6 @@
             }
         },
         "tomato": {
-            "item_icon": "images/icons/sprout_items/crop_items/tomato.png",
-            "seed_icon": "images/icons/sprout_items/seed_items/tomato_seeds.png",
             "growth_duration": 15.0,
             "harvest_quantity": {
                 "min": 1,
@@ -133,8 +117,6 @@
             }
         },
         "garlic": {
-            "item_icon": "images/icons/sprout_items/crop_items/garlic.png",
-            "seed_icon": "images/icons/sprout_items/seed_items/garlic_seeds.png",
             "growth_duration": 20.0,
             "harvest_quantity": {
                 "min": 1,

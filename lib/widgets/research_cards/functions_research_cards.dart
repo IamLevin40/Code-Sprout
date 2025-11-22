@@ -42,7 +42,7 @@ class FunctionsResearchCards extends StatelessWidget {
         functionName: 'plant',
         predecessorIds: ['func_move'],
         requirements: {
-          'inventory.crops.wheat': 100,
+          'sproutProgress.inventory.wheat.quantity': 100,
         },
       ),
       FunctionsResearchItem(
@@ -52,8 +52,8 @@ class FunctionsResearchCards extends StatelessWidget {
         functionName: 'till',
         predecessorIds: ['func_plant'],
         requirements: {
-          'inventory.crops.wheat': 200,
-          'inventory.crops.carrot': 150,
+          'sproutProgress.inventory.wheat.quantity': 200,
+          'sproutProgress.inventory.carrot.quantity': 150,
         },
       ),
       FunctionsResearchItem(
@@ -63,8 +63,8 @@ class FunctionsResearchCards extends StatelessWidget {
         functionName: 'water',
         predecessorIds: ['func_till'],
         requirements: {
-          'inventory.crops.carrot': 300,
-          'inventory.crops.potato': 200,
+          'sproutProgress.inventory.carrot.quantity': 300,
+          'sproutProgress.inventory.potato.quantity': 200,
         },
       ),
       FunctionsResearchItem(
@@ -74,8 +74,8 @@ class FunctionsResearchCards extends StatelessWidget {
         functionName: 'harvest',
         predecessorIds: ['func_plant', 'func_water'],
         requirements: {
-          'inventory.crops.potato': 400,
-          'inventory.crops.beetroot': 250,
+          'sproutProgress.inventory.potato.quantity': 400,
+          'sproutProgress.inventory.beetroot.quantity': 250,
         },
       ),
     ];

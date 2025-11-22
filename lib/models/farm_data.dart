@@ -25,16 +25,17 @@ enum CropType {
 }
 
 /// Enum representing seed types that can be planted
+// ignore: constant_identifier_names
 enum SeedType {
-  wheatSeeds,
-  carrotSeeds,
-  potatoSeeds,
-  beetrootSeeds,
-  radishSeeds,
-  onionSeeds,
-  lettuceSeeds,
-  tomatoSeeds,
-  garlicSeeds,
+  wheat_seeds,
+  carrot_seeds,
+  potato_seeds,
+  beetroot_seeds,
+  radish_seeds,
+  onion_seeds,
+  lettuce_seeds,
+  tomato_seeds,
+  garlic_seeds,
 }
 
 /// Enum representing cardinal directions for drone movement
@@ -87,53 +88,53 @@ extension CropTypeExtension on CropType {
 extension SeedTypeExtension on SeedType {
   String get id {
     switch (this) {
-      case SeedType.wheatSeeds:
-        return 'wheatSeeds';
-      case SeedType.carrotSeeds:
-        return 'carrotSeeds';
-      case SeedType.potatoSeeds:
-        return 'potatoSeeds';
-      case SeedType.beetrootSeeds:
-        return 'beetrootSeeds';
-      case SeedType.radishSeeds:
-        return 'radishSeeds';
-      case SeedType.onionSeeds:
-        return 'onionSeeds';
-      case SeedType.lettuceSeeds:
-        return 'lettuceSeeds';
-      case SeedType.tomatoSeeds:
-        return 'tomatoSeeds';
-      case SeedType.garlicSeeds:
-        return 'garlicSeeds';
+      case SeedType.wheat_seeds:
+        return 'wheat_seeds';
+      case SeedType.carrot_seeds:
+        return 'carrot_seeds';
+      case SeedType.potato_seeds:
+        return 'potato_seeds';
+      case SeedType.beetroot_seeds:
+        return 'beetroot_seeds';
+      case SeedType.radish_seeds:
+        return 'radish_seeds';
+      case SeedType.onion_seeds:
+        return 'onion_seeds';
+      case SeedType.lettuce_seeds:
+        return 'lettuce_seeds';
+      case SeedType.tomato_seeds:
+        return 'tomato_seeds';
+      case SeedType.garlic_seeds:
+        return 'garlic_seeds';
     }
   }
 
   String get displayName {
-    // Convert camelCase to display name (e.g., wheatSeeds -> Wheat Seeds)
-    final base = id.replaceAll('Seeds', '');
+    // Convert snake_case to display name (e.g., wheat_seeds -> Wheat Seeds)
+    final base = id.replaceAll('_seeds', '');
     return '${base[0].toUpperCase()}${base.substring(1)} Seeds';
   }
 
   /// Get the corresponding CropType for this seed
   CropType get cropType {
     switch (this) {
-      case SeedType.wheatSeeds:
+      case SeedType.wheat_seeds:
         return CropType.wheat;
-      case SeedType.carrotSeeds:
+      case SeedType.carrot_seeds:
         return CropType.carrot;
-      case SeedType.potatoSeeds:
+      case SeedType.potato_seeds:
         return CropType.potato;
-      case SeedType.beetrootSeeds:
+      case SeedType.beetroot_seeds:
         return CropType.beetroot;
-      case SeedType.radishSeeds:
+      case SeedType.radish_seeds:
         return CropType.radish;
-      case SeedType.onionSeeds:
+      case SeedType.onion_seeds:
         return CropType.onion;
-      case SeedType.lettuceSeeds:
+      case SeedType.lettuce_seeds:
         return CropType.lettuce;
-      case SeedType.tomatoSeeds:
+      case SeedType.tomato_seeds:
         return CropType.tomato;
-      case SeedType.garlicSeeds:
+      case SeedType.garlic_seeds:
         return CropType.garlic;
     }
   }
@@ -143,12 +144,11 @@ extension SeedTypeExtension on SeedType {
     return cropType.id;
   }
 
+  /// Get SeedType from string
   static SeedType? fromString(String value) {
-    // Normalize the input by removing underscores and converting to lowercase
-    final normalized = value.replaceAll('_', '').toLowerCase();
-    
+    // Match exact ID with snake_case
     for (final seed in SeedType.values) {
-      if (seed.id.toLowerCase() == normalized) return seed;
+      if (seed.id == value) return seed;
     }
     return null;
   }
@@ -157,23 +157,23 @@ extension SeedTypeExtension on SeedType {
   static SeedType? fromCropType(CropType cropType) {
     switch (cropType) {
       case CropType.wheat:
-        return SeedType.wheatSeeds;
+        return SeedType.wheat_seeds;
       case CropType.carrot:
-        return SeedType.carrotSeeds;
+        return SeedType.carrot_seeds;
       case CropType.potato:
-        return SeedType.potatoSeeds;
+        return SeedType.potato_seeds;
       case CropType.beetroot:
-        return SeedType.beetrootSeeds;
+        return SeedType.beetroot_seeds;
       case CropType.radish:
-        return SeedType.radishSeeds;
+        return SeedType.radish_seeds;
       case CropType.onion:
-        return SeedType.onionSeeds;
+        return SeedType.onion_seeds;
       case CropType.lettuce:
-        return SeedType.lettuceSeeds;
+        return SeedType.lettuce_seeds;
       case CropType.tomato:
-        return SeedType.tomatoSeeds;
+        return SeedType.tomato_seeds;
       case CropType.garlic:
-        return SeedType.garlicSeeds;
+        return SeedType.garlic_seeds;
     }
   }
 }

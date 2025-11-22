@@ -17,7 +17,7 @@ void main() {
       farmState.dronePosition.y = 0;
       farmState.tillCurrentPlot();
       farmState.waterCurrentPlot();
-      farmState.plantSeed(SeedType.wheatSeeds);
+      farmState.plantSeed(SeedType.wheat_seeds);
 
       // Convert to Firestore format
       final data = FarmProgressService.farmStateToFirestore(farmState);
@@ -221,7 +221,7 @@ void main() {
       farmState.dronePosition.y = 0;
       farmState.tillCurrentPlot();
       farmState.waterCurrentPlot();
-      farmState.plantSeed(SeedType.wheatSeeds);
+      farmState.plantSeed(SeedType.wheat_seeds);
       
       // Start growth for all crops
       final plot00 = farmState.getPlot(0, 0);
@@ -233,7 +233,7 @@ void main() {
       farmState.dronePosition.y = 0;
       farmState.tillCurrentPlot();
       farmState.waterCurrentPlot();
-      farmState.plantSeed(SeedType.carrotSeeds);
+      farmState.plantSeed(SeedType.carrot_seeds);
       
       final plot10 = farmState.getPlot(1, 0);
       if (plot10?.crop != null && plot10!.crop!.growthStartedAt == null) {
@@ -244,7 +244,7 @@ void main() {
       farmState.dronePosition.y = 0;
       farmState.tillCurrentPlot();
       farmState.waterCurrentPlot();
-      farmState.plantSeed(SeedType.potatoSeeds);
+      farmState.plantSeed(SeedType.potato_seeds);
       
       final plot20 = farmState.getPlot(2, 0);
       if (plot20?.crop != null && plot20!.crop!.growthStartedAt == null) {
@@ -444,15 +444,15 @@ void main() {
 
     test('Test 15: All supported crop types can be saved and restored', () async {
       final allCropTypes = [
-        (SeedType.wheatSeeds, CropType.wheat),
-        (SeedType.carrotSeeds, CropType.carrot),
-        (SeedType.potatoSeeds, CropType.potato),
-        (SeedType.beetrootSeeds, CropType.beetroot),
-        (SeedType.radishSeeds, CropType.radish),
-        (SeedType.onionSeeds, CropType.onion),
-        (SeedType.lettuceSeeds, CropType.lettuce),
-        (SeedType.tomatoSeeds, CropType.tomato),
-        (SeedType.garlicSeeds, CropType.garlic),
+        (SeedType.wheat_seeds, CropType.wheat),
+        (SeedType.carrot_seeds, CropType.carrot),
+        (SeedType.potato_seeds, CropType.potato),
+        (SeedType.beetroot_seeds, CropType.beetroot),
+        (SeedType.radish_seeds, CropType.radish),
+        (SeedType.onion_seeds, CropType.onion),
+        (SeedType.lettuce_seeds, CropType.lettuce),
+        (SeedType.tomato_seeds, CropType.tomato),
+        (SeedType.garlic_seeds, CropType.garlic),
       ];
 
       for (final (seedType, expectedCropType) in allCropTypes) {
@@ -485,7 +485,7 @@ void main() {
       farmState.dronePosition.y = 0;
       farmState.tillCurrentPlot();
       farmState.waterCurrentPlot();
-      farmState.plantSeed(SeedType.wheatSeeds);
+      farmState.plantSeed(SeedType.wheat_seeds);
 
       // Wait a bit
       await Future.delayed(const Duration(milliseconds: 100));
@@ -507,7 +507,7 @@ void main() {
       farmState.dronePosition.y = 0;
       farmState.tillCurrentPlot();
       farmState.waterCurrentPlot();
-      farmState.plantSeed(SeedType.wheatSeeds);
+      farmState.plantSeed(SeedType.wheat_seeds);
 
       // Wait 1 second
       await Future.delayed(const Duration(seconds: 1));
@@ -534,7 +534,7 @@ void main() {
       farmState.dronePosition.y = 0;
       farmState.tillCurrentPlot();
       farmState.waterCurrentPlot();
-      farmState.plantSeed(SeedType.wheatSeeds);
+      farmState.plantSeed(SeedType.wheat_seeds);
 
       // Manually set growth to 100 seconds ago
       final plot = farmState.getPlot(0, 0);
@@ -566,7 +566,7 @@ void main() {
       farmState.dronePosition.y = 0;
       farmState.tillCurrentPlot();
       farmState.waterCurrentPlot();
-      farmState.plantSeed(SeedType.tomatoSeeds);
+      farmState.plantSeed(SeedType.tomato_seeds);
 
       // Manually set growth started to 20 seconds ago
       final plot = farmState.getPlot(0, 0);
@@ -597,7 +597,7 @@ void main() {
       farmState.dronePosition.y = 0;
       farmState.tillCurrentPlot();
       farmState.waterCurrentPlot();
-      farmState.plantSeed(SeedType.garlicSeeds);
+      farmState.plantSeed(SeedType.garlic_seeds);
 
       // Manually set growth started to 1 second ago
       final plot = farmState.getPlot(0, 0);
@@ -626,7 +626,7 @@ void main() {
       farmState.dronePosition.y = 0;
       farmState.tillCurrentPlot();
       farmState.waterCurrentPlot();
-      farmState.plantSeed(SeedType.wheatSeeds);
+      farmState.plantSeed(SeedType.wheat_seeds);
 
       // Wait 2 seconds (under the 5 second max)
       await Future.delayed(const Duration(seconds: 2));

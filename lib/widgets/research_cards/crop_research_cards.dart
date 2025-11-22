@@ -32,9 +32,9 @@ class CropResearchCards extends StatelessWidget {
         name: 'Carrot',
         description: 'Grows in 7 seconds. Gives 2-3 per harvest.',
         cropType: 'carrot',
-        predecessorIds: ['crop_wheat'], // No prerequisites
+        predecessorIds: [], // No prerequisites
         requirements: {
-          'inventory.crops.wheat': 250,
+          'sproutProgress.inventory.wheat.quantity': 250,
         },
       ),
       CropResearchItem(
@@ -44,8 +44,8 @@ class CropResearchCards extends StatelessWidget {
         cropType: 'potato',
         predecessorIds: ['crop_carrot'],
         requirements: {
-          'inventory.crops.wheat': 350,
-          'inventory.crops.carrot': 800,
+          'sproutProgress.inventory.wheat.quantity': 350,
+          'sproutProgress.inventory.carrot.quantity': 800,
         },
       ),
       CropResearchItem(
@@ -55,8 +55,8 @@ class CropResearchCards extends StatelessWidget {
         cropType: 'beetroot',
         predecessorIds: ['crop_potato'],
         requirements: {
-          'inventory.crops.carrot': 1050,
-          'inventory.crops.potato': 350,
+          'sproutProgress.inventory.carrot.quantity': 1050,
+          'sproutProgress.inventory.potato.quantity': 350,
         },
       ),
       CropResearchItem(
@@ -66,8 +66,8 @@ class CropResearchCards extends StatelessWidget {
         cropType: 'radish',
         predecessorIds: ['crop_beetroot'],
         requirements: {
-          'inventory.crops.beetroot': 600,
-          'inventory.crops.potato': 650,
+          'sproutProgress.inventory.beetroot.quantity': 600,
+          'sproutProgress.inventory.potato.quantity': 650,
         },
       ),
     ];

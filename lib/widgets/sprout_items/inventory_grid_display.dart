@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../models/styles_schema.dart';
-import '../../models/farm_data_schema.dart';
 import '../../models/sprout_data.dart';
 import '../../miscellaneous/glass_effect.dart';
 
@@ -22,7 +21,6 @@ class InventoryGridDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final styles = AppStyles();
-    final farmSchema = FarmDataSchema();
     
     // Get all styles
     final lockedIconImage = styles.getStyles('sprout_researches.locked_overlay.icon.image') as String;
@@ -60,15 +58,7 @@ class InventoryGridDisplay extends StatelessWidget {
         spacing: spacing,
         runSpacing: spacing,
         children: inventoryItems.map((item) {
-          // Determine if it's a seed or crop to get the correct icon
-          String imagePath;
-          if (item.id.endsWith('Seeds')) {
-            final cropId = item.id.replaceAll('Seeds', '').toLowerCase();
-            final formattedCropId = cropId[0].toLowerCase() + cropId.substring(1);
-            imagePath = farmSchema.getSeedIcon(formattedCropId);
-          } else {
-            imagePath = farmSchema.getItemIcon(item.id);
-          }
+          final imagePath = item.iconPath;
 
           return SizedBox(
             width: itemWidth,
@@ -95,7 +85,7 @@ class InventoryGridDisplay extends StatelessWidget {
                           Expanded(
                             flex: 1,
                             child: Center(
-                              child: Image.asset(imagePath, width: iconWidth, height: iconHeight, fit: BoxFit.contain),
+                              child: Image.asset(imagePath!, width: iconWidth, height: iconHeight, fit: BoxFit.contain),
                             ),
                           ),
 

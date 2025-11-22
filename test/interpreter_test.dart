@@ -144,21 +144,21 @@ void main() {
     late FarmState farmState;
 
     setUp(() {
-      // Create mock user data with seeds in inventory for testing
+      // Create mock user data with seeds in inventory for testing (using snake_case)
       final mockUserData = UserData(
         uid: 'test_user',
         data: {
           'sproutProgress': {
             'inventory': {
-              'wheatSeeds': {'isLocked': false, 'quantity': 100},
-              'carrotSeeds': {'isLocked': false, 'quantity': 100},
-              'potatoSeeds': {'isLocked': false, 'quantity': 100},
-              'beetrootSeeds': {'isLocked': false, 'quantity': 100},
-              'radishSeeds': {'isLocked': false, 'quantity': 100},
-              'onionSeeds': {'isLocked': false, 'quantity': 100},
-              'lettuceSeeds': {'isLocked': false, 'quantity': 100},
-              'tomatoSeeds': {'isLocked': false, 'quantity': 100},
-              'garlicSeeds': {'isLocked': false, 'quantity': 100},
+              'wheat_seeds': {'isLocked': false, 'quantity': 100},
+              'carrot_seeds': {'isLocked': false, 'quantity': 100},
+              'potato_seeds': {'isLocked': false, 'quantity': 100},
+              'beetroot_seeds': {'isLocked': false, 'quantity': 100},
+              'radish_seeds': {'isLocked': false, 'quantity': 100},
+              'onion_seeds': {'isLocked': false, 'quantity': 100},
+              'lettuce_seeds': {'isLocked': false, 'quantity': 100},
+              'tomato_seeds': {'isLocked': false, 'quantity': 100},
+              'garlic_seeds': {'isLocked': false, 'quantity': 100},
               'wheat': {'isLocked': false, 'quantity': 0},
               'carrot': {'isLocked': false, 'quantity': 0},
               'potato': {'isLocked': false, 'quantity': 0},
@@ -370,7 +370,7 @@ int main() {
         const code = '''
 int main() {
   till();
-  plant(SeedType::wheatSeeds);
+  plant(SeedType::WheatSeeds);
   water();
   return 0;
 }
@@ -387,7 +387,7 @@ int main() {
       test('Farm operations - cannot plant on untilled plot', () async {
         const code = '''
 int main() {
-  plant(SeedType::wheatSeeds);
+  plant(SeedType::WheatSeeds);
   return 0;
 }
 ''';
@@ -403,7 +403,7 @@ int main() {
 int main() {
   till();
   water();
-  plant(SeedType::wheatSeeds);
+  plant(SeedType::WheatSeeds);
   return 0;
 }
 ''';
@@ -421,10 +421,10 @@ int main() {
         const code = '''
 int main() {
   till();
-  plant(SeedType::wheatSeeds);
+  plant(SeedType::WheatSeeds);
   move(Direction::east);
   till();
-  plant(SeedType::carrotSeeds);
+  plant(SeedType::CarrotSeeds);
   return 0;
 }
 ''';
@@ -618,7 +618,7 @@ result = z
       test('Farm operations - correct sequence', () async {
         const code = '''
 till()
-plant(SeedType.wheatSeeds)
+plant(SeedType.wheat_seeds)
 water()
 ''';
         final result = await interpreter.execute(code);
@@ -941,7 +941,7 @@ while (i < 5) {
       test('Farm operations', () async {
         const code = '''
 till();
-plant(SeedType.wheatSeeds);
+plant(SeedType.wheat_seeds);
 water();
 ''';
         final result = await interpreter.execute(code);
@@ -981,7 +981,7 @@ try {
         final interpreter = CppInterpreter(farmState: farmState);
         const code = '''
 int main() {
-  plant(SeedType::wheatSeeds);
+  plant(SeedType::WheatSeeds);
   return 0;
 }
 ''';
@@ -994,7 +994,7 @@ int main() {
         final interpreter = PythonInterpreter(farmState: farmState);
         const code = '''
 till()
-plant(SeedType.wheatSeeds)
+plant(SeedType.wheat_seeds)
 ''';
         final result = await interpreter.execute(code);
         expect(result.success, true);
@@ -1054,13 +1054,13 @@ move(Direction.west);
         const code = '''
 int main() {
   till();
-  plant(SeedType::wheatSeeds);
+  plant(SeedType::WheatSeeds);
   move(Direction::east);
   till();
-  plant(SeedType::carrotSeeds);
+  plant(SeedType::CarrotSeeds);
   move(Direction::east);
   till();
-  plant(SeedType::potatoSeeds);
+  plant(SeedType::PotatoSeeds);
   return 0;
 }
 ''';
@@ -1172,7 +1172,7 @@ public class Main {
         const code = '''
 for i in range(0, 3):
     till()
-    plant(SeedType.wheatSeeds)
+    plant(SeedType.wheat_seeds)
     water()
     if i < 2:
         move(Direction.east)
@@ -1191,10 +1191,10 @@ let planted = 0;
 for (let i = 0; i < 3; i++) {
   till();
   if (i == 0) {
-    plant(SeedType.wheatSeeds);
+    plant(SeedType.wheat_seeds);
     planted++;
   } else if (i == 1) {
-    plant(SeedType.carrotSeeds);
+    plant(SeedType.carrot_seeds);
     planted++;
   }
   if (i < 2) {
@@ -1216,7 +1216,7 @@ int main() {
   int successCount = 0;
   try {
     till();
-    plant(SeedType::wheatSeeds);
+    plant(SeedType::WheatSeeds);
     successCount = successCount + 1;
   } catch (...) {
     successCount = 0;
@@ -1422,16 +1422,16 @@ let x = getPositionX();
 let y = getPositionY();
 till();
 water();
-plant(SeedType.wheatSeeds);
+plant(SeedType.WHEAT_SEEDS);
 let cropType = getCropType();
-let isWheat = (cropType == CropType.Wheat);
+let isWheat = (cropType == CropType.WHEAT);
 let grown = isCropGrown();
 ''';
         final result = await interpreter.execute(code);
         expect(result.success, true);
         expect(interpreter.currentScope.get('x'), 0);
         expect(interpreter.currentScope.get('y'), 0);
-        expect(interpreter.currentScope.get('cropType'), 'CropType.Wheat');
+        expect(interpreter.currentScope.get('cropType'), 'CropType.WHEAT');
         expect(interpreter.currentScope.get('isWheat'), true);
         expect(interpreter.currentScope.get('grown'), false);
       });
