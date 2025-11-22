@@ -19,6 +19,7 @@ import '../compilers/javascript_interpreter.dart';
 import '../services/local_storage_service.dart';
 import '../services/code_files_service.dart';
 import '../services/farm_progress_service.dart';
+import '../services/firestore_service.dart';
 import '../miscellaneous/interactive_viewport_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -853,8 +854,9 @@ class _FarmPageState extends State<FarmPage> {
       // Mark research as completed
       _researchState.completeResearch(researchId);
       
-      // Save updated user data to Firestore
-      await LocalStorageService.instance.saveUserData(userData);
+      // CRITICAL: Save using FirestoreService to trigger notifier and persist to Firestore
+      // This ensures inventory changes are reflected everywhere (sprout page, settings, etc.)
+      await FirestoreService.updateUserData(userData);
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

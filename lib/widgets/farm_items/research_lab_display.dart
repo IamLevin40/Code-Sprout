@@ -36,6 +36,27 @@ class _ResearchLabDisplayState extends State<ResearchLabDisplay> {
   ResearchTab _selectedTab = ResearchTab.crops;
 
   @override
+  void initState() {
+    super.initState();
+    // Listen to research state changes to rebuild UI when research completes
+    widget.researchState.addListener(_onResearchStateChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.researchState.removeListener(_onResearchStateChanged);
+    super.dispose();
+  }
+
+  void _onResearchStateChanged() {
+    if (mounted) {
+      setState(() {
+        // Rebuild to reflect new research states
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final styles = AppStyles();
     
