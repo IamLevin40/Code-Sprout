@@ -40,6 +40,15 @@ service cloud.firestore {
         allow get, list: if request.auth != null && request.auth.uid == userId;
         allow create, update, delete: if request.auth != null && request.auth.uid == userId;
       }
+
+      // Allow users to manage farm progress stored under their user document
+      // Structure: users/{userId}/farmProgress/grid
+      match /farmProgress/{document} {
+        // Owner-only access: only the authenticated user matching userId
+        // may read, list, create, update or delete their farm progress.
+        allow get, list: if request.auth != null && request.auth.uid == userId;
+        allow create, update, delete: if request.auth != null && request.auth.uid == userId;
+      }
     }
   }
 }

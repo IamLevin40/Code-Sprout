@@ -16,6 +16,7 @@ import '../compilers/python_interpreter.dart';
 import '../compilers/javascript_interpreter.dart';
 import '../services/local_storage_service.dart';
 import '../services/code_files_service.dart';
+import '../services/farm_progress_service.dart';
 import '../miscellaneous/interactive_viewport_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -65,7 +66,10 @@ class _FarmPageState extends State<FarmPage> {
     );
     _logScrollController = ScrollController();
     _logScrollController.addListener(_onLogScroll);
-    _farmState.addListener(_onFarmStateChanged);
+    
+    // CRITICAL: Do NOT add farm state listener until AFTER loading progress
+    // Otherwise, applyProgressToFarmState triggers auto-save and overwrites existing data
+    
     // initialize farm state with cached user data and keep in sync
     try {
       final ud = LocalStorageService.instance.userDataNotifier.value;
@@ -77,6 +81,10 @@ class _FarmPageState extends State<FarmPage> {
     
     // Load code files from Firestore
     _loadCodeFiles();
+
+    // Load farm progress from Firestore
+    // The listener will be added after progress is loaded
+    _loadFarmProgress();
 
     // Ensure viewport centers once after the first frame (styles and layout available)
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -143,12 +151,73 @@ class _FarmPageState extends State<FarmPage> {
     }
   }
 
+  /// Load farm progress from Firestore and apply to farm state
+  Future<void> _loadFarmProgress() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        // No user logged in, add listener and return
+        _farmState.addListener(_onFarmStateChanged);
+        return;
+      }
+
+      // Check if farm progress exists first
+      final exists = await FarmProgressService.farmProgressExists(userId: user.uid);
+      
+      if (exists) {
+        // Load existing progress
+        final progress = await FarmProgressService.loadFarmProgress(userId: user.uid);
+        
+        if (progress != null && mounted) {
+          // Apply progress to existing farm state WITHOUT triggering auto-save
+          FarmProgressService.applyProgressToFarmState(
+            farmState: _farmState,
+            progress: progress,
+          );
+          
+          // NOW add listener after progress is loaded
+          _farmState.addListener(_onFarmStateChanged);
+          setState(() {});
+        }
+      } else {
+        // No existing progress, use default and add listener
+        // This will trigger auto-save to create the initial progress
+        _farmState.addListener(_onFarmStateChanged);
+      }
+    } catch (e) {
+      // Silent fail - don't interrupt user experience
+      // Add listener even if loading fails
+      _farmState.addListener(_onFarmStateChanged);
+      debugPrint('Failed to load farm progress: $e');
+    }
+  }
+
+  /// Save farm progress to Firestore
+  Future<void> _saveFarmProgress() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+
+      await FarmProgressService.saveFarmProgress(
+        userId: user.uid,
+        farmState: _farmState,
+      );
+    } catch (e) {
+      // Silent fail - don't interrupt user experience
+      debugPrint('Failed to save farm progress: $e');
+    }
+  }
+
   @override
   void dispose() {
     // Stop any running execution before disposal
     if (_isExecuting && _currentInterpreter != null) {
       _currentInterpreter!.stop();
     }
+    
+    // Save farm progress when leaving page
+    _saveFarmProgress();
+    
     _farmState.removeListener(_onFarmStateChanged);
     _farmState.dispose();
     _executingLineNotifier.dispose();
@@ -183,6 +252,9 @@ class _FarmPageState extends State<FarmPage> {
   void _onFarmStateChanged() {
     if (mounted) {
       setState(() {});
+
+      // Auto-save farm progress whenever farm state changes
+      _saveFarmProgress();
 
       // If the farm state updated asynchronously (e.g. loaded from storage), ensure we center once
       if (!_centeredOnce) {
