@@ -2,80 +2,26 @@ import 'package:flutter/material.dart';
 import '../../models/styles_schema.dart';
 import '../../models/research_data.dart';
 import '../../models/user_data.dart';
+import '../../models/research_items_schema.dart';
 
 /// Widget that displays crop research cards
 class CropResearchCards extends StatelessWidget {
   final ResearchState researchState;
   final UserData? userData;
+  final String? currentLanguage;
   final Function(String researchId, Map<String, int> requirements)? onResearchCompleted;
 
   const CropResearchCards({
     super.key,
     required this.researchState,
     required this.userData,
+    this.currentLanguage,
     this.onResearchCompleted,
   });
 
-  /// Get placeholder crop research items
-  List<CropResearchItem> _getCropResearchItems() {
-    return [
-      CropResearchItem(
-        id: 'crop_wheat',
-        name: 'Wheat',
-        description: 'Grows in 5 seconds.',
-        cropType: 'wheat',
-        predecessorIds: [], // No prerequisites
-        requirements: {}, // No requirements for first crop
-      ),
-      CropResearchItem(
-        id: 'crop_carrot',
-        name: 'Carrot',
-        description: 'Grows in 7 seconds. Gives 2-3 per harvest.',
-        cropType: 'carrot',
-        predecessorIds: [], // No prerequisites
-        requirements: {
-          'sproutProgress.inventory.wheat.quantity': 250,
-        },
-      ),
-      CropResearchItem(
-        id: 'crop_potato',
-        name: 'Potato',
-        description: 'Grows in 5 seconds. 2% chance to become a poisonous potato.',
-        cropType: 'potato',
-        predecessorIds: ['crop_carrot'],
-        requirements: {
-          'sproutProgress.inventory.wheat.quantity': 350,
-          'sproutProgress.inventory.carrot.quantity': 800,
-        },
-      ),
-      CropResearchItem(
-        id: 'crop_beetroot',
-        name: 'Beetroot',
-        description: 'Grows in 12.5 seconds. Will get damaged if lasts for 20 seconds.',
-        cropType: 'beetroot',
-        predecessorIds: ['crop_potato'],
-        requirements: {
-          'sproutProgress.inventory.carrot.quantity': 1050,
-          'sproutProgress.inventory.potato.quantity': 350,
-        },
-      ),
-      CropResearchItem(
-        id: 'crop_radish',
-        name: 'Radish',
-        description: 'Grows in 5 seconds. Only grows in spring and winter.',
-        cropType: 'radish',
-        predecessorIds: ['crop_beetroot'],
-        requirements: {
-          'sproutProgress.inventory.beetroot.quantity': 600,
-          'sproutProgress.inventory.potato.quantity': 650,
-        },
-      ),
-    ];
-  }
-
   @override
   Widget build(BuildContext context) {
-    final items = _getCropResearchItems();
+    final items = ResearchItemsSchema.instance.getCropResearchItems();
     
     return Column(
       children: items.map((item) {
@@ -88,7 +34,7 @@ class CropResearchCards extends StatelessWidget {
     );
   }
 
-  Widget _buildCropCard(CropResearchItem item, CropResearchState state) {
+  Widget _buildCropCard(CropResearchItemSchema item, CropResearchState state) {
     final styles = AppStyles();
     
     // Use research card styles
@@ -105,6 +51,9 @@ class CropResearchCards extends StatelessWidget {
 
     final descColor = styles.getStyles('research_card.card.description.color') as Color;
     final descSize = styles.getStyles('research_card.card.description.font_size') as double;
+
+    // Get language-specific name
+    final displayName = item.getNameForLanguage(currentLanguage);
 
     return Container(
       height: cardHeight,
@@ -124,50 +73,53 @@ class CropResearchCards extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  // Crop icon placeholder
+                  // Crop icon
                   Container(
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: Colors.brown.shade100,
+                      color: Colors.white.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Center(
-                      child: Text(
-                        item.cropType.substring(0, 1).toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.brown.shade700,
-                        ),
-                      ),
-                    ),
+                    child: item.icon.isNotEmpty
+                        ? Image.asset(
+                            item.icon,
+                            width: 64,
+                            height: 64,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Icon(Icons.image_not_supported, size: 48);
+                            },
+                          )
+                        : const Icon(Icons.agriculture, size: 48),
                   ),
                   const SizedBox(width: 16),
-                  // Crop info
+                  // Content
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          item.name,
+                          displayName,
                           style: TextStyle(
                             color: titleColor,
                             fontSize: titleSize,
                             fontWeight: titleWeight,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 4),
                         Text(
                           item.description,
                           style: TextStyle(
                             color: descColor,
                             fontSize: descSize,
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
+                        const SizedBox(height: 8),
+                        // Requirements
                         if (item.requirements.isNotEmpty) ...[
-                          const SizedBox(height: 8),
                           Text(
                             'Requirements',
                             style: TextStyle(
@@ -176,15 +128,38 @@ class CropResearchCards extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          ...item.requirements.entries.map((entry) {
-                            return Text(
-                              '🌾 x${entry.value}',
-                              style: TextStyle(
-                                color: descColor,
-                                fontSize: descSize * 0.9,
-                              ),
-                            );
-                          }),
+                          const SizedBox(height: 4),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 4,
+                            children: item.requirements.entries.map((entry) {
+                              final itemIcon = ResearchItemsSchema.instance.getInventoryIcon(entry.key);
+                              return Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (itemIcon != null)
+                                    Image.asset(
+                                      itemIcon,
+                                      width: 16,
+                                      height: 16,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return const Icon(Icons.inventory, size: 16);
+                                      },
+                                    )
+                                  else
+                                    const Icon(Icons.inventory, size: 16),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'x${entry.value}',
+                                    style: TextStyle(
+                                      color: descColor,
+                                      fontSize: descSize * 0.9,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }).toList(),
+                          ),
                         ],
                       ],
                     ),
@@ -207,7 +182,7 @@ class CropResearchCards extends StatelessWidget {
     );
   }
 
-  Widget _buildResearchButton(CropResearchItem item) {
+  Widget _buildResearchButton(CropResearchItemSchema item) {
     final styles = AppStyles();
     final buttonHeight = styles.getStyles('research_card.card.button.height') as double;
     final borderRadius = styles.getStyles('research_card.card.button.border_radius') as double;
@@ -219,7 +194,8 @@ class CropResearchCards extends StatelessWidget {
     final fontWeight = styles.getStyles('research_card.card.button.text.font_weight') as FontWeight;
 
     // Check if requirements are met
-    final canResearch = userData != null && item.areRequirementsMet(userData!.toJson());
+    final canResearch = userData != null && 
+        ResearchRequirements.areRequirementsMet(item.requirements, userData!.toJson());
     
     return GestureDetector(
       onTap: canResearch ? () {

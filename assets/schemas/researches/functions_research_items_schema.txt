@@ -1,0 +1,72 @@
+{
+    "func_move": {
+        "icon": "images/icons/sprout_items/function_items/move.png",
+        "name": "move(direction)",
+        "language_specific_description": {
+            "cpp": "move(Direction::North)\nmove(Direction::South)\nmove(Direction::East)\nmove(Direction::West)\n\nMoves drone by 1 tile toward the given direction.",
+            "csharp": "move(Direction.North)\nmove(Direction.South)\nmove(Direction.East)\nmove(Direction.West)\n\nMoves drone by 1 tile toward the given direction.",
+            "java": "move(Direction.NORTH)\nmove(Direction.SOUTH)\nmove(Direction.EAST)\nmove(Direction.WEST)\n\nMoves drone by 1 tile toward the given direction.",
+            "javascript": "move(Direction.NORTH)\nmove(Direction.SOUTH)\nmove(Direction.EAST)\nmove(Direction.WEST)\n\nMoves drone by 1 tile toward the given direction.",
+            "python": "move(Direction.NORTH)\nmove(Direction.SOUTH)\nmove(Direction.EAST)\nmove(Direction.WEST)\n\nMoves drone by 1 tile toward the given direction."
+        },
+        "predecessor_ids": [],
+        "requirements": {}
+    },
+    "func_till": {
+        "icon": "images/icons/sprout_items/function_items/till.png",
+        "name": "till()",
+        "language_specific_description": {
+            "cpp": "till()\n\nTills the soil at current position for planting preparation.",
+            "csharp": "till()\n\nTills the soil at current position for planting preparation.",
+            "java": "till()\n\nTills the soil at current position for planting preparation.",
+            "javascript": "till()\n\nTills the soil at current position for planting preparation.",
+            "python": "till()\n\nTills the soil at current position for planting preparation."
+        },
+        "predecessor_ids": [],
+        "requirements": {}
+    },
+    "func_water": {
+        "icon": "images/icons/sprout_items/function_items/water.png",
+        "name": "water()",
+        "language_specific_description": {
+            "cpp": "water()\n\nWaters soil at current position.",
+            "csharp": "water()\n\nWaters soil at current position.",
+            "java": "water()\n\nWaters soil at current position.",
+            "javascript": "water()\n\nWaters soil at current position.",
+            "python": "water()\n\nWaters soil at current position."
+        },
+        "predecessor_ids": [],
+        "requirements": {}
+    },
+    "func_plant": {
+        "icon": "images/icons/sprout_items/function_items/plant.png",
+        "name": "plant(crop)",
+        "language_specific_description": {
+            "cpp": "plant(CropType::Wheat)\n\nPlants the given crop type at current position.",
+            "csharp": "plant(CropType.Wheat)\n\nPlants the given crop type at current position.",
+            "java": "plant(CropType.WHEAT)\n\nPlants the given crop type at current position.",
+            "javascript": "plant(CropType.WHEAT)\n\nPlants the given crop type at current position.",
+            "python": "plant(CropType.WHEAT)\n\nPlants the given crop type at current position."
+        },
+        "predecessor_ids": ["func_move"],
+        "requirements": {
+            "wheat": 100
+        }
+    },
+    "func_harvest": {
+        "icon": "images/icons/sprout_items/function_items/harvest.png",
+        "name": "harvest()",
+        "language_specific_description": {
+            "cpp": "harvest()\n\nHarvests crops from the current position.",
+            "csharp": "harvest()\n\nHarvests crops from the current position.",
+            "java": "harvest()\n\nHarvests crops from the current position.",
+            "javascript": "harvest()\n\nHarvests crops from the current position.",
+            "python": "harvest()\n\nHarvests crops from the current position."
+        },
+        "predecessor_ids": ["func_plant"],
+        "requirements": {
+            "wheat": 200,
+            "carrot": 150
+        }
+    }
+}

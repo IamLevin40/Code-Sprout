@@ -17,6 +17,7 @@ enum ResearchTab {
 class ResearchLabDisplay extends StatefulWidget {
   final ResearchState researchState;
   final UserData? userData;
+  final String? currentLanguage;
   final VoidCallback onClose;
   final Function(String researchId, Map<String, int> requirements)? onResearchCompleted;
 
@@ -24,6 +25,7 @@ class ResearchLabDisplay extends StatefulWidget {
     super.key,
     required this.researchState,
     required this.userData,
+    this.currentLanguage,
     required this.onClose,
     this.onResearchCompleted,
   });
@@ -154,6 +156,7 @@ class _ResearchLabDisplayState extends State<ResearchLabDisplay> {
         return CropResearchCards(
           researchState: widget.researchState,
           userData: widget.userData,
+          currentLanguage: widget.currentLanguage,
           onResearchCompleted: widget.onResearchCompleted,
         );
       case ResearchTab.farm:
@@ -166,6 +169,7 @@ class _ResearchLabDisplayState extends State<ResearchLabDisplay> {
         return FunctionsResearchCards(
           researchState: widget.researchState,
           userData: widget.userData,
+          currentLanguage: widget.currentLanguage,
           onResearchCompleted: widget.onResearchCompleted,
         );
     }

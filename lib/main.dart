@@ -4,6 +4,7 @@ import 'firebase_options.dart';
 import 'services/auth_service.dart';
 import 'models/styles_schema.dart';
 import 'models/farm_data_schema.dart';
+import 'models/research_items_schema.dart';
 import 'miscellaneous/touch_mouse_drag_scroll_behavior.dart';
 import 'pages/register_page.dart';
 import 'pages/login_page.dart';
@@ -15,9 +16,10 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   
-  // Load app styles and farm data schemas
+  // Load app styles and schemas
   await AppStyles().loadStyles();
   await FarmDataSchema().loadSchema();
+  await ResearchItemsSchema.instance.loadSchemas();
   
   runApp(const MyApp());
 }

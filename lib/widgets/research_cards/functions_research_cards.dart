@@ -2,88 +2,26 @@ import 'package:flutter/material.dart';
 import '../../models/styles_schema.dart';
 import '../../models/research_data.dart';
 import '../../models/user_data.dart';
+import '../../models/research_items_schema.dart';
 
 /// Widget that displays functions research cards
 class FunctionsResearchCards extends StatelessWidget {
   final ResearchState researchState;
   final UserData? userData;
+  final String? currentLanguage;
   final Function(String researchId, Map<String, int> requirements)? onResearchCompleted;
 
   const FunctionsResearchCards({
     super.key,
     required this.researchState,
     required this.userData,
+    this.currentLanguage,
     this.onResearchCompleted,
   });
 
-  /// Get placeholder functions research items
-  List<FunctionsResearchItem> _getFunctionsResearchItems() {
-    return [
-      FunctionsResearchItem(
-        id: 'func_move',
-        name: 'move()',
-        description: 'Move the drone one step forward.',
-        functionName: 'move',
-        predecessorIds: [], // Available from start
-        requirements: {},
-      ),
-      FunctionsResearchItem(
-        id: 'func_turn_left',
-        name: 'turnLeft()',
-        description: 'Turn the drone 90° counter-clockwise.',
-        functionName: 'turnLeft',
-        predecessorIds: [], // Available from start
-        requirements: {},
-      ),
-      FunctionsResearchItem(
-        id: 'func_plant',
-        name: 'plant()',
-        description: 'Plant a seed at the current plot.',
-        functionName: 'plant',
-        predecessorIds: ['func_move'],
-        requirements: {
-          'sproutProgress.inventory.wheat.quantity': 100,
-        },
-      ),
-      FunctionsResearchItem(
-        id: 'func_till',
-        name: 'till()',
-        description: 'Till the soil at the current plot.',
-        functionName: 'till',
-        predecessorIds: ['func_plant'],
-        requirements: {
-          'sproutProgress.inventory.wheat.quantity': 200,
-          'sproutProgress.inventory.carrot.quantity': 150,
-        },
-      ),
-      FunctionsResearchItem(
-        id: 'func_water',
-        name: 'water()',
-        description: 'Water the current plot.',
-        functionName: 'water',
-        predecessorIds: ['func_till'],
-        requirements: {
-          'sproutProgress.inventory.carrot.quantity': 300,
-          'sproutProgress.inventory.potato.quantity': 200,
-        },
-      ),
-      FunctionsResearchItem(
-        id: 'func_harvest',
-        name: 'harvest()',
-        description: 'Harvest crops from the current plot.',
-        functionName: 'harvest',
-        predecessorIds: ['func_plant', 'func_water'],
-        requirements: {
-          'sproutProgress.inventory.potato.quantity': 400,
-          'sproutProgress.inventory.beetroot.quantity': 250,
-        },
-      ),
-    ];
-  }
-
   @override
   Widget build(BuildContext context) {
-    final items = _getFunctionsResearchItems();
+    final items = ResearchItemsSchema.instance.getFunctionsResearchItems();
     
     return Column(
       children: items.map((item) {
@@ -96,7 +34,7 @@ class FunctionsResearchCards extends StatelessWidget {
     );
   }
 
-  Widget _buildFunctionsCard(FunctionsResearchItem item, FunctionsResearchState state) {
+  Widget _buildFunctionsCard(FunctionsResearchItemSchema item, FunctionsResearchState state) {
     final styles = AppStyles();
     
     final cardHeight = styles.getStyles('research_card.card.height') as double;
@@ -112,6 +50,9 @@ class FunctionsResearchCards extends StatelessWidget {
 
     final descColor = styles.getStyles('research_card.card.description.color') as Color;
     final descSize = styles.getStyles('research_card.card.description.font_size') as double;
+
+    // Get language-specific description
+    final displayDescription = item.getDescriptionForLanguage(currentLanguage);
 
     return Container(
       height: cardHeight,
@@ -131,22 +72,27 @@ class FunctionsResearchCards extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  // Function icon placeholder
+                  // Function icon
                   Container(
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: Colors.blue.shade100,
+                      color: Colors.white.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(
-                      Icons.functions,
-                      size: 40,
-                      color: Colors.blue.shade700,
-                    ),
+                    child: item.icon.isNotEmpty
+                        ? Image.asset(
+                            item.icon,
+                            width: 64,
+                            height: 64,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Icon(Icons.image_not_supported, size: 48);
+                            },
+                          )
+                        : const Icon(Icons.functions, size: 48),
                   ),
                   const SizedBox(width: 16),
-                  // Function info
+                  // Content
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -160,16 +106,19 @@ class FunctionsResearchCards extends StatelessWidget {
                             fontWeight: titleWeight,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 4),
                         Text(
-                          item.description,
+                          displayDescription,
                           style: TextStyle(
                             color: descColor,
                             fontSize: descSize,
                           ),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
                         ),
+                        const SizedBox(height: 8),
+                        // Requirements
                         if (item.requirements.isNotEmpty) ...[
-                          const SizedBox(height: 8),
                           Text(
                             'Requirements',
                             style: TextStyle(
@@ -178,15 +127,38 @@ class FunctionsResearchCards extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          ...item.requirements.entries.map((entry) {
-                            return Text(
-                              '🌾 x${entry.value}',
-                              style: TextStyle(
-                                color: descColor,
-                                fontSize: descSize * 0.9,
-                              ),
-                            );
-                          }),
+                          const SizedBox(height: 4),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 4,
+                            children: item.requirements.entries.map((entry) {
+                              final itemIcon = ResearchItemsSchema.instance.getInventoryIcon(entry.key);
+                              return Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (itemIcon != null)
+                                    Image.asset(
+                                      itemIcon,
+                                      width: 16,
+                                      height: 16,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return const Icon(Icons.inventory, size: 16);
+                                      },
+                                    )
+                                  else
+                                    const Icon(Icons.inventory, size: 16),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'x${entry.value}',
+                                    style: TextStyle(
+                                      color: descColor,
+                                      fontSize: descSize * 0.9,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }).toList(),
+                          ),
                         ],
                       ],
                     ),
@@ -209,7 +181,7 @@ class FunctionsResearchCards extends StatelessWidget {
     );
   }
 
-  Widget _buildResearchButton(FunctionsResearchItem item) {
+  Widget _buildResearchButton(FunctionsResearchItemSchema item) {
     final styles = AppStyles();
     final buttonHeight = styles.getStyles('research_card.card.button.height') as double;
     final borderRadius = styles.getStyles('research_card.card.button.border_radius') as double;
@@ -221,7 +193,8 @@ class FunctionsResearchCards extends StatelessWidget {
     final fontWeight = styles.getStyles('research_card.card.button.text.font_weight') as FontWeight;
 
     // Check if requirements are met
-    final canResearch = userData != null && item.areRequirementsMet(userData!.toJson());
+    final canResearch = userData != null && 
+        ResearchRequirements.areRequirementsMet(item.requirements, userData!.toJson());
     
     return GestureDetector(
       onTap: canResearch ? () {

@@ -815,6 +815,7 @@ class _FarmPageState extends State<FarmPage> {
       child: ResearchLabDisplay(
         researchState: _researchState,
         userData: LocalStorageService.instance.userDataNotifier.value,
+        currentLanguage: widget.languageId,
         onClose: () {
           setState(() => _showResearchLab = false);
         },
@@ -824,6 +825,7 @@ class _FarmPageState extends State<FarmPage> {
   }
   
   /// Handle research completion: deduct items from inventory and mark as completed
+  /// Requirements use simplified item IDs (e.g., "wheat", "carrot")
   void _handleResearchCompleted(String researchId, Map<String, int> requirements) async {
     try {
       final userData = LocalStorageService.instance.userDataNotifier.value;
@@ -834,10 +836,11 @@ class _FarmPageState extends State<FarmPage> {
         return;
       }
       
-      // Deduct items from inventory
+      // Deduct items from inventory using simplified paths
       for (final entry in requirements.entries) {
-        final itemPath = entry.key;
+        final itemId = entry.key; // Simplified ID like "wheat", "carrot"
         final required = entry.value;
+        final itemPath = 'sproutProgress.inventory.$itemId.quantity';
         final currentValue = userData.get(itemPath) as int? ?? 0;
         final newValue = currentValue - required;
         

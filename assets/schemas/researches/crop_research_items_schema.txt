@@ -1,0 +1,83 @@
+{
+    "crop_wheat": {
+        "icon": "images/icons/sprout_items/crop_items/wheat.png",
+        "default_name": "Wheat",
+        "language_specific_name": {
+            "cpp": "Crop::Wheat",
+            "csharp": "Crop.Wheat",
+            "java": "Crop.WHEAT",
+            "javascript": "Crop.WHEAT",
+            "python": "Crop.WHEAT"
+        },
+        "description": "Grows in 5 seconds.",
+        "predecessor_ids": [],
+        "requirements": {}
+    },
+    "crop_carrot": {
+        "icon": "images/icons/sprout_items/crop_items/carrot.png",
+        "default_name": "Carrot",
+        "language_specific_name": {
+            "cpp": "Crop::Carrot",
+            "csharp": "Crop.Carrot",
+            "java": "Crop.CARROT",
+            "javascript": "Crop.CARROT",
+            "python": "Crop.CARROT"
+        },
+        "description": "Grows in 7 seconds. Gives 2-3 per harvest.",
+        "predecessor_ids": [],
+        "requirements": {
+            "wheat": 250
+        }
+    },
+    "crop_potato": {
+        "icon": "images/icons/sprout_items/crop_items/potato.png",
+        "default_name": "Potato",
+        "language_specific_name": {
+            "cpp": "Crop::Potato",
+            "csharp": "Crop.Potato",
+            "java": "Crop.POTATO",
+            "javascript": "Crop.POTATO",
+            "python": "Crop.POTATO"
+        },
+        "description": "Grows in 5 seconds. 2% chance to become a poisonous potato.",
+        "predecessor_ids": ["crop_carrot"],
+        "requirements": {
+            "wheat": 350,
+            "carrot": 800
+        }
+    },
+    "crop_beetroot": {
+        "icon": "images/icons/sprout_items/crop_items/beetroot.png",
+        "default_name": "Beetroot",
+        "language_specific_name": {
+            "cpp": "Crop::Beetroot",
+            "csharp": "Crop.Beetroot",
+            "java": "Crop.BEETROOT",
+            "javascript": "Crop.BEETROOT",
+            "python": "Crop.BEETROOT"
+        },
+        "description": "Grows in 12.5 seconds. Will get damaged if lasts for 20 seconds.",
+        "predecessor_ids": ["crop_potato"],
+        "requirements": {
+            "carrot": 1050,
+            "potato": 350
+        }
+    },
+    "crop_radish": {
+        "icon": "images/icons/sprout_items/crop_items/radish.png",
+        "default_name": "Radish",
+        "language_specific_name": {
+            "cpp": "Crop::Radish",
+            "csharp": "Crop.Radish",
+            "java": "Crop.RADISH",
+            "javascript": "Crop.RADISH",
+            "python": "Crop.RADISH"
+        },
+        "description": "Grows in 5 seconds. Only grows in spring and winter.",
+        "predecessor_ids": ["crop_beetroot"],
+        "requirements": {
+            "beetroot": 600,
+            "potato": 650
+        }
+    }
+}

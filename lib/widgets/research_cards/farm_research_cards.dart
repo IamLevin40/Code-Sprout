@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/styles_schema.dart';
 import '../../models/research_data.dart';
 import '../../models/user_data.dart';
+import '../../models/research_items_schema.dart';
 
 /// Widget that displays farm research cards
 class FarmResearchCards extends StatelessWidget {
@@ -16,55 +17,9 @@ class FarmResearchCards extends StatelessWidget {
     this.onResearchCompleted,
   });
 
-  /// Get placeholder farm research items
-  List<FarmResearchItem> _getFarmResearchItems() {
-    return [
-      FarmResearchItem(
-        id: 'farm_basic_plot',
-        name: 'Basic Farm Plot',
-        description: 'Unlock the basic 5x5 farm grid.',
-        farmFeature: 'basic_plot',
-        predecessorIds: [], // Available from start
-        requirements: {},
-      ),
-      FarmResearchItem(
-        id: 'farm_expansion_1',
-        name: 'Farm Expansion I',
-        description: 'Expand farm to 7x7 grid.',
-        farmFeature: 'expansion_1',
-        predecessorIds: ['farm_basic_plot'],
-        requirements: {
-          'sproutProgress.inventory.wheat.quantity': 500,
-        },
-      ),
-      FarmResearchItem(
-        id: 'farm_irrigation',
-        name: 'Irrigation System',
-        description: 'Unlock automatic watering for adjacent plots.',
-        farmFeature: 'irrigation',
-        predecessorIds: ['farm_basic_plot'],
-        requirements: {
-          'sproutProgress.inventory.wheat.quantity': 300,
-          'sproutProgress.inventory.carrot.quantity': 200,
-        },
-      ),
-      FarmResearchItem(
-        id: 'farm_expansion_2',
-        name: 'Farm Expansion II',
-        description: 'Expand farm to 10x10 grid.',
-        farmFeature: 'expansion_2',
-        predecessorIds: ['farm_expansion_1', 'farm_irrigation'],
-        requirements: {
-          'sproutProgress.inventory.potato.quantity': 800,
-          'sproutProgress.inventory.carrot.quantity': 1000,
-        },
-      ),
-    ];
-  }
-
   @override
   Widget build(BuildContext context) {
-    final items = _getFarmResearchItems();
+    final items = ResearchItemsSchema.instance.getFarmResearchItems();
     
     return Column(
       children: items.map((item) {
@@ -77,7 +32,7 @@ class FarmResearchCards extends StatelessWidget {
     );
   }
 
-  Widget _buildFarmCard(FarmResearchItem item, FarmResearchState state) {
+  Widget _buildFarmCard(FarmResearchItemSchema item, FarmResearchState state) {
     final styles = AppStyles();
     
     final cardHeight = styles.getStyles('research_card.card.height') as double;
@@ -112,22 +67,27 @@ class FarmResearchCards extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  // Farm icon placeholder
+                  // Farm feature icon
                   Container(
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: Colors.green.shade100,
+                      color: Colors.white.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(
-                      Icons.landscape,
-                      size: 40,
-                      color: Colors.green.shade700,
-                    ),
+                    child: item.icon.isNotEmpty
+                        ? Image.asset(
+                            item.icon,
+                            width: 64,
+                            height: 64,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Icon(Icons.image_not_supported, size: 48);
+                            },
+                          )
+                        : const Icon(Icons.grid_on, size: 48),
                   ),
                   const SizedBox(width: 16),
-                  // Farm info
+                  // Content
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,16 +101,19 @@ class FarmResearchCards extends StatelessWidget {
                             fontWeight: titleWeight,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 4),
                         Text(
                           item.description,
                           style: TextStyle(
                             color: descColor,
                             fontSize: descSize,
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
+                        const SizedBox(height: 8),
+                        // Requirements
                         if (item.requirements.isNotEmpty) ...[
-                          const SizedBox(height: 8),
                           Text(
                             'Requirements',
                             style: TextStyle(
@@ -159,15 +122,38 @@ class FarmResearchCards extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          ...item.requirements.entries.map((entry) {
-                            return Text(
-                              '🌾 x${entry.value}',
-                              style: TextStyle(
-                                color: descColor,
-                                fontSize: descSize * 0.9,
-                              ),
-                            );
-                          }),
+                          const SizedBox(height: 4),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 4,
+                            children: item.requirements.entries.map((entry) {
+                              final itemIcon = ResearchItemsSchema.instance.getInventoryIcon(entry.key);
+                              return Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (itemIcon != null)
+                                    Image.asset(
+                                      itemIcon,
+                                      width: 16,
+                                      height: 16,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return const Icon(Icons.inventory, size: 16);
+                                      },
+                                    )
+                                  else
+                                    const Icon(Icons.inventory, size: 16),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'x${entry.value}',
+                                    style: TextStyle(
+                                      color: descColor,
+                                      fontSize: descSize * 0.9,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }).toList(),
+                          ),
                         ],
                       ],
                     ),
@@ -190,7 +176,7 @@ class FarmResearchCards extends StatelessWidget {
     );
   }
 
-  Widget _buildResearchButton(FarmResearchItem item) {
+  Widget _buildResearchButton(FarmResearchItemSchema item) {
     final styles = AppStyles();
     final buttonHeight = styles.getStyles('research_card.card.button.height') as double;
     final borderRadius = styles.getStyles('research_card.card.button.border_radius') as double;
@@ -202,7 +188,8 @@ class FarmResearchCards extends StatelessWidget {
     final fontWeight = styles.getStyles('research_card.card.button.text.font_weight') as FontWeight;
 
     // Check if requirements are met
-    final canResearch = userData != null && item.areRequirementsMet(userData!.toJson());
+    final canResearch = userData != null && 
+        ResearchRequirements.areRequirementsMet(item.requirements, userData!.toJson());
     
     return GestureDetector(
       onTap: canResearch ? () {
