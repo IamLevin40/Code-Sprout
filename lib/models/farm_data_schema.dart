@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/services.dart';
+import '../miscellaneous/asset_path.dart';
 
 /// Service class to handle farm data schema from farm_data_schema.txt
 /// This provides centralized crop information management including growth durations,
@@ -19,7 +20,7 @@ class FarmDataSchema {
     if (_schemaData != null) return; // Already loaded
 
     try {
-      final String jsonString = await rootBundle.loadString('schemas/farm_data_schema.txt');
+      final String jsonString = await rootBundle.loadString(resolveAssetPath('schemas/farm_data_schema.txt'));
       _schemaData = jsonDecode(jsonString);
     } catch (e) {
       throw Exception('Failed to load farm data schema: $e');
@@ -47,7 +48,7 @@ class FarmDataSchema {
     if (info == null) {
       throw Exception('Crop type not found: $cropType');
     }
-    return info['item_icon'] as String;
+    return resolveAssetPath(info['item_icon'] as String);
   }
 
   /// Get seed icon path for a crop type
@@ -56,7 +57,7 @@ class FarmDataSchema {
     if (info == null) {
       throw Exception('Crop type not found: $cropType');
     }
-    return info['seed_icon'] as String;
+    return resolveAssetPath(info['seed_icon'] as String);
   }
 
   /// Get growth duration in seconds for a crop type
@@ -101,7 +102,7 @@ class FarmDataSchema {
       throw Exception('Crop type not found: $cropType');
     }
     final stages = info['crop_stages'] as Map<String, dynamic>;
-    return stages.map((key, value) => MapEntry(key, value as String));
+    return stages.map((key, value) => MapEntry(key, resolveAssetPath(value as String)));
   }
 
   /// Get the total number of stages for a crop type
@@ -117,7 +118,7 @@ class FarmDataSchema {
     if (!stages.containsKey(key)) {
       throw Exception('Stage $stageIndex not found for crop type: $cropType');
     }
-    return stages[key]!;
+    return resolveAssetPath(stages[key]!);
   }
 
   /// Calculate which stage a crop should be at based on elapsed time

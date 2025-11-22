@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
+import '../miscellaneous/asset_path.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// Represents a field definition in the schema
@@ -160,7 +161,7 @@ class UserDataSchema {
   /// Load schema from assets file
   static Future<UserDataSchema> load() async {
     try {
-      final schemaContent = await rootBundle.loadString('schemas/user_data_schema.txt');
+      final schemaContent = await rootBundle.loadString(resolveAssetPath('schemas/user_data_schema.txt'));
       
       // Find the JSON part (after the comments)
       final jsonStart = schemaContent.indexOf('{');

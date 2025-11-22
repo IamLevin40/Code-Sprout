@@ -1,6 +1,7 @@
 ﻿import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../miscellaneous/asset_path.dart';
 
 /// Service class to handle data-driven styles from styles_schema.txt
 /// This allows centralized style management through a JSON schema file
@@ -18,7 +19,7 @@ class AppStyles {
     if (_stylesData != null) return; // Already loaded
 
     try {
-      final String jsonString = await rootBundle.loadString('schemas/styles_schema.txt');
+      final String jsonString = await rootBundle.loadString(resolveAssetPath('schemas/styles_schema.txt'));
       _stylesData = jsonDecode(jsonString);
     } catch (e) {
       throw Exception('Failed to load styles schema: $e');
@@ -112,6 +113,14 @@ class AppStyles {
       }
 
       // Return as string for paths, positions, etc.
+      // If the string looks like an asset path (contains a slash and is not
+      // a network/package path), resolve it so mobile/web will get the
+      // appropriate asset key.
+      final lower = value.toLowerCase();
+      if (value.contains('/') && !lower.startsWith('http') && !lower.startsWith('package:') && !value.startsWith('/')) {
+        return resolveAssetPath(value);
+      }
+
       return value;
     }
 
