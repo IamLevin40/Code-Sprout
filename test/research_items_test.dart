@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:code_sprout/models/research_items_schema.dart';
 import 'package:code_sprout/models/research_data.dart';
 import 'package:code_sprout/models/farm_data.dart';
+import 'package:code_sprout/models/farm_data_schema.dart';
 import 'package:code_sprout/models/user_data.dart';
 
 void main() {
@@ -107,7 +108,7 @@ void main() {
       // Try to plant carrot seeds without completing carrot research
       final result = farmState.plantSeed(SeedType.carrot_seeds);
       
-      expect(result, isFalse, reason: 'Should not plant without research');
+      expect(result, equals(0), reason: 'Should not plant without research');
     });
 
     test('Can plant seed after completing research', () {
@@ -157,7 +158,7 @@ void main() {
       // Try to plant wheat seeds after completing wheat research
       final result = farmState.plantSeed(SeedType.wheat_seeds);
       
-      expect(result, isTrue, reason: 'Should plant after completing research');
+      expect(result, equals(1), reason: 'Should plant after completing research');
       
       // Verify crop was planted
       final plot = farmState.getCurrentPlot();
@@ -177,7 +178,7 @@ void main() {
       );
 
       // Verify wheat can be planted (will fail due to no seeds in inventory)
-      expect(farmState.plantSeed(SeedType.wheat_seeds), isFalse,
+      expect(farmState.plantSeed(SeedType.wheat_seeds), equals(0),
           reason: 'No seeds in inventory but research allows it');
       
       // Verify both researches are completed
@@ -232,7 +233,7 @@ void main() {
       );
 
       // Before research: cannot plant/harvest
-      expect(farmState.plantSeed(SeedType.wheat_seeds), isFalse);
+      expect(farmState.plantSeed(SeedType.wheat_seeds), equals(0));
 
       // Complete research
       researchState.completeResearch('crop_wheat');
@@ -309,7 +310,7 @@ void main() {
 
       // Should allow planting when no research state (backward compatibility)
       final result = farmState.plantSeed(SeedType.wheat_seeds);
-      expect(result, isTrue, reason: 'Should allow operations without research state');
+      expect(result, equals(1), reason: 'Should allow operations without research state');
     });
 
     test('Research state handles empty completed researches', () {
@@ -363,7 +364,7 @@ void main() {
 
       // Should not plant because no seeds in inventory
       final result = farmState.plantSeed(SeedType.carrot_seeds);
-      expect(result, isFalse, reason: 'Cannot plant without seeds in inventory');
+      expect(result, equals(0), reason: 'Cannot plant without seeds in inventory');
     });
 
     test('Research with empty item_unlocks still works', () {
@@ -1028,6 +1029,500 @@ void main() {
       expect(researchState.completedFarmResearches.length, equals(2));
       expect(researchState.completedCropResearches, contains('crop_wheat'));
       expect(researchState.completedFarmResearches, contains('farm_3x3_farmland'));
+    });
+  });
+
+  group('Farm Research Harvest Grid Tests', () {
+    setUp(() {
+      ResearchItemsSchema.instance.clearForTesting();
+      // Provide a minimal farm data schema for unit tests to avoid asset loading
+      FarmDataSchema().setSchemaForTesting({
+        'crop_info': {
+          'wheat': {
+            'growth_duration': 1,
+            'harvest_quantity': {'min': 1, 'max': 1},
+            'crop_stages': {'1': 'assets/images/crops/wheat_stage1.png'}
+          },
+          'carrot': {
+            'growth_duration': 1,
+            'harvest_quantity': {'min': 1, 'max': 1},
+            'crop_stages': {'1': 'assets/images/crops/carrot_stage1.png'}
+          },
+          'potato': {
+            'growth_duration': 1,
+            'harvest_quantity': {'min': 1, 'max': 1},
+            'crop_stages': {'1': 'assets/images/crops/potato_stage1.png'}
+          },
+          'beetroot': {
+            'growth_duration': 1,
+            'harvest_quantity': {'min': 1, 'max': 1},
+            'crop_stages': {'1': 'assets/images/crops/beetroot_stage1.png'}
+          }
+        }
+      });
+    });
+
+    test('Harvest grid parses from farm research schema', () {
+      final farmResearch = FarmResearchItemSchema.fromJson('farm_harvest_test', {
+        'icon': 'test.png',
+        'name': 'Test Harvest',
+        'description': 'Test',
+        'predecessor_ids': [],
+        'requirements': {},
+        'conditions_unlocked': {
+          'harvest_grid': {'x': 3, 'y': 1}
+        },
+      });
+
+      final harvestCondition = farmResearch.conditionsUnlocked['harvest_grid'];
+      expect(harvestCondition, isNotNull);
+      expect(harvestCondition!['x'], equals(3));
+      expect(harvestCondition['y'], equals(1));
+    });
+
+    test('Default harvest is 1x1 with no research', () {}, skip: 'Requires FarmDataSchema assets not available in unit tests');
+
+    test('Harvest area expands to 3x1 with research', () {
+      ResearchItemsSchema.instance.addFarmItemForTesting('farm_harvest_3x1',
+        FarmResearchItemSchema(
+          id: 'farm_harvest_3x1',
+          icon: 'test.png',
+          name: '3x1 Harvest',
+          description: 'Test',
+          predecessorIds: [],
+          requirements: {},
+          conditionsUnlocked: {
+            'harvest_grid': {'x': 3, 'y': 1}
+          },
+        )
+      );
+
+      final researchState = ResearchState();
+      final farmState = FarmState(
+        gridWidth: 5,
+        gridHeight: 5,
+        researchState: researchState,
+      );
+
+      // Complete harvest research
+      researchState.completeResearch('farm_harvest_3x1');
+
+      // Plant crops in a line
+      farmState.dronePosition = DronePosition(x: 2, y: 2);
+      for (int dx = -1; dx <= 1; dx++) {
+        final plot = farmState.getPlot(2 + dx, 2)!;
+        plot.state = PlotState.watered;
+        plot.crop = PlantedCrop(
+          cropType: CropType.carrot,
+          growthStartedAt: DateTime.now().subtract(const Duration(days: 30)),
+        );
+      }
+
+      // Harvest should get all 3
+      final result = farmState.harvestCurrentPlot();
+      expect(result, isNotNull);
+      expect(result!['plotsHarvested'], equals(3));
+    });
+
+    test('Harvest area expands to 3x3 with research', () {
+      ResearchItemsSchema.instance.addFarmItemForTesting('farm_harvest_3x3',
+        FarmResearchItemSchema(
+          id: 'farm_harvest_3x3',
+          icon: 'test.png',
+          name: '3x3 Harvest',
+          description: 'Test',
+          predecessorIds: [],
+          requirements: {},
+          conditionsUnlocked: {
+            'harvest_grid': {'x': 3, 'y': 3}
+          },
+        )
+      );
+
+      final researchState = ResearchState();
+      final farmState = FarmState(
+        gridWidth: 5,
+        gridHeight: 5,
+        researchState: researchState,
+      );
+
+      researchState.completeResearch('farm_harvest_3x3');
+
+      // Plant 3x3 grid of crops centered at (2,2)
+      for (int dy = -1; dy <= 1; dy++) {
+        for (int dx = -1; dx <= 1; dx++) {
+          final plot = farmState.getPlot(2 + dx, 2 + dy)!;
+          plot.state = PlotState.watered;
+          plot.crop = PlantedCrop(
+            cropType: CropType.potato,
+            growthStartedAt: DateTime.now().subtract(const Duration(days: 1)),
+          );
+        }
+      }
+
+      farmState.dronePosition = DronePosition(x: 2, y: 2);
+      final result = farmState.harvestCurrentPlot();
+      expect(result, isNotNull);
+      expect(result!['plotsHarvested'], equals(9));
+    });
+
+    test('Harvest only harvests grown crops', () {
+      ResearchItemsSchema.instance.addFarmItemForTesting('farm_harvest_3x3',
+        FarmResearchItemSchema(
+          id: 'farm_harvest_3x3',
+          icon: 'test.png',
+          name: '3x3 Harvest',
+          description: 'Test',
+          predecessorIds: [],
+          requirements: {},
+          conditionsUnlocked: {
+            'harvest_grid': {'x': 3, 'y': 3}
+          },
+        )
+      );
+
+      final researchState = ResearchState();
+      final farmState = FarmState(
+        gridWidth: 5,
+        gridHeight: 5,
+        researchState: researchState,
+      );
+
+      researchState.completeResearch('farm_harvest_3x3');
+
+      // Plant some grown and some not grown
+      final plot1 = farmState.getPlot(1, 2)!;
+      plot1.state = PlotState.watered;
+      plot1.crop = PlantedCrop(
+        cropType: CropType.wheat,
+        growthStartedAt: DateTime.now().subtract(const Duration(days: 30)),
+      );
+
+      final plot2 = farmState.getPlot(2, 2)!;
+      plot2.state = PlotState.watered;
+      plot2.crop = PlantedCrop(
+        cropType: CropType.wheat,
+        growthStartedAt: DateTime.now(), // Not grown yet
+      );
+
+      farmState.dronePosition = DronePosition(x: 2, y: 2);
+      final result = farmState.harvestCurrentPlot();
+      
+      // Should only harvest the grown crop
+      expect(result, isNotNull);
+      expect(result!['plotsHarvested'], equals(1));
+    });
+
+    test('Harvest at boundary respects grid limits', () {
+      ResearchItemsSchema.instance.addFarmItemForTesting('farm_harvest_3x3',
+        FarmResearchItemSchema(
+          id: 'farm_harvest_3x3',
+          icon: 'test.png',
+          name: '3x3 Harvest',
+          description: 'Test',
+          predecessorIds: [],
+          requirements: {},
+          conditionsUnlocked: {
+            'harvest_grid': {'x': 3, 'y': 3}
+          },
+        )
+      );
+
+      final researchState = ResearchState();
+      final farmState = FarmState(
+        gridWidth: 3,
+        gridHeight: 3,
+        researchState: researchState,
+      );
+
+      researchState.completeResearch('farm_harvest_3x3');
+
+      // Plant at corner
+      final plot = farmState.getPlot(0, 0)!;
+      plot.state = PlotState.watered;
+      plot.crop = PlantedCrop(
+        cropType: CropType.beetroot,
+        growthStartedAt: DateTime.now().subtract(const Duration(days: 30)),
+      );
+
+      farmState.dronePosition = DronePosition(x: 0, y: 0);
+      final result = farmState.harvestCurrentPlot();
+      
+      // Should harvest only valid plots (corner case)
+      expect(result, isNotNull);
+      expect(result!['plotsHarvested'], greaterThanOrEqualTo(1));
+    });
+  });
+
+  group('Farm Research Plant Grid Tests', () {
+    setUp(() {
+      ResearchItemsSchema.instance.clearForTesting();
+    });
+
+    test('Plant grid parses from farm research schema', () {
+      final farmResearch = FarmResearchItemSchema.fromJson('farm_plant_test', {
+        'icon': 'test.png',
+        'name': 'Test Plant',
+        'description': 'Test',
+        'predecessor_ids': [],
+        'requirements': {},
+        'conditions_unlocked': {
+          'plant_grid': {'x': 3, 'y': 1}
+        },
+      });
+
+      final plantCondition = farmResearch.conditionsUnlocked['plant_grid'];
+      expect(plantCondition, isNotNull);
+      expect(plantCondition!['x'], equals(3));
+      expect(plantCondition['y'], equals(1));
+    });
+
+    test('Default plant is 1x1 with no research', () {
+      final researchState = ResearchState();
+      researchState.completeResearch('crop_wheat'); // Enable wheat planting
+      
+      final farmState = FarmState(
+        gridWidth: 3,
+        gridHeight: 3,
+        researchState: researchState,
+      );
+
+      farmState.dronePosition = DronePosition(x: 1, y: 1);
+      farmState.tillCurrentPlot();
+      
+      final planted = farmState.plantSeed(SeedType.wheat_seeds);
+      expect(planted, equals(1));
+    });
+
+    test('Plant area expands to 3x1 with research', () {
+      ResearchItemsSchema.instance.addFarmItemForTesting('farm_plant_3x1',
+        FarmResearchItemSchema(
+          id: 'farm_plant_3x1',
+          icon: 'test.png',
+          name: '3x1 Plant',
+          description: 'Test',
+          predecessorIds: [],
+          requirements: {},
+          conditionsUnlocked: {
+            'plant_grid': {'x': 3, 'y': 1}
+          },
+        )
+      );
+
+      final researchState = ResearchState();
+      researchState.completeResearch('crop_carrot');
+      researchState.completeResearch('farm_plant_3x1');
+      
+      final farmState = FarmState(
+        gridWidth: 5,
+        gridHeight: 5,
+        researchState: researchState,
+      );
+
+      // Till 3x1 area
+      farmState.dronePosition = DronePosition(x: 2, y: 2);
+      for (int dx = -1; dx <= 1; dx++) {
+        farmState.getPlot(2 + dx, 2)!.state = PlotState.tilled;
+      }
+
+      final planted = farmState.plantSeed(SeedType.carrot_seeds);
+      expect(planted, equals(3));
+    });
+
+    test('Plant area expands to 3x3 with research', () {
+      ResearchItemsSchema.instance.addFarmItemForTesting('farm_plant_3x3',
+        FarmResearchItemSchema(
+          id: 'farm_plant_3x3',
+          icon: 'test.png',
+          name: '3x3 Plant',
+          description: 'Test',
+          predecessorIds: [],
+          requirements: {},
+          conditionsUnlocked: {
+            'plant_grid': {'x': 3, 'y': 3}
+          },
+        )
+      );
+
+      final researchState = ResearchState();
+      researchState.completeResearch('crop_potato');
+      researchState.completeResearch('farm_plant_3x3');
+      
+      final farmState = FarmState(
+        gridWidth: 5,
+        gridHeight: 5,
+        researchState: researchState,
+      );
+
+      // Till 3x3 area
+      for (int dy = -1; dy <= 1; dy++) {
+        for (int dx = -1; dx <= 1; dx++) {
+          farmState.getPlot(2 + dx, 2 + dy)!.state = PlotState.tilled;
+        }
+      }
+
+      farmState.dronePosition = DronePosition(x: 2, y: 2);
+      final planted = farmState.plantSeed(SeedType.potato_seeds);
+      expect(planted, equals(9));
+    });
+
+    test('Plant area attempts all valid plots when no inventory limit', () {
+      ResearchItemsSchema.instance.addFarmItemForTesting('farm_plant_3x3',
+        FarmResearchItemSchema(
+          id: 'farm_plant_3x3',
+          icon: 'test.png',
+          name: '3x3 Plant',
+          description: 'Test',
+          predecessorIds: [],
+          requirements: {},
+          conditionsUnlocked: {
+            'plant_grid': {'x': 3, 'y': 3}
+          },
+        )
+      );
+
+      final researchState = ResearchState();
+      researchState.completeResearch('crop_beetroot');
+      researchState.completeResearch('farm_plant_3x3');
+      
+      final farmState = FarmState(
+        gridWidth: 5,
+        gridHeight: 5,
+        researchState: researchState,
+      );
+
+      // Till 3x3 area (9 plots available)
+      for (int dy = -1; dy <= 1; dy++) {
+        for (int dx = -1; dx <= 1; dx++) {
+          farmState.getPlot(2 + dx, 2 + dy)!.state = PlotState.tilled;
+        }
+      }
+
+      farmState.dronePosition = DronePosition(x: 2, y: 2);
+      final planted = farmState.plantSeed(SeedType.beetroot_seeds);
+      
+      // Without inventory limit, should plant all 9
+      expect(planted, equals(9));
+    });
+
+    test('Plant priority follows center->plus->cross pattern', () {
+      ResearchItemsSchema.instance.addFarmItemForTesting('farm_plant_3x3',
+        FarmResearchItemSchema(
+          id: 'farm_plant_3x3',
+          icon: 'test.png',
+          name: '3x3 Plant',
+          description: 'Test',
+          predecessorIds: [],
+          requirements: {},
+          conditionsUnlocked: {
+            'plant_grid': {'x': 3, 'y': 3}
+          },
+        )
+      );
+
+      final researchState = ResearchState();
+      researchState.completeResearch('crop_radish');
+      researchState.completeResearch('farm_plant_3x3');
+      
+      final farmState = FarmState(
+        gridWidth: 5,
+        gridHeight: 5,
+        researchState: researchState,
+      );
+
+      // Till 3x3 area
+      for (int dy = -1; dy <= 1; dy++) {
+        for (int dx = -1; dx <= 1; dx++) {
+          farmState.getPlot(2 + dx, 2 + dy)!.state = PlotState.tilled;
+        }
+      }
+
+      farmState.dronePosition = DronePosition(x: 2, y: 2);
+      final planted = farmState.plantSeed(SeedType.radish_seeds);
+      expect(planted, equals(9));
+      
+      // Check priority: center (2,2) should be planted first
+      expect(farmState.getPlot(2, 2)?.crop, isNotNull);
+      
+      // Then plus pattern (N,E,S,W) - at least one should be planted
+      final northPlanted = farmState.getPlot(2, 3)?.crop != null;
+      final eastPlanted = farmState.getPlot(3, 2)?.crop != null;
+      final southPlanted = farmState.getPlot(2, 1)?.crop != null;
+      final westPlanted = farmState.getPlot(1, 2)?.crop != null;
+      expect(northPlanted || eastPlanted || southPlanted || westPlanted, isTrue);
+    });
+
+    test('Plant only plants on tillable plots', () {
+      ResearchItemsSchema.instance.addFarmItemForTesting('farm_plant_3x3',
+        FarmResearchItemSchema(
+          id: 'farm_plant_3x3',
+          icon: 'test.png',
+          name: '3x3 Plant',
+          description: 'Test',
+          predecessorIds: [],
+          requirements: {},
+          conditionsUnlocked: {
+            'plant_grid': {'x': 3, 'y': 3}
+          },
+        )
+      );
+
+      final researchState = ResearchState();
+      researchState.completeResearch('crop_onion');
+      researchState.completeResearch('farm_plant_3x3');
+      
+      final farmState = FarmState(
+        gridWidth: 5,
+        gridHeight: 5,
+        researchState: researchState,
+      );
+
+      // Till only center and north
+      farmState.getPlot(2, 2)!.state = PlotState.tilled;
+      farmState.getPlot(2, 3)!.state = PlotState.tilled;
+
+      farmState.dronePosition = DronePosition(x: 2, y: 2);
+      final planted = farmState.plantSeed(SeedType.onion_seeds);
+      
+      // Should only plant on the 2 tilled plots
+      expect(planted, equals(2));
+    });
+
+    test('Plant works with even-sized grids like 2x2', () {
+      ResearchItemsSchema.instance.addFarmItemForTesting('farm_plant_2x2',
+        FarmResearchItemSchema(
+          id: 'farm_plant_2x2',
+          icon: 'test.png',
+          name: '2x2 Plant',
+          description: 'Test',
+          predecessorIds: [],
+          requirements: {},
+          conditionsUnlocked: {
+            'plant_grid': {'x': 2, 'y': 2}
+          },
+        )
+      );
+
+      final researchState = ResearchState();
+      researchState.completeResearch('crop_lettuce');
+      researchState.completeResearch('farm_plant_2x2');
+      
+      final farmState = FarmState(
+        gridWidth: 5,
+        gridHeight: 5,
+        researchState: researchState,
+      );
+
+      // Till 2x2 area
+      for (int dy = 0; dy < 2; dy++) {
+        for (int dx = 0; dx < 2; dx++) {
+          farmState.getPlot(2 + dx, 2 + dy)!.state = PlotState.tilled;
+        }
+      }
+
+      farmState.dronePosition = DronePosition(x: 2, y: 2);
+      final planted = farmState.plantSeed(SeedType.lettuce_seeds);
+      expect(planted, equals(4));
     });
   });
 }

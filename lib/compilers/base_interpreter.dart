@@ -404,13 +404,15 @@ abstract class FarmCodeInterpreter {
   /// Execute plant operation (now uses SeedType)
   bool executePlant(SeedType seed) {
     log('Planting ${seed.displayName}...');
-    final success = farmState.plantSeed(seed);
-    if (success) {
-      log('${seed.displayName} planted successfully');
+    // `plantSeed` now returns the number of plots planted (int).
+    final plantedCount = farmState.plantSeed(seed);
+    if (plantedCount > 0) {
+      log('${seed.displayName} planted successfully on $plantedCount plot${plantedCount > 1 ? 's' : ''}');
+      return true;
     } else {
-      log('Error: Cannot plant on this plot (check if you have seeds)');
+      log('Error: Cannot plant on this plot (check if you have seeds or plot is not tillable)');
+      return false;
     }
-    return success;
   }
 
   /// Execute harvest operation

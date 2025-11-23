@@ -477,6 +477,62 @@ class FarmState extends ChangeNotifier {
     }
   }
 
+  /// Calculate maximum harvest grid from completed farm researches
+  /// Returns (maxX, maxY) based on harvest_grid conditions
+  (int, int) _calculateMaxHarvestGrid() {
+    if (researchState == null) return (1, 1); // Default 1x1
+    
+    try {
+      final completedResearches = (researchState as dynamic).completedFarmResearches as List<String>;
+      int maxX = 1;
+      int maxY = 1;
+      
+      for (final researchId in completedResearches) {
+        final item = ResearchItemsSchema.instance.getFarmItem(researchId);
+        if (item != null && item.conditionsUnlocked.containsKey('harvest_grid')) {
+          final gridCondition = item.conditionsUnlocked['harvest_grid']!;
+          final x = gridCondition['x'] ?? 1;
+          final y = gridCondition['y'] ?? 1;
+          if (x > maxX) maxX = x;
+          if (y > maxY) maxY = y;
+        }
+      }
+      
+      return (maxX, maxY);
+    } catch (e) {
+      debugPrint('Error calculating max harvest grid: $e');
+      return (1, 1);
+    }
+  }
+
+  /// Calculate maximum plant grid from completed farm researches
+  /// Returns (maxX, maxY) based on plant_grid conditions
+  (int, int) _calculateMaxPlantGrid() {
+    if (researchState == null) return (1, 1); // Default 1x1
+    
+    try {
+      final completedResearches = (researchState as dynamic).completedFarmResearches as List<String>;
+      int maxX = 1;
+      int maxY = 1;
+      
+      for (final researchId in completedResearches) {
+        final item = ResearchItemsSchema.instance.getFarmItem(researchId);
+        if (item != null && item.conditionsUnlocked.containsKey('plant_grid')) {
+          final gridCondition = item.conditionsUnlocked['plant_grid']!;
+          final x = gridCondition['x'] ?? 1;
+          final y = gridCondition['y'] ?? 1;
+          if (x > maxX) maxX = x;
+          if (y > maxY) maxY = y;
+        }
+      }
+      
+      return (maxX, maxY);
+    } catch (e) {
+      debugPrint('Error calculating max plant grid: $e');
+      return (1, 1);
+    }
+  }
+
   /// Expand grid to new dimensions, preserving existing plots
   void expandGrid(int newWidth, int newHeight) {
     if (newWidth == gridWidth && newHeight == gridHeight) {
@@ -772,54 +828,187 @@ class FarmState extends ChangeNotifier {
     }
   }
 
-  /// Plant a seed on the current plot (requires seed in inventory)
-  bool plantSeed(SeedType seedType) {
-    final plot = getCurrentPlot();
-    if (plot == null) return false;
-
-    if (!plot.canPlant()) {
-      debugPrint('Cannot plant on plot at (${plot.x}, ${plot.y})');
-      return false;
+  /// Generate priority-based planting positions: center → plus → cross → plus → cross ...
+  List<(int, int)> _generatePlantingPriority(int centerX, int centerY, int areaWidth, int areaHeight) {
+    final List<(int, int)> positions = [];
+    
+    final halfWidth = areaWidth ~/ 2;
+    final halfHeight = areaHeight ~/ 2;
+    
+    // Add center position first
+    positions.add((centerX, centerY));
+    
+    // Generate rings outward alternating between plus and cross patterns
+    int ring = 1;
+    bool usePlusPattern = true;
+    
+    while (ring <= halfWidth || ring <= halfHeight) {
+      if (usePlusPattern) {
+        // Plus pattern: cardinal directions (N, E, S, W)
+        // North
+        if (ring <= halfHeight) {
+          for (int dx = -ring; dx <= ring; dx++) {
+            if (dx == 0 || (ring <= halfWidth && dx.abs() <= halfWidth)) {
+              positions.add((centerX + dx, centerY + ring));
+            }
+          }
+        }
+        // East
+        if (ring <= halfWidth) {
+          for (int dy = -ring + 1; dy < ring; dy++) {
+            if (dy.abs() <= halfHeight) {
+              positions.add((centerX + ring, centerY + dy));
+            }
+          }
+        }
+        // South
+        if (ring <= halfHeight) {
+          for (int dx = ring; dx >= -ring; dx--) {
+            if (dx == 0 || (ring <= halfWidth && dx.abs() <= halfWidth)) {
+              positions.add((centerX + dx, centerY - ring));
+            }
+          }
+        }
+        // West
+        if (ring <= halfWidth) {
+          for (int dy = -ring + 1; dy < ring; dy++) {
+            if (dy.abs() <= halfHeight) {
+              positions.add((centerX - ring, centerY + dy));
+            }
+          }
+        }
+      } else {
+        // Cross pattern: intercardinal directions (NE, SE, SW, NW)
+        if (ring <= halfWidth && ring <= halfHeight) {
+          // NE diagonal
+          positions.add((centerX + ring, centerY + ring));
+          // SE diagonal
+          positions.add((centerX + ring, centerY - ring));
+          // SW diagonal
+          positions.add((centerX - ring, centerY - ring));
+          // NW diagonal
+          positions.add((centerX - ring, centerY + ring));
+        }
+      }
+      
+      ring++;
+      usePlusPattern = !usePlusPattern;
     }
+    
+    return positions;
+  }
 
+  /// Plant a seed on the current plot or area (requires seeds in inventory)
+  /// Returns number of plots successfully planted
+  int plantSeed(SeedType seedType) {
+    final (plantWidth, plantHeight) = _calculateMaxPlantGrid();
+    
     // Check if this seed type is enabled by research
     if (!_canPlantSeedType(seedType.id)) {
       debugPrint('Seed type ${seedType.id} not unlocked by research');
-      return false;
-    }
-
-    // Check if user has at least one seed in inventory
-    if (userData != null) {
-      final seedQty = userData!.get('sproutProgress.inventory.${seedType.id}.quantity') as int? ?? 0;
-      if (seedQty <= 0) {
-        debugPrint('No ${seedType.displayName} in inventory');
-        return false;
-      }
-    }
-
-    // Convert seed type to crop type
-    final cropType = seedType.cropType;
-
-    // If planting on a watered plot, start growth immediately.
-    if (plot.state == PlotState.watered) {
-      plot.crop = PlantedCrop(cropType: cropType, growthStartedAt: DateTime.now());
-    } else {
-      // Planting on tilled plot: crop exists but growth hasn't started yet
-      plot.crop = PlantedCrop(cropType: cropType, growthStartedAt: null);
+      return 0;
     }
     
-    // Decrease seed quantity in inventory if userData is available
+    // Check available seeds
+    int availableSeeds = 1 << 30; // Default to large number if no userData
     if (userData != null) {
+      availableSeeds = userData!.get('sproutProgress.inventory.${seedType.id}.quantity') as int? ?? 0;
+      if (availableSeeds <= 0) {
+        debugPrint('No ${seedType.displayName} in inventory');
+        return 0;
+      }
+    }
+    
+    // If plant grid is 1x1, use simple single-plot logic
+    if (plantWidth == 1 && plantHeight == 1) {
+      final plot = getCurrentPlot();
+      if (plot == null) return 0;
+
+      if (!plot.canPlant()) {
+        debugPrint('Cannot plant on plot at (${plot.x}, ${plot.y})');
+        return 0;
+      }
+
+      // Convert seed type to crop type
+      final cropType = seedType.cropType;
+
+      // If planting on a watered plot, start growth immediately.
+      if (plot.state == PlotState.watered) {
+        plot.crop = PlantedCrop(cropType: cropType, growthStartedAt: DateTime.now());
+      } else {
+        // Planting on tilled plot: crop exists but growth hasn't started yet
+        plot.crop = PlantedCrop(cropType: cropType, growthStartedAt: null);
+      }
+      
+      // Decrease seed quantity in inventory if userData is available
+      if (userData != null) {
+        try {
+          final base = Map<String, dynamic>.from(userData!.toJson());
+          final parts = 'sproutProgress.inventory.${seedType.id}.quantity'.split('.');
+          final currentQty = (userData!.get('sproutProgress.inventory.${seedType.id}.quantity') as int?) ?? 0;
+          final newQty = (currentQty - 1).clamp(0, 1 << 30);
+          _setNestedValue(base, parts, newQty);
+
+          // Persist locally and remotely (fire-and-forget)
+          _saveUserDataJson(base);
+          // Update in-memory reference immediately for reads
+          try {
+            userData = UserData.fromJson(base);
+            LocalStorageService.instance.userDataNotifier.value = userData!;
+          } catch (_) {}
+        } catch (e) {
+          debugPrint('Failed to persist seed decrement: $e');
+        }
+      }
+      
+      notifyListeners();
+      return 1;
+    }
+    
+    // Area planting with priority pattern
+    final centerX = dronePosition.x;
+    final centerY = dronePosition.y;
+    
+    // Generate priority-based positions
+    final positions = _generatePlantingPriority(centerX, centerY, plantWidth, plantHeight);
+    
+    final cropType = seedType.cropType;
+    int planted = 0;
+    int seedsUsed = 0;
+    
+    // Plant in priority order until we run out of seeds or plantable plots
+    for (final (x, y) in positions) {
+      if (seedsUsed >= availableSeeds) break;
+      
+      final plot = getPlot(x, y);
+      if (plot != null && plot.canPlant()) {
+        // Plant the crop
+        if (plot.state == PlotState.watered) {
+          plot.crop = PlantedCrop(cropType: cropType, growthStartedAt: DateTime.now());
+        } else {
+          plot.crop = PlantedCrop(cropType: cropType, growthStartedAt: null);
+        }
+        
+        planted++;
+        seedsUsed++;
+      }
+    }
+    
+    if (planted == 0) {
+      debugPrint('No plots planted in ${plantWidth}x$plantHeight area');
+      return 0;
+    }
+    
+    // Decrease seed quantity in inventory
+    if (userData != null && seedsUsed > 0) {
       try {
         final base = Map<String, dynamic>.from(userData!.toJson());
         final parts = 'sproutProgress.inventory.${seedType.id}.quantity'.split('.');
         final currentQty = (userData!.get('sproutProgress.inventory.${seedType.id}.quantity') as int?) ?? 0;
-        final newQty = (currentQty - 1).clamp(0, 1 << 30);
+        final newQty = (currentQty - seedsUsed).clamp(0, 1 << 30);
         _setNestedValue(base, parts, newQty);
 
-        // Persist locally and remotely (fire-and-forget)
         _saveUserDataJson(base);
-        // Update in-memory reference immediately for reads
         try {
           userData = UserData.fromJson(base);
           LocalStorageService.instance.userDataNotifier.value = userData!;
@@ -830,7 +1019,7 @@ class FarmState extends ChangeNotifier {
     }
     
     notifyListeners();
-    return true;
+    return planted;
   }
 
   /// Check if crop type can be harvested based on completed research
@@ -839,11 +1028,12 @@ class FarmState extends ChangeNotifier {
     
     try {
       // Check all completed crop researches for harvest_enabled permissions
-      final completedResearches = (researchState as dynamic).completedCropResearches as List<String>;
+      final completedCropResearches = (researchState as dynamic).completedCropResearches as List<String>;
+      final completedFarmResearches = (researchState as dynamic).completedFarmResearches as List<String>;
       
-      // If no researches completed, deny harvesting
-      if (completedResearches.isEmpty) {
-        debugPrint('No crop researches completed, cannot harvest $cropTypeId');
+      // If no researches at all completed, deny harvesting
+      if (completedCropResearches.isEmpty && completedFarmResearches.isEmpty) {
+        debugPrint('No researches completed, cannot harvest $cropTypeId');
         return false;
       }
       
@@ -851,27 +1041,33 @@ class FarmState extends ChangeNotifier {
       bool foundViaSchema = false;
       try {
         final schema = ResearchItemsSchema.instance;
-        for (final researchId in completedResearches) {
+        // Check crop researches first
+        for (final researchId in completedCropResearches) {
           final cropResearch = schema.getCropItem(researchId);
           if (cropResearch != null) {
             if (cropResearch.harvestEnabled.contains(cropTypeId)) {
-              debugPrint('Crop $cropTypeId enabled by research $researchId via schema');
-              return true; // Found a research that enables this crop type
+              debugPrint('Crop $cropTypeId enabled by crop research $researchId via schema');
+              return true; // Found a crop research that enables this crop type
             }
-            foundViaSchema = true; // Schema returned data, don't use fallback
+            foundViaSchema = true; // Schema returned data, don't use fallback for crop researches
           }
+        }
+
+        // If no crop-specific research allowed it but farm researches exist, allow harvesting
+        if (completedFarmResearches.isNotEmpty) {
+          debugPrint('Allowing harvest of $cropTypeId because farm research(s) completed: $completedFarmResearches');
+          return true;
         }
       } catch (e) {
         // Schema not loaded, will use fallback
         debugPrint('Schema error, using fallback pattern matching: $e');
       }
-      
-      // Fallback: derive expected crop from research ID if schema returned null
-      if (!foundViaSchema) {
+
+      // Fallback: derive expected crop from completed crop research IDs if schema returned null
+      if (!foundViaSchema && completedCropResearches.isNotEmpty) {
         debugPrint('Schema returned null, using pattern matching for $cropTypeId');
-        for (final researchId in completedResearches) {
+        for (final researchId in completedCropResearches) {
           // crop_wheat -> enables wheat
-          // crop_carrot -> enables carrot, etc.
           final cropName = researchId.replaceAll('crop_', '');
           if (cropTypeId == cropName) {
             debugPrint('Crop $cropTypeId enabled by research $researchId via pattern');
@@ -879,7 +1075,7 @@ class FarmState extends ChangeNotifier {
           }
         }
       }
-      
+
       debugPrint('Crop type $cropTypeId not enabled by any completed research');
       return false; // No research enables this crop type
     } catch (e) {
@@ -888,39 +1084,113 @@ class FarmState extends ChangeNotifier {
     }
   }
 
-  /// Harvest crop from current plot
+  /// Harvest crop from current plot or area (based on harvest_grid research)
   /// Returns a map with 'cropType' and 'quantity' on success, null on failure
   Map<String, dynamic>? harvestCurrentPlot() {
-    final plot = getCurrentPlot();
-    if (plot == null) return null;
+    final (harvestWidth, harvestHeight) = _calculateMaxHarvestGrid();
+    
+    // If harvest grid is 1x1, use simple single-plot logic
+    if (harvestWidth == 1 && harvestHeight == 1) {
+      final plot = getCurrentPlot();
+      if (plot == null) return null;
 
-    if (!plot.canHarvest()) {
-      debugPrint('Cannot harvest plot at (${plot.x}, ${plot.y})');
+      if (!plot.canHarvest()) {
+        debugPrint('Cannot harvest plot at (${plot.x}, ${plot.y})');
+        return null;
+      }
+
+      final cropType = plot.crop!.cropType;
+      
+      // Check if this crop type is enabled by research
+      if (!_canHarvestCropType(cropType.id)) {
+        debugPrint('Crop type ${cropType.id} not unlocked by research');
+        return null;
+      }
+      
+      final quantity = _schema.getRandomHarvestQuantity(cropType.id);
+      
+      plot.crop = null;
+      plot.state = PlotState.normal; // Reset to normal after harvest
+      notifyListeners();
+
+      // Persist harvested crop quantity into userData (increment)
+      if (userData != null) {
+        try {
+          final base = Map<String, dynamic>.from(userData!.toJson());
+          final parts = 'sproutProgress.inventory.${cropType.id}.quantity'.split('.');
+          final currentQty = (userData!.get('sproutProgress.inventory.${cropType.id}.quantity') as int?) ?? 0;
+          final newQty = currentQty + quantity;
+          _setNestedValue(base, parts, newQty);
+
+          _saveUserDataJson(base);
+          try {
+            userData = UserData.fromJson(base);
+            LocalStorageService.instance.userDataNotifier.value = userData!;
+          } catch (_) {}
+        } catch (e) {
+          debugPrint('Failed to persist harvest quantity: $e');
+        }
+      }
+
+      return {
+        'cropType': cropType,
+        'quantity': quantity,
+      };
+    }
+    
+    // Area harvesting: center on drone position
+    final centerX = dronePosition.x;
+    final centerY = dronePosition.y;
+    
+    final halfWidth = harvestWidth ~/ 2;
+    final halfHeight = harvestHeight ~/ 2;
+    final startX = centerX - halfWidth;
+    final startY = centerY - halfHeight;
+    final endX = startX + harvestWidth - 1;
+    final endY = startY + harvestHeight - 1;
+    
+    // Harvest all harvestable crops in area
+    final Map<String, int> harvestedCrops = {};
+    int totalHarvested = 0;
+    
+    for (int y = startY; y <= endY; y++) {
+      for (int x = startX; x <= endX; x++) {
+        final plot = getPlot(x, y);
+        if (plot != null && plot.canHarvest()) {
+          final cropType = plot.crop!.cropType;
+          
+          // Check if this crop type is enabled by research
+          if (_canHarvestCropType(cropType.id)) {
+            final quantity = _schema.getRandomHarvestQuantity(cropType.id);
+            
+            // Accumulate harvested quantities by crop type
+            harvestedCrops[cropType.id] = (harvestedCrops[cropType.id] ?? 0) + quantity;
+            totalHarvested++;
+            
+            // Clear plot
+            plot.crop = null;
+            plot.state = PlotState.normal;
+          }
+        }
+      }
+    }
+    
+    if (totalHarvested == 0) {
+      debugPrint('No crops harvested in ${harvestWidth}x$harvestHeight area');
       return null;
     }
-
-    final cropType = plot.crop!.cropType;
     
-    // Check if this crop type is enabled by research
-    if (!_canHarvestCropType(cropType.id)) {
-      debugPrint('Crop type ${cropType.id} not unlocked by research');
-      return null;
-    }
-    
-    final quantity = _schema.getRandomHarvestQuantity(cropType.id);
-    
-    plot.crop = null;
-    plot.state = PlotState.normal; // Reset to normal after harvest
-    notifyListeners();
-
-    // Persist harvested crop quantity into userData (increment)
+    // Persist all harvested crops to userData
     if (userData != null) {
       try {
         final base = Map<String, dynamic>.from(userData!.toJson());
-        final parts = 'sproutProgress.inventory.${cropType.id}.quantity'.split('.');
-        final currentQty = (userData!.get('sproutProgress.inventory.${cropType.id}.quantity') as int?) ?? 0;
-        final newQty = currentQty + quantity;
-        _setNestedValue(base, parts, newQty);
+        
+        harvestedCrops.forEach((cropId, quantity) {
+          final parts = 'sproutProgress.inventory.$cropId.quantity'.split('.');
+          final currentQty = (userData!.get('sproutProgress.inventory.$cropId.quantity') as int?) ?? 0;
+          final newQty = currentQty + quantity;
+          _setNestedValue(base, parts, newQty);
+        });
 
         _saveUserDataJson(base);
         try {
@@ -928,13 +1198,20 @@ class FarmState extends ChangeNotifier {
           LocalStorageService.instance.userDataNotifier.value = userData!;
         } catch (_) {}
       } catch (e) {
-        debugPrint('Failed to persist harvest quantity: $e');
+        debugPrint('Failed to persist harvest quantities: $e');
       }
     }
-
+    
+    notifyListeners();
+    
+    // Return summary (use first crop type for compatibility, include total quantity)
+    final firstCropId = harvestedCrops.keys.first;
+    final firstCropType = CropTypeExtension.fromString(firstCropId);
     return {
-      'cropType': cropType,
-      'quantity': quantity,
+      'cropType': firstCropType,
+      'quantity': harvestedCrops.values.reduce((a, b) => a + b),
+      'harvestedCrops': harvestedCrops,
+      'plotsHarvested': totalHarvested,
     };
   }
 
