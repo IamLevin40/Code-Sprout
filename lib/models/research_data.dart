@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'research_items_schema.dart';
+import '../services/firestore_service.dart';
 
 /// Enum representing the state of a crop research card
 enum CropResearchState {
@@ -89,6 +90,48 @@ class ResearchState extends ChangeNotifier {
       _completedResearchIds.add(researchId);
       notifyListeners();
     }
+  }
+
+  /// Unlock inventory items for a completed crop research
+  /// Returns list of unlocked item IDs
+  static Future<List<String>> unlockInventoryItems({
+    required String researchId,
+    required List<String> itemIds,
+    required String userId,
+  }) async {
+    final List<String> unlockedItems = [];
+    
+    try {
+      // Get current user data
+      final userData = await FirestoreService.getUserData(userId, forceRefresh: true);
+      if (userData == null) {
+        debugPrint('User data not found for unlocking items');
+        return unlockedItems;
+      }
+      
+      // Unlock each item in the list
+      for (final itemId in itemIds) {
+        final isLockedPath = 'sproutProgress.inventory.$itemId.isLocked';
+        final currentLockState = userData.get(isLockedPath) as bool? ?? true;
+        
+        // Only unlock if currently locked
+        if (currentLockState) {
+          await userData.updateFields({isLockedPath: false});
+          unlockedItems.add(itemId);
+          debugPrint('Unlocked item: $itemId from research: $researchId');
+        }
+      }
+      
+      // Save to Firestore
+      if (unlockedItems.isNotEmpty) {
+        await FirestoreService.updateUserData(userData);
+        debugPrint('Successfully unlocked ${unlockedItems.length} items for research $researchId');
+      }
+    } catch (e) {
+      debugPrint('Error unlocking inventory items for research $researchId: $e');
+    }
+    
+    return unlockedItems;
   }
 
   /// Load completed research from user data

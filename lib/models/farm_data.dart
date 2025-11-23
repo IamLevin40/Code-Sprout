@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'farm_data_schema.dart';
 import 'user_data.dart';
+import 'research_items_schema.dart';
 import '../services/local_storage_service.dart';
 
 /// Enum representing the state of a farm plot
@@ -333,12 +334,17 @@ class FarmState extends ChangeNotifier {
   
   /// User data for inventory management (seeds and crops)
   UserData? userData;
+  
+  /// Research state for checking planting and harvesting permissions
+  /// This will be injected from farm_page to enable research-based restrictions
+  dynamic researchState;
 
   FarmState({
     this.gridWidth = 3,
     this.gridHeight = 3,
     DronePosition? initialDronePosition,
     this.userData,
+    this.researchState,
   })  : _grid = List.generate(
           gridHeight,
           (y) => List.generate(
@@ -479,6 +485,62 @@ class FarmState extends ChangeNotifier {
     return true;
   }
 
+  /// Check if seed type can be planted based on completed research
+  bool _canPlantSeedType(String seedTypeId) {
+    if (researchState == null) return true; // No restrictions if no research state
+    
+    try {
+      // Check all completed crop researches for plant_enabled permissions
+      final completedResearches = (researchState as dynamic).completedCropResearches as List<String>;
+      
+      // If no researches completed, deny planting
+      if (completedResearches.isEmpty) {
+        debugPrint('No crop researches completed, cannot plant $seedTypeId');
+        return false;
+      }
+      
+      // Try to use schema first, fall back to pattern matching if schema not loaded or returns null
+      bool foundViaSchema = false;
+      try {
+        final schema = ResearchItemsSchema.instance;
+        for (final researchId in completedResearches) {
+          final cropResearch = schema.getCropItem(researchId);
+          if (cropResearch != null) {
+            if (cropResearch.plantEnabled.contains(seedTypeId)) {
+              debugPrint('Seed $seedTypeId enabled by research $researchId via schema');
+              return true; // Found a research that enables this seed type
+            }
+            foundViaSchema = true; // Schema returned data, don't use fallback
+          }
+        }
+      } catch (e) {
+        // Schema not loaded, will use fallback
+        debugPrint('Schema error, using fallback pattern matching: $e');
+      }
+      
+      // Fallback: derive expected seeds from research ID if schema returned null
+      if (!foundViaSchema) {
+        debugPrint('Schema returned null, using pattern matching for $seedTypeId');
+        for (final researchId in completedResearches) {
+          // crop_wheat -> enables wheat_seeds
+          // crop_carrot -> enables carrot_seeds, etc.
+          final cropName = researchId.replaceAll('crop_', '');
+          final expectedSeedId = '${cropName}_seeds';
+          if (seedTypeId == expectedSeedId) {
+            debugPrint('Seed $seedTypeId enabled by research $researchId via pattern');
+            return true;
+          }
+        }
+      }
+      
+      debugPrint('Seed type $seedTypeId not enabled by any completed research');
+      return false; // No research enables this seed type
+    } catch (e) {
+      debugPrint('Error checking plant permission: $e');
+      return true; // On error, allow planting (fail-open)
+    }
+  }
+
   /// Plant a seed on the current plot (requires seed in inventory)
   bool plantSeed(SeedType seedType) {
     final plot = getCurrentPlot();
@@ -486,6 +548,12 @@ class FarmState extends ChangeNotifier {
 
     if (!plot.canPlant()) {
       debugPrint('Cannot plant on plot at (${plot.x}, ${plot.y})');
+      return false;
+    }
+
+    // Check if this seed type is enabled by research
+    if (!_canPlantSeedType(seedType.id)) {
+      debugPrint('Seed type ${seedType.id} not unlocked by research');
       return false;
     }
 
@@ -534,6 +602,61 @@ class FarmState extends ChangeNotifier {
     return true;
   }
 
+  /// Check if crop type can be harvested based on completed research
+  bool _canHarvestCropType(String cropTypeId) {
+    if (researchState == null) return true; // No restrictions if no research state
+    
+    try {
+      // Check all completed crop researches for harvest_enabled permissions
+      final completedResearches = (researchState as dynamic).completedCropResearches as List<String>;
+      
+      // If no researches completed, deny harvesting
+      if (completedResearches.isEmpty) {
+        debugPrint('No crop researches completed, cannot harvest $cropTypeId');
+        return false;
+      }
+      
+      // Try to use schema first, fall back to pattern matching if schema not loaded or returns null
+      bool foundViaSchema = false;
+      try {
+        final schema = ResearchItemsSchema.instance;
+        for (final researchId in completedResearches) {
+          final cropResearch = schema.getCropItem(researchId);
+          if (cropResearch != null) {
+            if (cropResearch.harvestEnabled.contains(cropTypeId)) {
+              debugPrint('Crop $cropTypeId enabled by research $researchId via schema');
+              return true; // Found a research that enables this crop type
+            }
+            foundViaSchema = true; // Schema returned data, don't use fallback
+          }
+        }
+      } catch (e) {
+        // Schema not loaded, will use fallback
+        debugPrint('Schema error, using fallback pattern matching: $e');
+      }
+      
+      // Fallback: derive expected crop from research ID if schema returned null
+      if (!foundViaSchema) {
+        debugPrint('Schema returned null, using pattern matching for $cropTypeId');
+        for (final researchId in completedResearches) {
+          // crop_wheat -> enables wheat
+          // crop_carrot -> enables carrot, etc.
+          final cropName = researchId.replaceAll('crop_', '');
+          if (cropTypeId == cropName) {
+            debugPrint('Crop $cropTypeId enabled by research $researchId via pattern');
+            return true;
+          }
+        }
+      }
+      
+      debugPrint('Crop type $cropTypeId not enabled by any completed research');
+      return false; // No research enables this crop type
+    } catch (e) {
+      debugPrint('Error checking harvest permission: $e');
+      return true; // On error, allow harvesting (fail-open)
+    }
+  }
+
   /// Harvest crop from current plot
   /// Returns a map with 'cropType' and 'quantity' on success, null on failure
   Map<String, dynamic>? harvestCurrentPlot() {
@@ -546,6 +669,13 @@ class FarmState extends ChangeNotifier {
     }
 
     final cropType = plot.crop!.cropType;
+    
+    // Check if this crop type is enabled by research
+    if (!_canHarvestCropType(cropType.id)) {
+      debugPrint('Crop type ${cropType.id} not unlocked by research');
+      return null;
+    }
+    
     final quantity = _schema.getRandomHarvestQuantity(cropType.id);
     
     plot.crop = null;

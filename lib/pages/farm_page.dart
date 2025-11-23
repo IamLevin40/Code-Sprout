@@ -3,6 +3,7 @@ import '../models/farm_data.dart';
 import '../models/styles_schema.dart';
 import '../models/language_code_files.dart';
 import '../models/research_data.dart';
+import '../models/research_items_schema.dart';
 import '../widgets/farm_items/farm_grid_view.dart';
 import '../widgets/farm_items/code_editor_widget.dart';
 import '../widgets/farm_items/code_execution_log_widget.dart';
@@ -60,8 +61,8 @@ class _FarmPageState extends State<FarmPage> {
   @override
   void initState() {
     super.initState();
-    _farmState = FarmState();
     _researchState = ResearchState();
+    _farmState = FarmState(researchState: _researchState);
     _codeFiles = LanguageCodeFiles.createDefault(widget.languageId);
     _codeController = TextEditingController(text: _codeFiles.currentFile.content);
     _viewportController = InteractiveViewportController(
@@ -926,6 +927,21 @@ class _FarmPageState extends State<FarmPage> {
       // CRITICAL: Save using FirestoreService to trigger notifier and persist to Firestore
       // This ensures inventory changes are reflected everywhere (sprout page, settings, etc.)
       await FirestoreService.updateUserData(userData);
+      
+      // Unlock inventory items if this is a crop research
+      if (researchId.startsWith('crop_')) {
+        final researchSchema = ResearchItemsSchema.instance.getCropItem(researchId);
+        if (researchSchema != null && researchSchema.itemUnlocks.isNotEmpty) {
+          final user = FirebaseAuth.instance.currentUser;
+          if (user != null) {
+            await ResearchState.unlockInventoryItems(
+              researchId: researchId,
+              itemIds: researchSchema.itemUnlocks,
+              userId: user.uid,
+            );
+          }
+        }
+      }
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

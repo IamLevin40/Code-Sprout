@@ -12,6 +12,9 @@ class CropResearchItemSchema {
   final String description;
   final List<String> predecessorIds;
   final Map<String, int> requirements; // itemId -> quantity
+  final List<String> itemUnlocks; // Items to unlock in inventory when research completes
+  final List<String> plantEnabled; // Seed types that can be planted after research
+  final List<String> harvestEnabled; // Crop types that can be harvested after research
 
   CropResearchItemSchema({
     required this.id,
@@ -21,27 +24,41 @@ class CropResearchItemSchema {
     required this.description,
     required this.predecessorIds,
     required this.requirements,
+    required this.itemUnlocks,
+    required this.plantEnabled,
+    required this.harvestEnabled,
   });
 
   factory CropResearchItemSchema.fromJson(String id, Map<String, dynamic> json) {
     final Map<String, int> requirements = {};
-    final reqData = json['requirements'] as Map<String, dynamic>? ?? {};
-    reqData.forEach((key, value) {
-      if (value is int) {
-        requirements[key] = value;
-      }
-    });
+    final reqData = json['requirements'];
+    if (reqData is Map) {
+      reqData.forEach((key, value) {
+        if (value is int) {
+          requirements[key.toString()] = value;
+        }
+      });
+    }
+
+    final langNames = json['language_specific_name'];
+    final Map<String, String> languageSpecificName = {};
+    if (langNames is Map) {
+      langNames.forEach((key, value) {
+        languageSpecificName[key.toString()] = value.toString();
+      });
+    }
 
     return CropResearchItemSchema(
       id: id,
       icon: json['icon'] as String? ?? '',
       defaultName: json['default_name'] as String? ?? id,
-      languageSpecificName: Map<String, String>.from(
-        json['language_specific_name'] as Map<String, dynamic>? ?? {},
-      ),
+      languageSpecificName: languageSpecificName,
       description: json['description'] as String? ?? '',
       predecessorIds: List<String>.from(json['predecessor_ids'] as List? ?? []),
       requirements: requirements,
+      itemUnlocks: List<String>.from(json['item_unlocks'] as List? ?? []),
+      plantEnabled: List<String>.from(json['plant_enabled'] as List? ?? []),
+      harvestEnabled: List<String>.from(json['harvest_enabled'] as List? ?? []),
     );
   }
 
