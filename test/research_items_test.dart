@@ -1082,7 +1082,7 @@ void main() {
 
     test('Default harvest is 1x1 with no research', () {}, skip: 'Requires FarmDataSchema assets not available in unit tests');
 
-    test('Harvest area expands to 3x1 with research', () {
+    test('Harvest area expands to 3x1 with research', () async {
       ResearchItemsSchema.instance.addFarmItemForTesting('farm_harvest_3x1',
         FarmResearchItemSchema(
           id: 'farm_harvest_3x1',
@@ -1119,12 +1119,12 @@ void main() {
       }
 
       // Harvest should get all 3
-      final result = farmState.harvestCurrentPlot();
+      final result = await farmState.harvestCurrentPlot();
       expect(result, isNotNull);
       expect(result!['plotsHarvested'], equals(3));
     });
 
-    test('Harvest area expands to 3x3 with research', () {
+    test('Harvest area expands to 3x3 with research', () async {
       ResearchItemsSchema.instance.addFarmItemForTesting('farm_harvest_3x3',
         FarmResearchItemSchema(
           id: 'farm_harvest_3x3',
@@ -1161,12 +1161,12 @@ void main() {
       }
 
       farmState.dronePosition = DronePosition(x: 2, y: 2);
-      final result = farmState.harvestCurrentPlot();
+      final result = await farmState.harvestCurrentPlot();
       expect(result, isNotNull);
       expect(result!['plotsHarvested'], equals(9));
     });
 
-    test('Harvest only harvests grown crops', () {
+    test('Harvest only harvests grown crops', () async {
       ResearchItemsSchema.instance.addFarmItemForTesting('farm_harvest_3x3',
         FarmResearchItemSchema(
           id: 'farm_harvest_3x3',
@@ -1206,14 +1206,14 @@ void main() {
       );
 
       farmState.dronePosition = DronePosition(x: 2, y: 2);
-      final result = farmState.harvestCurrentPlot();
+      final result = await farmState.harvestCurrentPlot();
       
       // Should only harvest the grown crop
       expect(result, isNotNull);
       expect(result!['plotsHarvested'], equals(1));
     });
 
-    test('Harvest at boundary respects grid limits', () {
+    test('Harvest at boundary respects grid limits', () async {
       ResearchItemsSchema.instance.addFarmItemForTesting('farm_harvest_3x3',
         FarmResearchItemSchema(
           id: 'farm_harvest_3x3',
@@ -1246,7 +1246,7 @@ void main() {
       );
 
       farmState.dronePosition = DronePosition(x: 0, y: 0);
-      final result = farmState.harvestCurrentPlot();
+      final result = await farmState.harvestCurrentPlot();
       
       // Should harvest only valid plots (corner case)
       expect(result, isNotNull);

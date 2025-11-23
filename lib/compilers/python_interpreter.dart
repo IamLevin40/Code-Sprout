@@ -550,7 +550,7 @@ class PythonInterpreter extends FarmCodeInterpreter {
         _handlePlant(argsString);
         break;
       case 'harvest':
-        executeHarvest();
+        await executeHarvest();
         break;
       case 'sleep':
         await _handleSleep(argsString);

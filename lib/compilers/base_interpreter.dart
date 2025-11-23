@@ -457,13 +457,13 @@ abstract class FarmCodeInterpreter {
   }
 
   /// Execute harvest operation
-  bool executeHarvest() {
+  Future<bool> executeHarvest() async {
     if (!_isFunctionUnlocked('harvest()')) {
       log('Error: Function not unlocked. Research the required functions to use harvest()');
       return false;
     }
     log('Harvesting crop...');
-    final result = farmState.harvestCurrentPlot();
+    final result = await farmState.harvestCurrentPlot();
     if (result != null) {
       final cropType = result['cropType'] as CropType;
       final quantity = result['quantity'] as int;

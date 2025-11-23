@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'farm_data_schema.dart';
 import 'user_data.dart';
 import 'research_items_schema.dart';
+import 'rank_data.dart';
 import '../services/local_storage_service.dart';
 
 /// Enum representing the state of a farm plot
@@ -1086,7 +1087,7 @@ class FarmState extends ChangeNotifier {
 
   /// Harvest crop from current plot or area (based on harvest_grid research)
   /// Returns a map with 'cropType' and 'quantity' on success, null on failure
-  Map<String, dynamic>? harvestCurrentPlot() {
+  Future<Map<String, dynamic>?> harvestCurrentPlot() async {
     final (harvestWidth, harvestHeight) = _calculateMaxHarvestGrid();
     
     // If harvest grid is 1x1, use simple single-plot logic
@@ -1113,7 +1114,7 @@ class FarmState extends ChangeNotifier {
       plot.state = PlotState.normal; // Reset to normal after harvest
       notifyListeners();
 
-      // Persist harvested crop quantity into userData (increment)
+      // Persist harvested crop quantity and award XP
       if (userData != null) {
         try {
           final base = Map<String, dynamic>.from(userData!.toJson());
@@ -1121,6 +1122,21 @@ class FarmState extends ChangeNotifier {
           final currentQty = (userData!.get('sproutProgress.inventory.${cropType.id}.quantity') as int?) ?? 0;
           final newQty = currentQty + quantity;
           _setNestedValue(base, parts, newQty);
+
+          // Award XP for harvesting this crop (per item harvested)
+          try {
+            final cropResearchId = 'crop_${cropType.id}';
+            final cropResearch = ResearchItemsSchema.instance.getCropItem(cropResearchId);
+            if (cropResearch != null && cropResearch.experienceGainPoints > 0) {
+              final rankData = await RankData.load();
+              final xpToAdd = cropResearch.experienceGainPoints * quantity;
+              final updatedUserData = rankData.addExperiencePoints(base, xpToAdd);
+              base.clear();
+              base.addAll(updatedUserData);
+            }
+          } catch (e) {
+            debugPrint('Failed to award XP for harvest: $e');
+          }
 
           _saveUserDataJson(base);
           try {
@@ -1180,17 +1196,41 @@ class FarmState extends ChangeNotifier {
       return null;
     }
     
-    // Persist all harvested crops to userData
+    // Persist all harvested crops to userData and award XP
     if (userData != null) {
       try {
         final base = Map<String, dynamic>.from(userData!.toJson());
         
+        int totalXP = 0;
         harvestedCrops.forEach((cropId, quantity) {
           final parts = 'sproutProgress.inventory.$cropId.quantity'.split('.');
           final currentQty = (userData!.get('sproutProgress.inventory.$cropId.quantity') as int?) ?? 0;
           final newQty = currentQty + quantity;
           _setNestedValue(base, parts, newQty);
+          // Calculate XP for this crop type (XP per item harvested)
+          try {
+            final cropResearchId = 'crop_$cropId';
+            final cropResearch = ResearchItemsSchema.instance.getCropItem(cropResearchId);
+            if (cropResearch != null && cropResearch.experienceGainPoints > 0) {
+              // Award XP per harvested item (multiply by quantity)
+              totalXP += cropResearch.experienceGainPoints * quantity;
+            }
+          } catch (e) {
+            debugPrint('Failed to calculate XP for $cropId: $e');
+          }
         });
+
+        // Award total XP
+        if (totalXP > 0) {
+          try {
+            final rankData = await RankData.load();
+            final updatedUserData = rankData.addExperiencePoints(base, totalXP);
+            base.clear();
+            base.addAll(updatedUserData);
+          } catch (e) {
+            debugPrint('Failed to award XP for area harvest: $e');
+          }
+        }
 
         _saveUserDataJson(base);
         try {

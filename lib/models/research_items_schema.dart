@@ -17,6 +17,7 @@ class CropResearchItemSchema {
   final List<String> harvestEnabled; // Crop types that can be harvested after research
   final List<String> itemPurchases; // Items that can be purchased
   final int purchaseAmount; // Cost in coins per purchase
+  final int experienceGainPoints; // XP gained per harvest
 
   CropResearchItemSchema({
     required this.id,
@@ -31,6 +32,7 @@ class CropResearchItemSchema {
     required this.harvestEnabled,
     required this.itemPurchases,
     required this.purchaseAmount,
+    required this.experienceGainPoints,
   });
 
   factory CropResearchItemSchema.fromJson(String id, Map<String, dynamic> json) {
@@ -65,6 +67,7 @@ class CropResearchItemSchema {
       harvestEnabled: List<String>.from(json['harvest_enabled'] as List? ?? []),
       itemPurchases: List<String>.from(json['item_purchases'] as List? ?? []),
       purchaseAmount: json['purchase_amount'] as int? ?? 0,
+      experienceGainPoints: json['experience_gain_points'] as int? ?? 0,
     );
   }
 
@@ -354,6 +357,11 @@ class ResearchItemsSchema {
     }
     
     return current;
+  }
+
+  /// Test helper: Add a crop research item directly (for unit tests)
+  void addCropItemForTesting(String id, CropResearchItemSchema item) {
+    _cropItems[id] = item;
   }
 
   /// Test helper: Add a farm research item directly (for unit tests)
