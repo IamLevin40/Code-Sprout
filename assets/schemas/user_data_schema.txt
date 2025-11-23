@@ -21,80 +21,8 @@
             "python": "boolean (false)",
             "javascript": "boolean (false)"
         },
-        "inventory": {
-            "wheatSeeds": {
-                "isLocked": "boolean (false)",
-                "quantity": "number (10)"
-            },
-            "wheat": {
-                "isLocked": "boolean (false)",
-                "quantity": "number (0)"
-            },
-            "carrotSeeds": {
-                "isLocked": "boolean (true)",
-                "quantity": "number (0)"
-            },
-            "carrot": {
-                "isLocked": "boolean (true)",
-                "quantity": "number (0)"
-            },
-            "potatoSeeds": {
-                "isLocked": "boolean (true)",
-                "quantity": "number (0)"
-            },
-            "potato": {
-                "isLocked": "boolean (true)",
-                "quantity": "number (0)"
-            },
-            "beetrootSeeds": {
-                "isLocked": "boolean (true)",
-                "quantity": "number (0)"
-            },
-            "beetroot": {
-                "isLocked": "boolean (true)",
-                "quantity": "number (0)"
-            },
-            "radishSeeds": {
-                "isLocked": "boolean (true)",
-                "quantity": "number (0)"
-            },
-            "radish": {
-                "isLocked": "boolean (true)",
-                "quantity": "number (0)"
-            },
-            "onionSeeds": {
-                "isLocked": "boolean (true)",
-                "quantity": "number (0)"
-            },
-            "onion": {
-                "isLocked": "boolean (true)",
-                "quantity": "number (0)"
-            },
-            "lettuceSeeds": {
-                "isLocked": "boolean (true)",
-                "quantity": "number (0)"
-            },
-            "lettuce": {
-                "isLocked": "boolean (true)",
-                "quantity": "number (0)"
-            },
-            "tomatoSeeds": {
-                "isLocked": "boolean (true)",
-                "quantity": "number (0)"
-            },
-            "tomato": {
-                "isLocked": "boolean (true)",
-                "quantity": "number (0)"
-            },
-            "garlicSeeds": {
-                "isLocked": "boolean (true)",
-                "quantity": "number (0)"
-            },
-            "garlic": {
-                "isLocked": "boolean (true)",
-                "quantity": "number (0)"
-            }
-        }
+        "coins": "number (0)",
+        "inventory": "reference (inventory_schema.txt)"
     },
     "rankProgress": {
         "experiencePoints": "number (0)"

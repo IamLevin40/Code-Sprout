@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/services.dart';
 import '../miscellaneous/asset_path.dart';
+import 'inventory_data.dart';
 
 /// Service class to handle farm data schema from farm_data_schema.txt
 /// This provides centralized crop information management including growth durations,
@@ -14,6 +15,7 @@ class FarmDataSchema {
 
   // Cache for loaded schema data
   Map<String, dynamic>? _schemaData;
+  InventorySchema? _inventorySchema;
 
   /// Load farm data schema from the schema file
   Future<void> loadSchema() async {
@@ -22,6 +24,9 @@ class FarmDataSchema {
     try {
       final String jsonString = await rootBundle.loadString(resolveAssetPath('schemas/farm_data_schema.txt'));
       _schemaData = jsonDecode(jsonString);
+      
+      // Load inventory schema for icon lookups
+      _inventorySchema = await InventorySchema.load();
     } catch (e) {
       throw Exception('Failed to load farm data schema: $e');
     }
@@ -42,22 +47,16 @@ class FarmDataSchema {
     return cropInfo[cropType] as Map<String, dynamic>?;
   }
 
-  /// Get item icon path for a crop type
-  String getItemIcon(String cropType) {
-    final info = getCropInfo(cropType);
-    if (info == null) {
-      throw Exception('Crop type not found: $cropType');
+  /// Get item icon path for any item (unified method for seeds and crops)
+  String getItemIcon(String itemId) {
+    if (_inventorySchema == null) {
+      throw Exception('Inventory schema not loaded. Call loadSchema() first.');
     }
-    return resolveAssetPath(info['item_icon'] as String);
-  }
-
-  /// Get seed icon path for a crop type
-  String getSeedIcon(String cropType) {
-    final info = getCropInfo(cropType);
-    if (info == null) {
-      throw Exception('Crop type not found: $cropType');
+    final icon = _inventorySchema!.getItemIcon(itemId);
+    if (icon == null) {
+      throw Exception('Item icon not found for: $itemId');
     }
-    return resolveAssetPath(info['seed_icon'] as String);
+    return icon;
   }
 
   /// Get growth duration in seconds for a crop type
@@ -196,8 +195,7 @@ class FarmDataSchema {
         final info = getCropInfo(cropType);
         if (info == null) return false;
         
-        // Check required fields
-        if (!info.containsKey('item_icon')) return false;
+        // Check required fields (item_icon and seed_icon are now in inventory schema)
         if (!info.containsKey('growth_duration')) return false;
         if (!info.containsKey('harvest_quantity')) return false;
         if (!info.containsKey('crop_stages')) return false;

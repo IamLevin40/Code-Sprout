@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import '../models/farm_data.dart';
 import '../models/styles_schema.dart';
 import '../models/language_code_files.dart';
+import '../models/research_data.dart';
+import '../models/research_items_schema.dart';
+import '../models/user_data.dart';
 import '../widgets/farm_items/farm_grid_view.dart';
 import '../widgets/farm_items/code_editor_widget.dart';
 import '../widgets/farm_items/code_execution_log_widget.dart';
 import '../widgets/farm_items/inventory_popup_display.dart';
 import '../widgets/farm_items/farm_top_controls.dart';
 import '../widgets/farm_items/farm_bottom_controls.dart';
+import '../widgets/farm_items/research_lab_display.dart';
 import '../compilers/base_interpreter.dart';
 import '../compilers/cpp_interpreter.dart';
 import '../compilers/csharp_interpreter.dart';
@@ -17,6 +21,7 @@ import '../compilers/javascript_interpreter.dart';
 import '../services/local_storage_service.dart';
 import '../services/code_files_service.dart';
 import '../services/farm_progress_service.dart';
+import '../services/firestore_service.dart';
 import '../miscellaneous/interactive_viewport_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -36,7 +41,9 @@ class FarmPage extends StatefulWidget {
 
 class _FarmPageState extends State<FarmPage> {
   late FarmState _farmState;
+  late ResearchState _researchState;
   bool _showCodeEditor = false;
+  bool _showResearchLab = false;
   late LanguageCodeFiles _codeFiles;
   int _selectedExecutionFileIndex = 0; // File selected in start button
   List<String> _executionLog = [];
@@ -55,7 +62,8 @@ class _FarmPageState extends State<FarmPage> {
   @override
   void initState() {
     super.initState();
-    _farmState = FarmState();
+    _researchState = ResearchState();
+    _farmState = FarmState(researchState: _researchState);
     _codeFiles = LanguageCodeFiles.createDefault(widget.languageId);
     _codeController = TextEditingController(text: _codeFiles.currentFile.content);
     _viewportController = InteractiveViewportController(
@@ -79,12 +87,10 @@ class _FarmPageState extends State<FarmPage> {
       });
     } catch (_) {}
     
-    // Load code files from Firestore
+    // Load progress from Firestore
     _loadCodeFiles();
-
-    // Load farm progress from Firestore
-    // The listener will be added after progress is loaded
     _loadFarmProgress();
+    _loadResearchProgress();
 
     // Ensure viewport centers once after the first frame (styles and layout available)
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -192,6 +198,50 @@ class _FarmPageState extends State<FarmPage> {
     }
   }
 
+  /// Load research progress from Firestore
+  Future<void> _loadResearchProgress() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        // No user logged in, add listener and return
+        _researchState.addListener(_onResearchStateChanged);
+        return;
+      }
+
+      // Check if research progress exists first
+      final exists = await FarmProgressService.researchProgressExists(userId: user.uid);
+      
+      if (exists) {
+        // Load existing research progress
+        final progress = await FarmProgressService.loadResearchProgress(userId: user.uid);
+        
+        if (progress != null && mounted) {
+          // Apply progress to research state WITHOUT triggering auto-save
+          _researchState.loadFromFirestore(progress);
+          
+          // NOW add listener after progress is loaded
+          _researchState.addListener(_onResearchStateChanged);
+            // Ensure farm grid updates according to completed researches
+            try {
+              _farmState.applyFarmResearchConditions();
+            } catch (e) {
+              debugPrint('Failed to apply farm research conditions on load: $e');
+            }
+            setState(() {});
+        }
+      } else {
+        // No existing progress, use default and add listener
+        // This will trigger auto-save to create the initial progress
+        _researchState.addListener(_onResearchStateChanged);
+      }
+    } catch (e) {
+      // Silent fail - don't interrupt user experience
+      // Add listener even if loading fails
+      _researchState.addListener(_onResearchStateChanged);
+      debugPrint('Failed to load research progress: $e');
+    }
+  }
+
   /// Save farm progress to Firestore
   Future<void> _saveFarmProgress() async {
     try {
@@ -208,6 +258,25 @@ class _FarmPageState extends State<FarmPage> {
     }
   }
 
+  /// Save research progress to Firestore
+  Future<void> _saveResearchProgress() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+
+      final exportData = _researchState.exportToFirestore();
+      await FarmProgressService.saveResearchProgress(
+        userId: user.uid,
+        cropResearches: exportData['crop_researches']!,
+        farmResearches: exportData['farm_researches']!,
+        functionsResearches: exportData['functions_researches']!,
+      );
+    } catch (e) {
+      // Silent fail - don't interrupt user experience
+      debugPrint('Failed to save research progress: $e');
+    }
+  }
+
   @override
   void dispose() {
     // Stop any running execution before disposal
@@ -215,11 +284,14 @@ class _FarmPageState extends State<FarmPage> {
       _currentInterpreter!.stop();
     }
     
-    // Save farm progress when leaving page
+    // Save progress when leaving page
     _saveFarmProgress();
+    _saveResearchProgress();
     
     _farmState.removeListener(_onFarmStateChanged);
+    _researchState.removeListener(_onResearchStateChanged);
     _farmState.dispose();
+    _researchState.dispose();
     _executingLineNotifier.dispose();
     _errorLineNotifier.dispose();
     _logNotifier.dispose();
@@ -274,6 +346,15 @@ class _FarmPageState extends State<FarmPage> {
     }
   }
 
+  void _onResearchStateChanged() {
+    if (mounted) {
+      setState(() {});
+
+      // Auto-save research progress whenever research state changes
+      _saveResearchProgress();
+    }
+  }
+
   FarmCodeInterpreter _getInterpreter() {
     switch (widget.languageId) {
       case 'cpp':
@@ -291,6 +372,7 @@ class _FarmPageState extends State<FarmPage> {
               _logNotifier.value = List.from(_logNotifier.value)..add(message);
             }
           },
+          researchState: _researchState
         );
       case 'csharp':
         return CSharpInterpreter(
@@ -307,6 +389,7 @@ class _FarmPageState extends State<FarmPage> {
               _logNotifier.value = List.from(_logNotifier.value)..add(message);
             }
           },
+          researchState: _researchState
         );
       case 'java':
         return JavaInterpreter(
@@ -323,6 +406,7 @@ class _FarmPageState extends State<FarmPage> {
               _logNotifier.value = List.from(_logNotifier.value)..add(message);
             }
           },
+          researchState: _researchState
         );
       case 'python':
         return PythonInterpreter(
@@ -339,6 +423,7 @@ class _FarmPageState extends State<FarmPage> {
               _logNotifier.value = List.from(_logNotifier.value)..add(message);
             }
           },
+          researchState: _researchState
         );
       case 'javascript':
         return JavaScriptInterpreter(
@@ -355,6 +440,7 @@ class _FarmPageState extends State<FarmPage> {
               _logNotifier.value = List.from(_logNotifier.value)..add(message);
             }
           },
+          researchState: _researchState
         );
       default:
         return CppInterpreter(
@@ -700,6 +786,9 @@ class _FarmPageState extends State<FarmPage> {
               
               // Layer 4: Code Editor Overlay (Only shown when code button pressed)
               if (_showCodeEditor) _buildCodeEditorOverlay(),
+              
+              // Layer 5: Research Lab Overlay (Only shown when research button pressed)
+              if (_showResearchLab) _buildResearchLabOverlay(),
             ],
           ),
         ),
@@ -723,10 +812,12 @@ class _FarmPageState extends State<FarmPage> {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          // Top bar with back button and language display
+          // Top bar with back button, coins display, and language display
           Row(
             children: [
               _buildBackButton(),
+              const SizedBox(width: 16),
+              _buildCoinsDisplay(),
               const SizedBox(width: 16),
               Expanded(child: _buildLanguageDisplay()),
             ],
@@ -765,9 +856,7 @@ class _FarmPageState extends State<FarmPage> {
             },
             onInventoryPressed: _showInventoryPopup,
             onResearchPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Research page coming soon!')),
-              );
+              setState(() => _showResearchLab = !_showResearchLab);
             },
           ),
         ],
@@ -794,6 +883,136 @@ class _FarmPageState extends State<FarmPage> {
       top: 64,
       bottom: 16,
       child: _buildCodeEditorWithFileSelector(),
+    );
+  }
+  
+  // Layer 5: Research Lab Overlay
+  Widget _buildResearchLabOverlay() {
+    return Positioned(
+      left: 16,
+      right: 16,
+      top: 64,
+      bottom: 16,
+      child: ResearchLabDisplay(
+        researchState: _researchState,
+        userData: LocalStorageService.instance.userDataNotifier.value,
+        currentLanguage: widget.languageId,
+        onClose: () {
+          setState(() => _showResearchLab = false);
+        },
+        onResearchCompleted: _handleResearchCompleted,
+      ),
+    );
+  }
+  
+  /// Handle research completion: deduct items from inventory and mark as completed
+  /// Requirements use simplified item IDs (e.g., "wheat", "carrot")
+  void _handleResearchCompleted(String researchId, Map<String, int> requirements) async {
+    try {
+      final userData = LocalStorageService.instance.userDataNotifier.value;
+      if (userData == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('User data not available')),
+        );
+        return;
+      }
+      
+      // Deduct items from inventory using simplified paths
+      for (final entry in requirements.entries) {
+        final itemId = entry.key; // Simplified ID like "wheat", "carrot"
+        final required = entry.value;
+        final itemPath = 'sproutProgress.inventory.$itemId.quantity';
+        final currentValue = userData.get(itemPath) as int? ?? 0;
+        final newValue = currentValue - required;
+        
+        if (newValue < 0) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Insufficient items in inventory')),
+          );
+          return;
+        }
+        
+        userData.set(itemPath, newValue);
+      }
+      
+      // Mark research as completed
+      _researchState.completeResearch(researchId);
+      
+      // CRITICAL: Save using FirestoreService to trigger notifier and persist to Firestore
+      // This ensures inventory changes are reflected everywhere (sprout page, settings, etc.)
+      await FirestoreService.updateUserData(userData);
+      
+      // Unlock inventory items if this is a crop research
+      if (researchId.startsWith('crop_')) {
+        final researchSchema = ResearchItemsSchema.instance.getCropItem(researchId);
+        if (researchSchema != null && researchSchema.itemUnlocks.isNotEmpty) {
+          final user = FirebaseAuth.instance.currentUser;
+          if (user != null) {
+            await ResearchState.unlockInventoryItems(
+              researchId: researchId,
+              itemIds: researchSchema.itemUnlocks,
+              userId: user.uid,
+            );
+          }
+        }
+      }
+      
+      // Apply farm research conditions if this is a farm research
+      if (researchId.startsWith('farm_')) {
+        _farmState.applyFarmResearchConditions();
+      }
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Research completed successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to complete research: $e')),
+        );
+      }
+    }
+  }
+
+  Widget _buildCoinsDisplay() {
+    return ValueListenableBuilder<UserData?>(
+      valueListenable: LocalStorageService.instance.userDataNotifier,
+      builder: (context, userData, _) {
+        final coins = userData?.getCoins() ?? 0;
+
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.amber.withAlpha(230),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.amber.shade700, width: 2),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.monetization_on,
+                color: Colors.white,
+                size: 24,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '$coins',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

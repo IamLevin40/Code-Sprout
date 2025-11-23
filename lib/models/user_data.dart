@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'user_data_schema.dart';
 import '../services/local_storage_service.dart';
 
@@ -367,8 +368,310 @@ class UserData {
     return await _getSchema();
   }
 
+  // ========== COINS MANAGEMENT ==========
+  
+  /// Get current coins amount
+  int getCoins() {
+    final coins = get('sproutProgress.coins');
+    if (coins is int) {
+      return coins;
+    }
+    return 0;
+  }
+
+  /// Add coins (positive integers only)
+  Future<void> addCoins(int amount) async {
+    if (amount < 0) {
+      throw ArgumentError('Amount must be non-negative');
+    }
+    
+    if (amount == 0) {
+      return; // No-op for zero amount
+    }
+    
+    final currentCoins = getCoins();
+    final newCoins = currentCoins + amount;
+    set('sproutProgress.coins', newCoins);
+    
+    // Auto-save to both local and Firestore
+    // Ensure UI listeners are updated immediately even if persistence fails
+    try {
+      LocalStorageService.instance.userDataNotifier.value = copyWith({});
+    } catch (_) {}
+
+    try {
+      await LocalStorageService.instance.saveUserData(this);
+    } catch (e) {
+      debugPrint('Failed to save user data locally: $e');
+    }
+    
+    try {
+      await updateFields({'sproutProgress.coins': newCoins});
+    } catch (e) {
+      debugPrint('Failed to update coins in Firestore: $e');
+    }
+  }
+
+  /// Subtract coins (prevents negative balance)
+  Future<bool> subtractCoins(int amount) async {
+    if (amount < 0) {
+      throw ArgumentError('Amount must be non-negative');
+    }
+    
+    if (amount == 0) {
+      return true; // No-op for zero amount
+    }
+    
+    
+    final currentCoins = getCoins();
+    if (currentCoins < amount) {
+      return false; // Insufficient coins
+    }
+    
+    final newCoins = currentCoins - amount;
+    set('sproutProgress.coins', newCoins);
+    
+    // Auto-save to both local and Firestore
+    // Ensure UI listeners are updated immediately even if persistence fails
+    try {
+      LocalStorageService.instance.userDataNotifier.value = copyWith({});
+    } catch (_) {}
+
+    try {
+      await LocalStorageService.instance.saveUserData(this);
+    } catch (e) {
+      debugPrint('Failed to save user data locally: $e');
+    }
+    
+    try {
+      await updateFields({'sproutProgress.coins': newCoins});
+    } catch (e) {
+      debugPrint('Failed to update coins in Firestore: $e');
+    }
+    
+    return true; // Success
+  }
+
+  /// Check if user can afford a purchase
+  bool canAfford(int cost) {
+    if (cost < 0) {
+      throw ArgumentError('Cost cannot be negative');
+    }
+    return getCoins() >= cost;
+  }
+
+  /// Purchase items with coins (returns true if successful)
+  Future<bool> purchaseWithCoins({
+    required int cost,
+    required Map<String, int> items, // itemId -> quantity
+  }) async {
+    if (cost < 0) {
+      throw ArgumentError('Cost cannot be negative');
+    }
+    
+    if (!canAfford(cost)) {
+      return false; // Insufficient coins
+    }
+    
+    // Subtract coins
+    final coinsSuccess = await subtractCoins(cost);
+    if (!coinsSuccess) {
+      return false;
+    }
+    
+    // Add items to inventory
+    try {
+      var inventoryRaw = get('sproutProgress.inventory');
+      
+      // Create a fresh map with proper typing to avoid type conflicts
+      final inventory = <String, dynamic>{};
+      
+      // Copy existing inventory if present
+      if (inventoryRaw != null && inventoryRaw is Map) {
+        inventoryRaw.forEach((key, value) {
+          inventory[key.toString()] = value;
+        });
+      }
+
+      items.forEach((itemId, quantity) {
+        final existing = inventory[itemId];
+
+        // Get current quantity (support legacy int, structured map, or null)
+        final int currentQty;
+        if (existing == null) {
+          currentQty = 0;
+        } else if (existing is int) {
+          currentQty = existing;
+        } else if (existing is Map) {
+          currentQty = (existing['quantity'] is int) ? existing['quantity'] as int : 0;
+        } else {
+          currentQty = 0;
+        }
+
+        // Always use structured format - create a new map to avoid reference issues
+        inventory[itemId] = <String, dynamic>{
+          'quantity': currentQty + quantity,
+          'isLocked': (existing is Map && existing['isLocked'] == true) ? true : false,
+        };
+      });
+
+      // Update in-memory data immediately
+      set('sproutProgress.inventory', inventory);
+
+      // Persist the full user JSON locally and remotely (fire-and-forget)
+      try {
+        final base = Map<String, dynamic>.from(toJson());
+        // Replace sproutProgress.inventory with our updated inventory
+        final parts = 'sproutProgress.inventory'.split('.');
+        _setNestedValue(base, parts, inventory);
+        _persistUserDataJson(base);
+      } catch (e) {
+        debugPrint('Warning: failed to persist inventory to storage/Firestore: $e');
+      }
+
+      // Notify UI of updated inventory immediately even if persistence fails
+      try {
+        LocalStorageService.instance.userDataNotifier.value = copyWith({});
+      } catch (_) {}
+
+      return true;
+    } catch (e) {
+      // If adding items fails, refund coins
+      await addCoins(cost);
+      debugPrint('Failed to add items to inventory: $e');
+      return false;
+    }
+  }
+
+  /// Sell items from inventory for coins (returns true if successful)
+  Future<bool> sellItem({
+    required String itemId,
+    required int quantity,
+    required int sellAmountPerItem,
+  }) async {
+    if (quantity <= 0) {
+      throw ArgumentError('Quantity must be positive');
+    }
+    
+    if (sellAmountPerItem < 0) {
+      throw ArgumentError('Sell amount cannot be negative');
+    }
+
+    // Check if user has enough items to sell
+    try {
+      var inventoryRaw = get('sproutProgress.inventory');
+      
+      if (inventoryRaw == null) {
+        return false; // No inventory
+      }
+
+      // Create a fresh map with proper typing
+      var inventory = <String, dynamic>{};
+      if (inventoryRaw is Map) {
+        inventoryRaw.forEach((key, value) {
+          inventory[key.toString()] = value;
+        });
+      }
+
+      final itemData = inventory[itemId];
+      if (itemData == null) {
+        return false; // Item doesn't exist
+      }
+
+      // Get current quantity (support both legacy int and structured map)
+      final int currentQty;
+      final bool isLocked;
+      if (itemData is int) {
+        currentQty = itemData;
+        isLocked = false;
+      } else if (itemData is Map) {
+        // Handle any Map type
+        currentQty = (itemData['quantity'] is int) ? itemData['quantity'] as int : 0;
+        isLocked = itemData['isLocked'] == true;
+      } else {
+        currentQty = 0;
+        isLocked = false;
+      }
+
+      if (currentQty < quantity) {
+        return false; // Insufficient items
+      }
+
+      // Calculate coins to add
+      final coinsToAdd = sellAmountPerItem * quantity;
+      
+      // Remove items from inventory
+      final newQty = currentQty - quantity;
+      
+      // Always use structured format - create a new map to avoid reference issues
+      inventory[itemId] = <String, dynamic>{
+        'quantity': newQty,
+        'isLocked': isLocked,
+      };
+
+      set('sproutProgress.inventory', inventory);
+
+      // Add coins
+      await addCoins(coinsToAdd);
+
+
+      // Persist the full user JSON locally and remotely (fire-and-forget)
+      try {
+        final base = Map<String, dynamic>.from(toJson());
+        final parts = 'sproutProgress.inventory'.split('.');
+        _setNestedValue(base, parts, inventory);
+        _persistUserDataJson(base);
+      } catch (e) {
+        debugPrint('Warning: failed to persist inventory after selling: $e');
+      }
+
+      // Notify UI immediately
+      try {
+        LocalStorageService.instance.userDataNotifier.value = copyWith({});
+      } catch (_) {}
+
+      return true;
+    } catch (e) {
+      debugPrint('Failed to sell item: $e');
+      return false;
+    }
+  }
+
   @override
   String toString() {
     return 'UserData(uid: $uid, data: $_data)';
   }
+}
+
+void _setNestedValue(Map<String, dynamic> map, List<String> parts, dynamic value) {
+  Map<String, dynamic> current = map;
+  for (int i = 0; i < parts.length - 1; i++) {
+    final key = parts[i];
+    if (!current.containsKey(key) || current[key] is! Map) {
+      current[key] = <String, dynamic>{};
+    }
+    current = current[key] as Map<String, dynamic>;
+  }
+  current[parts.last] = value;
+}
+
+void _persistUserDataJson(Map<String, dynamic> base) {
+  final newUser = UserData.fromJson(base);
+
+  try {
+    LocalStorageService.instance.userDataNotifier.value = newUser;
+  } catch (_) {}
+
+  LocalStorageService.instance.saveUserData(newUser).catchError((e) {
+    debugPrint('Failed to save user data locally: $e');
+  });
+
+  // Save remotely in background
+  Future(() async {
+    try {
+      await newUser.save();
+    } catch (e) {
+      debugPrint('Failed to save user data remotely: $e');
+    }
+  });
 }

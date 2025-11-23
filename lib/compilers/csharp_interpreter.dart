@@ -12,6 +12,7 @@ class CSharpInterpreter extends FarmCodeInterpreter {
     super.onLineExecuting,
     super.onLineError,
     super.onLogUpdate,
+    super.researchState,
   });
 
   @override
@@ -916,7 +917,7 @@ class CSharpInterpreter extends FarmCodeInterpreter {
         _handlePlant(argsString);
         break;
       case 'harvest':
-        executeHarvest();
+        await executeHarvest();
         break;
       case 'sleep':
         await _handleSleep(argsString);
@@ -973,7 +974,9 @@ class CSharpInterpreter extends FarmCodeInterpreter {
     }
 
     final seedStr = match.group(1)!;
-    final seed = SeedTypeExtension.fromString(seedStr);
+    // Convert PascalCase (WheatSeeds) to snake_case (wheat_seeds)
+    final snakeCaseId = _pascalToSnakeCase(seedStr);
+    final seed = SeedTypeExtension.fromString(snakeCaseId);
 
     if (seed == null) {
       throw Exception('Semantical Error: Unknown seed type "$seedStr"');
@@ -992,7 +995,9 @@ class CSharpInterpreter extends FarmCodeInterpreter {
     }
 
     final seedStr = match.group(1)!;
-    final seed = SeedTypeExtension.fromString(seedStr);
+    // Convert PascalCase (WheatSeeds) to snake_case (wheat_seeds)
+    final snakeCaseId = _pascalToSnakeCase(seedStr);
+    final seed = SeedTypeExtension.fromString(snakeCaseId);
 
     if (seed == null) {
       throw Exception('Semantical Error: Unknown seed type "$seedStr"');
@@ -1076,13 +1081,22 @@ class CSharpInterpreter extends FarmCodeInterpreter {
     }
 
     final seedStr = match.group(1)!;
-    final seed = SeedTypeExtension.fromString(seedStr);
+    // Convert PascalCase (WheatSeeds) to snake_case (wheat_seeds)
+    final snakeCaseId = _pascalToSnakeCase(seedStr);
+    final seed = SeedTypeExtension.fromString(snakeCaseId);
 
     if (seed == null) {
       throw Exception('Semantical Error: Unknown seed type "$seedStr"');
     }
 
     executePlant(seed);
+  }
+
+  /// Convert PascalCase to snake_case (e.g., WheatSeeds -> wheat_seeds)
+  String _pascalToSnakeCase(String pascal) {
+    return pascal
+        .replaceAllMapped(RegExp(r'([A-Z])'), (match) => '_${match.group(1)!.toLowerCase()}')
+        .replaceFirst('_', '');
   }
 
   /// Convert value to boolean

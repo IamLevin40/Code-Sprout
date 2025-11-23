@@ -10,6 +10,7 @@ class CppInterpreter extends FarmCodeInterpreter {
     super.onLineExecuting,
     super.onLineError,
     super.onLogUpdate,
+    super.researchState,
   });
 
   @override
@@ -1041,7 +1042,7 @@ class CppInterpreter extends FarmCodeInterpreter {
         _handlePlant(argsString);
         break;
       case 'harvest':
-        executeHarvest();
+        await executeHarvest();
         break;
       case 'sleep':
         await _handleSleep(argsString);
@@ -1135,13 +1136,22 @@ class CppInterpreter extends FarmCodeInterpreter {
     }
 
     final seedStr = match.group(1)!;
-    final seed = SeedTypeExtension.fromString(seedStr);
+    // Convert PascalCase (WheatSeeds) to snake_case (wheat_seeds)
+    final snakeCaseId = _pascalToSnakeCase(seedStr);
+    final seed = SeedTypeExtension.fromString(snakeCaseId);
 
     if (seed == null) {
       throw Exception('Semantical Error: Unknown seed type "$seedStr"');
     }
 
     executePlant(seed);
+  }
+
+  /// Convert PascalCase to snake_case (e.g., WheatSeeds -> wheat_seeds)
+  String _pascalToSnakeCase(String pascal) {
+    return pascal
+        .replaceAllMapped(RegExp(r'([A-Z])'), (match) => '_${match.group(1)!.toLowerCase()}')
+        .replaceFirst('_', '');
   }
 
   @override
@@ -1199,7 +1209,9 @@ class CppInterpreter extends FarmCodeInterpreter {
     }
 
     final seedStr = match.group(1)!;
-    final seed = SeedTypeExtension.fromString(seedStr);
+    // Convert PascalCase (WheatSeeds) to snake_case (wheat_seeds)
+    final snakeCaseId = _pascalToSnakeCase(seedStr);
+    final seed = SeedTypeExtension.fromString(snakeCaseId);
 
     if (seed == null) {
       throw Exception('Semantical Error: Unknown seed type "$seedStr"');
@@ -1218,7 +1230,9 @@ class CppInterpreter extends FarmCodeInterpreter {
     }
 
     final seedStr = match.group(1)!;
-    final seed = SeedTypeExtension.fromString(seedStr);
+    // Convert PascalCase (WheatSeeds) to snake_case (wheat_seeds)
+    final snakeCaseId = _pascalToSnakeCase(seedStr);
+    final seed = SeedTypeExtension.fromString(snakeCaseId);
 
     if (seed == null) {
       throw Exception('Semantical Error: Unknown seed type "$seedStr"');
@@ -1236,8 +1250,9 @@ class CppInterpreter extends FarmCodeInterpreter {
       throw Exception('Semantical Error: Invalid crop format - use CropType::CropName');
     }
 
-    final cropStr = match.group(1)!.toLowerCase();
-    final crop = CropTypeExtension.fromString(cropStr);
+    final cropStr = match.group(1)!;
+    // Convert PascalCase (Wheat) to lowercase (wheat) for CropType
+    final crop = CropTypeExtension.fromString(cropStr.toLowerCase());
 
     if (crop == null) {
       throw Exception('Semantical Error: Unknown crop type "$cropStr"');
@@ -1262,6 +1277,7 @@ class CppInterpreter extends FarmCodeInterpreter {
   /// Convert CropType to C++ enum string format
   String _cropTypeToString(CropType? crop) {
     if (crop == null) return 'CropType::None';
+    // Convert to PascalCase for C++ (wheat -> Wheat)
     return 'CropType::${crop.displayName}';
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'user_data.dart';
+import 'inventory_data.dart';
 import '../services/firestore_service.dart';
 
 /// Helper utilities for Sprout-related user data and logic
@@ -74,12 +75,14 @@ class SproutData {
 class InventoryItem {
   final String id;
   final String displayName;
+  final String? iconPath;
   final bool isLocked;
   final int quantity;
 
   InventoryItem({
     required this.id,
     required this.displayName,
+    this.iconPath,
     required this.isLocked,
     required this.quantity,
   });
@@ -88,6 +91,7 @@ class InventoryItem {
     return InventoryItem(
       id: id,
       displayName: displayName ?? this.displayName,
+      iconPath: iconPath,
       isLocked: isLocked ?? this.isLocked,
       quantity: quantity ?? this.quantity,
     );
@@ -107,6 +111,9 @@ class SproutDataHelpers {
     final schema = await UserData.getSchema();
     final Map<String, dynamic> defaults = schema.createDefaultData();
     final List<String> keys = (schema.getStructureAtPath('sproutProgress.inventory')).keys.toList();
+    
+    // Load inventory schema to get display names
+    final inventorySchema = await InventorySchema.load();
     final List<InventoryItem> items = [];
 
     for (final k in keys) {
@@ -127,16 +134,11 @@ class SproutDataHelpers {
         if (uQty is num) qty = uQty.toInt();
       }
 
-      // Format display name properly for both seeds and crops
-      String display;
-      if (k.endsWith('Seeds')) {
-        final base = k.replaceAll('Seeds', '');
-        display = '${base[0].toUpperCase()}${base.substring(1)} Seeds';
-      } else {
-        display = '${k[0].toUpperCase()}${k.substring(1)}';
-      }
+      // Get display name and icon from inventory schema
+      final displayName = inventorySchema.getItemName(k) ?? k;
+      final iconPath = inventorySchema.getItemIcon(k);
 
-      items.add(InventoryItem(id: k, displayName: display, isLocked: isLocked, quantity: qty));
+      items.add(InventoryItem(id: k, displayName: displayName, iconPath: iconPath, isLocked: isLocked, quantity: qty));
     }
 
     return items;

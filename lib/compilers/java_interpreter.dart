@@ -12,6 +12,7 @@ class JavaInterpreter extends FarmCodeInterpreter {
     super.onLineExecuting,
     super.onLineError,
     super.onLogUpdate,
+    super.researchState,
   });
 
   @override
@@ -915,7 +916,7 @@ class JavaInterpreter extends FarmCodeInterpreter {
         _handlePlant(argsString);
         break;
       case 'harvest':
-        executeHarvest();
+        await executeHarvest();
         break;
       case 'sleep':
         await _handleSleep(argsString);
@@ -972,7 +973,9 @@ class JavaInterpreter extends FarmCodeInterpreter {
     }
 
     final seedStr = match.group(1)!;
-    final seed = SeedTypeExtension.fromString(seedStr);
+    // Convert UPPER_CASE (WHEAT_SEEDS) to snake_case (wheat_seeds)
+    final snakeCaseId = seedStr.toLowerCase();
+    final seed = SeedTypeExtension.fromString(snakeCaseId);
 
     if (seed == null) {
       throw Exception('Semantical Error: Unknown seed type "$seedStr"');
@@ -991,7 +994,9 @@ class JavaInterpreter extends FarmCodeInterpreter {
     }
 
     final seedStr = match.group(1)!;
-    final seed = SeedTypeExtension.fromString(seedStr);
+    // Convert UPPER_CASE (WHEAT_SEEDS) to snake_case (wheat_seeds)
+    final snakeCaseId = seedStr.toLowerCase();
+    final seed = SeedTypeExtension.fromString(snakeCaseId);
 
     if (seed == null) {
       throw Exception('Semantical Error: Unknown seed type "$seedStr"');
@@ -1030,7 +1035,8 @@ class JavaInterpreter extends FarmCodeInterpreter {
 
   String _cropTypeToString(CropType? crop) {
     if (crop == null) return 'CropType.NONE';
-    return 'CropType.${crop.displayName.toUpperCase()}';
+    // Convert to UPPER_CASE for Java (wheat -> WHEAT)
+    return 'CropType.${crop.id.toUpperCase()}';
   }
 
   /// Handle move() function
@@ -1075,7 +1081,9 @@ class JavaInterpreter extends FarmCodeInterpreter {
     }
 
     final seedStr = match.group(1)!;
-    final seed = SeedTypeExtension.fromString(seedStr);
+    // Convert UPPER_CASE (WHEAT_SEEDS) to snake_case (wheat_seeds)
+    final snakeCaseId = seedStr.toLowerCase();
+    final seed = SeedTypeExtension.fromString(snakeCaseId);
 
     if (seed == null) {
       throw Exception('Semantical Error: Unknown seed type "$seedStr"');

@@ -17,6 +17,15 @@ class FarmProgressService {
         .doc('grid');
   }
 
+  /// Get research progress document reference for a user
+  static DocumentReference _getResearchProgressDoc(String userId) {
+    return _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('farmProgress')
+        .doc('research');
+  }
+
   /// Save farm grid progress to Firestore
   /// Structure: {
   ///   "gridInfo": { "x": int, "y": int },
@@ -61,8 +70,8 @@ class FarmProgressService {
   /// Load or create default farm progress
   static Future<Map<String, dynamic>> loadOrCreateFarmProgress({
     required String userId,
-    int defaultGridWidth = 3,
-    int defaultGridHeight = 3,
+    int defaultGridWidth = 1,
+    int defaultGridHeight = 1,
   }) async {
     try {
       final existing = await loadFarmProgress(userId: userId);
@@ -338,8 +347,8 @@ class FarmProgressService {
     final gridInfo = progress['gridInfo'] as Map<String, dynamic>?;
     final dronePos = progress['dronePosition'] as Map<String, dynamic>?;
 
-    final gridWidth = (gridInfo?['x'] as num?)?.toInt() ?? 3;
-    final gridHeight = (gridInfo?['y'] as num?)?.toInt() ?? 3;
+    final gridWidth = (gridInfo?['x'] as num?)?.toInt() ?? 1;
+    final gridHeight = (gridInfo?['y'] as num?)?.toInt() ?? 1;
     final droneX = (dronePos?['x'] as num?)?.toInt() ?? 0;
     final droneY = (dronePos?['y'] as num?)?.toInt() ?? 0;
 
@@ -354,5 +363,110 @@ class FarmProgressService {
     applyProgressToFarmState(farmState: farmState, progress: progress);
 
     return farmState;
+  }
+
+  // ============================================================================
+  // RESEARCH PROGRESS METHODS
+  // ============================================================================
+
+  /// Save research progress to Firestore
+  /// Structure: {
+  ///   "crop_researches": ["crop_wheat", "crop_carrot", ...],
+  ///   "farm_researches": ["farm_3x3", ...],
+  ///   "functions_researches": ["func_move", "func_till", ...]
+  /// }
+  static Future<void> saveResearchProgress({
+    required String userId,
+    required List<String> cropResearches,
+    required List<String> farmResearches,
+    required List<String> functionsResearches,
+  }) async {
+    try {
+      final docRef = _getResearchProgressDoc(userId);
+      final data = {
+        'crop_researches': cropResearches,
+        'farm_researches': farmResearches,
+        'functions_researches': functionsResearches,
+      };
+      await docRef.set(data);
+    } catch (e) {
+      throw Exception('Failed to save research progress: $e');
+    }
+  }
+
+  /// Load research progress from Firestore
+  /// Returns null if document doesn't exist
+  static Future<Map<String, dynamic>?> loadResearchProgress({
+    required String userId,
+  }) async {
+    try {
+      final docRef = _getResearchProgressDoc(userId);
+      final doc = await docRef.get();
+
+      if (!doc.exists || doc.data() == null) {
+        return null;
+      }
+
+      return doc.data() as Map<String, dynamic>;
+    } catch (e) {
+      throw Exception('Failed to load research progress: $e');
+    }
+  }
+
+  /// Check if research progress exists for a user
+  static Future<bool> researchProgressExists({
+    required String userId,
+  }) async {
+    try {
+      final docRef = _getResearchProgressDoc(userId);
+      final doc = await docRef.get();
+      return doc.exists;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Load or create default research progress
+  static Future<Map<String, dynamic>> loadOrCreateResearchProgress({
+    required String userId,
+  }) async {
+    try {
+      final existing = await loadResearchProgress(userId: userId);
+
+      if (existing != null) {
+        return existing;
+      }
+
+      // Create default empty research progress
+      final defaultProgress = {
+        'crop_researches': <String>[],
+        'farm_researches': <String>[],
+        'functions_researches': <String>[],
+      };
+
+      // Save to Firestore
+      await saveResearchProgress(
+        userId: userId,
+        cropResearches: [],
+        farmResearches: [],
+        functionsResearches: [],
+      );
+
+      return defaultProgress;
+    } catch (e) {
+      throw Exception('Failed to load or create research progress: $e');
+    }
+  }
+
+  /// Delete research progress for a user
+  static Future<void> deleteResearchProgress({
+    required String userId,
+  }) async {
+    try {
+      final docRef = _getResearchProgressDoc(userId);
+      await docRef.delete();
+    } catch (e) {
+      throw Exception('Failed to delete research progress: $e');
+    }
   }
 }

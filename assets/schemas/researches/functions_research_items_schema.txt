@@ -1,0 +1,142 @@
+{
+    "func_move": {
+        "icon": "images/icons/sprout_items/function_items/move.png",
+        "name": "move(direction)",
+        "language_specific_description": {
+            "cpp": "move(Direction::North)\nmove(Direction::South)\nmove(Direction::East)\nmove(Direction::West)\n\nMoves drone by 1 tile toward the given direction.",
+            "csharp": "move(Direction.North)\nmove(Direction.South)\nmove(Direction.East)\nmove(Direction.West)\n\nMoves drone by 1 tile toward the given direction.",
+            "java": "move(Direction.NORTH)\nmove(Direction.SOUTH)\nmove(Direction.EAST)\nmove(Direction.WEST)\n\nMoves drone by 1 tile toward the given direction.",
+            "javascript": "move(Direction.NORTH)\nmove(Direction.SOUTH)\nmove(Direction.EAST)\nmove(Direction.WEST)\n\nMoves drone by 1 tile toward the given direction.",
+            "python": "move(Direction.NORTH)\nmove(Direction.SOUTH)\nmove(Direction.EAST)\nmove(Direction.WEST)\n\nMoves drone by 1 tile toward the given direction."
+        },
+        "predecessor_ids": [],
+        "requirements": {},
+        "functions_unlocked": ["move(direction)"]
+    },
+    "func_till": {
+        "icon": "images/icons/sprout_items/function_items/till.png",
+        "name": "till()",
+        "language_specific_description": {
+            "cpp": "till()\n\nTills the soil at current position for planting preparation.",
+            "csharp": "till()\n\nTills the soil at current position for planting preparation.",
+            "java": "till()\n\nTills the soil at current position for planting preparation.",
+            "javascript": "till()\n\nTills the soil at current position for planting preparation.",
+            "python": "till()\n\nTills the soil at current position for planting preparation."
+        },
+        "predecessor_ids": [],
+        "requirements": {},
+        "functions_unlocked": ["till()"]
+    },
+    "func_water": {
+        "icon": "images/icons/sprout_items/function_items/water.png",
+        "name": "water()",
+        "language_specific_description": {
+            "cpp": "water()\n\nWaters soil at current position.",
+            "csharp": "water()\n\nWaters soil at current position.",
+            "java": "water()\n\nWaters soil at current position.",
+            "javascript": "water()\n\nWaters soil at current position.",
+            "python": "water()\n\nWaters soil at current position."
+        },
+        "predecessor_ids": [],
+        "requirements": {},
+        "functions_unlocked": ["water()"]
+    },
+    "func_plant": {
+        "icon": "images/icons/sprout_items/function_items/plant.png",
+        "name": "plant(crop)",
+        "language_specific_description": {
+            "cpp": "plant(CropType::Wheat)\n\nPlants the given crop type at current position.",
+            "csharp": "plant(CropType.Wheat)\n\nPlants the given crop type at current position.",
+            "java": "plant(CropType.WHEAT)\n\nPlants the given crop type at current position.",
+            "javascript": "plant(CropType.WHEAT)\n\nPlants the given crop type at current position.",
+            "python": "plant(CropType.WHEAT)\n\nPlants the given crop type at current position."
+        },
+        "predecessor_ids": [],
+        "requirements": {},
+        "functions_unlocked": ["plant(seedType)"]
+    },
+    "func_harvest": {
+        "icon": "images/icons/sprout_items/function_items/harvest.png",
+        "name": "harvest()",
+        "language_specific_description": {
+            "cpp": "harvest()\n\nHarvests crops from the current position.",
+            "csharp": "harvest()\n\nHarvests crops from the current position.",
+            "java": "harvest()\n\nHarvests crops from the current position.",
+            "javascript": "harvest()\n\nHarvests crops from the current position.",
+            "python": "harvest()\n\nHarvests crops from the current position."
+        },
+        "predecessor_ids": [],
+        "requirements": {},
+        "functions_unlocked": ["harvest()"]
+    },
+    "func_sleep": {
+        "icon": "images/icons/sprout_items/function_items/sleep.png",
+        "name": "sleep(duration)",
+        "language_specific_description": {
+            "cpp": "sleep(2)\n\nPauses drone operation for the given duration in seconds.",
+            "csharp": "sleep(2)\n\nPauses drone operation for the given duration in seconds.",
+            "java": "sleep(2)\n\nPauses drone operation for the given duration in seconds.",
+            "javascript": "sleep(2)\n\nPauses drone operation for the given duration in seconds.",
+            "python": "sleep(2)\n\nPauses drone operation for the given duration in seconds."
+        },
+        "predecessor_ids": [],
+        "requirements": {},
+        "functions_unlocked": ["sleep(duration)"]
+    },
+    "func_getters": {
+        "icon": "images/icons/sprout_items/function_items/getters.png",
+        "name": "Getter Functions",
+        "language_specific_description": {
+            "cpp": "getPositionX(), getPositionY(), getPlotGridX(), getPlotGridY()\n\nReturns position and grid information.",
+            "csharp": "getPositionX(), getPositionY(), getPlotGridX(), getPlotGridY()\n\nReturns position and grid information.",
+            "java": "getPositionX(), getPositionY(), getPlotGridX(), getPlotGridY()\n\nReturns position and grid information.",
+            "javascript": "getPositionX(), getPositionY(), getPlotGridX(), getPlotGridY()\n\nReturns position and grid information.",
+            "python": "get_position_x(), get_position_y(), get_plot_grid_x(), get_plot_grid_y()\n\nReturns position and grid information."
+        },
+        "predecessor_ids": ["func_move"],
+        "requirements": {},
+        "functions_unlocked": ["getPositionX()", "getPositionY()", "getPlotGridX()", "getPlotGridY()"]
+    },
+    "func_state_checkers": {
+        "icon": "images/icons/sprout_items/function_items/checkers.png",
+        "name": "State Checker Functions",
+        "language_specific_description": {
+            "cpp": "getPlotState(), getCropType(), isCropGrown()\n\nReturns current plot and crop state information.",
+            "csharp": "getPlotState(), getCropType(), isCropGrown()\n\nReturns current plot and crop state information.",
+            "java": "getPlotState(), getCropType(), isCropGrown()\n\nReturns current plot and crop state information.",
+            "javascript": "getPlotState(), getCropType(), isCropGrown()\n\nReturns current plot and crop state information.",
+            "python": "get_plot_state(), get_crop_type(), is_crop_grown()\n\nReturns current plot and crop state information."
+        },
+        "predecessor_ids": ["func_getters"],
+        "requirements": {},
+        "functions_unlocked": ["getPlotState()", "getCropType()", "isCropGrown()"]
+    },
+    "func_can_checkers": {
+        "icon": "images/icons/sprout_items/function_items/can_checkers.png",
+        "name": "Action Validator Functions",
+        "language_specific_description": {
+            "cpp": "canTill(), canWater(), canPlant(), canHarvest()\n\nChecks if actions can be performed at current position.",
+            "csharp": "canTill(), canWater(), canPlant(), canHarvest()\n\nChecks if actions can be performed at current position.",
+            "java": "canTill(), canWater(), canPlant(), canHarvest()\n\nChecks if actions can be performed at current position.",
+            "javascript": "canTill(), canWater(), canPlant(), canHarvest()\n\nChecks if actions can be performed at current position.",
+            "python": "can_till(), can_water(), can_plant(), can_harvest()\n\nChecks if actions can be performed at current position."
+        },
+        "predecessor_ids": ["func_state_checkers"],
+        "requirements": {},
+        "functions_unlocked": ["canTill()", "canWater()", "canPlant()", "canHarvest()"]
+    },
+    "func_inventory": {
+        "icon": "images/icons/sprout_items/function_items/inventory.png",
+        "name": "Inventory Functions",
+        "language_specific_description": {
+            "cpp": "hasSeed(SeedType), getSeedInventoryCount(SeedType), getCropInventoryCount(CropType)\n\nChecks and retrieves inventory information.",
+            "csharp": "hasSeed(SeedType), getSeedInventoryCount(SeedType), getCropInventoryCount(CropType)\n\nChecks and retrieves inventory information.",
+            "java": "hasSeed(SeedType), getSeedInventoryCount(SeedType), getCropInventoryCount(CropType)\n\nChecks and retrieves inventory information.",
+            "javascript": "hasSeed(SeedType), getSeedInventoryCount(SeedType), getCropInventoryCount(CropType)\n\nChecks and retrieves inventory information.",
+            "python": "has_seed(SeedType), get_seed_inventory_count(SeedType), get_crop_inventory_count(CropType)\n\nChecks and retrieves inventory information."
+        },
+        "predecessor_ids": ["func_plant"],
+        "requirements": {},
+        "functions_unlocked": ["hasSeed(seedType)", "getSeedInventoryCount(seedType)", "getCropInventoryCount(cropType)"]
+    }
+}
