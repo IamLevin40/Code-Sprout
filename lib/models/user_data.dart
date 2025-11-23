@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'user_data_schema.dart';
 import '../services/local_storage_service.dart';
 
@@ -365,6 +366,163 @@ class UserData {
   /// Get the current schema
   static Future<UserDataSchema> getSchema() async {
     return await _getSchema();
+  }
+
+  // ========== COINS MANAGEMENT ==========
+  
+  /// Get current coins amount
+  int getCoins() {
+    final coins = get('sproutProgress.coins');
+    if (coins is int) {
+      return coins;
+    }
+    return 0;
+  }
+
+  /// Add coins (positive integers only)
+  Future<void> addCoins(int amount) async {
+    if (amount < 0) {
+      throw ArgumentError('Amount must be non-negative');
+    }
+    
+    if (amount == 0) {
+      return; // No-op for zero amount
+    }
+    
+    final currentCoins = getCoins();
+    final newCoins = currentCoins + amount;
+    set('sproutProgress.coins', newCoins);
+    
+    // Auto-save to both local and Firestore
+    // Ensure UI listeners are updated immediately even if persistence fails
+    try {
+      LocalStorageService.instance.userDataNotifier.value = copyWith({});
+    } catch (_) {}
+
+    try {
+      await LocalStorageService.instance.saveUserData(this);
+    } catch (e) {
+      debugPrint('Failed to save user data locally: $e');
+    }
+    
+    try {
+      await updateFields({'sproutProgress.coins': newCoins});
+    } catch (e) {
+      debugPrint('Failed to update coins in Firestore: $e');
+    }
+  }
+
+  /// Subtract coins (prevents negative balance)
+  Future<bool> subtractCoins(int amount) async {
+    if (amount < 0) {
+      throw ArgumentError('Amount must be non-negative');
+    }
+    
+    if (amount == 0) {
+      return true; // No-op for zero amount
+    }
+    
+    
+    final currentCoins = getCoins();
+    if (currentCoins < amount) {
+      return false; // Insufficient coins
+    }
+    
+    final newCoins = currentCoins - amount;
+    set('sproutProgress.coins', newCoins);
+    
+    // Auto-save to both local and Firestore
+    // Ensure UI listeners are updated immediately even if persistence fails
+    try {
+      LocalStorageService.instance.userDataNotifier.value = copyWith({});
+    } catch (_) {}
+
+    try {
+      await LocalStorageService.instance.saveUserData(this);
+    } catch (e) {
+      debugPrint('Failed to save user data locally: $e');
+    }
+    
+    try {
+      await updateFields({'sproutProgress.coins': newCoins});
+    } catch (e) {
+      debugPrint('Failed to update coins in Firestore: $e');
+    }
+    
+    return true; // Success
+  }
+
+  /// Check if user can afford a purchase
+  bool canAfford(int cost) {
+    if (cost < 0) {
+      throw ArgumentError('Cost cannot be negative');
+    }
+    return getCoins() >= cost;
+  }
+
+  /// Purchase items with coins (returns true if successful)
+  Future<bool> purchaseWithCoins({
+    required int cost,
+    required Map<String, int> items, // itemId -> quantity
+  }) async {
+    if (cost < 0) {
+      throw ArgumentError('Cost cannot be negative');
+    }
+    
+    if (!canAfford(cost)) {
+      return false; // Insufficient coins
+    }
+    
+    // Subtract coins
+    final coinsSuccess = await subtractCoins(cost);
+    if (!coinsSuccess) {
+      return false;
+    }
+    
+    // Add items to inventory
+    try {
+      var inventory = get('sproutProgress.inventory') as Map<String, dynamic>?;
+
+      // Initialize inventory if null
+      if (inventory == null) {
+        inventory = <String, dynamic>{};
+        set('sproutProgress.inventory', inventory);
+      }
+
+      items.forEach((itemId, quantity) {
+        final existing = inventory![itemId];
+
+        // Structured format
+        final currentQty = (existing['quantity'] is int) ? existing['quantity'] as int : 0;
+        existing['quantity'] = currentQty + quantity;
+        inventory[itemId] = existing;
+      });
+
+      set('sproutProgress.inventory', inventory);
+
+      // Notify UI of updated inventory immediately even if persistence fails
+      try {
+        LocalStorageService.instance.userDataNotifier.value = copyWith({});
+      } catch (_) {}
+
+      // Save changes
+      try {
+        await LocalStorageService.instance.saveUserData(this);
+        await updateFields({
+          'sproutProgress.inventory': inventory,
+        });
+      } catch (e, st) {
+        debugPrint('Warning: failed to persist inventory to storage/Firestore: $e');
+        debugPrint('$st');
+      }
+
+      return true;
+    } catch (e) {
+      // If adding items fails, refund coins
+      await addCoins(cost);
+      debugPrint('Failed to add items to inventory: $e');
+      return false;
+    }
   }
 
   @override

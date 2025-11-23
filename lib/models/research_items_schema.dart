@@ -15,6 +15,8 @@ class CropResearchItemSchema {
   final List<String> itemUnlocks; // Items to unlock in inventory when research completes
   final List<String> plantEnabled; // Seed types that can be planted after research
   final List<String> harvestEnabled; // Crop types that can be harvested after research
+  final List<String> itemPurchases; // Items that can be purchased
+  final int purchaseAmount; // Cost in coins per purchase
 
   CropResearchItemSchema({
     required this.id,
@@ -27,6 +29,8 @@ class CropResearchItemSchema {
     required this.itemUnlocks,
     required this.plantEnabled,
     required this.harvestEnabled,
+    required this.itemPurchases,
+    required this.purchaseAmount,
   });
 
   factory CropResearchItemSchema.fromJson(String id, Map<String, dynamic> json) {
@@ -59,6 +63,8 @@ class CropResearchItemSchema {
       itemUnlocks: List<String>.from(json['item_unlocks'] as List? ?? []),
       plantEnabled: List<String>.from(json['plant_enabled'] as List? ?? []),
       harvestEnabled: List<String>.from(json['harvest_enabled'] as List? ?? []),
+      itemPurchases: List<String>.from(json['item_purchases'] as List? ?? []),
+      purchaseAmount: json['purchase_amount'] as int? ?? 0,
     );
   }
 

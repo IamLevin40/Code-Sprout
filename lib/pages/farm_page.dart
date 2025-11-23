@@ -4,6 +4,7 @@ import '../models/styles_schema.dart';
 import '../models/language_code_files.dart';
 import '../models/research_data.dart';
 import '../models/research_items_schema.dart';
+import '../models/user_data.dart';
 import '../widgets/farm_items/farm_grid_view.dart';
 import '../widgets/farm_items/code_editor_widget.dart';
 import '../widgets/farm_items/code_execution_log_widget.dart';
@@ -811,10 +812,12 @@ class _FarmPageState extends State<FarmPage> {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          // Top bar with back button and language display
+          // Top bar with back button, coins display, and language display
           Row(
             children: [
               _buildBackButton(),
+              const SizedBox(width: 16),
+              _buildCoinsDisplay(),
               const SizedBox(width: 16),
               Expanded(child: _buildLanguageDisplay()),
             ],
@@ -974,6 +977,43 @@ class _FarmPageState extends State<FarmPage> {
         );
       }
     }
+  }
+
+  Widget _buildCoinsDisplay() {
+    return ValueListenableBuilder<UserData?>(
+      valueListenable: LocalStorageService.instance.userDataNotifier,
+      builder: (context, userData, _) {
+        final coins = userData?.getCoins() ?? 0;
+
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.amber.withAlpha(230),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.amber.shade700, width: 2),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.monetization_on,
+                color: Colors.white,
+                size: 24,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '$coins',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildBackButton() {

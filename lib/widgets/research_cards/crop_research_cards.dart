@@ -5,7 +5,7 @@ import '../../models/user_data.dart';
 import '../../models/research_items_schema.dart';
 
 /// Widget that displays crop research cards
-class CropResearchCards extends StatelessWidget {
+class CropResearchCards extends StatefulWidget {
   final ResearchState researchState;
   final UserData? userData;
   final String? currentLanguage;
@@ -20,12 +20,30 @@ class CropResearchCards extends StatelessWidget {
   });
 
   @override
+  State<CropResearchCards> createState() => _CropResearchCardsState();
+}
+
+class _CropResearchCardsState extends State<CropResearchCards> {
+  // Track purchase multiplier for each item (1x, 10x, or 100x)
+  final Map<String, int> _purchaseMultipliers = {};
+
+  int _getMultiplier(String itemId) {
+    return _purchaseMultipliers[itemId] ?? 1;
+  }
+
+  void _setMultiplier(String itemId, int multiplier) {
+    setState(() {
+      _purchaseMultipliers[itemId] = multiplier;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final items = ResearchItemsSchema.instance.getCropResearchItems();
     
     return Column(
       children: items.map((item) {
-        final state = researchState.getCropResearchState(item);
+        final state = widget.researchState.getCropResearchState(item);
         return Padding(
           padding: const EdgeInsets.only(bottom: 16),
           child: _buildCropCard(item, state),
@@ -53,7 +71,7 @@ class CropResearchCards extends StatelessWidget {
     final descSize = styles.getStyles('research_card.card.description.font_size') as double;
 
     // Get language-specific name
-    final displayName = item.getNameForLanguage(currentLanguage);
+    final displayName = item.getNameForLanguage(widget.currentLanguage);
 
     return Container(
       height: cardHeight,
@@ -167,6 +185,8 @@ class CropResearchCards extends StatelessWidget {
                   // Action button
                   if (state == CropResearchState.toBeResearched)
                     _buildResearchButton(item),
+                  if (state == CropResearchState.purchase)
+                    _buildPurchaseSection(item),
                 ],
               ),
             ),
@@ -194,13 +214,13 @@ class CropResearchCards extends StatelessWidget {
     final fontWeight = styles.getStyles('research_card.card.button.text.font_weight') as FontWeight;
 
     // Check if requirements are met
-    final canResearch = userData != null && 
-        ResearchRequirements.areRequirementsMet(item.requirements, userData!.toJson());
+    final canResearch = widget.userData != null && 
+        ResearchRequirements.areRequirementsMet(item.requirements, widget.userData!.toJson());
     
     return GestureDetector(
       onTap: canResearch ? () {
-        if (onResearchCompleted != null) {
-          onResearchCompleted!(item.id, item.requirements);
+        if (widget.onResearchCompleted != null) {
+          widget.onResearchCompleted!(item.id, item.requirements);
         }
       } : null,
       child: Opacity(
@@ -294,5 +314,194 @@ class CropResearchCards extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildPurchaseSection(CropResearchItemSchema item) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        // Display purchasable items (icons only)
+        if (item.itemPurchases.isNotEmpty) ...[
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: item.itemPurchases.map((itemId) {
+              final itemIcon = ResearchItemsSchema.instance.getInventoryIcon(itemId);
+              return Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: itemIcon != null
+                    ? Image.asset(
+                        itemIcon,
+                        width: 20,
+                        height: 20,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(Icons.inventory, size: 16);
+                        },
+                      )
+                    : const Icon(Icons.inventory, size: 16),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 8),
+        ],
+        
+        // Multiplier selector
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildMultiplierButton(item.id, 1),
+            const SizedBox(width: 4),
+            _buildMultiplierButton(item.id, 10),
+            const SizedBox(width: 4),
+            _buildMultiplierButton(item.id, 100),
+          ],
+        ),
+        const SizedBox(height: 8),
+        
+        // Purchase button
+        _buildPurchaseButton(item),
+      ],
+    );
+  }
+
+  Widget _buildMultiplierButton(String itemId, int multiplier) {
+    final isSelected = _getMultiplier(itemId) == multiplier;
+    
+    return GestureDetector(
+      onTap: () => _setMultiplier(itemId, multiplier),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: isSelected 
+              ? Colors.blue.withValues(alpha: 0.8)
+              : Colors.grey.withValues(alpha: 0.3),
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(
+            color: isSelected ? Colors.blue : Colors.grey,
+            width: 1,
+          ),
+        ),
+        child: Text(
+          '${multiplier}x',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPurchaseButton(CropResearchItemSchema item) {
+    final styles = AppStyles();
+    final buttonHeight = styles.getStyles('research_card.card.button.height') as double;
+    final borderRadius = styles.getStyles('research_card.card.button.border_radius') as double;
+    final borderWidth = styles.getStyles('research_card.card.button.border_width') as double;
+    final bgGradient = styles.getStyles('research_card.card.button.background_color') as LinearGradient;
+    final strokeGradient = styles.getStyles('research_card.card.button.stroke_color') as LinearGradient;
+    final textColor = styles.getStyles('research_card.card.button.text.color') as Color;
+    final fontSize = styles.getStyles('research_card.card.button.text.font_size') as double;
+    final fontWeight = styles.getStyles('research_card.card.button.text.font_weight') as FontWeight;
+
+    final multiplier = _getMultiplier(item.id);
+    final totalCost = item.purchaseAmount * multiplier;
+    final canAfford = widget.userData?.canAfford(totalCost) ?? false;
+    
+    return GestureDetector(
+      onTap: canAfford ? () => _handlePurchase(item, multiplier) : null,
+      child: Opacity(
+        opacity: canAfford ? 1.0 : 0.5,
+        child: Container(
+          width: 120,
+          height: buttonHeight,
+          decoration: BoxDecoration(
+            gradient: strokeGradient,
+            borderRadius: BorderRadius.circular(borderRadius),
+          ),
+          padding: EdgeInsets.all(borderWidth),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: bgGradient,
+              borderRadius: BorderRadius.circular(borderRadius - borderWidth),
+            ),
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Buy',
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: fontSize,
+                    fontWeight: fontWeight,
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.monetization_on,
+                      color: Colors.amber,
+                      size: 14,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '$totalCost',
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: fontSize * 0.8,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _handlePurchase(CropResearchItemSchema item, int multiplier) async {
+    final userData = widget.userData;
+    if (userData == null) return;
+
+    final totalCost = item.purchaseAmount * multiplier;
+    
+    // Build items map with quantities
+    final items = <String, int>{};
+    for (final itemId in item.itemPurchases) {
+      items[itemId] = multiplier; // Each purchase gives 1 item, so multiply by multiplier
+    }
+    
+    // Attempt purchase
+    final success = await userData.purchaseWithCoins(
+      cost: totalCost,
+      items: items,
+    );
+    
+    if (success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Purchased ${item.itemPurchases.join(", ")} x$multiplier for $totalCost coins!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Purchase failed. Insufficient coins.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }

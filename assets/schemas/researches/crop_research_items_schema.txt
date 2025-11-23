@@ -14,7 +14,9 @@
         "requirements": {},
         "item_unlocks": ["wheat_seeds", "wheat"],
         "plant_enabled": ["wheat_seeds"],
-        "harvest_enabled": ["wheat"]
+        "harvest_enabled": ["wheat"],
+        "item_purchases": ["wheat_seeds"],
+        "purchase_amount": 5
     },
     "crop_carrot": {
         "icon": "images/icons/sprout_items/crop_items/carrot.png",
@@ -33,7 +35,9 @@
         },
         "item_unlocks": ["carrot_seeds", "carrot"],
         "plant_enabled": ["carrot_seeds"],
-        "harvest_enabled": ["carrot"]
+        "harvest_enabled": ["carrot"],
+        "item_purchases": ["carrot_seeds"],
+        "purchase_amount": 10
     },
     "crop_potato": {
         "icon": "images/icons/sprout_items/crop_items/potato.png",
@@ -53,7 +57,9 @@
         },
         "item_unlocks": ["potato_seeds", "potato"],
         "plant_enabled": ["potato_seeds"],
-        "harvest_enabled": ["potato"]
+        "harvest_enabled": ["potato"],
+        "item_purchases": ["potato_seeds"],
+        "purchase_amount": 15
     },
     "crop_beetroot": {
         "icon": "images/icons/sprout_items/crop_items/beetroot.png",
@@ -73,7 +79,9 @@
         },
         "item_unlocks": ["beetroot_seeds", "beetroot"],
         "plant_enabled": ["beetroot_seeds"],
-        "harvest_enabled": ["beetroot"]
+        "harvest_enabled": ["beetroot"],
+        "item_purchases": ["beetroot_seeds"],
+        "purchase_amount": 20
     },
     "crop_radish": {
         "icon": "images/icons/sprout_items/crop_items/radish.png",
@@ -93,6 +101,8 @@
         },
         "item_unlocks": ["radish_seeds", "radish"],
         "plant_enabled": ["radish_seeds"],
-        "harvest_enabled": ["radish"]
+        "harvest_enabled": ["radish"],
+        "item_purchases": ["radish_seeds"],
+        "purchase_amount": 25
     }
 }
