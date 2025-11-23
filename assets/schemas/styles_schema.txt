@@ -2216,51 +2216,69 @@
         }
     },
     "farm_page": {
-        "background_color": {
-            "begin": {
-                "position": "top_left",
-                "color": "#E0E2FF"
-            },
-            "end": {
-                "position": "bottom_right",
-                "color": "#FAFAFA"
-            }
-        },
-        "back_button": {
-            "icon": "images/icons/navbuttons/back.png",
-            "width": 40,
-            "height": 40,
-            "background_color": "--colors.dirty_white",
-            "border_radius": 8
-        },
-        "language_display": {
-            "height": 48,
-            "border_radius": 12,
-            "border_width": 2,
-            "background_color": {
-                "begin": {
-                    "position": "top_left",
-                    "color": "--colors.ivory_white"
+        "top_layer": {
+            "back": {
+                "icon": {
+                    "image": "images/icons/navbuttons/back.png",
+                    "width": 32,
+                    "height": 32
                 },
-                "end": {
-                    "position": "bottom_right",
-                    "color": "--colors.white"
+                "background_color": "--colors.dirty_white",
+                "border_radius": 8,
+                "width": 32,
+                "height": 32
+            },
+            "title": {
+                "color": "--colors.dark_purple",
+                "font_size": "--font_sizes.subheading",
+                "font_weight": "--font_weights.bold",
+                "shadow": {
+                    "color": "--colors.black",
+                    "opacity": 25,
+                    "blur_radius": 4
                 }
             },
-            "stroke_color": {
-                "begin": {
-                    "position": "top_left",
-                    "color": "#424DA4"
+            "coins_display": {
+                "width": 72,
+                "height": 32,
+                "border_radius": 8,
+                "border_width": 2,
+                "background_color": {
+                    "begin": {
+                        "position": "top_left",
+                        "color": "--colors.dirty_white"
+                    },
+                    "end": {
+                        "position": "bottom_right",
+                        "color": "--colors.white"
+                    }
                 },
-                "end": {
-                    "position": "bottom_right",
-                    "color": "--colors.dark_purple"
+                "stroke_color": {
+                    "begin": {
+                        "position": "top_left",
+                        "color": "#FFD23F"
+                    },
+                    "end": {
+                        "position": "bottom_right",
+                        "color": "#ED6810"
+                    }
+                },
+                "icon": {
+                    "image": "images/icons/sprout_items/miscellaneous/coins.png",
+                    "width": 20,
+                    "height": 20
+                },
+                "text": {
+                    "color": "--colors.dark_purple",
+                    "font_size": "--font_sizes.regular",
+                    "font_weight": "--font_weights.bold"
                 }
             },
-            "language_icon": {
+            "language_display": {
                 "width": 32,
                 "height": 32,
                 "border_radius": 8,
+                "border_width": 2,
                 "background_color": {
                     "begin": {
                         "position": "top_left",
@@ -2271,11 +2289,38 @@
                         "color": "--colors.white"
                     }
                 }
+            }
+        },
+        "zoom_controls": {
+            "icons": {
+                "zoom_in": "images/icons/sprout_items/miscellaneous/zoom_in.png",
+                "center_focus": "images/icons/sprout_items/miscellaneous/center_focus.png",
+                "zoom_out": "images/icons/sprout_items/miscellaneous/zoom_out.png"
             },
-            "text": {
-                "color": "--colors.dark_purple",
-                "font_size": "--font_sizes.title",
-                "font_weight": "--font_weights.bold"
+            "spacing": 8,
+            "width": 32,
+            "height": 32,
+            "border_radius": 8,
+            "border_width": 2,
+            "background_color": {
+                "begin": {
+                    "position": "top_left",
+                    "color": "--colors.dirty_white"
+                },
+                "end": {
+                    "position": "bottom_right",
+                    "color": "--colors.white"
+                }
+            },
+            "stroke_color": {
+                "begin": {
+                    "position": "top_left",
+                    "color": "#87A1BF"
+                },
+                "end": {
+                    "position": "bottom_right",
+                    "color": "--colors.gray"
+                }
             }
         },
         "control_buttons": {

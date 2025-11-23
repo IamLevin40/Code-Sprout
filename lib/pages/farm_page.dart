@@ -95,18 +95,10 @@ class _FarmPageState extends State<FarmPage> {
     // Ensure viewport centers once after the first frame (styles and layout available)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_centeredOnce) {
-        try {
-          final styles = AppStyles();
-          final double plotSize = styles.getStyles('farm_page.farm_grid.plot_size') as double;
-          final double spacing = styles.getStyles('farm_page.farm_grid.plot_spacing') as double;
-          final double totalPlotSize = plotSize + spacing;
-
-          _viewportController.resetToCenter(
-            gridSize: Size(_farmState.gridWidth.toDouble(), _farmState.gridHeight.toDouble()),
-            plotSize: Size(totalPlotSize, totalPlotSize),
-          );
+        // Attempt to center viewport once after the first frame; use helper
+        if (_resetViewportToCenter()) {
           _centeredOnce = true;
-        } catch (_) {}
+        }
       }
     });
   }
@@ -330,18 +322,10 @@ class _FarmPageState extends State<FarmPage> {
 
       // If the farm state updated asynchronously (e.g. loaded from storage), ensure we center once
       if (!_centeredOnce) {
-        try {
-          final styles = AppStyles();
-          final double plotSize = styles.getStyles('farm_page.farm_grid.plot_size') as double;
-          final double spacing = styles.getStyles('farm_page.farm_grid.plot_spacing') as double;
-          final double totalPlotSize = plotSize + spacing;
-
-          _viewportController.resetToCenter(
-            gridSize: Size(_farmState.gridWidth.toDouble(), _farmState.gridHeight.toDouble()),
-            plotSize: Size(totalPlotSize, totalPlotSize),
-          );
+        // Use reusable helper to center viewport and mark centeredOnce on success
+        if (_resetViewportToCenter()) {
           _centeredOnce = true;
-        } catch (_) {}
+        }
       }
     }
   }
@@ -600,6 +584,50 @@ class _FarmPageState extends State<FarmPage> {
       }
     });
   }
+
+  /// Helper to reset the interactive viewport to center based on farm grid
+  /// Returns true when centering succeeded, false on failure.
+  bool _resetViewportToCenter() {
+    try {
+      final styles = AppStyles();
+      final double plotSize = styles.getStyles('farm_page.farm_grid.plot_size') as double;
+      final double spacing = styles.getStyles('farm_page.farm_grid.plot_spacing') as double;
+      final double totalPlotSize = plotSize + spacing;
+
+      _viewportController.resetToCenter(
+        gridSize: Size(_farmState.gridWidth.toDouble(), _farmState.gridHeight.toDouble()),
+        plotSize: Size(totalPlotSize, totalPlotSize),
+      );
+
+      return true;
+    } catch (e) {
+      // ignore and return failure
+      return false;
+    }
+  }
+
+  /// Format large numbers into shortened string with suffixes (K, M, B, T)
+  String _formatNumberShort(num value) {
+    final double absVal = value.abs().toDouble();
+    if (absVal < 1000) return value.toString();
+
+    final List<String> suffixes = ['K', 'M', 'B', 'T'];
+    double v = absVal;
+    int idx = -1;
+    while (v >= 1000 && idx < suffixes.length - 1) {
+      v = v / 1000.0;
+      idx++;
+    }
+
+    if (idx < 0) return value.toString();
+
+    // Decide decimals: K and M -> 1 decimal, B and T -> 2 decimals
+    final int decimals = (idx <= 1) ? 1 : 2;
+
+    final String formatted = v.toStringAsFixed(decimals);
+    final String sign = value < 0 ? '-' : '';
+    return '$sign$formatted${suffixes[idx]}';
+  }
   
   // File navigation methods for code editor
   void _nextEditorFile() {
@@ -757,40 +785,153 @@ class _FarmPageState extends State<FarmPage> {
     );
   }
   
-  // Handle code changes
+  /// Handle code changes
   void _onCodeChanged(String code) {
     _codeFiles.updateCurrentFileContent(code);
     // Auto-save periodically (debounced in real implementation)
     _saveCodeFiles();
   }
 
+  void _showInventoryPopup() {
+    showInventoryPopup(context, LocalStorageService.instance.userDataNotifier.value);
+  }
+
+  /// Show confirmation dialog before clearing farm
+  void _showClearFarmDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear Farm'),
+        content: const Text(
+          'Are you sure you want to clear the entire farm?\n\n'
+          'All plots will be reset to normal state and the drone will return to (0,0).\n\n'
+          'Any crops on plots will be converted back to seeds and returned to your inventory.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _clearFarm();
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Clear Farm'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Clear the farm and convert crops back to seeds
+  void _clearFarm() {
+    _farmState.clearFarmToSeeds();
+    
+    // Save farm progress after clearing
+    _saveFarmProgress();
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Farm cleared! Crops have been returned to inventory as seeds.'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  /// Handle research completion: deduct items from inventory and mark as completed
+  /// Requirements use simplified item IDs (e.g., "wheat", "carrot")
+  void _handleResearchCompleted(String researchId, Map<String, int> requirements) async {
+    try {
+      final userData = LocalStorageService.instance.userDataNotifier.value;
+      if (userData == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('User data not available')),
+        );
+        return;
+      }
+      
+      // Deduct items from inventory using simplified paths
+      for (final entry in requirements.entries) {
+        final itemId = entry.key; // Simplified ID like "wheat", "carrot"
+        final required = entry.value;
+        final itemPath = 'sproutProgress.inventory.$itemId.quantity';
+        final currentValue = userData.get(itemPath) as int? ?? 0;
+        final newValue = currentValue - required;
+        
+        if (newValue < 0) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Insufficient items in inventory')),
+          );
+          return;
+        }
+        
+        userData.set(itemPath, newValue);
+      }
+      
+      // Mark research as completed
+      _researchState.completeResearch(researchId);
+      await FirestoreService.updateUserData(userData);
+      
+      // Unlock inventory items if this is a crop research
+      if (researchId.startsWith('crop_')) {
+        final researchSchema = ResearchItemsSchema.instance.getCropItem(researchId);
+        if (researchSchema != null && researchSchema.itemUnlocks.isNotEmpty) {
+          final user = FirebaseAuth.instance.currentUser;
+          if (user != null) {
+            await ResearchState.unlockInventoryItems(
+              researchId: researchId,
+              itemIds: researchSchema.itemUnlocks,
+              userId: user.uid,
+            );
+          }
+        }
+      }
+      
+      // Apply farm research conditions if this is a farm research
+      if (researchId.startsWith('farm_')) {
+        _farmState.applyFarmResearchConditions();
+      }
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Research completed successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to complete research: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final styles = AppStyles();
-    final bgGradient = styles.getStyles('farm_page.background_color') as LinearGradient;
-
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(gradient: bgGradient),
-        child: SafeArea(
-          child: Stack(
-            children: [
-              // Layer 1: Farm Grid View (Bottom Layer - Centered)
-              _buildFarmGridLayer(),
-              
-              // Layer 2: Top Bar and Control Buttons
-              _buildControlLayer(),
-              
-              // Layer 3: Execution Log Overlay (Only shown when log button pressed)
-              if (_showExecutionLog) _buildExecutionLogOverlay(),
-              
-              // Layer 4: Code Editor Overlay (Only shown when code button pressed)
-              if (_showCodeEditor) _buildCodeEditorOverlay(),
-              
-              // Layer 5: Research Lab Overlay (Only shown when research button pressed)
-              if (_showResearchLab) _buildResearchLabOverlay(),
-            ],
-          ),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            // Layer 1: Farm Grid View (Bottom Layer - Centered)
+            _buildFarmGridLayer(),
+            
+            // Layer 2: Top Bar and Control Buttons
+            _buildControlLayer(),
+            
+            // Layer 3: Execution Log Overlay (Only shown when log button pressed)
+            if (_showExecutionLog) _buildExecutionLogOverlay(),
+            
+            // Layer 4: Code Editor Overlay (Only shown when code button pressed)
+            if (_showCodeEditor) _buildCodeEditorOverlay(),
+            
+            // Layer 5: Research Lab Overlay (Only shown when research button pressed)
+            if (_showResearchLab) _buildResearchLabOverlay(),
+          ],
         ),
       ),
     );
@@ -809,17 +950,19 @@ class _FarmPageState extends State<FarmPage> {
   // Layer 2: Top Bar and Control Buttons
   Widget _buildControlLayer() {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(24.0),
       child: Column(
         children: [
-          // Top bar with back button, coins display, and language display
+          // Top bar with back button, title, coins display, and language display
           Row(
             children: [
               _buildBackButton(),
-              const SizedBox(width: 16),
+              const Spacer(),
+              _buildTitleLabel(),
+              const Spacer(),
               _buildCoinsDisplay(),
               const SizedBox(width: 16),
-              Expanded(child: _buildLanguageDisplay()),
+              _buildLanguageDisplay(),
             ],
           ),
           
@@ -867,8 +1010,8 @@ class _FarmPageState extends State<FarmPage> {
   // Layer 3: Execution Log Overlay
   Widget _buildExecutionLogOverlay() {
     return Positioned(
-      left: 16,
-      right: 16,
+      left: 24,
+      right: 24,
       bottom: 64,
       height: 200,
       child: _buildExecutionLog(),
@@ -878,8 +1021,8 @@ class _FarmPageState extends State<FarmPage> {
   // Layer 4: Code Editor Overlay
   Widget _buildCodeEditorOverlay() {
     return Positioned(
-      left: 16,
-      right: 16,
+      left: 24,
+      right: 24,
       top: 64,
       bottom: 16,
       child: _buildCodeEditorWithFileSelector(),
@@ -889,8 +1032,8 @@ class _FarmPageState extends State<FarmPage> {
   // Layer 5: Research Lab Overlay
   Widget _buildResearchLabOverlay() {
     return Positioned(
-      left: 16,
-      right: 16,
+      left: 24,
+      right: 24,
       top: 64,
       bottom: 16,
       child: ResearchLabDisplay(
@@ -904,124 +1047,16 @@ class _FarmPageState extends State<FarmPage> {
       ),
     );
   }
-  
-  /// Handle research completion: deduct items from inventory and mark as completed
-  /// Requirements use simplified item IDs (e.g., "wheat", "carrot")
-  void _handleResearchCompleted(String researchId, Map<String, int> requirements) async {
-    try {
-      final userData = LocalStorageService.instance.userDataNotifier.value;
-      if (userData == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('User data not available')),
-        );
-        return;
-      }
-      
-      // Deduct items from inventory using simplified paths
-      for (final entry in requirements.entries) {
-        final itemId = entry.key; // Simplified ID like "wheat", "carrot"
-        final required = entry.value;
-        final itemPath = 'sproutProgress.inventory.$itemId.quantity';
-        final currentValue = userData.get(itemPath) as int? ?? 0;
-        final newValue = currentValue - required;
-        
-        if (newValue < 0) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Insufficient items in inventory')),
-          );
-          return;
-        }
-        
-        userData.set(itemPath, newValue);
-      }
-      
-      // Mark research as completed
-      _researchState.completeResearch(researchId);
-      
-      // CRITICAL: Save using FirestoreService to trigger notifier and persist to Firestore
-      // This ensures inventory changes are reflected everywhere (sprout page, settings, etc.)
-      await FirestoreService.updateUserData(userData);
-      
-      // Unlock inventory items if this is a crop research
-      if (researchId.startsWith('crop_')) {
-        final researchSchema = ResearchItemsSchema.instance.getCropItem(researchId);
-        if (researchSchema != null && researchSchema.itemUnlocks.isNotEmpty) {
-          final user = FirebaseAuth.instance.currentUser;
-          if (user != null) {
-            await ResearchState.unlockInventoryItems(
-              researchId: researchId,
-              itemIds: researchSchema.itemUnlocks,
-              userId: user.uid,
-            );
-          }
-        }
-      }
-      
-      // Apply farm research conditions if this is a farm research
-      if (researchId.startsWith('farm_')) {
-        _farmState.applyFarmResearchConditions();
-      }
-      
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Research completed successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to complete research: $e')),
-        );
-      }
-    }
-  }
-
-  Widget _buildCoinsDisplay() {
-    return ValueListenableBuilder<UserData?>(
-      valueListenable: LocalStorageService.instance.userDataNotifier,
-      builder: (context, userData, _) {
-        final coins = userData?.getCoins() ?? 0;
-
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: Colors.amber.withAlpha(230),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.amber.shade700, width: 2),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.monetization_on,
-                color: Colors.white,
-                size: 24,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                '$coins',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
 
   Widget _buildBackButton() {
     final styles = AppStyles();
-    final icon = styles.getStyles('farm_page.back_button.icon') as String;
-    final size = styles.getStyles('farm_page.back_button.width') as double;
-    final bgColor = styles.getStyles('farm_page.back_button.background_color') as Color;
-    final borderRadius = styles.getStyles('farm_page.back_button.border_radius') as double;
+    final iconPath = styles.getStyles('farm_page.top_layer.back.icon.image') as String;
+    final iconWidth = styles.getStyles('farm_page.top_layer.back.icon.width') as double;
+    final iconHeight = styles.getStyles('farm_page.top_layer.back.icon.height') as double;
+    final width = styles.getStyles('farm_page.top_layer.back.width') as double;
+    final height = styles.getStyles('farm_page.top_layer.back.height') as double;
+    final bgColor = styles.getStyles('farm_page.top_layer.back.background_color') as Color;
+    final borderRadius = styles.getStyles('farm_page.top_layer.back.border_radius') as double;
 
     return GestureDetector(
       onTap: () {
@@ -1033,36 +1068,121 @@ class _FarmPageState extends State<FarmPage> {
         Navigator.of(context).pop();
       },
       child: Container(
-        width: size,
-        height: size,
+        width: width,
+        height: height,
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(borderRadius),
         ),
         child: Center(
-          child: Image.asset(icon, width: size * 0.6, height: size * 0.6),
+          child: Image.asset(iconPath, width: iconWidth, height: iconHeight),
         ),
       ),
     );
   }
 
+  Widget _buildTitleLabel() {
+    final styles = AppStyles();
+    final color = styles.getStyles('farm_page.top_layer.title.color') as Color;
+    final fontSize = styles.getStyles('farm_page.top_layer.title.font_size') as double;
+    final fontWeight = styles.getStyles('farm_page.top_layer.title.font_weight') as FontWeight;
+    
+    List<Shadow> textShadows = [];
+    final Color shadowColor = styles.getStyles('farm_page.top_layer.title.shadow.color') as Color;
+    final sopRaw = styles.getStyles('farm_page.top_layer.title.shadow.opacity');
+    final double sop = (sopRaw is num) ? sopRaw.toDouble() / 100.0 : (sopRaw as double);
+    final sblur = styles.getStyles('farm_page.top_layer.title.shadow.blur_radius') as double;
+    textShadows = [
+      Shadow(
+        color: shadowColor.withAlpha((sop * 255).round()),
+        blurRadius: sblur,
+      )
+    ];
+
+    return Text(
+      'Your Farm',
+      style: TextStyle(
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        color: color,
+        shadows: textShadows,
+      ),
+    );
+  }
+
+  Widget _buildCoinsDisplay() {
+    final styles = AppStyles();
+    final width = styles.getStyles('farm_page.top_layer.coins_display.width') as double;
+    final height = styles.getStyles('farm_page.top_layer.coins_display.height') as double;
+    final borderRadius = styles.getStyles('farm_page.top_layer.coins_display.border_radius') as double;
+    final borderWidth = styles.getStyles('farm_page.top_layer.coins_display.border_width') as double;
+    final bgGradient = styles.getStyles('farm_page.top_layer.coins_display.background_color') as LinearGradient;
+    final strokeGradient = styles.getStyles('farm_page.top_layer.coins_display.stroke_color') as LinearGradient;
+    final iconPath = styles.getStyles('farm_page.top_layer.coins_display.icon.image') as String;
+    final iconWidth = styles.getStyles('farm_page.top_layer.coins_display.icon.width') as double;
+    final iconHeight = styles.getStyles('farm_page.top_layer.coins_display.icon.height') as double;
+    final textColor = styles.getStyles('farm_page.top_layer.coins_display.text.color') as Color;
+    final textFontSize = styles.getStyles('farm_page.top_layer.coins_display.text.font_size') as double;
+    final textFontWeight = styles.getStyles('farm_page.top_layer.coins_display.text.font_weight') as FontWeight;
+
+    return ValueListenableBuilder<UserData?>(
+      valueListenable: LocalStorageService.instance.userDataNotifier,
+      builder: (context, userData, _) {
+        final coins = userData?.getCoins() ?? 0;
+
+        return Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            gradient: strokeGradient,
+            borderRadius: BorderRadius.circular(borderRadius),
+          ),
+          padding: EdgeInsets.all(borderWidth),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: bgGradient,
+              borderRadius: BorderRadius.circular(borderRadius - borderWidth),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  iconPath,
+                  width: iconWidth,
+                  height: iconHeight,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  _formatNumberShort(coins),
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: textFontSize,
+                    fontWeight: textFontWeight,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildLanguageDisplay() {
     final styles = AppStyles();
-    final height = styles.getStyles('farm_page.language_display.height') as double;
-    final borderRadius = styles.getStyles('farm_page.language_display.border_radius') as double;
-    final borderWidth = styles.getStyles('farm_page.language_display.border_width') as double;
-    final bgGradient = styles.getStyles('farm_page.language_display.background_color') as LinearGradient;
-    final strokeGradient = styles.getStyles('farm_page.language_display.stroke_color') as LinearGradient;
-    final iconSize = styles.getStyles('farm_page.language_display.language_icon.width') as double;
-    final iconBorderRadius = styles.getStyles('farm_page.language_display.language_icon.border_radius') as double;
-    final iconBgGradient = styles.getStyles('farm_page.language_display.language_icon.background_color') as LinearGradient;
-    final textColor = styles.getStyles('farm_page.language_display.text.color') as Color;
-    final fontSize = styles.getStyles('farm_page.language_display.text.font_size') as double;
-    final fontWeight = styles.getStyles('farm_page.language_display.text.font_weight') as FontWeight;
-
-    final languageIcons = styles.getStyles('course_cards.style_coding.${widget.languageId}.icon') as String;
+    final width = styles.getStyles('farm_page.top_layer.language_display.width') as double;
+    final height = styles.getStyles('farm_page.top_layer.language_display.height') as double;
+    final borderRadius = styles.getStyles('farm_page.top_layer.language_display.border_radius') as double;
+    final borderWidth = styles.getStyles('farm_page.top_layer.language_display.border_width') as double;
+    final bgGradient = styles.getStyles('farm_page.top_layer.language_display.background_color') as LinearGradient;
+    
+    // Get language-specific icon and stroke color from course_cards.style_coding
+    final languageIcon = styles.getStyles('course_cards.style_coding.${widget.languageId}.icon') as String;
+    final strokeGradient = styles.getStyles('course_cards.style_coding.${widget.languageId}.stroke_color') as LinearGradient;
 
     return Container(
+      width: width,
       height: height,
       decoration: BoxDecoration(
         gradient: strokeGradient,
@@ -1074,26 +1194,12 @@ class _FarmPageState extends State<FarmPage> {
           gradient: bgGradient,
           borderRadius: BorderRadius.circular(borderRadius - borderWidth),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Row(
-          children: [
-            Container(
-              width: iconSize,
-              height: iconSize,
-              decoration: BoxDecoration(
-                gradient: iconBgGradient,
-                borderRadius: BorderRadius.circular(iconBorderRadius),
-              ),
-              child: Center(
-                child: Image.asset(languageIcons, width: iconSize * 0.7, height: iconSize * 0.7),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              widget.languageName,
-              style: TextStyle(color: textColor, fontSize: fontSize, fontWeight: fontWeight),
-            ),
-          ],
+        child: Center(
+          child: Image.asset(
+            languageIcon,
+            width: width * 0.6,
+            height: height * 0.6,
+          ),
         ),
       ),
     );
@@ -1101,98 +1207,55 @@ class _FarmPageState extends State<FarmPage> {
 
   Widget _buildZoomControls() {
     final styles = AppStyles();
+    final spacing = styles.getStyles('farm_page.zoom_controls.spacing') as double;
+    
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildZoomButton(Icons.zoom_in, () => _viewportController.zoomIn()),
-        const SizedBox(width: 8),
-        _buildZoomButton(Icons.center_focus_strong, () {
-          // Calculate grid center based on farm dimensions
-          final double plotSize = styles.getStyles('farm_page.farm_grid.plot_size') as double;
-          final double spacing = styles.getStyles('farm_page.farm_grid.plot_spacing') as double;
-          final double totalPlotSize = plotSize + spacing; // Plot + spacing around it
-          
-          _viewportController.resetToCenter(
-            gridSize: Size(
-              _farmState.gridWidth.toDouble(),
-              _farmState.gridHeight.toDouble(),
-            ),
-            plotSize: Size(totalPlotSize, totalPlotSize),
-          );
+        _buildZoomButton('zoom_in', () => _viewportController.zoomIn()),
+        SizedBox(width: spacing),
+        _buildZoomButton('center_focus', () {
+          _resetViewportToCenter();
         }),
-        const SizedBox(width: 8),
-        _buildZoomButton(Icons.zoom_out, () => _viewportController.zoomOut()),
+        SizedBox(width: spacing),
+        _buildZoomButton('zoom_out', () => _viewportController.zoomOut()),
       ],
     );
   }
 
-  Widget _buildZoomButton(IconData icon, VoidCallback onTap) {
+  Widget _buildZoomButton(String iconIdentifier, VoidCallback onTap) {
     final styles = AppStyles();
-    final size = styles.getStyles('farm_page.back_button.width') as double;
-    final bgColor = styles.getStyles('farm_page.back_button.background_color') as Color;
-    final borderRadius = styles.getStyles('farm_page.back_button.border_radius') as double;
-    final iconColor = styles.getStyles('farm_page.language_display.text.color') as Color;
+    final width = styles.getStyles('farm_page.zoom_controls.width') as double;
+    final height = styles.getStyles('farm_page.zoom_controls.height') as double;
+    final borderRadius = styles.getStyles('farm_page.zoom_controls.border_radius') as double;
+    final borderWidth = styles.getStyles('farm_page.zoom_controls.border_width') as double;
+    final bgGradient = styles.getStyles('farm_page.zoom_controls.background_color') as LinearGradient;
+    final strokeGradient = styles.getStyles('farm_page.zoom_controls.stroke_color') as LinearGradient;
+    final iconPath = styles.getStyles('farm_page.zoom_controls.icons.$iconIdentifier') as String;
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: size * 0.8,
-        height: size * 0.8,
+        width: width,
+        height: height,
         decoration: BoxDecoration(
-          color: bgColor,
+          gradient: strokeGradient,
           borderRadius: BorderRadius.circular(borderRadius),
         ),
-        child: Center(
-          child: Icon(icon, color: iconColor, size: size * 0.4),
-        ),
-      ),
-    );
-  }
-
-  void _showInventoryPopup() {
-    showInventoryPopup(context, LocalStorageService.instance.userDataNotifier.value);
-  }
-
-  /// Show confirmation dialog before clearing farm
-  void _showClearFarmDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Clear Farm'),
-        content: const Text(
-          'Are you sure you want to clear the entire farm?\n\n'
-          'All plots will be reset to normal state and the drone will return to (0,0).\n\n'
-          'Any crops on plots will be converted back to seeds and returned to your inventory.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+        padding: EdgeInsets.all(borderWidth),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: bgGradient,
+            borderRadius: BorderRadius.circular(borderRadius - borderWidth),
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _clearFarm();
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Clear Farm'),
+          child: Center(
+            child: Image.asset(
+              iconPath,
+              width: width * 0.6,
+              height: height * 0.6,
+            ),
           ),
-        ],
-      ),
-    );
-  }
-
-  /// Clear the farm and convert crops back to seeds
-  void _clearFarm() {
-    _farmState.clearFarmToSeeds();
-    
-    // Save farm progress after clearing
-    _saveFarmProgress();
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Farm cleared! Crops have been returned to inventory as seeds.'),
-        duration: Duration(seconds: 2),
+        ),
       ),
     );
   }
