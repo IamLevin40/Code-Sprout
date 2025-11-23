@@ -515,17 +515,18 @@ class UserData {
         };
       });
 
+      // Update in-memory data immediately
       set('sproutProgress.inventory', inventory);
 
-      // Save changes
+      // Persist the full user JSON locally and remotely (fire-and-forget)
       try {
-        await LocalStorageService.instance.saveUserData(this);
-        await updateFields({
-          'sproutProgress.inventory': inventory,
-        });
-      } catch (e, st) {
+        final base = Map<String, dynamic>.from(toJson());
+        // Replace sproutProgress.inventory with our updated inventory
+        final parts = 'sproutProgress.inventory'.split('.');
+        _setNestedValue(base, parts, inventory);
+        _persistUserDataJson(base);
+      } catch (e) {
         debugPrint('Warning: failed to persist inventory to storage/Firestore: $e');
-        debugPrint('$st');
       }
 
       // Notify UI of updated inventory immediately even if persistence fails
@@ -613,15 +614,15 @@ class UserData {
       // Add coins
       await addCoins(coinsToAdd);
 
-      // Persist changes
+
+      // Persist the full user JSON locally and remotely (fire-and-forget)
       try {
-        await LocalStorageService.instance.saveUserData(this);
-        await updateFields({
-          'sproutProgress.inventory': inventory,
-        });
-      } catch (e, st) {
+        final base = Map<String, dynamic>.from(toJson());
+        final parts = 'sproutProgress.inventory'.split('.');
+        _setNestedValue(base, parts, inventory);
+        _persistUserDataJson(base);
+      } catch (e) {
         debugPrint('Warning: failed to persist inventory after selling: $e');
-        debugPrint('$st');
       }
 
       // Notify UI immediately
@@ -640,4 +641,37 @@ class UserData {
   String toString() {
     return 'UserData(uid: $uid, data: $_data)';
   }
+}
+
+void _setNestedValue(Map<String, dynamic> map, List<String> parts, dynamic value) {
+  Map<String, dynamic> current = map;
+  for (int i = 0; i < parts.length - 1; i++) {
+    final key = parts[i];
+    if (!current.containsKey(key) || current[key] is! Map) {
+      current[key] = <String, dynamic>{};
+    }
+    current = current[key] as Map<String, dynamic>;
+  }
+  current[parts.last] = value;
+}
+
+void _persistUserDataJson(Map<String, dynamic> base) {
+  final newUser = UserData.fromJson(base);
+
+  try {
+    LocalStorageService.instance.userDataNotifier.value = newUser;
+  } catch (_) {}
+
+  LocalStorageService.instance.saveUserData(newUser).catchError((e) {
+    debugPrint('Failed to save user data locally: $e');
+  });
+
+  // Save remotely in background
+  Future(() async {
+    try {
+      await newUser.save();
+    } catch (e) {
+      debugPrint('Failed to save user data remotely: $e');
+    }
+  });
 }
