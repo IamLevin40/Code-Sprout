@@ -70,8 +70,8 @@ class FarmProgressService {
   /// Load or create default farm progress
   static Future<Map<String, dynamic>> loadOrCreateFarmProgress({
     required String userId,
-    int defaultGridWidth = 3,
-    int defaultGridHeight = 3,
+    int defaultGridWidth = 1,
+    int defaultGridHeight = 1,
   }) async {
     try {
       final existing = await loadFarmProgress(userId: userId);
@@ -347,8 +347,8 @@ class FarmProgressService {
     final gridInfo = progress['gridInfo'] as Map<String, dynamic>?;
     final dronePos = progress['dronePosition'] as Map<String, dynamic>?;
 
-    final gridWidth = (gridInfo?['x'] as num?)?.toInt() ?? 3;
-    final gridHeight = (gridInfo?['y'] as num?)?.toInt() ?? 3;
+    final gridWidth = (gridInfo?['x'] as num?)?.toInt() ?? 1;
+    final gridHeight = (gridInfo?['y'] as num?)?.toInt() ?? 1;
     final droneX = (dronePos?['x'] as num?)?.toInt() ?? 0;
     final droneY = (dronePos?['y'] as num?)?.toInt() ?? 0;
 

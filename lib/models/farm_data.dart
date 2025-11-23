@@ -324,9 +324,9 @@ class DronePosition {
 
 /// Main farm state managing the grid and drone
 class FarmState extends ChangeNotifier {
-  final int gridWidth;
-  final int gridHeight;
-  final List<List<FarmPlot>> _grid;
+  int gridWidth;
+  int gridHeight;
+  List<List<FarmPlot>> _grid;
   DronePosition dronePosition;
   bool isExecuting = false;
   Timer? _growthUpdateTimer;
@@ -340,8 +340,8 @@ class FarmState extends ChangeNotifier {
   dynamic researchState;
 
   FarmState({
-    this.gridWidth = 3,
-    this.gridHeight = 3,
+    this.gridWidth = 1,
+    this.gridHeight = 1,
     DronePosition? initialDronePosition,
     this.userData,
     this.researchState,
@@ -391,6 +391,129 @@ class FarmState extends ChangeNotifier {
   void dispose() {
     _growthUpdateTimer?.cancel();
     super.dispose();
+  }
+
+  /// Calculate maximum grid size from completed farm researches
+  /// Returns (maxX, maxY) based on farm_plot_grid conditions
+  (int, int) _calculateMaxGridSize() {
+    if (researchState == null) return (1, 1); // Default 1x1
+    
+    try {
+      final completedResearches = (researchState as dynamic).completedFarmResearches as List<String>;
+      int maxX = 1;
+      int maxY = 1;
+      
+      for (final researchId in completedResearches) {
+        final item = ResearchItemsSchema.instance.getFarmItem(researchId);
+        if (item != null && item.conditionsUnlocked.containsKey('farm_plot_grid')) {
+          final gridCondition = item.conditionsUnlocked['farm_plot_grid']!;
+          final x = gridCondition['x'] ?? 1;
+          final y = gridCondition['y'] ?? 1;
+          if (x > maxX) maxX = x;
+          if (y > maxY) maxY = y;
+        }
+      }
+      
+      return (maxX, maxY);
+    } catch (e) {
+      debugPrint('Error calculating max grid size: $e');
+      return (1, 1);
+    }
+  }
+
+  /// Calculate maximum water grid from completed farm researches
+  /// Returns (maxX, maxY) based on water_grid conditions
+  (int, int) _calculateMaxWaterGrid() {
+    if (researchState == null) return (1, 1); // Default 1x1
+    
+    try {
+      final completedResearches = (researchState as dynamic).completedFarmResearches as List<String>;
+      int maxX = 1;
+      int maxY = 1;
+      
+      for (final researchId in completedResearches) {
+        final item = ResearchItemsSchema.instance.getFarmItem(researchId);
+        if (item != null && item.conditionsUnlocked.containsKey('water_grid')) {
+          final gridCondition = item.conditionsUnlocked['water_grid']!;
+          final x = gridCondition['x'] ?? 1;
+          final y = gridCondition['y'] ?? 1;
+          if (x > maxX) maxX = x;
+          if (y > maxY) maxY = y;
+        }
+      }
+      
+      return (maxX, maxY);
+    } catch (e) {
+      debugPrint('Error calculating max water grid: $e');
+      return (1, 1);
+    }
+  }
+
+  /// Calculate maximum till grid from completed farm researches
+  /// Returns (maxX, maxY) based on till_grid conditions
+  (int, int) _calculateMaxTillGrid() {
+    if (researchState == null) return (1, 1); // Default 1x1
+    
+    try {
+      final completedResearches = (researchState as dynamic).completedFarmResearches as List<String>;
+      int maxX = 1;
+      int maxY = 1;
+      
+      for (final researchId in completedResearches) {
+        final item = ResearchItemsSchema.instance.getFarmItem(researchId);
+        if (item != null && item.conditionsUnlocked.containsKey('till_grid')) {
+          final gridCondition = item.conditionsUnlocked['till_grid']!;
+          final x = gridCondition['x'] ?? 1;
+          final y = gridCondition['y'] ?? 1;
+          if (x > maxX) maxX = x;
+          if (y > maxY) maxY = y;
+        }
+      }
+      
+      return (maxX, maxY);
+    } catch (e) {
+      debugPrint('Error calculating max till grid: $e');
+      return (1, 1);
+    }
+  }
+
+  /// Expand grid to new dimensions, preserving existing plots
+  void expandGrid(int newWidth, int newHeight) {
+    if (newWidth == gridWidth && newHeight == gridHeight) {
+      return; // No change needed
+    }
+    
+    // Create new grid
+    final newGrid = List.generate(
+      newHeight,
+      (y) => List.generate(
+        newWidth,
+        (x) {
+          // Preserve existing plots if within old bounds
+          if (y < _grid.length && x < _grid[y].length) {
+            return _grid[y][x];
+          }
+          // Create new plots for expanded areas
+          return FarmPlot(x: x, y: y);
+        },
+      ),
+    );
+    
+    _grid = newGrid;
+    gridWidth = newWidth;
+    gridHeight = newHeight;
+    
+    // Ensure drone is within new bounds
+    if (dronePosition.x >= newWidth) dronePosition.x = newWidth - 1;
+    if (dronePosition.y >= newHeight) dronePosition.y = newHeight - 1;
+    
+    notifyListeners();
+  }
+
+  /// Apply farm research conditions (grid expansion based on completed researches)
+  void applyFarmResearchConditions() {
+    final (maxX, maxY) = _calculateMaxGridSize();
+    expandGrid(maxX, maxY);
   }
 
   /// Get plot at specific coordinates
@@ -443,46 +566,154 @@ class FarmState extends ChangeNotifier {
     return true;
   }
 
-  /// Till the current plot
+  /// Till the current plot (or area based on completed research)
   bool tillCurrentPlot() {
-    final plot = getCurrentPlot();
-    if (plot == null) return false;
+    final (tillWidth, tillHeight) = _calculateMaxTillGrid();
+    
+    // If till grid is 1x1, use simple single-plot logic
+    if (tillWidth == 1 && tillHeight == 1) {
+      var plot = getCurrentPlot();
+      // If plot is null (drone positioned outside current grid), try to expand to include it
+      if (plot == null) {
+        final neededWidth = dronePosition.x + 1;
+        final neededHeight = dronePosition.y + 1;
+        final newWidth = neededWidth > gridWidth ? neededWidth : gridWidth;
+        final newHeight = neededHeight > gridHeight ? neededHeight : gridHeight;
+        if (newWidth != gridWidth || newHeight != gridHeight) {
+          expandGrid(newWidth, newHeight);
+        }
+        plot = getCurrentPlot();
+        if (plot == null) return false;
+      }
 
-    if (!plot.canTill()) {
-      debugPrint('Cannot till plot at (${plot.x}, ${plot.y})');
-      return false;
+      if (!plot.canTill()) {
+        debugPrint('Cannot till plot at (${plot.x}, ${plot.y})');
+        return false;
+      }
+
+      plot.state = PlotState.tilled;
+
+      // If a crop exists on the plot, reset its growth (stage restarts to 1)
+      if (plot.crop != null) {
+        plot.crop!.growthStartedAt = null;
+      }
+
+      notifyListeners();
+      return true;
     }
-
-    plot.state = PlotState.tilled;
-
-    // If a crop exists on the plot, reset its growth (stage restarts to 1)
-    if (plot.crop != null) {
-      plot.crop!.growthStartedAt = null;
+    
+    // Area tilling: center the area on drone position
+    int tilledCount = 0;
+    final centerX = dronePosition.x;
+    final centerY = dronePosition.y;
+    
+    // Calculate area bounds (centered on drone)
+    final halfWidth = tillWidth ~/ 2;
+    final halfHeight = tillHeight ~/ 2;
+    final startX = centerX - halfWidth;
+    final startY = centerY - halfHeight;
+    final endX = startX + tillWidth - 1;
+    final endY = startY + tillHeight - 1;
+    
+    // Till all plots in the area
+    for (int y = startY; y <= endY; y++) {
+      for (int x = startX; x <= endX; x++) {
+        final plot = getPlot(x, y);
+        if (plot != null && plot.canTill()) {
+          plot.state = PlotState.tilled;
+          
+          // If a crop exists on the plot, reset its growth
+          if (plot.crop != null) {
+            plot.crop!.growthStartedAt = null;
+          }
+          
+          tilledCount++;
+        }
+      }
     }
-
-    notifyListeners();
-    return true;
+    
+    if (tilledCount > 0) {
+      notifyListeners();
+      return true;
+    }
+    
+    debugPrint('No plots were tilled in the ${tillWidth}x$tillHeight area');
+    return false;
   }
 
-  /// Water the current plot
+  /// Water the current plot (or area based on completed research)
   bool waterCurrentPlot() {
-    final plot = getCurrentPlot();
-    if (plot == null) return false;
+    final (waterWidth, waterHeight) = _calculateMaxWaterGrid();
+    
+    // If water grid is 1x1, use simple single-plot logic
+    if (waterWidth == 1 && waterHeight == 1) {
+      var plot = getCurrentPlot();
+      // If the drone is outside grid, expand to include it so watering can proceed
+      if (plot == null) {
+        final neededWidth = dronePosition.x + 1;
+        final neededHeight = dronePosition.y + 1;
+        final newWidth = neededWidth > gridWidth ? neededWidth : gridWidth;
+        final newHeight = neededHeight > gridHeight ? neededHeight : gridHeight;
+        if (newWidth != gridWidth || newHeight != gridHeight) {
+          expandGrid(newWidth, newHeight);
+        }
+        plot = getCurrentPlot();
+        if (plot == null) return false;
+      }
 
-    if (!plot.canWater()) {
-      debugPrint('Cannot water plot at (${plot.x}, ${plot.y})');
-      return false;
+      if (!plot.canWater()) {
+        debugPrint('Cannot water plot at (${plot.x}, ${plot.y})');
+        return false;
+      }
+
+      plot.state = PlotState.watered;
+
+      // If there's a crop planted and growth hasn't started yet, start growth now
+      if (plot.crop != null && plot.crop!.growthStartedAt == null) {
+        plot.crop!.growthStartedAt = DateTime.now();
+      }
+
+      notifyListeners();
+      return true;
     }
-
-    plot.state = PlotState.watered;
-
-    // If there's a crop planted and growth hasn't started yet, start growth now
-    if (plot.crop != null && plot.crop!.growthStartedAt == null) {
-      plot.crop!.growthStartedAt = DateTime.now();
+    
+    // Area watering: center the area on drone position
+    int wateredCount = 0;
+    final centerX = dronePosition.x;
+    final centerY = dronePosition.y;
+    
+    // Calculate area bounds (centered on drone)
+    final halfWidth = waterWidth ~/ 2;
+    final halfHeight = waterHeight ~/ 2;
+    final startX = centerX - halfWidth;
+    final startY = centerY - halfHeight;
+    final endX = startX + waterWidth - 1;
+    final endY = startY + waterHeight - 1;
+    
+    // Water all plots in the area
+    for (int y = startY; y <= endY; y++) {
+      for (int x = startX; x <= endX; x++) {
+        final plot = getPlot(x, y);
+        if (plot != null && plot.canWater()) {
+          plot.state = PlotState.watered;
+          
+          // If there's a crop planted and growth hasn't started yet, start growth now
+          if (plot.crop != null && plot.crop!.growthStartedAt == null) {
+            plot.crop!.growthStartedAt = DateTime.now();
+          }
+          
+          wateredCount++;
+        }
+      }
     }
-
-    notifyListeners();
-    return true;
+    
+    if (wateredCount > 0) {
+      notifyListeners();
+      return true;
+    }
+    
+    debugPrint('No plots were watered in the ${waterWidth}x$waterHeight area');
+    return false;
   }
 
   /// Check if seed type can be planted based on completed research

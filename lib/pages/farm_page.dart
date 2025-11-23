@@ -220,7 +220,13 @@ class _FarmPageState extends State<FarmPage> {
           
           // NOW add listener after progress is loaded
           _researchState.addListener(_onResearchStateChanged);
-          setState(() {});
+            // Ensure farm grid updates according to completed researches
+            try {
+              _farmState.applyFarmResearchConditions();
+            } catch (e) {
+              debugPrint('Failed to apply farm research conditions on load: $e');
+            }
+            setState(() {});
         }
       } else {
         // No existing progress, use default and add listener
@@ -941,6 +947,11 @@ class _FarmPageState extends State<FarmPage> {
             );
           }
         }
+      }
+      
+      // Apply farm research conditions if this is a farm research
+      if (researchId.startsWith('farm_')) {
+        _farmState.applyFarmResearchConditions();
       }
       
       if (mounted) {

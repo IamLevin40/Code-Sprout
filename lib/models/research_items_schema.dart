@@ -79,6 +79,7 @@ class FarmResearchItemSchema {
   final String description;
   final List<String> predecessorIds;
   final Map<String, int> requirements; // itemId -> quantity
+  final Map<String, Map<String, int>> conditionsUnlocked; // conditionType -> {x, y}
 
   FarmResearchItemSchema({
     required this.id,
@@ -87,16 +88,39 @@ class FarmResearchItemSchema {
     required this.description,
     required this.predecessorIds,
     required this.requirements,
+    required this.conditionsUnlocked,
   });
 
   factory FarmResearchItemSchema.fromJson(String id, Map<String, dynamic> json) {
+    // Parse requirements - handle both Map<String, dynamic> and Map<dynamic, dynamic>
     final Map<String, int> requirements = {};
-    final reqData = json['requirements'] as Map<String, dynamic>? ?? {};
-    reqData.forEach((key, value) {
-      if (value is int) {
-        requirements[key] = value;
-      }
-    });
+    final reqData = json['requirements'];
+    if (reqData != null && reqData is Map) {
+      reqData.forEach((key, value) {
+        if (value is int) {
+          requirements[key.toString()] = value;
+        }
+      });
+    }
+
+    // Parse conditions_unlocked: { "farm_plot_grid": { "x": 3, "y": 3 }, ... }
+    final Map<String, Map<String, int>> conditionsUnlocked = {};
+    final condData = json['conditions_unlocked'];
+    if (condData != null && condData is Map) {
+      condData.forEach((conditionType, gridData) {
+        if (gridData is Map) {
+          final Map<String, int> coords = {};
+          gridData.forEach((key, value) {
+            if (value is int) {
+              coords[key.toString()] = value;
+            }
+          });
+          if (coords.isNotEmpty) {
+            conditionsUnlocked[conditionType.toString()] = coords;
+          }
+        }
+      });
+    }
 
     return FarmResearchItemSchema(
       id: id,
@@ -105,6 +129,7 @@ class FarmResearchItemSchema {
       description: json['description'] as String? ?? '',
       predecessorIds: List<String>.from(json['predecessor_ids'] as List? ?? []),
       requirements: requirements,
+      conditionsUnlocked: conditionsUnlocked,
     );
   }
 }
@@ -320,5 +345,17 @@ class ResearchItemsSchema {
     }
     
     return current;
+  }
+
+  /// Test helper: Add a farm research item directly (for unit tests)
+  void addFarmItemForTesting(String id, FarmResearchItemSchema item) {
+    _farmItems[id] = item;
+  }
+
+  /// Test helper: Clear all items (for unit tests)
+  void clearForTesting() {
+    _cropItems.clear();
+    _farmItems.clear();
+    _functionsItems.clear();
   }
 }

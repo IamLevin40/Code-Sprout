@@ -13,7 +13,7 @@ Successfully implemented a gamified coding farm page where users can code a farm
 - **PlantedCrop**: Tracks crop type, growth status, and planting time
 - **FarmPlot**: Represents individual plot with state and crop
 - **DronePosition**: Tracks drone's (x, y) coordinates
-- **FarmState**: Main state manager with 3x3 grid (expandable), extends ChangeNotifier for reactive updates
+- **FarmState**: Main state manager with 1x1 default grid (expandable), extends ChangeNotifier for reactive updates
 
 ### 2. Code Interpreters (`lib/compilers/`)
 Comprehensive language-specific interpreters with full programming language support:
@@ -121,7 +121,7 @@ Comprehensive language-specific interpreters with full programming language supp
 Features:
 - Back button to return to sprout page
 - Language display showing selected programming language with icon
-- Zoomable/pannable farm grid view (3x3 plots)
+- Zoomable/pannable farm grid view (default 1x1 plots)
 - Control buttons: Code (toggle editor), Start (execute code), Stop (halt execution)
 - Split view: Code editor on top, Execution log on bottom
 - Real-time execution with visual feedback
@@ -145,7 +145,7 @@ Updated `sprout_page.dart`:
 
 ## Coordinate System
 - Bottom-left is (0, 0)
-- Top-right is (2, 2) for 3x3 grid
+- Top-right is (0, 0) for 1x1 default grid
 - X increases left-to-right
 - Y increases bottom-to-top
 - Drone moves via cardinal directions

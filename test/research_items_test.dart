@@ -90,6 +90,15 @@ void main() {
         gridHeight: 3,
         researchState: researchState,
       );
+      // Ensure grid exists for the test (explicitly expand to 3x3)
+      farmState.expandGrid(3, 3);
+      // Ensure internal grid is initialized to 3x3 in case defaults changed
+      farmState.expandGrid(3, 3);
+      // Ensure internal grid is initialized to 3x3
+      farmState.expandGrid(3, 3);
+
+      // Ensure internal grid is initialized to 3x3
+      farmState.expandGrid(3, 3);
 
       // Till and water a plot
       farmState.tillCurrentPlot();
@@ -418,6 +427,607 @@ void main() {
       
       // All three should be in completed list
       expect(researchState.completedCropResearches.length, equals(3));
+    });
+  });
+
+  group('Farm Research Schema Model Tests', () {
+    test('FarmResearchItemSchema has conditionsUnlocked field', () {
+      final farmResearch = FarmResearchItemSchema.fromJson('farm_3x3_farmland', {
+        'icon': 'test.png',
+        'name': '3x3 Farmland',
+        'description': 'Test farmland',
+        'predecessor_ids': [],
+        'requirements': {},
+        'conditions_unlocked': {
+          'farm_plot_grid': {'x': 3, 'y': 3}
+        },
+      });
+
+      expect(farmResearch.conditionsUnlocked, isNotNull);
+      expect(farmResearch.conditionsUnlocked, isA<Map<String, Map<String, int>>>());
+      expect(farmResearch.conditionsUnlocked.containsKey('farm_plot_grid'), isTrue);
+    });
+
+    test('FarmResearchItemSchema parses farm_plot_grid condition', () {
+      final farmResearch = FarmResearchItemSchema.fromJson('farm_4x4_farmland', {
+        'icon': 'test.png',
+        'name': '4x4 Farmland',
+        'description': 'Test farmland',
+        'predecessor_ids': ['farm_3x3_farmland'],
+        'requirements': {'wheat': 400},
+        'conditions_unlocked': {
+          'farm_plot_grid': {'x': 4, 'y': 4}
+        },
+      });
+
+      final gridCondition = farmResearch.conditionsUnlocked['farm_plot_grid'];
+      expect(gridCondition, isNotNull);
+      expect(gridCondition!['x'], equals(4));
+      expect(gridCondition['y'], equals(4));
+    });
+
+    test('FarmResearchItemSchema parses water_grid condition', () {
+      final farmResearch = FarmResearchItemSchema.fromJson('farm_watering_can_3', {
+        'icon': 'test.png',
+        'name': '3x1 Watering Can',
+        'description': 'Test watering can',
+        'predecessor_ids': ['farm_watering_can_1'],
+        'requirements': {'carrot': 500, 'beetroot': 100},
+        'conditions_unlocked': {
+          'water_grid': {'x': 3, 'y': 1}
+        },
+      });
+
+      final waterCondition = farmResearch.conditionsUnlocked['water_grid'];
+      expect(waterCondition, isNotNull);
+      expect(waterCondition!['x'], equals(3));
+      expect(waterCondition['y'], equals(1));
+    });
+
+    test('FarmResearchItemSchema handles empty conditions_unlocked', () {
+      final farmResearch = FarmResearchItemSchema.fromJson('farm_test', {
+        'icon': 'test.png',
+        'name': 'Test',
+        'description': 'Test',
+        'predecessor_ids': [],
+        'requirements': {},
+      });
+
+      expect(farmResearch.conditionsUnlocked, isNotNull);
+      expect(farmResearch.conditionsUnlocked.isEmpty, isTrue);
+    });
+
+    test('FarmResearchItemSchema handles multiple conditions', () {
+      final farmResearch = FarmResearchItemSchema.fromJson('farm_advanced', {
+        'icon': 'test.png',
+        'name': 'Advanced Farm',
+        'description': 'Test',
+        'predecessor_ids': [],
+        'requirements': {},
+        'conditions_unlocked': {
+          'farm_plot_grid': {'x': 5, 'y': 5},
+          'water_grid': {'x': 3, 'y': 3},
+          'till_grid': {'x': 2, 'y': 2}
+        },
+      });
+
+      expect(farmResearch.conditionsUnlocked.length, equals(3));
+      expect(farmResearch.conditionsUnlocked['farm_plot_grid']!['x'], equals(5));
+      expect(farmResearch.conditionsUnlocked['water_grid']!['x'], equals(3));
+      expect(farmResearch.conditionsUnlocked['till_grid']!['x'], equals(2));
+    });
+  });
+
+  group('Farm Research Grid Expansion Tests', () {
+    setUp(() {
+      // Clear and add test farm research items before each test
+      ResearchItemsSchema.instance.clearForTesting();
+    });
+
+    test('Grid expands to 4x4 when 4x4 farmland research completed', () {
+      // Add test farm research item
+      ResearchItemsSchema.instance.addFarmItemForTesting('farm_4x4_farmland', 
+        FarmResearchItemSchema(
+          id: 'farm_4x4_farmland',
+          icon: 'test.png',
+          name: '4x4 Farmland',
+          description: 'Test',
+          predecessorIds: [],
+          requirements: {},
+          conditionsUnlocked: {
+            'farm_plot_grid': {'x': 4, 'y': 4}
+          },
+        )
+      );
+
+      final researchState = ResearchState();
+      final farmState = FarmState(
+        gridWidth: 3,
+        gridHeight: 3,
+        researchState: researchState,
+      );
+
+      // Initially 3x3
+      expect(farmState.gridWidth, equals(3));
+      expect(farmState.gridHeight, equals(3));
+
+      // Complete 4x4 research
+      researchState.completeResearch('farm_4x4_farmland');
+      farmState.applyFarmResearchConditions();
+
+      // Should expand to 4x4
+      expect(farmState.gridWidth, equals(4));
+      expect(farmState.gridHeight, equals(4));
+    });
+
+    test('Grid expands to maximum size when multiple researches completed', () {
+      // Add test farm research items
+      ResearchItemsSchema.instance.addFarmItemForTesting('farm_3x3_farmland',
+        FarmResearchItemSchema(
+          id: 'farm_3x3_farmland',
+          icon: 'test.png',
+          name: '3x3 Farmland',
+          description: 'Test',
+          predecessorIds: [],
+          requirements: {},
+          conditionsUnlocked: {
+            'farm_plot_grid': {'x': 3, 'y': 3}
+          },
+        )
+      );
+      ResearchItemsSchema.instance.addFarmItemForTesting('farm_4x4_farmland',
+        FarmResearchItemSchema(
+          id: 'farm_4x4_farmland',
+          icon: 'test.png',
+          name: '4x4 Farmland',
+          description: 'Test',
+          predecessorIds: [],
+          requirements: {},
+          conditionsUnlocked: {
+            'farm_plot_grid': {'x': 4, 'y': 4}
+          },
+        )
+      );
+      ResearchItemsSchema.instance.addFarmItemForTesting('farm_5x5_farmland',
+        FarmResearchItemSchema(
+          id: 'farm_5x5_farmland',
+          icon: 'test.png',
+          name: '5x5 Farmland',
+          description: 'Test',
+          predecessorIds: [],
+          requirements: {},
+          conditionsUnlocked: {
+            'farm_plot_grid': {'x': 5, 'y': 5}
+          },
+        )
+      );
+
+      final researchState = ResearchState();
+      final farmState = FarmState(
+        gridWidth: 3,
+        gridHeight: 3,
+        researchState: researchState,
+      );
+
+      // Complete 3x3, 4x4, and 5x5 researches
+      researchState.completeResearch('farm_3x3_farmland');
+      researchState.completeResearch('farm_4x4_farmland');
+      researchState.completeResearch('farm_5x5_farmland');
+      farmState.applyFarmResearchConditions();
+
+      // Should expand to maximum (5x5)
+      expect(farmState.gridWidth, equals(5));
+      expect(farmState.gridHeight, equals(5));
+    });
+
+    test('Grid expansion preserves existing plots', () {
+      final researchState = ResearchState();
+      final farmState = FarmState(
+        gridWidth: 3,
+        gridHeight: 3,
+        researchState: researchState,
+      );
+
+      // Ensure grid is at least 3x3 for this test and then till a plot at (1,1)
+      farmState.expandGrid(3, 3);
+      // Debug info in case of failures
+      print('DEBUG: farmState.gridWidth=${farmState.gridWidth}, gridHeight=${farmState.gridHeight}');
+      print('DEBUG: total plots=${farmState.getAllPlots().length}');
+      farmState.dronePosition = DronePosition(x: 1, y: 1);
+      farmState.tillCurrentPlot();
+      final originalPlot = farmState.getPlot(1, 1);
+      expect(originalPlot, isNotNull);
+      expect(originalPlot?.state, equals(PlotState.tilled));
+
+      // Debug after till
+      print('DEBUG after till: gridWidth=${farmState.gridWidth}, gridHeight=${farmState.gridHeight}, plots=${farmState.getAllPlots().length}');
+
+      // Expand grid
+      // Add the 4x4 farm research schema so expansion uses its condition
+      ResearchItemsSchema.instance.addFarmItemForTesting('farm_4x4_farmland',
+        FarmResearchItemSchema(
+          id: 'farm_4x4_farmland',
+          icon: 'test.png',
+          name: '4x4 Farmland',
+          description: 'Test',
+          predecessorIds: [],
+          requirements: {},
+          conditionsUnlocked: {
+            'farm_plot_grid': {'x': 4, 'y': 4}
+          },
+        )
+      );
+      researchState.completeResearch('farm_4x4_farmland');
+      farmState.applyFarmResearchConditions();
+
+      // Debug after expansion
+      print('DEBUG after expansion: gridWidth=${farmState.gridWidth}, gridHeight=${farmState.gridHeight}, plots=${farmState.getAllPlots().length}');
+
+      // Original plot should be preserved
+      final preservedPlot = farmState.getPlot(1, 1);
+      expect(preservedPlot?.state, equals(PlotState.tilled));
+      expect(preservedPlot?.x, equals(1));
+      expect(preservedPlot?.y, equals(1));
+    });
+
+    test('Grid expansion creates new plots for expanded area', () {
+      // Add test farm research item
+      ResearchItemsSchema.instance.addFarmItemForTesting('farm_4x4_farmland',
+        FarmResearchItemSchema(
+          id: 'farm_4x4_farmland',
+          icon: 'test.png',
+          name: '4x4 Farmland',
+          description: 'Test',
+          predecessorIds: [],
+          requirements: {},
+          conditionsUnlocked: {
+            'farm_plot_grid': {'x': 4, 'y': 4}
+          },
+        )
+      );
+
+      final researchState = ResearchState();
+      final farmState = FarmState(
+        gridWidth: 3,
+        gridHeight: 3,
+        researchState: researchState,
+      );
+
+      // Expand grid
+      researchState.completeResearch('farm_4x4_farmland');
+      farmState.applyFarmResearchConditions();
+
+      // New plot at (3, 3) should exist
+      final newPlot = farmState.getPlot(3, 3);
+      expect(newPlot, isNotNull);
+      expect(newPlot?.x, equals(3));
+      expect(newPlot?.y, equals(3));
+      expect(newPlot?.state, equals(PlotState.normal));
+    });
+
+    test('Drone position adjusts if outside new grid bounds', () {
+      final researchState = ResearchState();
+      final farmState = FarmState(
+        gridWidth: 5,
+        gridHeight: 5,
+        researchState: researchState,
+      );
+
+      // Position drone at edge
+      farmState.dronePosition = DronePosition(x: 4, y: 4);
+
+      // "Shrink" grid by applying only 3x3 research
+      researchState.completeResearch('farm_3x3_farmland');
+      farmState.applyFarmResearchConditions();
+
+      // Drone should be moved inside bounds
+      expect(farmState.dronePosition.x, lessThan(3));
+      expect(farmState.dronePosition.y, lessThan(3));
+    });
+  });
+
+  group('Farm Research Area Watering Tests', () {
+    setUp(() {
+      // Clear schema before each test
+      ResearchItemsSchema.instance.clearForTesting();
+    });
+
+    test('Water area 1x1 waters only current plot', () {
+      // Add test watering can item
+      ResearchItemsSchema.instance.addFarmItemForTesting('farm_watering_can_1',
+        FarmResearchItemSchema(
+          id: 'farm_watering_can_1',
+          icon: 'test.png',
+          name: '1x1 Watering Can',
+          description: 'Test',
+          predecessorIds: [],
+          requirements: {},
+          conditionsUnlocked: {
+            'water_grid': {'x': 1, 'y': 1}
+          },
+        )
+      );
+      final researchState = ResearchState();
+      final farmState = FarmState(
+        gridWidth: 3,
+        gridHeight: 3,
+        researchState: researchState,
+      );
+
+      // Complete basic watering can (1x1)
+      researchState.completeResearch('farm_watering_can_1');
+
+      // Till and water center plot
+      farmState.dronePosition = DronePosition(x: 1, y: 1);
+      farmState.tillCurrentPlot();
+      farmState.waterCurrentPlot();
+
+      // Only center plot should be watered
+      expect(farmState.getPlot(1, 1)?.state, equals(PlotState.watered));
+      expect(farmState.getPlot(0, 1)?.state, equals(PlotState.normal));
+      expect(farmState.getPlot(2, 1)?.state, equals(PlotState.normal));
+    });
+
+    test('Water area 3x1 waters three plots horizontally', () {
+      // Add test watering can items
+      ResearchItemsSchema.instance.addFarmItemForTesting('farm_watering_can_1',
+        FarmResearchItemSchema(
+          id: 'farm_watering_can_1',
+          icon: 'test.png',
+          name: '1x1 Watering Can',
+          description: 'Test',
+          predecessorIds: [],
+          requirements: {},
+          conditionsUnlocked: {
+            'water_grid': {'x': 1, 'y': 1}
+          },
+        )
+      );
+      ResearchItemsSchema.instance.addFarmItemForTesting('farm_watering_can_3',
+        FarmResearchItemSchema(
+          id: 'farm_watering_can_3',
+          icon: 'test.png',
+          name: '3x1 Watering Can',
+          description: 'Test',
+          predecessorIds: [],
+          requirements: {},
+          conditionsUnlocked: {
+            'water_grid': {'x': 3, 'y': 1}
+          },
+        )
+      );
+
+      final researchState = ResearchState();
+      final farmState = FarmState(
+        gridWidth: 3,
+        gridHeight: 3,
+        researchState: researchState,
+      );
+
+      // Complete 3x1 watering can
+      researchState.completeResearch('farm_watering_can_1');
+      researchState.completeResearch('farm_watering_can_3');
+
+      // Till center row
+      farmState.dronePosition = DronePosition(x: 0, y: 1);
+      farmState.tillCurrentPlot();
+      farmState.dronePosition = DronePosition(x: 1, y: 1);
+      farmState.tillCurrentPlot();
+      farmState.dronePosition = DronePosition(x: 2, y: 1);
+      farmState.tillCurrentPlot();
+
+      // Water from true center (1, 1) - with 3x1 area centered at (1,1):
+      // halfWidth=1, startX=0, endX=2, so waters (0,1), (1,1), (2,1)
+      farmState.dronePosition = DronePosition(x: 1, y: 1);
+      farmState.waterCurrentPlot();
+
+      // All three plots in row should be watered
+      expect(farmState.getPlot(0, 1)?.state, equals(PlotState.watered));
+      expect(farmState.getPlot(1, 1)?.state, equals(PlotState.watered));
+      expect(farmState.getPlot(2, 1)?.state, equals(PlotState.watered));
+    });
+
+    test('Water area respects grid boundaries', () {
+      // Add test watering can items
+      ResearchItemsSchema.instance.addFarmItemForTesting('farm_watering_can_1',
+        FarmResearchItemSchema(
+          id: 'farm_watering_can_1',
+          icon: 'test.png',
+          name: '1x1 Watering Can',
+          description: 'Test',
+          predecessorIds: [],
+          requirements: {},
+          conditionsUnlocked: {
+            'water_grid': {'x': 1, 'y': 1}
+          },
+        )
+      );
+      ResearchItemsSchema.instance.addFarmItemForTesting('farm_watering_can_3',
+        FarmResearchItemSchema(
+          id: 'farm_watering_can_3',
+          icon: 'test.png',
+          name: '3x1 Watering Can',
+          description: 'Test',
+          predecessorIds: [],
+          requirements: {},
+          conditionsUnlocked: {
+            'water_grid': {'x': 3, 'y': 1}
+          },
+        )
+      );
+
+      final researchState = ResearchState();
+      final farmState = FarmState(
+        gridWidth: 3,
+        gridHeight: 3,
+        researchState: researchState,
+      );
+
+      // Complete 3x1 watering can
+      researchState.completeResearch('farm_watering_can_1');
+      researchState.completeResearch('farm_watering_can_3');
+
+      // Till corner plot
+      farmState.dronePosition = DronePosition(x: 0, y: 0);
+      farmState.tillCurrentPlot();
+      farmState.dronePosition = DronePosition(x: 1, y: 0);
+      farmState.tillCurrentPlot();
+
+      // Water from corner (would be out of bounds on left)
+      farmState.dronePosition = DronePosition(x: 0, y: 0);
+      farmState.waterCurrentPlot();
+
+      // Only valid plots should be watered
+      expect(farmState.getPlot(0, 0)?.state, equals(PlotState.watered));
+      expect(farmState.getPlot(1, 0)?.state, equals(PlotState.watered));
+    });
+
+    test('Water area only waters tilled plots', () {
+      // Add test watering can items
+      ResearchItemsSchema.instance.addFarmItemForTesting('farm_watering_can_1',
+        FarmResearchItemSchema(
+          id: 'farm_watering_can_1',
+          icon: 'test.png',
+          name: '1x1 Watering Can',
+          description: 'Test',
+          predecessorIds: [],
+          requirements: {},
+          conditionsUnlocked: {
+            'water_grid': {'x': 1, 'y': 1}
+          },
+        )
+      );
+      ResearchItemsSchema.instance.addFarmItemForTesting('farm_watering_can_3',
+        FarmResearchItemSchema(
+          id: 'farm_watering_can_3',
+          icon: 'test.png',
+          name: '3x1 Watering Can',
+          description: 'Test',
+          predecessorIds: [],
+          requirements: {},
+          conditionsUnlocked: {
+            'water_grid': {'x': 3, 'y': 1}
+          },
+        )
+      );
+
+      final researchState = ResearchState();
+      final farmState = FarmState(
+        gridWidth: 3,
+        gridHeight: 3,
+        researchState: researchState,
+      );
+
+      // Complete 3x1 watering can
+      researchState.completeResearch('farm_watering_can_1');
+      researchState.completeResearch('farm_watering_can_3');
+
+      // Only till center plot
+      farmState.dronePosition = DronePosition(x: 1, y: 1);
+      farmState.tillCurrentPlot();
+
+      // Water from center
+      farmState.waterCurrentPlot();
+
+      // Only tilled plot should be watered
+      expect(farmState.getPlot(1, 1)?.state, equals(PlotState.watered));
+      expect(farmState.getPlot(0, 1)?.state, equals(PlotState.normal));
+      expect(farmState.getPlot(2, 1)?.state, equals(PlotState.normal));
+    });
+  });
+
+  group('Farm Research Area Tilling Tests', () {
+    setUp(() {
+      // Clear schema before each test
+      ResearchItemsSchema.instance.clearForTesting();
+    });
+
+    test('Till area 1x1 tills only current plot', () {
+      final researchState = ResearchState();
+      final farmState = FarmState(
+        gridWidth: 3,
+        gridHeight: 3,
+        researchState: researchState,
+      );
+
+      // No till grid research (default 1x1)
+      farmState.dronePosition = DronePosition(x: 1, y: 1);
+      farmState.tillCurrentPlot();
+
+      // Only center plot should be tilled
+      expect(farmState.getPlot(1, 1)?.state, equals(PlotState.tilled));
+      expect(farmState.getPlot(0, 1)?.state, equals(PlotState.normal));
+      expect(farmState.getPlot(2, 1)?.state, equals(PlotState.normal));
+    });
+
+    test('Till area respects grid boundaries', () {
+      final researchState = ResearchState();
+      final farmState = FarmState(
+        gridWidth: 3,
+        gridHeight: 3,
+        researchState: researchState,
+      );
+
+      // Till from corner (with hypothetical 3x3 till area)
+      farmState.dronePosition = DronePosition(x: 0, y: 0);
+      farmState.tillCurrentPlot();
+
+      // Should only till valid plot at corner
+      expect(farmState.getPlot(0, 0)?.state, equals(PlotState.tilled));
+    });
+
+    test('Till area only tills normal plots', () {
+      final researchState = ResearchState();
+      final farmState = FarmState(
+        gridWidth: 3,
+        gridHeight: 3,
+        researchState: researchState,
+      );
+
+      // Water center plot first
+      farmState.dronePosition = DronePosition(x: 1, y: 1);
+      farmState.tillCurrentPlot();
+      farmState.waterCurrentPlot();
+      expect(farmState.getPlot(1, 1)?.state, equals(PlotState.watered));
+
+      // Try to till again
+      farmState.tillCurrentPlot();
+
+      // Should still be watered (tilling watered plots not allowed)
+      expect(farmState.getPlot(1, 1)?.state, equals(PlotState.watered));
+    });
+  });
+
+  group('Farm Research Integration Tests', () {
+    test('Multiple farm researches track correctly', () {
+      final researchState = ResearchState();
+
+      // Complete various farm researches
+      researchState.completeResearch('farm_3x3_farmland');
+      researchState.completeResearch('farm_watering_can_1');
+      researchState.completeResearch('farm_4x4_farmland');
+
+      // All should be in completed list
+      expect(researchState.completedFarmResearches.length, equals(3));
+      expect(researchState.completedFarmResearches, contains('farm_3x3_farmland'));
+      expect(researchState.completedFarmResearches, contains('farm_watering_can_1'));
+      expect(researchState.completedFarmResearches, contains('farm_4x4_farmland'));
+    });
+
+    test('Farm and crop researches track separately', () {
+      final researchState = ResearchState();
+
+      // Complete mix of researches
+      researchState.completeResearch('crop_wheat');
+      researchState.completeResearch('farm_3x3_farmland');
+      researchState.completeResearch('crop_carrot');
+      researchState.completeResearch('farm_watering_can_1');
+
+      // Should be separated correctly
+      expect(researchState.completedCropResearches.length, equals(2));
+      expect(researchState.completedFarmResearches.length, equals(2));
+      expect(researchState.completedCropResearches, contains('crop_wheat'));
+      expect(researchState.completedFarmResearches, contains('farm_3x3_farmland'));
     });
   });
 }

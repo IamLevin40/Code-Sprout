@@ -4,14 +4,39 @@
         "name": "3x3 Farmland",
         "description": "Unlock the basic 3x3 farm grid.",
         "predecessor_ids": [],
-        "requirements": {}
+        "requirements": {},
+        "conditions_unlocked": {
+            "farm_plot_grid": {
+                "x": 3,
+                "y": 3
+            }
+        }
     },
-    "farm_watering_can_1": {
+    "farm_watering_can_3x1": {
         "icon": "images/icons/sprout_items/farm_items/watering_can.png",
-        "name": "1x1 Watering Can",
-        "description": "Water a single tile at a time.",
+        "name": "3x1 Watering Can",
+        "description": "Water 3 tiles in a straight line.",
         "predecessor_ids": [],
-        "requirements": {}
+        "requirements": {},
+        "conditions_unlocked": {
+            "water_grid": {
+                "x": 3,
+                "y": 1
+            }
+        }
+    },
+    "farm_tilling_hoe_3x1": {
+        "icon": "images/icons/sprout_items/farm_items/tilling_hoe.png",
+        "name": "3x1 Tilling Hoe",
+        "description": "Till 3 tiles in a straight line.",
+        "predecessor_ids": [],
+        "requirements": {},
+        "conditions_unlocked": {
+            "till_grid": {
+                "x": 3,
+                "y": 1
+            }
+        }
     },
     "farm_4x4_farmland": {
         "icon": "images/icons/sprout_items/farm_items/farmland_expansion.png",
@@ -20,6 +45,12 @@
         "predecessor_ids": ["farm_3x3_farmland"],
         "requirements": {
             "wheat": 400
+        },
+        "conditions_unlocked": {
+            "farm_plot_grid": {
+                "x": 4,
+                "y": 4
+            }
         }
     },
     "farm_5x5_farmland": {
@@ -30,16 +61,27 @@
         "requirements": {
             "carrot": 950,
             "potato": 200
+        },
+        "conditions_unlocked": {
+            "farm_plot_grid": {
+                "x": 5,
+                "y": 5
+            }
         }
     },
-    "farm_watering_can_3": {
+    "farm_watering_can_3x3": {
         "icon": "images/icons/sprout_items/farm_items/watering_can.png",
-        "name": "3x1 Watering Can",
-        "description": "Water 3 tiles in a straight line.",
-        "predecessor_ids": ["farm_watering_can_1"],
+        "name": "3x3 Watering Can",
+        "description": "Water in a 3x3 area.",
+        "predecessor_ids": ["farm_watering_can_3x1"],
         "requirements": {
-            "carrot": 500,
-            "beetroot": 100
+            "carrot": 500
+        },
+        "conditions_unlocked": {
+            "water_grid": {
+                "x": 3,
+                "y": 3
+            }
         }
     }
 }
