@@ -7,7 +7,8 @@ import '../models/user_data.dart';
 import '../models/rank_data.dart';
 import '../widgets/rank_card.dart';
 import '../models/course_data_schema.dart';
-import '../models/sprout_data.dart';
+import '../models/sprout_data.dart' as sprout;
+import '../models/inventory_data.dart' as inv;
 import '../widgets/sprout_items/current_language_card.dart';
 import '../widgets/sprout_items/inventory_grid_display.dart';
 import 'farm_page.dart';
@@ -20,7 +21,8 @@ class SproutPage extends StatefulWidget {
 }
 
 class _SproutPageState extends State<SproutPage> {
-  List<InventoryItem> _inventoryItems = [];
+  List<sprout.InventoryItem> _inventoryItems = [];
+  inv.InventorySchema? _inventorySchema;
 
   final CourseDataSchema _courseSchema = CourseDataSchema();
   List<String> _languages = [];
@@ -47,7 +49,7 @@ class _SproutPageState extends State<SproutPage> {
     });
 
     // Recompute derived data (crop items) when user data changes
-    SproutDataHelpers.getInventoryItemsForUser(ud).then((items) {
+    sprout.SproutDataHelpers.getInventoryItemsForUser(ud).then((items) {
       if (!mounted) return;
       setState(() => _inventoryItems = items);
     }).catchError((_) {});
@@ -79,7 +81,7 @@ class _SproutPageState extends State<SproutPage> {
       }
     } catch (_) {}
 
-    final String? selected = await SproutData.resolveSelectedLanguage(
+    final String? selected = await sprout.SproutData.resolveSelectedLanguage(
       availableLanguages: langs,
       userData: ud,
     );
@@ -102,10 +104,14 @@ class _SproutPageState extends State<SproutPage> {
         _selectedLanguage = selected;
       });
     }
-    // load crop items after initial set
+    // load crop items and inventory schema after initial set
     try {
-      final items = await SproutDataHelpers.getInventoryItemsForUser(ud);
-      if (mounted) setState(() => _inventoryItems = items);
+      final items = await sprout.SproutDataHelpers.getInventoryItemsForUser(ud);
+      final schema = await inv.InventorySchema.load();
+      if (mounted) setState(() {
+        _inventoryItems = items;
+        _inventorySchema = schema;
+      });
     } catch (_) {}
   }
 
@@ -160,7 +166,7 @@ class _SproutPageState extends State<SproutPage> {
 
                 if (_userData != null) {
                   try {
-                    final updated = await SproutData.setSelectedLanguage(userData: _userData!, languageId: v);
+                    final updated = await sprout.SproutData.setSelectedLanguage(userData: _userData!, languageId: v);
                     if (!mounted) return;
                     setState(() {
                       _userData = updated;
@@ -265,6 +271,8 @@ class _SproutPageState extends State<SproutPage> {
               return InventoryGridDisplay(
                 inventoryItems: _inventoryItems,
                 maxWidth: constraints.maxWidth,
+                inventorySchema: _inventorySchema,
+                userData: _userData,
               );
             }),
           ],

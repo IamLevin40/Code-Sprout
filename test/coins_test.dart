@@ -479,5 +479,340 @@ void main() {
         expect(qty(inventory, 'wheat_seeds'), equals(10));
       });
     });
+
+    group('Selling Items Tests', () {
+      test('sellItem should add coins and remove item from inventory', () async {
+        // Set up inventory with items
+        userData.set('sproutProgress.inventory', {
+          'wheat': {'quantity': 10, 'isLocked': false},
+        });
+        userData.set('sproutProgress.coins', 0);
+
+        final result = await userData.sellItem(
+          itemId: 'wheat',
+          quantity: 5,
+          sellAmountPerItem: 5,
+        );
+
+        expect(result, isTrue);
+        expect(userData.getCoins(), equals(25)); // 5 * 5 = 25
+        
+        final inventory = userData.get('sproutProgress.inventory') as Map;
+        expect(qty(inventory, 'wheat'), equals(5)); // 10 - 5 = 5
+      });
+
+      test('sellItem should work with 1x multiplier', () async {
+        userData.set('sproutProgress.inventory', {
+          'carrot': {'quantity': 20, 'isLocked': false},
+        });
+        userData.set('sproutProgress.coins', 10);
+
+        final result = await userData.sellItem(
+          itemId: 'carrot',
+          quantity: 1,
+          sellAmountPerItem: 8,
+        );
+
+        expect(result, isTrue);
+        expect(userData.getCoins(), equals(18)); // 10 + (1 * 8)
+        
+        final inventory = userData.get('sproutProgress.inventory') as Map;
+        expect(qty(inventory, 'carrot'), equals(19));
+      });
+
+      test('sellItem should work with 10x multiplier', () async {
+        userData.set('sproutProgress.inventory', {
+          'potato': {'quantity': 50, 'isLocked': false},
+        });
+        userData.set('sproutProgress.coins', 20);
+
+        final result = await userData.sellItem(
+          itemId: 'potato',
+          quantity: 10,
+          sellAmountPerItem: 12,
+        );
+
+        expect(result, isTrue);
+        expect(userData.getCoins(), equals(140)); // 20 + (10 * 12)
+        
+        final inventory = userData.get('sproutProgress.inventory') as Map;
+        expect(qty(inventory, 'potato'), equals(40));
+      });
+
+      test('sellItem should work with 100x multiplier', () async {
+        userData.set('sproutProgress.inventory', {
+          'beetroot': {'quantity': 200, 'isLocked': false},
+        });
+        userData.set('sproutProgress.coins', 0);
+
+        final result = await userData.sellItem(
+          itemId: 'beetroot',
+          quantity: 100,
+          sellAmountPerItem: 15,
+        );
+
+        expect(result, isTrue);
+        expect(userData.getCoins(), equals(1500)); // 100 * 15
+        
+        final inventory = userData.get('sproutProgress.inventory') as Map;
+        expect(qty(inventory, 'beetroot'), equals(100));
+      });
+
+      test('sellItem should work with sell all', () async {
+        userData.set('sproutProgress.inventory', {
+          'radish': {'quantity': 37, 'isLocked': false},
+        });
+        userData.set('sproutProgress.coins', 50);
+
+        final result = await userData.sellItem(
+          itemId: 'radish',
+          quantity: 37, // Sell all
+          sellAmountPerItem: 20,
+        );
+
+        expect(result, isTrue);
+        expect(userData.getCoins(), equals(790)); // 50 + (37 * 20)
+        
+        final inventory = userData.get('sproutProgress.inventory') as Map;
+        expect(qty(inventory, 'radish'), equals(0));
+      });
+
+      test('sellItem should return false for insufficient quantity', () async {
+        userData.set('sproutProgress.inventory', {
+          'wheat': {'quantity': 5, 'isLocked': false},
+        });
+        userData.set('sproutProgress.coins', 100);
+
+        final result = await userData.sellItem(
+          itemId: 'wheat',
+          quantity: 10, // More than available
+          sellAmountPerItem: 5,
+        );
+
+        expect(result, isFalse);
+        expect(userData.getCoins(), equals(100)); // Unchanged
+        
+        final inventory = userData.get('sproutProgress.inventory') as Map;
+        expect(qty(inventory, 'wheat'), equals(5)); // Unchanged
+      });
+
+      test('sellItem should return false for non-existent item', () async {
+        userData.set('sproutProgress.inventory', {
+          'wheat': {'quantity': 10, 'isLocked': false},
+        });
+        userData.set('sproutProgress.coins', 50);
+
+        final result = await userData.sellItem(
+          itemId: 'nonexistent_item',
+          quantity: 1,
+          sellAmountPerItem: 10,
+        );
+
+        expect(result, isFalse);
+        expect(userData.getCoins(), equals(50)); // Unchanged
+      });
+
+      test('sellItem should return false when inventory is null', () async {
+        userData.set('sproutProgress.coins', 100);
+        // No inventory set
+
+        final result = await userData.sellItem(
+          itemId: 'wheat',
+          quantity: 1,
+          sellAmountPerItem: 5,
+        );
+
+        expect(result, isFalse);
+        expect(userData.getCoins(), equals(100)); // Unchanged
+      });
+
+      test('sellItem should throw error for negative quantity', () async {
+        userData.set('sproutProgress.inventory', {
+          'wheat': {'quantity': 10, 'isLocked': false},
+        });
+
+        expect(
+          () async => await userData.sellItem(
+            itemId: 'wheat',
+            quantity: -5,
+            sellAmountPerItem: 5,
+          ),
+          throwsA(isA<ArgumentError>()),
+        );
+      });
+
+      test('sellItem should throw error for zero quantity', () async {
+        userData.set('sproutProgress.inventory', {
+          'wheat': {'quantity': 10, 'isLocked': false},
+        });
+
+        expect(
+          () async => await userData.sellItem(
+            itemId: 'wheat',
+            quantity: 0,
+            sellAmountPerItem: 5,
+          ),
+          throwsA(isA<ArgumentError>()),
+        );
+      });
+
+      test('sellItem should throw error for negative sell amount', () async {
+        userData.set('sproutProgress.inventory', {
+          'wheat': {'quantity': 10, 'isLocked': false},
+        });
+
+        expect(
+          () async => await userData.sellItem(
+            itemId: 'wheat',
+            quantity: 5,
+            sellAmountPerItem: -5,
+          ),
+          throwsA(isA<ArgumentError>()),
+        );
+      });
+
+      test('sellItem should allow zero sell amount', () async {
+        userData.set('sproutProgress.inventory', {
+          'wheat': {'quantity': 10, 'isLocked': false},
+        });
+        userData.set('sproutProgress.coins', 50);
+
+        final result = await userData.sellItem(
+          itemId: 'wheat',
+          quantity: 5,
+          sellAmountPerItem: 0, // Free item
+        );
+
+        expect(result, isTrue);
+        expect(userData.getCoins(), equals(50)); // No coins added
+        
+        final inventory = userData.get('sproutProgress.inventory') as Map;
+        expect(qty(inventory, 'wheat'), equals(5)); // Items removed
+      });
+
+      test('sellItem should work with legacy int inventory format', () async {
+        // Set up inventory with legacy int format
+        userData.set('sproutProgress.inventory', {
+          'wheat': 20, // Legacy format
+        });
+        userData.set('sproutProgress.coins', 0);
+
+        final result = await userData.sellItem(
+          itemId: 'wheat',
+          quantity: 10,
+          sellAmountPerItem: 5,
+        );
+
+        expect(result, isTrue);
+        expect(userData.getCoins(), equals(50));
+        
+        // Should convert to structured format
+        final inventory = userData.get('sproutProgress.inventory') as Map;
+        expect(qty(inventory, 'wheat'), equals(10));
+        
+        // Verify it's in structured format now
+        final wheatData = inventory['wheat'];
+        expect(wheatData, isA<Map>());
+        expect((wheatData as Map)['quantity'], equals(10));
+        expect(wheatData['isLocked'], equals(false));
+      });
+
+      test('sellItem should handle multiple sells in sequence', () async {
+        userData.set('sproutProgress.inventory', {
+          'wheat': {'quantity': 100, 'isLocked': false},
+        });
+        userData.set('sproutProgress.coins', 0);
+
+        // Sell 1x
+        await userData.sellItem(
+          itemId: 'wheat',
+          quantity: 1,
+          sellAmountPerItem: 5,
+        );
+        expect(userData.getCoins(), equals(5));
+        expect(qty(userData.get('sproutProgress.inventory') as Map, 'wheat'), equals(99));
+
+        // Sell 10x
+        await userData.sellItem(
+          itemId: 'wheat',
+          quantity: 10,
+          sellAmountPerItem: 5,
+        );
+        expect(userData.getCoins(), equals(55));
+        expect(qty(userData.get('sproutProgress.inventory') as Map, 'wheat'), equals(89));
+
+        // Sell 50x
+        await userData.sellItem(
+          itemId: 'wheat',
+          quantity: 50,
+          sellAmountPerItem: 5,
+        );
+        expect(userData.getCoins(), equals(305));
+        expect(qty(userData.get('sproutProgress.inventory') as Map, 'wheat'), equals(39));
+
+        // Sell all remaining
+        await userData.sellItem(
+          itemId: 'wheat',
+          quantity: 39,
+          sellAmountPerItem: 5,
+        );
+        expect(userData.getCoins(), equals(500));
+        expect(qty(userData.get('sproutProgress.inventory') as Map, 'wheat'), equals(0));
+      });
+
+      test('sellItem should handle selling different item types', () async {
+        userData.set('sproutProgress.inventory', {
+          'wheat': {'quantity': 20, 'isLocked': false},
+          'carrot': {'quantity': 15, 'isLocked': false},
+          'potato': {'quantity': 10, 'isLocked': false},
+        });
+        userData.set('sproutProgress.coins', 0);
+
+        // Sell wheat
+        await userData.sellItem(
+          itemId: 'wheat',
+          quantity: 10,
+          sellAmountPerItem: 5,
+        );
+        expect(userData.getCoins(), equals(50));
+
+        // Sell carrot
+        await userData.sellItem(
+          itemId: 'carrot',
+          quantity: 5,
+          sellAmountPerItem: 8,
+        );
+        expect(userData.getCoins(), equals(90));
+
+        // Sell potato
+        await userData.sellItem(
+          itemId: 'potato',
+          quantity: 10,
+          sellAmountPerItem: 12,
+        );
+        expect(userData.getCoins(), equals(210));
+
+        final inventory = userData.get('sproutProgress.inventory') as Map;
+        expect(qty(inventory, 'wheat'), equals(10));
+        expect(qty(inventory, 'carrot'), equals(10));
+        expect(qty(inventory, 'potato'), equals(0));
+      });
+
+      test('sellItem should handle large coin amounts', () async {
+        userData.set('sproutProgress.inventory', {
+          'radish': {'quantity': 10000, 'isLocked': false},
+        });
+        userData.set('sproutProgress.coins', 500);
+
+        final result = await userData.sellItem(
+          itemId: 'radish',
+          quantity: 10000,
+          sellAmountPerItem: 20,
+        );
+
+        expect(result, isTrue);
+        expect(userData.getCoins(), equals(200500)); // 500 + (10000 * 20)
+      });
+    });
   });
 }

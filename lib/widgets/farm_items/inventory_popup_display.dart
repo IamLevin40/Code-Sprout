@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../models/styles_schema.dart';
 import '../../models/user_data.dart';
-import '../../models/sprout_data.dart';
+import '../../models/sprout_data.dart' as sprout;
+import '../../models/inventory_data.dart' as inv;
 import '../../services/local_storage_service.dart';
 import '../sprout_items/inventory_grid_display.dart';
 
@@ -39,7 +40,8 @@ class _InventoryPopupDialog extends StatefulWidget {
 }
 
 class _InventoryPopupDialogState extends State<_InventoryPopupDialog> {
-  List<InventoryItem> _inventoryItems = [];
+  List<sprout.InventoryItem> _inventoryItems = [];
+  inv.InventorySchema? _inventorySchema;
   bool _isLoading = true;
 
   @override
@@ -68,12 +70,22 @@ class _InventoryPopupDialogState extends State<_InventoryPopupDialog> {
     // Get the latest user data from the notifier
     final currentUserData = LocalStorageService.instance.userDataNotifier.value ?? widget.userData;
     
-    final items = await SproutDataHelpers.getInventoryItemsForUser(currentUserData);
-    if (mounted) {
-      setState(() {
-        _inventoryItems = items;
-        _isLoading = false;
-      });
+    try {
+      final items = await sprout.SproutDataHelpers.getInventoryItemsForUser(currentUserData);
+      final schema = await inv.InventorySchema.load();
+      if (mounted) {
+        setState(() {
+          _inventoryItems = items;
+          _inventorySchema = schema;
+          _isLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -130,9 +142,12 @@ class _InventoryPopupDialogState extends State<_InventoryPopupDialog> {
                     )
                   : LayoutBuilder(
                       builder: (context, constraints) {
+                        final currentUserData = LocalStorageService.instance.userDataNotifier.value ?? widget.userData;
                         return InventoryGridDisplay(
                           inventoryItems: _inventoryItems,
                           maxWidth: constraints.maxWidth,
+                          inventorySchema: _inventorySchema,
+                          userData: currentUserData,
                         );
                       },
                     ),

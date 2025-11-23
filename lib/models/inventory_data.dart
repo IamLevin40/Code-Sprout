@@ -6,6 +6,7 @@ class InventoryItem {
   final String id;
   final String name;
   final String icon;
+  final int sellAmount;
   final bool isLockedByDefault;
   final int defaultQuantity;
 
@@ -13,6 +14,7 @@ class InventoryItem {
     required this.id,
     required this.name,
     required this.icon,
+    required this.sellAmount,
     required this.isLockedByDefault,
     required this.defaultQuantity,
   });
@@ -22,6 +24,7 @@ class InventoryItem {
       id: id,
       name: json['name'] as String? ?? id,
       icon: json['icon'] as String,
+      sellAmount: json['sell_amount'] as int? ?? 0,
       isLockedByDefault: _parseBooleanValue(json['is_locked']),
       defaultQuantity: _parseNumberValue(json['quantity']),
     );

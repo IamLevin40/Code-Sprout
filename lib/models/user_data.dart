@@ -481,29 +481,41 @@ class UserData {
     
     // Add items to inventory
     try {
-      var inventory = get('sproutProgress.inventory') as Map<String, dynamic>?;
-
-      // Initialize inventory if null
-      if (inventory == null) {
-        inventory = <String, dynamic>{};
-        set('sproutProgress.inventory', inventory);
+      var inventoryRaw = get('sproutProgress.inventory');
+      
+      // Create a fresh map with proper typing to avoid type conflicts
+      final inventory = <String, dynamic>{};
+      
+      // Copy existing inventory if present
+      if (inventoryRaw != null && inventoryRaw is Map) {
+        inventoryRaw.forEach((key, value) {
+          inventory[key.toString()] = value;
+        });
       }
 
       items.forEach((itemId, quantity) {
-        final existing = inventory![itemId];
+        final existing = inventory[itemId];
 
-        // Structured format
-        final currentQty = (existing['quantity'] is int) ? existing['quantity'] as int : 0;
-        existing['quantity'] = currentQty + quantity;
-        inventory[itemId] = existing;
+        // Get current quantity (support legacy int, structured map, or null)
+        final int currentQty;
+        if (existing == null) {
+          currentQty = 0;
+        } else if (existing is int) {
+          currentQty = existing;
+        } else if (existing is Map) {
+          currentQty = (existing['quantity'] is int) ? existing['quantity'] as int : 0;
+        } else {
+          currentQty = 0;
+        }
+
+        // Always use structured format - create a new map to avoid reference issues
+        inventory[itemId] = <String, dynamic>{
+          'quantity': currentQty + quantity,
+          'isLocked': (existing is Map && existing['isLocked'] == true) ? true : false,
+        };
       });
 
       set('sproutProgress.inventory', inventory);
-
-      // Notify UI of updated inventory immediately even if persistence fails
-      try {
-        LocalStorageService.instance.userDataNotifier.value = copyWith({});
-      } catch (_) {}
 
       // Save changes
       try {
@@ -516,11 +528,110 @@ class UserData {
         debugPrint('$st');
       }
 
+      // Notify UI of updated inventory immediately even if persistence fails
+      try {
+        LocalStorageService.instance.userDataNotifier.value = copyWith({});
+      } catch (_) {}
+
       return true;
     } catch (e) {
       // If adding items fails, refund coins
       await addCoins(cost);
       debugPrint('Failed to add items to inventory: $e');
+      return false;
+    }
+  }
+
+  /// Sell items from inventory for coins (returns true if successful)
+  Future<bool> sellItem({
+    required String itemId,
+    required int quantity,
+    required int sellAmountPerItem,
+  }) async {
+    if (quantity <= 0) {
+      throw ArgumentError('Quantity must be positive');
+    }
+    
+    if (sellAmountPerItem < 0) {
+      throw ArgumentError('Sell amount cannot be negative');
+    }
+
+    // Check if user has enough items to sell
+    try {
+      var inventoryRaw = get('sproutProgress.inventory');
+      
+      if (inventoryRaw == null) {
+        return false; // No inventory
+      }
+
+      // Create a fresh map with proper typing
+      var inventory = <String, dynamic>{};
+      if (inventoryRaw is Map) {
+        inventoryRaw.forEach((key, value) {
+          inventory[key.toString()] = value;
+        });
+      }
+
+      final itemData = inventory[itemId];
+      if (itemData == null) {
+        return false; // Item doesn't exist
+      }
+
+      // Get current quantity (support both legacy int and structured map)
+      final int currentQty;
+      final bool isLocked;
+      if (itemData is int) {
+        currentQty = itemData;
+        isLocked = false;
+      } else if (itemData is Map) {
+        // Handle any Map type
+        currentQty = (itemData['quantity'] is int) ? itemData['quantity'] as int : 0;
+        isLocked = itemData['isLocked'] == true;
+      } else {
+        currentQty = 0;
+        isLocked = false;
+      }
+
+      if (currentQty < quantity) {
+        return false; // Insufficient items
+      }
+
+      // Calculate coins to add
+      final coinsToAdd = sellAmountPerItem * quantity;
+      
+      // Remove items from inventory
+      final newQty = currentQty - quantity;
+      
+      // Always use structured format - create a new map to avoid reference issues
+      inventory[itemId] = <String, dynamic>{
+        'quantity': newQty,
+        'isLocked': isLocked,
+      };
+
+      set('sproutProgress.inventory', inventory);
+
+      // Add coins
+      await addCoins(coinsToAdd);
+
+      // Persist changes
+      try {
+        await LocalStorageService.instance.saveUserData(this);
+        await updateFields({
+          'sproutProgress.inventory': inventory,
+        });
+      } catch (e, st) {
+        debugPrint('Warning: failed to persist inventory after selling: $e');
+        debugPrint('$st');
+      }
+
+      // Notify UI immediately
+      try {
+        LocalStorageService.instance.userDataNotifier.value = copyWith({});
+      } catch (_) {}
+
+      return true;
+    } catch (e) {
+      debugPrint('Failed to sell item: $e');
       return false;
     }
   }
