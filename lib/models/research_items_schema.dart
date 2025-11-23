@@ -142,6 +142,7 @@ class FunctionsResearchItemSchema {
   final Map<String, String> languageSpecificDescription;
   final List<String> predecessorIds;
   final Map<String, int> requirements; // itemId -> quantity
+  final List<String> functionsUnlocked; // Function signatures unlocked by this research
 
   FunctionsResearchItemSchema({
     required this.id,
@@ -150,6 +151,7 @@ class FunctionsResearchItemSchema {
     required this.languageSpecificDescription,
     required this.predecessorIds,
     required this.requirements,
+    required this.functionsUnlocked,
   });
 
   factory FunctionsResearchItemSchema.fromJson(String id, Map<String, dynamic> json) {
@@ -170,6 +172,7 @@ class FunctionsResearchItemSchema {
       ),
       predecessorIds: List<String>.from(json['predecessor_ids'] as List? ?? []),
       requirements: requirements,
+      functionsUnlocked: List<String>.from(json['functions_unlocked'] as List? ?? []),
     );
   }
 
@@ -350,6 +353,11 @@ class ResearchItemsSchema {
   /// Test helper: Add a farm research item directly (for unit tests)
   void addFarmItemForTesting(String id, FarmResearchItemSchema item) {
     _farmItems[id] = item;
+  }
+
+  /// Test helper: Add a functions research item (for unit tests)
+  void addFunctionsItemForTesting(String id, FunctionsResearchItemSchema item) {
+    _functionsItems[id] = item;
   }
 
   /// Test helper: Clear all items (for unit tests)

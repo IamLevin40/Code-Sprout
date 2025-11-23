@@ -1,4 +1,6 @@
 import '../models/farm_data.dart';
+import '../models/research_data.dart';
+import '../models/research_items_schema.dart';
 
 /// Error types for better error categorization
 enum ErrorType {
@@ -95,12 +97,15 @@ abstract class FarmCodeInterpreter {
   Function(int?, bool)? onLineError; // Callback when error on a line (line number, isError)
   Function(String)? onLogUpdate; // Callback when log is updated
 
+  final ResearchState? researchState;
+
   FarmCodeInterpreter({
     required this.farmState,
     this.onCropHarvested,
     this.onLineExecuting,
     this.onLineError,
     this.onLogUpdate,
+    this.researchState,
   });
 
   /// Parse and execute code
@@ -140,6 +145,26 @@ abstract class FarmCodeInterpreter {
     shouldBreak = false;
     shouldContinue = false;
     shouldReturn = false;
+  }
+
+  /// Check if a function is unlocked by research
+  bool _isFunctionUnlocked(String functionSignature) {
+    if (researchState == null) {
+      return false; // If no research state, disallow all functions
+    }
+
+    // Get all completed function research IDs
+    final completedResearchIds = researchState!.completedFunctionsResearches;
+    
+    // Check if any completed research unlocks this function
+    for (final researchId in completedResearchIds) {
+      final schema = ResearchItemsSchema.instance.getFunctionsItem(researchId);
+      if (schema != null && schema.functionsUnlocked.contains(functionSignature)) {
+        return true;
+      }
+    }
+
+    return false; // Function not unlocked
   }
   
   /// Create a new scope (for blocks, loops, functions)
@@ -366,6 +391,10 @@ abstract class FarmCodeInterpreter {
 
   /// Execute move operation
   bool executeMove(Direction direction) {
+    if (!_isFunctionUnlocked('move(direction)')) {
+      log('Error: Function not unlocked. Research the required functions to use move(direction)');
+      return false;
+    }
     final dirName = direction.toString().split('.').last;
     log('Moving drone $dirName...');
     final success = farmState.moveDrone(direction);
@@ -379,6 +408,10 @@ abstract class FarmCodeInterpreter {
 
   /// Execute till operation
   bool executeTill() {
+    if (!_isFunctionUnlocked('till()')) {
+      log('Error: Function not unlocked. Research the required functions to use till()');
+      return false;
+    }
     log('Tilling soil...');
     final success = farmState.tillCurrentPlot();
     if (success) {
@@ -391,6 +424,10 @@ abstract class FarmCodeInterpreter {
 
   /// Execute water operation
   bool executeWater() {
+    if (!_isFunctionUnlocked('water()')) {
+      log('Error: Function not unlocked. Research the required functions to use water()');
+      return false;
+    }
     log('Watering soil...');
     final success = farmState.waterCurrentPlot();
     if (success) {
@@ -403,6 +440,10 @@ abstract class FarmCodeInterpreter {
 
   /// Execute plant operation (now uses SeedType)
   bool executePlant(SeedType seed) {
+    if (!_isFunctionUnlocked('plant(seedType)')) {
+      log('Error: Function not unlocked. Research the required functions to use plant(seedType)');
+      return false;
+    }
     log('Planting ${seed.displayName}...');
     // `plantSeed` now returns the number of plots planted (int).
     final plantedCount = farmState.plantSeed(seed);
@@ -417,6 +458,10 @@ abstract class FarmCodeInterpreter {
 
   /// Execute harvest operation
   bool executeHarvest() {
+    if (!_isFunctionUnlocked('harvest()')) {
+      log('Error: Function not unlocked. Research the required functions to use harvest()');
+      return false;
+    }
     log('Harvesting crop...');
     final result = farmState.harvestCurrentPlot();
     if (result != null) {
@@ -438,6 +483,10 @@ abstract class FarmCodeInterpreter {
 
   /// Execute sleep operation - pauses drone operation
   Future<void> executeSleep(num duration) async {
+    if (!_isFunctionUnlocked('sleep(duration)')) {
+      log('Error: Function not unlocked. Research the required functions to use sleep(duration)');
+      return;
+    }
     log('Sleeping for $duration seconds...');
     await Future.delayed(Duration(milliseconds: (duration * 1000).round()));
     log('Sleep completed');
@@ -445,78 +494,134 @@ abstract class FarmCodeInterpreter {
 
   /// Get current X position of drone
   int executeGetPositionX() {
+    if (!_isFunctionUnlocked('getPositionX()')) {
+      log('Error: Function not unlocked. Research the required functions to use getPositionX()');
+      return -1;
+    }
     return farmState.dronePosition.x;
   }
 
   /// Get current Y position of drone
   int executeGetPositionY() {
+    if (!_isFunctionUnlocked('getPositionY()')) {
+      log('Error: Function not unlocked. Research the required functions to use getPositionY()');
+      return -1;
+    }
     return farmState.dronePosition.y;
   }
 
   /// Get plot state at current position
   PlotState? executeGetPlotState() {
+    if (!_isFunctionUnlocked('getPlotState()')) {
+      log('Error: Function not unlocked. Research the required functions to use getPlotState()');
+      return null;
+    }
     final plot = farmState.getCurrentPlot();
     return plot?.state;
   }
 
   /// Get crop type at current position
   CropType? executeGetCropType() {
+    if (!_isFunctionUnlocked('getCropType()')) {
+      log('Error: Function not unlocked. Research the required functions to use getCropType()');
+      return null;
+    }
     final plot = farmState.getCurrentPlot();
     return plot?.crop?.cropType;
   }
 
   /// Check if crop at current position is fully grown
   bool executeIsCropGrown() {
+    if (!_isFunctionUnlocked('isCropGrown()')) {
+      log('Error: Function not unlocked. Research the required functions to use isCropGrown()');
+      return false;
+    }
     final plot = farmState.getCurrentPlot();
     return plot?.crop?.isGrown ?? false;
   }
 
   /// Check if current plot can be tilled
   bool executeCanTill() {
+    if (!_isFunctionUnlocked('canTill()')) {
+      log('Error: Function not unlocked. Research the required functions to use canTill()');
+      return false;
+    }
     final plot = farmState.getCurrentPlot();
     return plot?.canTill() ?? false;
   }
 
   /// Check if current plot can be watered
   bool executeCanWater() {
+    if (!_isFunctionUnlocked('canWater()')) {
+      log('Error: Function not unlocked. Research the required functions to use canWater()');
+      return false;
+    }
     final plot = farmState.getCurrentPlot();
     return plot?.canWater() ?? false;
   }
 
   /// Check if current plot can be planted
   bool executeCanPlant() {
+    if (!_isFunctionUnlocked('canPlant()')) {
+      log('Error: Function not unlocked. Research the required functions to use canPlant()');
+      return false;
+    }
     final plot = farmState.getCurrentPlot();
     return plot?.canPlant() ?? false;
   }
 
   /// Check if current plot can be harvested
   bool executeCanHarvest() {
+    if (!_isFunctionUnlocked('canHarvest()')) {
+      log('Error: Function not unlocked. Research the required functions to use canHarvest()');
+      return false;
+    }
     final plot = farmState.getCurrentPlot();
     return plot?.canHarvest() ?? false;
   }
 
   /// Get grid width (number of plots horizontally)
   int executeGetPlotGridX() {
+    if (!_isFunctionUnlocked('getPlotGridX()')) {
+      log('Error: Function not unlocked. Research the required functions to use getPlotGridX()');
+      return -1;
+    }
     return farmState.gridWidth;
   }
 
   /// Get grid height (number of plots vertically)
   int executeGetPlotGridY() {
+    if (!_isFunctionUnlocked('getPlotGridY()')) {
+      log('Error: Function not unlocked. Research the required functions to use getPlotGridY()');
+      return -1;
+    }
     return farmState.gridHeight;
   }
 
   /// Check if user has at least one seed of the specified type
   bool executeHasSeed(SeedType seedType) {
+    if (!_isFunctionUnlocked('hasSeed(seedType)')) {
+      log('Error: Function not unlocked. Research the required functions to use hasSeed(seedType)');
+      return false;
+    }
     return farmState.hasSeed(seedType);
   }
 
   /// Get the quantity of a specific seed type in inventory
   int executeGetSeedInventoryCount(SeedType seedType) {
+    if (!_isFunctionUnlocked('getSeedInventoryCount(seedType)')) {
+      log('Error: Function not unlocked. Research the required functions to use getSeedInventoryCount(seedType)');
+      return -1;
+    }
     return farmState.getSeedInventoryCount(seedType);
   }
 
   /// Get the quantity of a specific crop type in inventory
   int executeGetCropInventoryCount(CropType cropType) {
+    if (!_isFunctionUnlocked('getCropInventoryCount(cropType)')) {
+      log('Error: Function not unlocked. Research the required functions to use getCropInventoryCount(cropType)');
+      return -1;
+    }
     return farmState.getCropInventoryCount(cropType);
   }
 

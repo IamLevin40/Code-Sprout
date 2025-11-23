@@ -12,6 +12,7 @@ class JavaScriptInterpreter extends FarmCodeInterpreter {
     super.onLineExecuting,
     super.onLineError,
     super.onLogUpdate,
+    super.researchState,
   });
 
   @override

@@ -371,6 +371,7 @@ class _FarmPageState extends State<FarmPage> {
               _logNotifier.value = List.from(_logNotifier.value)..add(message);
             }
           },
+          researchState: _researchState
         );
       case 'csharp':
         return CSharpInterpreter(
@@ -387,6 +388,7 @@ class _FarmPageState extends State<FarmPage> {
               _logNotifier.value = List.from(_logNotifier.value)..add(message);
             }
           },
+          researchState: _researchState
         );
       case 'java':
         return JavaInterpreter(
@@ -403,6 +405,7 @@ class _FarmPageState extends State<FarmPage> {
               _logNotifier.value = List.from(_logNotifier.value)..add(message);
             }
           },
+          researchState: _researchState
         );
       case 'python':
         return PythonInterpreter(
@@ -419,6 +422,7 @@ class _FarmPageState extends State<FarmPage> {
               _logNotifier.value = List.from(_logNotifier.value)..add(message);
             }
           },
+          researchState: _researchState
         );
       case 'javascript':
         return JavaScriptInterpreter(
@@ -435,6 +439,7 @@ class _FarmPageState extends State<FarmPage> {
               _logNotifier.value = List.from(_logNotifier.value)..add(message);
             }
           },
+          researchState: _researchState
         );
       default:
         return CppInterpreter(
