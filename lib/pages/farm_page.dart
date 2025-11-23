@@ -85,12 +85,10 @@ class _FarmPageState extends State<FarmPage> {
       });
     } catch (_) {}
     
-    // Load code files from Firestore
+    // Load progress from Firestore
     _loadCodeFiles();
-
-    // Load farm progress from Firestore
-    // The listener will be added after progress is loaded
     _loadFarmProgress();
+    _loadResearchProgress();
 
     // Ensure viewport centers once after the first frame (styles and layout available)
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -198,6 +196,44 @@ class _FarmPageState extends State<FarmPage> {
     }
   }
 
+  /// Load research progress from Firestore
+  Future<void> _loadResearchProgress() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        // No user logged in, add listener and return
+        _researchState.addListener(_onResearchStateChanged);
+        return;
+      }
+
+      // Check if research progress exists first
+      final exists = await FarmProgressService.researchProgressExists(userId: user.uid);
+      
+      if (exists) {
+        // Load existing research progress
+        final progress = await FarmProgressService.loadResearchProgress(userId: user.uid);
+        
+        if (progress != null && mounted) {
+          // Apply progress to research state WITHOUT triggering auto-save
+          _researchState.loadFromFirestore(progress);
+          
+          // NOW add listener after progress is loaded
+          _researchState.addListener(_onResearchStateChanged);
+          setState(() {});
+        }
+      } else {
+        // No existing progress, use default and add listener
+        // This will trigger auto-save to create the initial progress
+        _researchState.addListener(_onResearchStateChanged);
+      }
+    } catch (e) {
+      // Silent fail - don't interrupt user experience
+      // Add listener even if loading fails
+      _researchState.addListener(_onResearchStateChanged);
+      debugPrint('Failed to load research progress: $e');
+    }
+  }
+
   /// Save farm progress to Firestore
   Future<void> _saveFarmProgress() async {
     try {
@@ -214,6 +250,25 @@ class _FarmPageState extends State<FarmPage> {
     }
   }
 
+  /// Save research progress to Firestore
+  Future<void> _saveResearchProgress() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+
+      final exportData = _researchState.exportToFirestore();
+      await FarmProgressService.saveResearchProgress(
+        userId: user.uid,
+        cropResearches: exportData['crop_researches']!,
+        farmResearches: exportData['farm_researches']!,
+        functionsResearches: exportData['functions_researches']!,
+      );
+    } catch (e) {
+      // Silent fail - don't interrupt user experience
+      debugPrint('Failed to save research progress: $e');
+    }
+  }
+
   @override
   void dispose() {
     // Stop any running execution before disposal
@@ -221,10 +276,12 @@ class _FarmPageState extends State<FarmPage> {
       _currentInterpreter!.stop();
     }
     
-    // Save farm progress when leaving page
+    // Save progress when leaving page
     _saveFarmProgress();
+    _saveResearchProgress();
     
     _farmState.removeListener(_onFarmStateChanged);
+    _researchState.removeListener(_onResearchStateChanged);
     _farmState.dispose();
     _researchState.dispose();
     _executingLineNotifier.dispose();
@@ -278,6 +335,15 @@ class _FarmPageState extends State<FarmPage> {
           _centeredOnce = true;
         } catch (_) {}
       }
+    }
+  }
+
+  void _onResearchStateChanged() {
+    if (mounted) {
+      setState(() {});
+
+      // Auto-save research progress whenever research state changes
+      _saveResearchProgress();
     }
   }
 

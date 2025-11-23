@@ -98,6 +98,80 @@ class ResearchState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Load research progress from Firestore format
+  /// Expected format: {
+  ///   "crop_researches": ["crop_wheat", ...],
+  ///   "farm_researches": ["farm_3x3", ...],
+  ///   "functions_researches": ["func_move", ...]
+  /// }
+  void loadFromFirestore(Map<String, dynamic> firestoreData) {
+    _completedResearchIds.clear();
+    
+    // Load crop researches
+    final cropResearches = firestoreData['crop_researches'] as List?;
+    if (cropResearches != null) {
+      _completedResearchIds.addAll(cropResearches.cast<String>());
+    }
+    
+    // Load farm researches
+    final farmResearches = firestoreData['farm_researches'] as List?;
+    if (farmResearches != null) {
+      _completedResearchIds.addAll(farmResearches.cast<String>());
+    }
+    
+    // Load functions researches
+    final functionsResearches = firestoreData['functions_researches'] as List?;
+    if (functionsResearches != null) {
+      _completedResearchIds.addAll(functionsResearches.cast<String>());
+    }
+    
+    notifyListeners();
+  }
+
+  /// Export research progress to Firestore format with separate lists
+  Map<String, List<String>> exportToFirestore() {
+    final cropResearches = <String>[];
+    final farmResearches = <String>[];
+    final functionsResearches = <String>[];
+    
+    for (final id in _completedResearchIds) {
+      if (id.startsWith('crop_')) {
+        cropResearches.add(id);
+      } else if (id.startsWith('farm_')) {
+        farmResearches.add(id);
+      } else if (id.startsWith('func_')) {
+        functionsResearches.add(id);
+      }
+    }
+    
+    return {
+      'crop_researches': cropResearches,
+      'farm_researches': farmResearches,
+      'functions_researches': functionsResearches,
+    };
+  }
+
+  /// Get completed crop research IDs
+  List<String> get completedCropResearches {
+    return _completedResearchIds
+        .where((id) => id.startsWith('crop_'))
+        .toList();
+  }
+
+  /// Get completed farm research IDs
+  List<String> get completedFarmResearches {
+    return _completedResearchIds
+        .where((id) => id.startsWith('farm_'))
+        .toList();
+  }
+
+  /// Get completed functions research IDs
+  List<String> get completedFunctionsResearches {
+    return _completedResearchIds
+        .where((id) => id.startsWith('func_'))
+        .toList();
+  }
+
   /// Get the current state of a crop research item
   CropResearchState getCropResearchState(CropResearchItemSchema item) {
     if (_completedResearchIds.contains(item.id)) {
