@@ -39,6 +39,12 @@ class _SproutPageState extends State<SproutPage> {
     LocalStorageService.instance.userDataNotifier.addListener(_onUserDataChanged);
   }
 
+  @override
+  void dispose() {
+    LocalStorageService.instance.userDataNotifier.removeListener(_onUserDataChanged);
+    super.dispose();
+  }
+
   void _onUserDataChanged() {
     final ud = LocalStorageService.instance.userDataNotifier.value;
 
@@ -279,11 +285,5 @@ class _SproutPageState extends State<SproutPage> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    LocalStorageService.instance.userDataNotifier.removeListener(_onUserDataChanged);
-    super.dispose();
   }
 }

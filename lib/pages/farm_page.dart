@@ -3,7 +3,6 @@ import '../models/farm_data.dart';
 import '../models/styles_schema.dart';
 import '../models/language_code_files.dart';
 import '../models/research_data.dart';
-import '../models/research_items_schema.dart';
 import '../models/user_data.dart';
 import '../widgets/farm_items/farm_grid_view.dart';
 import '../widgets/farm_items/code_editor_widget.dart';
@@ -12,18 +11,18 @@ import '../widgets/farm_items/inventory_popup_display.dart';
 import '../widgets/farm_items/farm_top_controls.dart';
 import '../widgets/farm_items/farm_bottom_controls.dart';
 import '../widgets/farm_items/research_lab_display.dart';
+import '../widgets/farm_items/clear_farm_dialog.dart';
+import '../widgets/farm_items/add_file_dialog.dart';
 import '../compilers/base_interpreter.dart';
-import '../compilers/cpp_interpreter.dart';
-import '../compilers/csharp_interpreter.dart';
-import '../compilers/java_interpreter.dart';
-import '../compilers/python_interpreter.dart';
-import '../compilers/javascript_interpreter.dart';
 import '../services/local_storage_service.dart';
-import '../services/code_files_service.dart';
-import '../services/farm_progress_service.dart';
-import '../services/firestore_service.dart';
 import '../miscellaneous/interactive_viewport_controller.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import '../miscellaneous/number_utils.dart';
+import '../miscellaneous/handle_code_files.dart';
+import '../miscellaneous/handle_farm_progress.dart';
+import '../miscellaneous/handle_research_progress.dart';
+import '../miscellaneous/get_interpreter.dart';
+import '../miscellaneous/handle_code_execution.dart';
+import '../miscellaneous/handle_research_completed.dart';
 
 class FarmPage extends StatefulWidget {
   final String languageId;
@@ -46,7 +45,6 @@ class _FarmPageState extends State<FarmPage> {
   bool _showResearchLab = false;
   late LanguageCodeFiles _codeFiles;
   int _selectedExecutionFileIndex = 0; // File selected in start button
-  List<String> _executionLog = [];
   bool _isExecuting = false;
   final ValueNotifier<int?> _executingLineNotifier = ValueNotifier<int?>(null);
   final ValueNotifier<int?> _errorLineNotifier = ValueNotifier<int?>(null);
@@ -75,9 +73,6 @@ class _FarmPageState extends State<FarmPage> {
     _logScrollController = ScrollController();
     _logScrollController.addListener(_onLogScroll);
     
-    // CRITICAL: Do NOT add farm state listener until AFTER loading progress
-    // Otherwise, applyProgressToFarmState triggers auto-save and overwrites existing data
-    
     // initialize farm state with cached user data and keep in sync
     try {
       final ud = LocalStorageService.instance.userDataNotifier.value;
@@ -87,15 +82,14 @@ class _FarmPageState extends State<FarmPage> {
       });
     } catch (_) {}
     
-    // Load progress from Firestore
+    // Load files and progress from Firestore
     _loadCodeFiles();
     _loadFarmProgress();
     _loadResearchProgress();
 
-    // Ensure viewport centers once after the first frame (styles and layout available)
+    // Ensure viewport centers once after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_centeredOnce) {
-        // Attempt to center viewport once after the first frame; use helper
         if (_resetViewportToCenter()) {
           _centeredOnce = true;
         }
@@ -104,169 +98,55 @@ class _FarmPageState extends State<FarmPage> {
   }
   
   Future<void> _loadCodeFiles() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        return;
-      }
-      
-      final loadedFiles = await CodeFilesService.loadOrCreateCodeFiles(
-        userId: user.uid,
-        languageId: widget.languageId,
-      );
-      
-      if (mounted) {
-        setState(() {
-          _codeFiles = loadedFiles;
-          _selectedExecutionFileIndex = _codeFiles.currentFileIndex;
-          _codeController.text = _codeFiles.currentFile.content;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load code files: $e')),
-        );
-      }
+    final loadedFiles = await CodeFilesHandler.loadCodeFiles(
+      context: context,
+      languageId: widget.languageId,
+    );
+    
+    if (loadedFiles != null && mounted) {
+      setState(() {
+        _codeFiles = loadedFiles;
+        _selectedExecutionFileIndex = _codeFiles.currentFileIndex;
+        _codeController.text = _codeFiles.currentFile.content;
+      });
     }
   }
   
   Future<void> _saveCodeFiles() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) return;
-      
-      // Update current file content before saving
-      _codeFiles.updateCurrentFileContent(_codeController.text);
-      
-      await CodeFilesService.saveCodeFiles(
-        userId: user.uid,
-        languageId: widget.languageId,
-        codeFiles: _codeFiles,
-      );
-    } catch (e) {
-      // Silent fail - don't interrupt user experience
-    }
+    await CodeFilesHandler.saveCodeFiles(
+      languageId: widget.languageId,
+      codeFiles: _codeFiles,
+      codeController: _codeController,
+    );
   }
 
   /// Load farm progress from Firestore and apply to farm state
   Future<void> _loadFarmProgress() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        // No user logged in, add listener and return
-        _farmState.addListener(_onFarmStateChanged);
-        return;
-      }
-
-      // Check if farm progress exists first
-      final exists = await FarmProgressService.farmProgressExists(userId: user.uid);
-      
-      if (exists) {
-        // Load existing progress
-        final progress = await FarmProgressService.loadFarmProgress(userId: user.uid);
-        
-        if (progress != null && mounted) {
-          // Apply progress to existing farm state WITHOUT triggering auto-save
-          FarmProgressService.applyProgressToFarmState(
-            farmState: _farmState,
-            progress: progress,
-          );
-          
-          // NOW add listener after progress is loaded
-          _farmState.addListener(_onFarmStateChanged);
-          setState(() {});
-        }
-      } else {
-        // No existing progress, use default and add listener
-        // This will trigger auto-save to create the initial progress
-        _farmState.addListener(_onFarmStateChanged);
-      }
-    } catch (e) {
-      // Silent fail - don't interrupt user experience
-      // Add listener even if loading fails
-      _farmState.addListener(_onFarmStateChanged);
-      debugPrint('Failed to load farm progress: $e');
-    }
+    await FarmProgressHandler.loadFarmProgress(
+      farmState: _farmState,
+      onFarmStateChanged: _onFarmStateChanged,
+    );
+    if (mounted) setState(() {});
   }
 
   /// Load research progress from Firestore
   Future<void> _loadResearchProgress() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        // No user logged in, add listener and return
-        _researchState.addListener(_onResearchStateChanged);
-        return;
-      }
-
-      // Check if research progress exists first
-      final exists = await FarmProgressService.researchProgressExists(userId: user.uid);
-      
-      if (exists) {
-        // Load existing research progress
-        final progress = await FarmProgressService.loadResearchProgress(userId: user.uid);
-        
-        if (progress != null && mounted) {
-          // Apply progress to research state WITHOUT triggering auto-save
-          _researchState.loadFromFirestore(progress);
-          
-          // NOW add listener after progress is loaded
-          _researchState.addListener(_onResearchStateChanged);
-            // Ensure farm grid updates according to completed researches
-            try {
-              _farmState.applyFarmResearchConditions();
-            } catch (e) {
-              debugPrint('Failed to apply farm research conditions on load: $e');
-            }
-            setState(() {});
-        }
-      } else {
-        // No existing progress, use default and add listener
-        // This will trigger auto-save to create the initial progress
-        _researchState.addListener(_onResearchStateChanged);
-      }
-    } catch (e) {
-      // Silent fail - don't interrupt user experience
-      // Add listener even if loading fails
-      _researchState.addListener(_onResearchStateChanged);
-      debugPrint('Failed to load research progress: $e');
-    }
+    await ResearchProgressHandler.loadResearchProgress(
+      researchState: _researchState,
+      farmState: _farmState,
+      onResearchStateChanged: _onResearchStateChanged,
+    );
+    if (mounted) setState(() {});
   }
 
   /// Save farm progress to Firestore
   Future<void> _saveFarmProgress() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) return;
-
-      await FarmProgressService.saveFarmProgress(
-        userId: user.uid,
-        farmState: _farmState,
-      );
-    } catch (e) {
-      // Silent fail - don't interrupt user experience
-      debugPrint('Failed to save farm progress: $e');
-    }
+    await FarmProgressHandler.saveFarmProgress(farmState: _farmState);
   }
 
   /// Save research progress to Firestore
   Future<void> _saveResearchProgress() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) return;
-
-      final exportData = _researchState.exportToFirestore();
-      await FarmProgressService.saveResearchProgress(
-        userId: user.uid,
-        cropResearches: exportData['crop_researches']!,
-        farmResearches: exportData['farm_researches']!,
-        functionsResearches: exportData['functions_researches']!,
-      );
-    } catch (e) {
-      // Silent fail - don't interrupt user experience
-      debugPrint('Failed to save research progress: $e');
-    }
+    await ResearchProgressHandler.saveResearchProgress(researchState: _researchState);
   }
 
   @override
@@ -294,35 +174,18 @@ class _FarmPageState extends State<FarmPage> {
   }
 
   void _onLogScroll() {
-    if (!_logScrollController.hasClients) return;
-    
-    // Check if user is at the bottom (within 50 pixels)
-    final maxScroll = _logScrollController.position.maxScrollExtent;
-    final currentScroll = _logScrollController.position.pixels;
-    final isAtBottom = maxScroll - currentScroll < 50;
-    
-    // Enable auto-scroll when at bottom, disable when scrolling up
-    if (isAtBottom && !_autoScrollEnabled) {
-      setState(() {
-        _autoScrollEnabled = true;
-      });
-    } else if (!isAtBottom && _autoScrollEnabled) {
-      setState(() {
-        _autoScrollEnabled = false;
-      });
-    }
+    CodeExecutionHandler.onLogScroll(
+      logScrollController: _logScrollController,
+      autoScrollEnabled: _autoScrollEnabled,
+      setAutoScrollEnabled: (value) => setState(() => _autoScrollEnabled = value),
+    );
   }
 
   void _onFarmStateChanged() {
     if (mounted) {
       setState(() {});
-
-      // Auto-save farm progress whenever farm state changes
       _saveFarmProgress();
-
-      // If the farm state updated asynchronously (e.g. loaded from storage), ensure we center once
       if (!_centeredOnce) {
-        // Use reusable helper to center viewport and mark centeredOnce on success
         if (_resetViewportToCenter()) {
           _centeredOnce = true;
         }
@@ -333,116 +196,23 @@ class _FarmPageState extends State<FarmPage> {
   void _onResearchStateChanged() {
     if (mounted) {
       setState(() {});
-
-      // Auto-save research progress whenever research state changes
       _saveResearchProgress();
     }
   }
 
   FarmCodeInterpreter _getInterpreter() {
-    switch (widget.languageId) {
-      case 'cpp':
-        return CppInterpreter(
-          farmState: _farmState,
-          onCropHarvested: _onCropHarvested,
-          onLineExecuting: (line) {
-            if (mounted) _executingLineNotifier.value = line;
-          },
-          onLineError: (line, isError) {
-            if (mounted) _errorLineNotifier.value = isError ? line : null;
-          },
-          onLogUpdate: (message) {
-            if (mounted) {
-              _logNotifier.value = List.from(_logNotifier.value)..add(message);
-            }
-          },
-          researchState: _researchState
-        );
-      case 'csharp':
-        return CSharpInterpreter(
-          farmState: _farmState,
-          onCropHarvested: _onCropHarvested,
-          onLineExecuting: (line) {
-            if (mounted) _executingLineNotifier.value = line;
-          },
-          onLineError: (line, isError) {
-            if (mounted) _errorLineNotifier.value = isError ? line : null;
-          },
-          onLogUpdate: (message) {
-            if (mounted) {
-              _logNotifier.value = List.from(_logNotifier.value)..add(message);
-            }
-          },
-          researchState: _researchState
-        );
-      case 'java':
-        return JavaInterpreter(
-          farmState: _farmState,
-          onCropHarvested: _onCropHarvested,
-          onLineExecuting: (line) {
-            if (mounted) _executingLineNotifier.value = line;
-          },
-          onLineError: (line, isError) {
-            if (mounted) _errorLineNotifier.value = isError ? line : null;
-          },
-          onLogUpdate: (message) {
-            if (mounted) {
-              _logNotifier.value = List.from(_logNotifier.value)..add(message);
-            }
-          },
-          researchState: _researchState
-        );
-      case 'python':
-        return PythonInterpreter(
-          farmState: _farmState,
-          onCropHarvested: _onCropHarvested,
-          onLineExecuting: (line) {
-            if (mounted) _executingLineNotifier.value = line;
-          },
-          onLineError: (line, isError) {
-            if (mounted) _errorLineNotifier.value = isError ? line : null;
-          },
-          onLogUpdate: (message) {
-            if (mounted) {
-              _logNotifier.value = List.from(_logNotifier.value)..add(message);
-            }
-          },
-          researchState: _researchState
-        );
-      case 'javascript':
-        return JavaScriptInterpreter(
-          farmState: _farmState,
-          onCropHarvested: _onCropHarvested,
-          onLineExecuting: (line) {
-            if (mounted) _executingLineNotifier.value = line;
-          },
-          onLineError: (line, isError) {
-            if (mounted) _errorLineNotifier.value = isError ? line : null;
-          },
-          onLogUpdate: (message) {
-            if (mounted) {
-              _logNotifier.value = List.from(_logNotifier.value)..add(message);
-            }
-          },
-          researchState: _researchState
-        );
-      default:
-        return CppInterpreter(
-          farmState: _farmState,
-          onCropHarvested: _onCropHarvested,
-          onLineExecuting: (line) {
-            if (mounted) _executingLineNotifier.value = line;
-          },
-          onLineError: (line, isError) {
-            if (mounted) _errorLineNotifier.value = isError ? line : null;
-          },
-          onLogUpdate: (message) {
-            if (mounted) {
-              _logNotifier.value = List.from(_logNotifier.value)..add(message);
-            }
-          },
-        );
-    }
+    return InterpreterFactory.getInterpreter(
+      languageId: widget.languageId,
+      farmState: _farmState,
+      researchState: _researchState,
+      onCropHarvested: _onCropHarvested,
+      onLineExecuting: (line) => _executingLineNotifier.value = line,
+      onLineError: (line, isError) => _errorLineNotifier.value = isError ? line : null,
+      onLogUpdate: (message) {
+        _logNotifier.value = List.from(_logNotifier.value)..add(message);
+      },
+      mounted: mounted,
+    );
   }
 
   Future<void> _onCropHarvested(CropType cropType) async {
@@ -454,139 +224,39 @@ class _FarmPageState extends State<FarmPage> {
   }
 
   Future<void> _runExecution() async {
-    if (_isExecuting) return;
-    
-    if (!mounted) return;
-    
-    setState(() {
-      _isExecuting = true;
-      _executionLog.clear();
-      _logNotifier.value = [];
-      _executingLineNotifier.value = null;
-      _errorLineNotifier.value = null;
-      _farmState.setExecuting(true);
-      _autoScrollEnabled = true; // Reset auto-scroll to enabled
-    });
-
     final interpreter = _getInterpreter();
-    _currentInterpreter = interpreter;
     
-    try {
-      // Get code from selected execution file
-      final codeToExecute = _codeFiles.files[_selectedExecutionFileIndex].content;
-      
-      // Pre-validate code for errors
-      final validationResult = await interpreter.preValidate(codeToExecute);
-      
-      // Check if stopped during validation
-      if (!mounted || interpreter.shouldStop) {
-        _cleanupExecution();
-        return;
-      }
-      
-      if (validationResult != null && !validationResult.success) {
-        // Validation failed - show error and stop
-      if (mounted) {
-        setState(() {
-          _isExecuting = false;
-          _executionLog = validationResult.executionLog;
-          _logNotifier.value = List.from(validationResult.executionLog);
-          _farmState.setExecuting(false);
-          _showExecutionLog = false; // Hide log when execution fails
-          if (validationResult.errorLine != null) {
-            _errorLineNotifier.value = validationResult.errorLine;
-          }
-        });
-        
-        if (validationResult.errorMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(validationResult.errorMessage!)),
-          );
-        }
-      }
-        _currentInterpreter = null;
-        return;
-      }
-
-      // Execute code
-      final result = await interpreter.execute(codeToExecute);
-
-      // Check if stopped or widget disposed during execution
-      if (!mounted || interpreter.shouldStop) {
-        _cleanupExecution();
-        return;
-      }
-
-      if (mounted) {
-        setState(() {
-          _isExecuting = false;
-          _executionLog = result.executionLog;
-          _logNotifier.value = List.from(result.executionLog);
-          _farmState.setExecuting(false);
-          _showExecutionLog = false; // Hide log when execution completes
-          _executingLineNotifier.value = null; // Clear line highlighting
-          if (result.errorLine != null) {
-            _errorLineNotifier.value = result.errorLine;
-          }
-        });
-
-        if (!result.success && result.errorMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(result.errorMessage!)),
-          );
-        }
-      }
-    } catch (e) {
-      // Handle any unexpected errors during execution
-      if (mounted) {
-        setState(() {
-          _isExecuting = false;
-          _farmState.setExecuting(false);
-          _showExecutionLog = false; // Hide log when execution errors
-          _executingLineNotifier.value = null;
-        });
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Execution error: $e')),
-        );
-      }
-    } finally {
-      _currentInterpreter = null;
-    }
+    await CodeExecutionHandler.runExecution(
+      context: context,
+      isExecuting: _isExecuting,
+      mounted: mounted,
+      farmState: _farmState,
+      codeFiles: _codeFiles,
+      selectedExecutionFileIndex: _selectedExecutionFileIndex,
+      interpreter: interpreter,
+      executingLineNotifier: _executingLineNotifier,
+      errorLineNotifier: _errorLineNotifier,
+      logNotifier: _logNotifier,
+      setIsExecuting: (value) => setState(() => _isExecuting = value),
+      setAutoScrollEnabled: (value) => setState(() => _autoScrollEnabled = value),
+      setShowExecutionLog: (value) => setState(() => _showExecutionLog = value),
+      setExecutionLog: (_) {},
+      setCurrentInterpreter: (interp) => _currentInterpreter = interp,
+    );
   }
   
-  void _cleanupExecution() {
-    if (mounted) {
-      setState(() {
-        _isExecuting = false;
-        _farmState.setExecuting(false);
-        _showExecutionLog = false; // Hide log on cleanup
-        _executingLineNotifier.value = null;
-      });
-    }
-    _currentInterpreter = null;
-  }
-
   void _stopExecution() {
-    if (_currentInterpreter != null) {
-      _currentInterpreter!.stop();
-    }
-    
-    // Use a small delay to allow async operations to complete
-    Future.microtask(() {
-      if (mounted) {
-        setState(() {
-          _isExecuting = false;
-          _farmState.setExecuting(false);
-          _executingLineNotifier.value = null;
-          _showExecutionLog = false; // Hide log when execution stops
-        });
-      }
-    });
+    CodeExecutionHandler.stopExecution(
+      currentInterpreter: _currentInterpreter,
+      mounted: mounted,
+      setIsExecuting: (value) => setState(() => _isExecuting = value),
+      farmState: _farmState,
+      executingLineNotifier: _executingLineNotifier,
+      setShowExecutionLog: (value) => setState(() => _showExecutionLog = value),
+    );
   }
 
   /// Helper to reset the interactive viewport to center based on farm grid
-  /// Returns true when centering succeeded, false on failure.
   bool _resetViewportToCenter() {
     try {
       final styles = AppStyles();
@@ -606,189 +276,73 @@ class _FarmPageState extends State<FarmPage> {
     }
   }
 
-  /// Format large numbers into shortened string with suffixes (K, M, B, T)
-  String _formatNumberShort(num value) {
-    final double absVal = value.abs().toDouble();
-    if (absVal < 1000) return value.toString();
-
-    final List<String> suffixes = ['K', 'M', 'B', 'T'];
-    double v = absVal;
-    int idx = -1;
-    while (v >= 1000 && idx < suffixes.length - 1) {
-      v = v / 1000.0;
-      idx++;
-    }
-
-    if (idx < 0) return value.toString();
-
-    // Decide decimals: K and M -> 1 decimal, B and T -> 2 decimals
-    final int decimals = (idx <= 1) ? 1 : 2;
-
-    final String formatted = v.toStringAsFixed(decimals);
-    final String sign = value < 0 ? '-' : '';
-    return '$sign$formatted${suffixes[idx]}';
-  }
-  
   // File navigation methods for code editor
   void _nextEditorFile() {
-    if (_isExecuting) return;
-    
-    // Save current file content before switching
-    _codeFiles.updateCurrentFileContent(_codeController.text);
-    
-    _codeFiles.nextFile();
-    _codeController.text = _codeFiles.currentFile.content;
-    setState(() {});
-    
-    _saveCodeFiles();
+    CodeFilesHandler.nextEditorFile(
+      codeFiles: _codeFiles,
+      codeController: _codeController,
+      languageId: widget.languageId,
+      isExecuting: _isExecuting,
+      onStateChanged: () => setState(() {}),
+    );
   }
   
   void _previousEditorFile() {
-    if (_isExecuting) return;
-    
-    // Save current file content before switching
-    _codeFiles.updateCurrentFileContent(_codeController.text);
-    
-    _codeFiles.previousFile();
-    _codeController.text = _codeFiles.currentFile.content;
-    setState(() {});
-    
-    _saveCodeFiles();
+    CodeFilesHandler.previousEditorFile(
+      codeFiles: _codeFiles,
+      codeController: _codeController,
+      languageId: widget.languageId,
+      isExecuting: _isExecuting,
+      onStateChanged: () => setState(() {}),
+    );
   }
   
   // File navigation methods for execution file selector
   void _nextExecutionFile() {
-    setState(() {
-      _selectedExecutionFileIndex = (_selectedExecutionFileIndex + 1) % _codeFiles.files.length;
-    });
+    CodeExecutionHandler.nextExecutionFile(
+      currentIndex: _selectedExecutionFileIndex,
+      codeFiles: _codeFiles,
+      setSelectedExecutionFileIndex: (index) => setState(() => _selectedExecutionFileIndex = index),
+    );
   }
   
   void _previousExecutionFile() {
-    setState(() {
-      _selectedExecutionFileIndex = (_selectedExecutionFileIndex - 1 + _codeFiles.files.length) % _codeFiles.files.length;
-    });
+    CodeExecutionHandler.previousExecutionFile(
+      currentIndex: _selectedExecutionFileIndex,
+      codeFiles: _codeFiles,
+      setSelectedExecutionFileIndex: (index) => setState(() => _selectedExecutionFileIndex = index),
+    );
   }
   
   // Add new file
   void _showAddFileDialog() {
-    if (_isExecuting) return;
-    
-    final TextEditingController fileNameController = TextEditingController();
-    final extension = LanguageCodeFiles.getFileExtension(widget.languageId);
-    
-    showDialog(
+    showAddFileDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Create New File'),
-        content: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: fileNameController,
-                decoration: const InputDecoration(
-                  hintText: 'Enter file name',
-                  border: OutlineInputBorder(),
-                ),
-                autofocus: true,
-                onSubmitted: (_) => _createFile(fileNameController.text + extension, context),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              extension,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => _createFile(fileNameController.text + extension, context),
-            child: const Text('Create'),
-          ),
-        ],
-      ),
+      languageId: widget.languageId,
+      codeFiles: _codeFiles,
+      codeController: _codeController,
+      isExecuting: _isExecuting,
+      onStateChanged: () => setState(() {}),
     );
-  }
-  
-  void _createFile(String fileName, BuildContext dialogContext) {
-    final error = _codeFiles.addFile(fileName);
-    
-    if (error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error)),
-      );
-    } else {
-      Navigator.pop(dialogContext);
-      _codeController.text = _codeFiles.currentFile.content;
-      setState(() {});
-      _saveCodeFiles();
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('File "$fileName" created')),
-      );
-    }
   }
   
   // Delete current file
   void _deleteCurrentFile() {
-    if (_isExecuting) return;
-    
-    if (_codeFiles.files.length <= 1) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cannot delete the only file')),
-      );
-      return;
-    }
-    
-    final fileName = _codeFiles.currentFileName;
-    
-    showDialog(
+    CodeFilesHandler.deleteCurrentFile(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete File'),
-        content: Text('Are you sure you want to delete "$fileName"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              
-              final success = _codeFiles.deleteCurrentFile();
-              
-              if (success) {
-                // Adjust execution file index if needed
-                if (_selectedExecutionFileIndex >= _codeFiles.files.length) {
-                  _selectedExecutionFileIndex = _codeFiles.files.length - 1;
-                }
-                
-                _codeController.text = _codeFiles.currentFile.content;
-                setState(() {});
-                _saveCodeFiles();
-                
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('File "$fileName" deleted')),
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      codeFiles: _codeFiles,
+      codeController: _codeController,
+      languageId: widget.languageId,
+      isExecuting: _isExecuting,
+      selectedExecutionFileIndex: _selectedExecutionFileIndex,
+      onExecutionIndexChanged: (index) => setState(() => _selectedExecutionFileIndex = index),
+      onStateChanged: () => setState(() {}),
     );
   }
   
   /// Handle code changes
   void _onCodeChanged(String code) {
     _codeFiles.updateCurrentFileContent(code);
-    // Auto-save periodically (debounced in real implementation)
     _saveCodeFiles();
   }
 
@@ -798,117 +352,22 @@ class _FarmPageState extends State<FarmPage> {
 
   /// Show confirmation dialog before clearing farm
   void _showClearFarmDialog() {
-    showDialog(
+    showClearFarmDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Clear Farm'),
-        content: const Text(
-          'Are you sure you want to clear the entire farm?\n\n'
-          'All plots will be reset to normal state and the drone will return to (0,0).\n\n'
-          'Any crops on plots will be converted back to seeds and returned to your inventory.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _clearFarm();
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Clear Farm'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Clear the farm and convert crops back to seeds
-  void _clearFarm() {
-    _farmState.clearFarmToSeeds();
-    
-    // Save farm progress after clearing
-    _saveFarmProgress();
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Farm cleared! Crops have been returned to inventory as seeds.'),
-        duration: Duration(seconds: 2),
-      ),
+      farmState: _farmState,
     );
   }
 
   /// Handle research completion: deduct items from inventory and mark as completed
   /// Requirements use simplified item IDs (e.g., "wheat", "carrot")
   void _handleResearchCompleted(String researchId, Map<String, int> requirements) async {
-    try {
-      final userData = LocalStorageService.instance.userDataNotifier.value;
-      if (userData == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('User data not available')),
-        );
-        return;
-      }
-      
-      // Deduct items from inventory using simplified paths
-      for (final entry in requirements.entries) {
-        final itemId = entry.key; // Simplified ID like "wheat", "carrot"
-        final required = entry.value;
-        final itemPath = 'sproutProgress.inventory.$itemId.quantity';
-        final currentValue = userData.get(itemPath) as int? ?? 0;
-        final newValue = currentValue - required;
-        
-        if (newValue < 0) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Insufficient items in inventory')),
-          );
-          return;
-        }
-        
-        userData.set(itemPath, newValue);
-      }
-      
-      // Mark research as completed
-      _researchState.completeResearch(researchId);
-      await FirestoreService.updateUserData(userData);
-      
-      // Unlock inventory items if this is a crop research
-      if (researchId.startsWith('crop_')) {
-        final researchSchema = ResearchItemsSchema.instance.getCropItem(researchId);
-        if (researchSchema != null && researchSchema.itemUnlocks.isNotEmpty) {
-          final user = FirebaseAuth.instance.currentUser;
-          if (user != null) {
-            await ResearchState.unlockInventoryItems(
-              researchId: researchId,
-              itemIds: researchSchema.itemUnlocks,
-              userId: user.uid,
-            );
-          }
-        }
-      }
-      
-      // Apply farm research conditions if this is a farm research
-      if (researchId.startsWith('farm_')) {
-        _farmState.applyFarmResearchConditions();
-      }
-      
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Research completed successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to complete research: $e')),
-        );
-      }
-    }
+    await ResearchCompletionHandler.handleResearchCompleted(
+      context: context,
+      researchId: researchId,
+      requirements: requirements,
+      researchState: _researchState,
+      farmState: _farmState,
+    );
   }
 
   @override
@@ -966,12 +425,12 @@ class _FarmPageState extends State<FarmPage> {
             ],
           ),
           
-          const SizedBox(height: 8),
+          const Spacer(),
           
           // Zoom control buttons
           _buildZoomControls(),
           
-          const Spacer(),
+          const SizedBox(height: 8),
           
           // Top controls: Run/Stop/Log buttons
           FarmTopControls(
@@ -1154,7 +613,7 @@ class _FarmPageState extends State<FarmPage> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  _formatNumberShort(coins),
+                  NumberUtils.formatNumberShort(coins),
                   style: TextStyle(
                     color: textColor,
                     fontSize: textFontSize,
@@ -1212,13 +671,13 @@ class _FarmPageState extends State<FarmPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildZoomButton('zoom_in', () => _viewportController.zoomIn()),
+        _buildZoomButton('zoom_out', () => _viewportController.zoomOut()),
         SizedBox(width: spacing),
         _buildZoomButton('center_focus', () {
           _resetViewportToCenter();
         }),
         SizedBox(width: spacing),
-        _buildZoomButton('zoom_out', () => _viewportController.zoomOut()),
+        _buildZoomButton('zoom_in', () => _viewportController.zoomIn()),
       ],
     );
   }
