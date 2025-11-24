@@ -485,8 +485,8 @@ class _FarmPageState extends State<FarmPage> {
     return Positioned(
       left: 24,
       right: 24,
-      top: 64,
-      bottom: 16,
+      top: 96,
+      bottom: 0,
       child: _buildCodeEditorWithFileSelector(),
     );
   }
@@ -496,7 +496,7 @@ class _FarmPageState extends State<FarmPage> {
     return Positioned(
       left: 24,
       right: 24,
-      top: 64,
+      top: 96,
       bottom: 16,
       child: ResearchLabDisplay(
         researchState: _researchState,
@@ -733,7 +733,6 @@ class _FarmPageState extends State<FarmPage> {
       executingLineNotifier: _executingLineNotifier,
       errorLineNotifier: _errorLineNotifier,
       isReadOnly: _isExecuting,
-      showFileToolbar: true,
       currentFileName: _codeFiles.currentFileName,
       canDeleteFile: _codeFiles.files.length > 1,
       onAddFile: _showAddFileDialog,

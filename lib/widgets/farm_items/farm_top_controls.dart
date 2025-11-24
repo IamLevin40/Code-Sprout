@@ -88,9 +88,9 @@ class FarmTopControls extends StatelessWidget {
           'farm_page.top_controls.tab_buttons.icons.previous',
           onPreviousFile,
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 8),
         Container(
-          constraints: const BoxConstraints(maxWidth: 200),
+          constraints: const BoxConstraints(maxWidth: 180),
           child: Text(
             codeFiles.files.isNotEmpty 
                 ? codeFiles.files[selectedExecutionFileIndex].fileName
@@ -104,7 +104,7 @@ class FarmTopControls extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 8),
         _buildTabButton(
           styles,
           'farm_page.top_controls.tab_buttons.icons.next',
