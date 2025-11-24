@@ -545,29 +545,42 @@ class _FarmPageState extends State<FarmPage> {
 
   Widget _buildTitleLabel() {
     final styles = AppStyles();
-    final color = styles.getStyles('farm_page.top_layer.title.color') as Color;
-    final fontSize = styles.getStyles('farm_page.top_layer.title.font_size') as double;
-    final fontWeight = styles.getStyles('farm_page.top_layer.title.font_weight') as FontWeight;
-    
-    List<Shadow> textShadows = [];
-    final Color shadowColor = styles.getStyles('farm_page.top_layer.title.shadow.color') as Color;
-    final sopRaw = styles.getStyles('farm_page.top_layer.title.shadow.opacity');
+
+    final bgColor = styles.getStyles('farm_page.top_layer.title.background_color') as Color;
+    final bgHeight = styles.getStyles('farm_page.top_layer.title.height') as double;
+    final bgBorderRadius = styles.getStyles('farm_page.top_layer.title.border_radius') as double;
+
+    final labelColor = styles.getStyles('farm_page.top_layer.title.label.color') as Color;
+    final labelFontSize = styles.getStyles('farm_page.top_layer.title.label.font_size') as double;
+    final labelFontWeight = styles.getStyles('farm_page.top_layer.title.label.font_weight') as FontWeight;
+
+    final Color shadowColor = styles.getStyles('farm_page.top_layer.title.label.shadow.color') as Color;
+    final sopRaw = styles.getStyles('farm_page.top_layer.title.label.shadow.opacity');
     final double sop = (sopRaw is num) ? sopRaw.toDouble() / 100.0 : (sopRaw as double);
-    final sblur = styles.getStyles('farm_page.top_layer.title.shadow.blur_radius') as double;
-    textShadows = [
+    final sblur = styles.getStyles('farm_page.top_layer.title.label.shadow.blur_radius') as double;
+    final textShadows = [
       Shadow(
         color: shadowColor.withAlpha((sop * 255).round()),
         blurRadius: sblur,
-      )
+      ),
     ];
 
-    return Text(
-      'Your Farm',
-      style: TextStyle(
-        fontSize: fontSize,
-        fontWeight: fontWeight,
-        color: color,
-        shadows: textShadows,
+    return Container(
+      height: bgHeight,
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(bgBorderRadius),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        'Your Farm',
+        style: TextStyle(
+          fontSize: labelFontSize,
+          fontWeight: labelFontWeight,
+          color: labelColor,
+          shadows: textShadows,
+        ),
       ),
     );
   }

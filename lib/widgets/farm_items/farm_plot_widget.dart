@@ -17,42 +17,54 @@ class FarmPlotWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final styles = AppStyles();
     final double plotSize = styles.getStyles('farm_page.farm_grid.plot_size') as double;
-    final double borderWidth = styles.getStyles('farm_page.farm_grid.plot_border_width') as double;
-    final double borderRadius = styles.getStyles('farm_page.farm_grid.plot_border_radius') as double;
+    
+    // Image paths for plot states (strict tokens)
+    final normalPlotImage = styles.getStyles('farm_page.farm_grid.plot_states.normal') as String;
+    final tilledPlotImage = styles.getStyles('farm_page.farm_grid.plot_states.tilled') as String;
+    final wateredPlotImage = styles.getStyles('farm_page.farm_grid.plot_states.watered') as String;
 
-    Color plotColor;
+    String plotImage;
     switch (plot.state) {
       case PlotState.tilled:
-        plotColor = styles.getStyles('farm_page.farm_grid.tilled_plot_color') as Color;
+        plotImage = tilledPlotImage;
         break;
       case PlotState.watered:
-        plotColor = styles.getStyles('farm_page.farm_grid.watered_plot_color') as Color;
+        plotImage = wateredPlotImage;
         break;
       default:
-        plotColor = styles.getStyles('farm_page.farm_grid.normal_plot_color') as Color;
+        plotImage = normalPlotImage;
     }
-
-    final borderColor = styles.getStyles('farm_page.farm_grid.plot_border_color') as Color;
 
     return Container(
       width: plotSize,
       height: plotSize,
       decoration: BoxDecoration(
-        color: plotColor,
-        border: Border.all(color: borderColor, width: borderWidth),
-        borderRadius: BorderRadius.circular(borderRadius),
+        image: DecorationImage(
+          image: AssetImage(plotImage),
+          fit: BoxFit.cover,
+        ),
       ),
       child: Stack(
         children: [
-          // Crop display
+          // Crop display (offset from top)
           if (plot.crop != null)
-            Center(
-              child: _buildCropWidget(styles),
+            Positioned(
+              top: 16,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: _buildCropWidget(styles),
+              ),
             ),
-          // Drone display
+          // Drone display (offset from top)
           if (hasDrone)
-            Center(
-              child: _buildDroneWidget(styles),
+            Positioned(
+              top: 16,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: _buildDroneWidget(styles),
+              ),
             ),
         ],
       ),
@@ -70,31 +82,25 @@ class FarmPlotWidget extends StatelessWidget {
     // when stage images are not present yet.
     return Image.asset(
       imagePath,
-      width: 32,
-      height: 32,
+      width: 64,
+      height: 64,
       fit: BoxFit.contain,
       errorBuilder: (context, error, stackTrace) {
-        // Fallback placeholder: crop display name + stage index
+        // Placeholder: crop display name + stage index
         final cropName = plot.crop!.cropType.displayName;
         final stage = plot.crop!.currentStage;
-        Color placeholderColor = Colors.black;
-        try {
-          if (styles.hasPath('farm_page.farm_grid.crop_placeholder_color')) {
-            placeholderColor = styles.getStyles('farm_page.farm_grid.crop_placeholder_color') as Color;
-          }
-        } catch (_) {
-          // ignore and use default
-        }
+        final placeholderColor = styles.getStyles('farm_page.farm_grid.crop_placeholder_color') as Color;
 
         return Container(
-          width: 32,
-          height: 32,
+          width: 64,
+          height: 64,
           alignment: Alignment.center,
           child: Text(
             '$cropName\nS$stage',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 8,
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
               color: placeholderColor,
             ),
           ),

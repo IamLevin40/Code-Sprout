@@ -2229,13 +2229,18 @@
                 "height": 32
             },
             "title": {
-                "color": "--colors.dark_purple",
-                "font_size": "--font_sizes.subheading",
-                "font_weight": "--font_weights.bold",
-                "shadow": {
-                    "color": "--colors.black",
-                    "opacity": 25,
-                    "blur_radius": 4
+                "height": 32,
+                "border_radius": 8,
+                "background_color": "--colors.ivory_white",
+                "label": {
+                    "color": "--colors.dark_purple",
+                    "font_size": "--font_sizes.title",
+                    "font_weight": "--font_weights.bold",
+                    "shadow": {
+                        "color": "--colors.black",
+                        "opacity": 25,
+                        "blur_radius": 4
+                    }
                 }
             },
             "coins_display": {
@@ -2246,7 +2251,7 @@
                 "background_color": {
                     "begin": {
                         "position": "top_left",
-                        "color": "--colors.dirty_white"
+                        "color": "--colors.ivory_white"
                     },
                     "end": {
                         "position": "bottom_right",
@@ -2682,12 +2687,12 @@
         "farm_grid": {
             "plot_size": 80,
             "plot_spacing": 4,
-            "normal_plot_color": "#8B7355",
-            "tilled_plot_color": "#6B5344",
-            "watered_plot_color": "#4A3F35",
-            "plot_border_color": "#5A493B",
-            "plot_border_width": 2,
-            "plot_border_radius": 4,
+            "plot_states": {
+                "normal": "images/icons/sprout_items/farm_items/plotland_normal.png",
+                "tilled": "images/icons/sprout_items/farm_items/plotland_tilled.png",
+                "watered": "images/icons/sprout_items/farm_items/plotland_watered.png"
+            },
+            "crop_placeholder_color": "--colors.white",
             "drone_color": "#FFA500",
             "drone_size": 32
         }
