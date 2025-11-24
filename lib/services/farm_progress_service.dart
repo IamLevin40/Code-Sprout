@@ -249,9 +249,19 @@ class FarmProgressService {
         throw Exception('Invalid farm progress structure');
       }
 
-      // Restore drone position
-      farmState.dronePosition.x = (dronePos['x'] as num?)?.toInt() ?? 0;
-      farmState.dronePosition.y = (dronePos['y'] as num?)?.toInt() ?? 0;
+      // CRITICAL: Expand grid FIRST before restoring any data
+      // This ensures all plot coordinates exist when we try to restore them
+      final savedGridWidth = (gridInfo['x'] as num?)?.toInt() ?? 1;
+      final savedGridHeight = (gridInfo['y'] as num?)?.toInt() ?? 1;
+      farmState.expandGrid(savedGridWidth, savedGridHeight);
+
+      // Restore drone position (both integer and animated coordinates)
+      final droneX = (dronePos['x'] as num?)?.toInt() ?? 0;
+      final droneY = (dronePos['y'] as num?)?.toInt() ?? 0;
+      farmState.dronePosition.x = droneX;
+      farmState.dronePosition.y = droneY;
+      farmState.dronePosition.animatedX = droneX.toDouble();
+      farmState.dronePosition.animatedY = droneY.toDouble();
 
       // Restore plot states and crops
       plotInfo.forEach((key, value) {
