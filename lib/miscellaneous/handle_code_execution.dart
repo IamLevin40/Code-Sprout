@@ -64,7 +64,7 @@ class CodeExecutionHandler {
           setExecutionLog(validationResult.executionLog);
           logNotifier.value = List.from(validationResult.executionLog);
           farmState.setExecuting(false);
-          setShowExecutionLog(false); // Hide log when execution fails
+          // REMOVED: setShowExecutionLog(false) - Keep log visible on validation failure
           if (validationResult.errorLine != null) {
             errorLineNotifier.value = validationResult.errorLine;
           }
@@ -100,7 +100,7 @@ class CodeExecutionHandler {
         setExecutionLog(result.executionLog);
         logNotifier.value = List.from(result.executionLog);
         farmState.setExecuting(false);
-        setShowExecutionLog(false); // Hide log when execution completes
+        // REMOVED: setShowExecutionLog(false) - Keep log visible after execution
         executingLineNotifier.value = null; // Clear line highlighting
         if (result.errorLine != null) {
           errorLineNotifier.value = result.errorLine;
@@ -117,7 +117,7 @@ class CodeExecutionHandler {
       if (mounted) {
         setIsExecuting(false);
         farmState.setExecuting(false);
-        setShowExecutionLog(false); // Hide log when execution errors
+        // REMOVED: setShowExecutionLog(false) - Keep log visible on error
         executingLineNotifier.value = null;
         
         ScaffoldMessenger.of(context).showSnackBar(
@@ -141,13 +141,15 @@ class CodeExecutionHandler {
     if (mounted) {
       setIsExecuting(false);
       farmState.setExecuting(false);
-      setShowExecutionLog(false); // Hide log on cleanup
+      // REMOVED: setShowExecutionLog(false) - Keep log visible on cleanup
       executingLineNotifier.value = null;
     }
     setCurrentInterpreter(null);
   }
 
   /// Stop code execution
+  /// NOTE: Log visibility is NOT changed here - log stays open if user had it open
+  /// Log is only cleared when starting a new execution
   static void stopExecution({
     required FarmCodeInterpreter? currentInterpreter,
     required bool mounted,
@@ -166,7 +168,7 @@ class CodeExecutionHandler {
         setIsExecuting(false);
         farmState.setExecuting(false);
         executingLineNotifier.value = null;
-        setShowExecutionLog(false); // Hide log when execution stops
+        // REMOVED: setShowExecutionLog(false) - Keep log visible after stop
       }
     });
   }
