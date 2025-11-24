@@ -5,14 +5,12 @@ import '../../models/styles_schema.dart';
 /// Widget to display a single farm plot
 class FarmPlotWidget extends StatelessWidget {
   final FarmPlot plot;
-  final bool hasDrone;
-  final DroneState? droneState;
+  final bool hasDrone; // Kept for backward compatibility but not used
 
   const FarmPlotWidget({
     super.key,
     required this.plot,
     this.hasDrone = false,
-    this.droneState,
   });
 
   @override
@@ -58,16 +56,6 @@ class FarmPlotWidget extends StatelessWidget {
                 child: _buildCropWidget(styles),
               ),
             ),
-          // Drone display
-          if (hasDrone)
-            Positioned(
-              bottom: 16,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: _buildDroneWidget(styles),
-              ),
-            ),
         ],
       ),
     );
@@ -107,45 +95,6 @@ class FarmPlotWidget extends StatelessWidget {
               color: placeholderColor,
             ),
           ),
-        );
-      },
-    );
-  }
-
-  Widget _buildDroneWidget(AppStyles styles) {
-    final width = styles.getStyles('farm_page.farm_grid.drone_size.width') as double;
-    final height = styles.getStyles('farm_page.farm_grid.drone_size.height') as double;
-    
-    // Get drone state image paths
-    final normalImage = styles.getStyles('farm_page.farm_grid.drone_states.normal') as String;
-    final tillingImage = styles.getStyles('farm_page.farm_grid.drone_states.tilling') as String;
-    final wateringImage = styles.getStyles('farm_page.farm_grid.drone_states.watering') as String;
-
-    // Determine which image to show based on drone state
-    final currentState = droneState ?? DroneState.normal;
-    String droneImage;
-    switch (currentState) {
-      case DroneState.tilling:
-        droneImage = tillingImage;
-        break;
-      case DroneState.watering:
-        droneImage = wateringImage;
-        break;
-      default:
-        droneImage = normalImage;
-    }
-
-    return Image.asset(
-      droneImage,
-      width: width,
-      height: height,
-      fit: BoxFit.contain,
-      errorBuilder: (context, error, stackTrace) {
-        // Fallback to icon if image not found
-        return Icon(
-          Icons.agriculture,
-          size: width,
-          color: Colors.blue,
         );
       },
     );

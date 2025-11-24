@@ -653,18 +653,37 @@ class FarmState extends ChangeNotifier {
     final startX = dronePosition.animatedX;
     final startY = dronePosition.animatedY;
     
-    // First attempt the move to update grid position
-    if (!moveDrone(direction)) {
+    // Calculate target position based on direction
+    int targetX = dronePosition.x;
+    int targetY = dronePosition.y;
+    
+    switch (direction) {
+      case Direction.north:
+        targetY = dronePosition.y + 1;
+        break;
+      case Direction.south:
+        targetY = dronePosition.y - 1;
+        break;
+      case Direction.east:
+        targetX = dronePosition.x + 1;
+        break;
+      case Direction.west:
+        targetX = dronePosition.x - 1;
+        break;
+    }
+    
+    // Check if target position is valid
+    if (targetX < 0 || targetX >= gridWidth || targetY < 0 || targetY >= gridHeight) {
       return; // Move failed, don't animate
     }
     
-    // Target is the new grid position
-    final targetX = dronePosition.x.toDouble();
-    final targetY = dronePosition.y.toDouble();
+    // Convert to double for animation
+    final targetXDouble = targetX.toDouble();
+    final targetYDouble = targetY.toDouble();
     
     // Animate over moveDuration milliseconds with ease-in-out
     final duration = moveDuration;
-    final steps = 30; // 30 frames for smooth animation
+    const steps = 12;
     final stepDuration = duration ~/ steps;
     
     for (int i = 0; i <= steps; i++) {
@@ -672,8 +691,8 @@ class FarmState extends ChangeNotifier {
       double t = i / steps;
       t = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
       
-      dronePosition.animatedX = startX + (targetX - startX) * t;
-      dronePosition.animatedY = startY + (targetY - startY) * t;
+      dronePosition.animatedX = startX + (targetXDouble - startX) * t;
+      dronePosition.animatedY = startY + (targetYDouble - startY) * t;
       notifyListeners();
       
       if (i < steps) {
@@ -681,9 +700,12 @@ class FarmState extends ChangeNotifier {
       }
     }
     
-    // Ensure final position is exact
-    dronePosition.animatedX = targetX;
-    dronePosition.animatedY = targetY;
+    // Update integer grid position only after animation completes
+    dronePosition.x = targetX;
+    dronePosition.y = targetY;
+    dronePosition.animatedX = targetXDouble;
+    dronePosition.animatedY = targetYDouble;
+    dronePosition.state = DroneState.normal; // Reset state after move
     notifyListeners();
   }
   

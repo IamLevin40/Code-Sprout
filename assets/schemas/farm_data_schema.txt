@@ -1,9 +1,9 @@
 {
     "drone_work_duration": {
         "general": 200,
-        "move(direction)": 1000,
-        "till()": 600,
-        "water()": 1000
+        "move(direction)": 400,
+        "till()": 300,
+        "water()": 500
     },
     "crop_info": {
         "wheat": {
