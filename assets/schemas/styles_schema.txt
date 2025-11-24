@@ -2693,58 +2693,252 @@
         }
     },
     "research_card": {
-        "card": {
-            "height": 120,
-            "border_radius": 12,
-            "border_width": 4,
+        "general": {
+            "border_radius": 8,
+            "border_width": 2,
             "background_color": {
-                "begin": { "position": "top_left", "color": "--colors.ivory_white" },
-                "end": { "position": "bottom_right", "color": "--colors.white" }
+                "begin": {
+                    "position": "top_left",
+                    "color": "--colors.ivory_white"
+                },
+                "end": {
+                    "position": "bottom_right",
+                    "color": "--colors.white"
+                }
             },
             "stroke_color": {
-                "begin": { "position": "top_left", "color": "#DDE7F7" },
-                "end": { "position": "bottom_right", "color": "#EDEFF6" }
-            },
-            "title": {
-                "color": "--colors.dark_purple",
-                "font_size": "--font_sizes.title",
-                "font_weight": "--font_weights.bold"
-            },
-            "description": {
-                "color": "--colors.gray",
-                "font_size": "--font_sizes.regular"
+                "begin": {
+                    "position": "top_left",
+                    "color": "#3F4B59"
+                },
+                "end": {
+                    "position": "bottom_right",
+                    "color": "--colors.gray"
+                }
             },
             "requirements": {
                 "color": "--colors.dark_gray",
-                "font_size": 11
+                "font_size": "--font_sizes.regular",
+                "font_weight": "--font_weights.bold",
+                "item": {
+                    "icon": {
+                        "width": 16,
+                        "height": 16
+                    },
+                    "quantity_label": {
+                        "color": "--colors.gray",
+                        "font_size": "--font_sizes.regular",
+                        "font_weight": "--font_weights.regular"
+                    }
+                }
             },
-            "locked_overlay": {
-                "background_color": "rgba(0, 0, 0, 0.6)",
-                "icon": { "image": "images/icons/on_cards/lock.png", "width": 48, "height": 48 }
-            },
-            "badge": {
-                "background_color": {
-                    "begin": { "position": "top_left", "color": "--colors.light_green" },
-                    "end": { "position": "bottom_right", "color": "--colors.dark_green" }
-                },
-                "text": { "color": "--colors.white", "font_size": 12, "font_weight": "--font_weights.bold" },
-                "padding_horizontal": 12,
-                "padding_vertical": 6,
-                "border_radius": 10
-            },
-            "button": {
-                "height": 40,
-                "border_radius": 12,
+            "research_button": {
+                "width": 80,
+                "height": 24,
+                "border_radius": 8,
                 "border_width": 2,
                 "background_color": {
-                    "begin": { "position": "top_left", "color": "--colors.pastel_blue" },
-                    "end": { "position": "bottom_right", "color": "--colors.pastel_blue" }
+                    "begin": {
+                        "position": "top_left",
+                        "color": "#A2C947"
+                    },
+                    "end": {
+                        "position": "bottom_right",
+                        "color": "#CAF562"
+                    }
                 },
                 "stroke_color": {
-                    "begin": { "position": "top_left", "color": "--colors.light_purple" },
-                    "end": { "position": "bottom_right", "color": "--colors.dark_purple" }
+                    "begin": {
+                        "position": "top_left",
+                        "color": "#C1EC5A"
+                    },
+                    "end": {
+                        "position": "bottom_right",
+                        "color": "#87A938"
+                    }
                 },
-                "text": { "color": "--colors.white", "font_size": "--font_sizes.regular", "font_weight": "--font_weights.bold" }
+                "text": {
+                    "color": "--colors.dark_gray",
+                    "font_size": "--font_sizes.regular",
+                    "font_weight": "--font_weights.bold"
+                }
+            },
+            "available_badge": {
+                "width": 80,
+                "height": 24,
+                "border_radius": 8,
+                "background_color": {
+                    "begin": {
+                        "position": "top_left",
+                        "color": "--colors.light_green"
+                    },
+                    "end": {
+                        "position": "bottom_right",
+                        "color": "--colors.dark_green"
+                    }
+                },
+                "text": {
+                    "color": "--colors.white",
+                    "font_size": "--font_sizes.regular",
+                    "font_weight": "--font_weights.bold"
+                }
+            },
+            "locked_overlay": {
+                "background": {
+                    "color": "rgba(250, 250, 250, 0.6)",
+                    "opacity": 60,
+                    "blur_sigma": 4
+                },
+                "stroke_thickness": 2,
+                "stroke_color": {
+                    "begin": {
+                        "position": "top_left",
+                        "color": "#87A1BF"
+                    },
+                    "end": {
+                        "position": "bottom_right",
+                        "color": "--colors.gray"
+                    }
+                },
+                "locked_label": {
+                    "color": "--colors.dark_gray",
+                    "font_size": "--font_sizes.regular",
+                    "font_weight": "--font_weights.bold"
+                },
+                "icon": {
+                    "image": "images/icons/on_cards/lock.png",
+                    "width": 48,
+                    "height": 48
+                }
+            }
+        },
+        "crop_item": {
+            "default_name": {
+                "color": "--colors.dark_purple",
+                "font_size": "--font_sizes.regular",
+                "font_weight": "--font_weights.bold"
+            },
+            "language_specific_name": {
+                "color": "--colors.pastel_red",
+                "font_size": "--font_sizes.regular",
+                "font_weight": "--font_weights.bold"
+            },
+            "description": {
+                "color": "--colors.dark_gray",
+                "font_size": "--font_sizes.regular",
+                "font_weight": "--font_weights.regular"
+            },
+            "purchase_multipliers": {
+                "general": {
+                    "height": 24,
+                    "border_radius": 8,
+                    "border_width": 2
+                },
+                "selected": {
+                    "background_color": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "#435B77"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "#6D8BAF"
+                        }
+                    },
+                    "stroke_color": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "#87A1BF"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "--colors.dark_gray"
+                        }
+                    },
+                    "text": {
+                        "color": "--colors.white",
+                        "font_size": "--font_sizes.regular",
+                        "font_weight": "--font_weights.bold"
+                    }
+                },
+                "unselected": {
+                    "background_color": "#E7EEF6",
+                    "stroke_color": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "#87A1BF"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "--colors.dark_gray"
+                        }
+                    },
+                    "text": {
+                        "color": "--colors.dark_gray",
+                        "font_size": "--font_sizes.regular",
+                        "font_weight": "--font_weights.regular"
+                    }
+                }
+            },
+            "purchase_button": {
+                "width": 120,
+                "height": 32,
+                "border_radius": 8,
+                "border_width": 2,
+                "background_color": {
+                    "begin": {
+                        "position": "top_left",
+                        "color": "#5177F7"
+                    },
+                    "end": {
+                        "position": "bottom_right",
+                        "color": "#88A2F7"
+                    }
+                },
+                "stroke_color": {
+                    "begin": {
+                        "position": "top_left",
+                        "color": "#7695FF"
+                    },
+                    "end": {
+                        "position": "bottom_right",
+                        "color": "#3D68F8"
+                    }
+                },
+                "text": {
+                    "color": "--colors.white",
+                    "font_size": "--font_sizes.regular",
+                    "font_weight": "--font_weights.bold"
+                },
+                "icon": {
+                    "image": "images/icons/sprout_items/miscellaneous/coins.png",
+                    "width": 16,
+                    "height": 16
+                }
+            }
+        },
+        "farm_item": {
+            "name": {
+                "color": "--colors.pastel_blue",
+                "font_size": "--font_sizes.regular",
+                "font_weight": "--font_weights.bold"
+            },
+            "description": {
+                "color": "--colors.dark_gray",
+                "font_size": "--font_sizes.regular",
+                "font_weight": "--font_weights.regular"
+            }
+        },
+        "functions_item": {
+            "name": {
+                "color": "--colors.dark_purple",
+                "font_size": "--font_sizes.regular",
+                "font_weight": "--font_weights.bold"
+            },
+            "description": {
+                "color": "--colors.dark_gray",
+                "font_size": "--font_sizes.regular",
+                "font_weight": "--font_weights.regular"
             }
         }
     }
