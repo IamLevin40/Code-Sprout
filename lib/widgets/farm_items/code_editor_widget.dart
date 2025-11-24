@@ -129,13 +129,13 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
     final scrollBarBorderRadius = styles.getStyles('farm_page.code_editor.text_editor.scroll_bar.border_radius') as double;
     final scrollBarThickness = styles.getStyles('farm_page.code_editor.text_editor.scroll_bar.thickness') as double;
     
-    final backIconPath = styles.getStyles('farm_page.code_editor.file_toolbar.back.icon.image') as String;
-    final backIconWidth = styles.getStyles('farm_page.code_editor.file_toolbar.back.icon.width') as double;
-    final backIconHeight = styles.getStyles('farm_page.code_editor.file_toolbar.back.icon.height') as double;
-    final backBgColor = styles.getStyles('farm_page.code_editor.file_toolbar.back.background_color') as Color;
-    final backBorderRadius = styles.getStyles('farm_page.code_editor.file_toolbar.back.border_radius') as double;
-    final backWidth = styles.getStyles('farm_page.code_editor.file_toolbar.back.width') as double;
-    final backHeight = styles.getStyles('farm_page.code_editor.file_toolbar.back.height') as double;
+    final closeIconPath = styles.getStyles('farm_page.code_editor.file_toolbar.close.icon.image') as String;
+    final closeIconWidth = styles.getStyles('farm_page.code_editor.file_toolbar.close.icon.width') as double;
+    final closeIconHeight = styles.getStyles('farm_page.code_editor.file_toolbar.close.icon.height') as double;
+    final closeBgColor = styles.getStyles('farm_page.code_editor.file_toolbar.close.background_color') as Color;
+    final closeBorderRadius = styles.getStyles('farm_page.code_editor.file_toolbar.close.border_radius') as double;
+    final closeWidth = styles.getStyles('farm_page.code_editor.file_toolbar.close.width') as double;
+    final closeHeight = styles.getStyles('farm_page.code_editor.file_toolbar.close.height') as double;
     
     final tabOptionsWidth = styles.getStyles('farm_page.code_editor.file_toolbar.tab_options.width') as double;
     final tabOptionsHeight = styles.getStyles('farm_page.code_editor.file_toolbar.tab_options.height') as double;
@@ -253,17 +253,17 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
               GestureDetector(
                 onTap: widget.onClose,
                 child: Container(
-                  width: backWidth,
-                  height: backHeight,
+                  width: closeWidth,
+                  height: closeHeight,
                   decoration: BoxDecoration(
-                    color: backBgColor,
-                    borderRadius: BorderRadius.circular(backBorderRadius),
+                    color: closeBgColor,
+                    borderRadius: BorderRadius.circular(closeBorderRadius),
                   ),
                   child: Center(
                     child: Image.asset(
-                      backIconPath,
-                      width: backIconWidth,
-                      height: backIconHeight,
+                      closeIconPath,
+                      width: closeIconWidth,
+                      height: closeIconHeight,
                     ),
                   ),
                 ),

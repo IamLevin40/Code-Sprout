@@ -497,7 +497,7 @@ class _FarmPageState extends State<FarmPage> {
       left: 24,
       right: 24,
       top: 96,
-      bottom: 16,
+      bottom: 0,
       child: ResearchLabDisplay(
         researchState: _researchState,
         userData: LocalStorageService.instance.userDataNotifier.value,

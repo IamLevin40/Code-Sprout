@@ -2507,7 +2507,7 @@
         },
         "code_editor": {
             "border_radius": 16,
-            "background_color": "--colors.light_purple",
+            "background_color": "#261863",
             "text_editor": {
                 "border_radius": 16,
                 "background_color": "--colors.dark_purple",
@@ -2528,16 +2528,16 @@
                 }
             },
             "file_toolbar": {
-                "back": {
+                "close": {
                     "icon": {
-                        "image": "images/icons/navbuttons/back.png",
-                        "width": 32,
-                        "height": 32
+                        "image": "images/icons/sprout_items/miscellaneous/close.png",
+                        "width": 14,
+                        "height": 14
                     },
                     "background_color": "--colors.dirty_white",
                     "border_radius": 8,
-                    "width": 32,
-                    "height": 32
+                    "width": 24,
+                    "height": 24
                 },
                 "tab_options": {
                     "width": 300,
@@ -2562,6 +2562,92 @@
                             "indent": "images/icons/sprout_items/miscellaneous/indent.png",
                             "dedent": "images/icons/sprout_items/miscellaneous/dedent.png"
                         }
+                    }
+                }
+            }
+        },
+        "research_lab_display": {
+            "border_radius": 16,
+            "background_color": "#261863",
+            "cards_container": {
+                "border_radius": 16,
+                "background_color": "--colors.dark_purple"
+            },
+            "close": {
+                "icon": {
+                    "image": "images/icons/sprout_items/miscellaneous/close.png",
+                    "width": 14,
+                    "height": 14
+                },
+                "background_color": "--colors.dirty_white",
+                "border_radius": 8,
+                "width": 24,
+                "height": 24
+            },
+            "tab_buttons": {
+                "general": {
+                    "width": 96,
+                    "height": 36,
+                    "border_radius": 8,
+                    "border_width": 2,
+                    "icon": {
+                        "width": 16,
+                        "height": 16
+                    }
+                },
+                "selected": {
+                    "background_color": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "#A2C947"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "#CAF562"
+                        }
+                    },
+                    "stroke_color": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "#C1EC5A"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "#87A938"
+                        }
+                    },
+                    "text": {
+                        "color": "--colors.dark_purple",
+                        "font_size": "--font_sizes.regular",
+                        "font_weight": "--font_weights.bold"
+                    },
+                    "icons": {
+                        "crop": "images/icons/sprout_items/miscellaneous/crop_selected.png",
+                        "farm": "images/icons/sprout_items/miscellaneous/farm_selected.png",
+                        "functions": "images/icons/sprout_items/miscellaneous/functions_selected.png"
+                    }
+                },
+                "unselected": {
+                    "background_color": "--colors.ivory_white",
+                    "stroke_color": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "#87A1BF"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "--colors.gray"
+                        }
+                    },
+                    "text": {
+                        "color": "--colors.dark_gray",
+                        "font_size": "--font_sizes.regular",
+                        "font_weight": "--font_weights.bold"
+                    },
+                    "icons": {
+                        "crop": "images/icons/sprout_items/miscellaneous/crop_unselected.png",
+                        "farm": "images/icons/sprout_items/miscellaneous/farm_unselected.png",
+                        "functions": "images/icons/sprout_items/miscellaneous/functions_unselected.png"
                     }
                 }
             }
