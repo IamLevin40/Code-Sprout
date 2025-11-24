@@ -372,6 +372,10 @@ class _FarmPageState extends State<FarmPage> {
 
   @override
   Widget build(BuildContext context) {
+    final styles = AppStyles();
+    final codeEditorTransitionMs = styles.getStyles('farm_page.code_editor.transition_duration') as int;
+    final researchLabTransitionMs = styles.getStyles('farm_page.research_lab_display.transition_duration') as int;
+
     return Scaffold(
       body: SafeArea(
         child: Stack(
@@ -385,11 +389,15 @@ class _FarmPageState extends State<FarmPage> {
             // Layer 3: Execution Log Overlay (Only shown when log button pressed)
             if (_showExecutionLog) _buildExecutionLogOverlay(),
             
-            // Layer 4: Code Editor Overlay (Only shown when code button pressed)
-            if (_showCodeEditor) _buildCodeEditorOverlay(),
+            // Layer 4: Code Editor Overlay with slide animation
+            _buildCodeEditorOverlayWithAnimation(
+              Duration(milliseconds: codeEditorTransitionMs),
+            ),
             
-            // Layer 5: Research Lab Overlay (Only shown when research button pressed)
-            if (_showResearchLab) _buildResearchLabOverlay(),
+            // Layer 5: Research Lab Overlay with slide animation
+            _buildResearchLabOverlayWithAnimation(
+              Duration(milliseconds: researchLabTransitionMs),
+            ),
           ],
         ),
       ),
@@ -480,32 +488,42 @@ class _FarmPageState extends State<FarmPage> {
     );
   }
   
-  // Layer 4: Code Editor Overlay
-  Widget _buildCodeEditorOverlay() {
-    return Positioned(
+  // Layer 4: Code Editor Overlay with slide animation
+  Widget _buildCodeEditorOverlayWithAnimation(Duration transitionDuration) {
+    return AnimatedPositioned(
+      duration: transitionDuration,
+      curve: Curves.easeInOut,
       left: 24,
       right: 24,
-      top: 96,
-      bottom: 0,
-      child: _buildCodeEditorWithFileSelector(),
+      top: _showCodeEditor ? 96 : MediaQuery.of(context).size.height,
+      bottom: _showCodeEditor ? 0 : -MediaQuery.of(context).size.height,
+      child: IgnorePointer(
+        ignoring: !_showCodeEditor,
+        child: _buildCodeEditorWithFileSelector(),
+      ),
     );
   }
   
-  // Layer 5: Research Lab Overlay
-  Widget _buildResearchLabOverlay() {
-    return Positioned(
+  // Layer 5: Research Lab Overlay with slide animation
+  Widget _buildResearchLabOverlayWithAnimation(Duration transitionDuration) {
+    return AnimatedPositioned(
+      duration: transitionDuration,
+      curve: Curves.easeInOut,
       left: 24,
       right: 24,
-      top: 96,
-      bottom: 0,
-      child: ResearchLabDisplay(
-        researchState: _researchState,
-        userData: LocalStorageService.instance.userDataNotifier.value,
-        currentLanguage: widget.languageId,
-        onClose: () {
-          setState(() => _showResearchLab = false);
-        },
-        onResearchCompleted: _handleResearchCompleted,
+      top: _showResearchLab ? 96 : MediaQuery.of(context).size.height,
+      bottom: _showResearchLab ? 0 : -MediaQuery.of(context).size.height,
+      child: IgnorePointer(
+        ignoring: !_showResearchLab,
+          child: ResearchLabDisplay(
+          researchState: _researchState,
+          userData: LocalStorageService.instance.userDataNotifier.value,
+          currentLanguage: widget.languageId,
+          onClose: () {
+            setState(() => _showResearchLab = false);
+          },
+          onResearchCompleted: _handleResearchCompleted,
+        ),
       ),
     );
   }

@@ -2511,6 +2511,7 @@
             }
         },
         "code_editor": {
+            "transition_duration": 500,
             "border_radius": 16,
             "background_color": "#261863",
             "text_editor": {
@@ -2572,6 +2573,7 @@
             }
         },
         "research_lab_display": {
+            "transition_duration": 500,
             "border_radius": 16,
             "background_color": "#261863",
             "cards_container": {
