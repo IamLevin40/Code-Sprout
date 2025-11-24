@@ -2692,9 +2692,24 @@
                 "tilled": "images/icons/sprout_items/farm_items/plotland_tilled.png",
                 "watered": "images/icons/sprout_items/farm_items/plotland_watered.png"
             },
-            "crop_placeholder_color": "--colors.white",
-            "drone_color": "#FFA500",
-            "drone_size": 32
+            "drone_states": {
+                "normal": "images/icons/sprout_items/farm_items/drone_normal.png",
+                "tilling": "images/icons/sprout_items/farm_items/drone_tilling.png",
+                "watering": "images/icons/sprout_items/farm_items/drone_watering.png"
+            },
+            "drone_size": {
+                "width": 64,
+                "height": 64
+            },
+            "crop_size": {
+                "width": 64,
+                "height": 64
+            },
+            "crop_placeholder": {
+                "color": "--colors.white",
+                "font_size": 10,
+                "font_weight": "--font_weights.bold"
+            }
         }
     },
     "research_card": {

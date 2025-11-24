@@ -6,11 +6,13 @@ import '../../models/styles_schema.dart';
 class FarmPlotWidget extends StatelessWidget {
   final FarmPlot plot;
   final bool hasDrone;
+  final DroneState? droneState;
 
   const FarmPlotWidget({
     super.key,
     required this.plot,
     this.hasDrone = false,
+    this.droneState,
   });
 
   @override
@@ -46,20 +48,20 @@ class FarmPlotWidget extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          // Crop display (offset from top)
+          // Crop display
           if (plot.crop != null)
             Positioned(
-              top: 16,
+              bottom: 16,
               left: 0,
               right: 0,
               child: Center(
                 child: _buildCropWidget(styles),
               ),
             ),
-          // Drone display (offset from top)
+          // Drone display
           if (hasDrone)
             Positioned(
-              top: 16,
+              bottom: 16,
               left: 0,
               right: 0,
               child: Center(
@@ -72,35 +74,36 @@ class FarmPlotWidget extends StatelessWidget {
   }
 
   Widget _buildCropWidget(AppStyles styles) {
+    final width = styles.getStyles('farm_page.farm_grid.crop_size.width') as double;
+    final height = styles.getStyles('farm_page.farm_grid.crop_size.height') as double;
+    final placeholderColor = styles.getStyles('farm_page.farm_grid.crop_placeholder.color') as Color;
+    final placeholderFontSize = styles.getStyles('farm_page.farm_grid.crop_placeholder.font_size') as double;
+    final placeholderFontWeight = styles.getStyles('farm_page.farm_grid.crop_placeholder.font_weight') as FontWeight;
+    
     if (plot.crop == null) return const SizedBox.shrink();
 
     // Use current growth stage image from FarmDataSchema
     final imagePath = plot.crop!.currentStageImage;
-
-    // Show asset if available; if asset can't be loaded, display a simple
-    // text placeholder showing crop name and stage to avoid runtime errors
-    // when stage images are not present yet.
     return Image.asset(
       imagePath,
-      width: 64,
-      height: 64,
+      width: width,
+      height: height,
       fit: BoxFit.contain,
       errorBuilder: (context, error, stackTrace) {
         // Placeholder: crop display name + stage index
         final cropName = plot.crop!.cropType.displayName;
         final stage = plot.crop!.currentStage;
-        final placeholderColor = styles.getStyles('farm_page.farm_grid.crop_placeholder_color') as Color;
 
         return Container(
-          width: 64,
-          height: 64,
+          width: width,
+          height: height,
           alignment: Alignment.center,
           child: Text(
             '$cropName\nS$stage',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
+              fontSize: placeholderFontSize,
+              fontWeight: placeholderFontWeight,
               color: placeholderColor,
             ),
           ),
@@ -110,13 +113,41 @@ class FarmPlotWidget extends StatelessWidget {
   }
 
   Widget _buildDroneWidget(AppStyles styles) {
-    final droneSize = styles.getStyles('farm_page.farm_grid.drone_size') as double;
-    final droneColor = styles.getStyles('farm_page.farm_grid.drone_color') as Color;
+    final width = styles.getStyles('farm_page.farm_grid.drone_size.width') as double;
+    final height = styles.getStyles('farm_page.farm_grid.drone_size.height') as double;
+    
+    // Get drone state image paths
+    final normalImage = styles.getStyles('farm_page.farm_grid.drone_states.normal') as String;
+    final tillingImage = styles.getStyles('farm_page.farm_grid.drone_states.tilling') as String;
+    final wateringImage = styles.getStyles('farm_page.farm_grid.drone_states.watering') as String;
 
-    return Icon(
-      Icons.agriculture,
-      size: droneSize,
-      color: droneColor,
+    // Determine which image to show based on drone state
+    final currentState = droneState ?? DroneState.normal;
+    String droneImage;
+    switch (currentState) {
+      case DroneState.tilling:
+        droneImage = tillingImage;
+        break;
+      case DroneState.watering:
+        droneImage = wateringImage;
+        break;
+      default:
+        droneImage = normalImage;
+    }
+
+    return Image.asset(
+      droneImage,
+      width: width,
+      height: height,
+      fit: BoxFit.contain,
+      errorBuilder: (context, error, stackTrace) {
+        // Fallback to icon if image not found
+        return Icon(
+          Icons.agriculture,
+          size: width,
+          color: Colors.blue,
+        );
+      },
     );
   }
 }

@@ -389,15 +389,19 @@ abstract class FarmCodeInterpreter {
     }
   }
 
-  /// Execute move operation
-  bool executeMove(Direction direction) {
+  /// Execute move operation with animation
+  Future<bool> executeMove(Direction direction) async {
     if (!_isFunctionUnlocked('move(direction)')) {
       log('Error: Function not unlocked. Research the required functions to use move(direction)');
       return false;
     }
     final dirName = direction.toString().split('.').last;
     log('Moving drone $dirName...');
-    final success = farmState.moveDrone(direction);
+    
+    // Animate the move (includes work duration delay)
+    await farmState.animateDroneMove(direction);
+    
+    final success = farmState.dronePosition.x >= 0 && farmState.dronePosition.y >= 0;
     if (success) {
       log('Drone moved to (${farmState.dronePosition.x}, ${farmState.dronePosition.y})');
     } else {
@@ -406,35 +410,57 @@ abstract class FarmCodeInterpreter {
     return success;
   }
 
-  /// Execute till operation
-  bool executeTill() {
+  /// Execute till operation with state visualization
+  Future<bool> executeTill() async {
     if (!_isFunctionUnlocked('till()')) {
       log('Error: Function not unlocked. Research the required functions to use till()');
       return false;
     }
     log('Tilling soil...');
+    
+    // Set tilling state
+    farmState.setDroneState(DroneState.tilling);
+    
+    // Perform the till operation
     final success = farmState.tillCurrentPlot();
+    
     if (success) {
+      // Visual work duration for tilling
+      await Future.delayed(Duration(milliseconds: farmState.tillDuration));
       log('Soil tilled successfully');
     } else {
       log('Error: Cannot till this plot');
     }
+    
+    // Reset to normal state
+    farmState.setDroneState(DroneState.normal);
     return success;
   }
 
-  /// Execute water operation
-  bool executeWater() {
+  /// Execute water operation with state visualization
+  Future<bool> executeWater() async {
     if (!_isFunctionUnlocked('water()')) {
       log('Error: Function not unlocked. Research the required functions to use water()');
       return false;
     }
     log('Watering soil...');
+    
+    // Set watering state
+    farmState.setDroneState(DroneState.watering);
+    
+    // Perform the water operation
     final success = farmState.waterCurrentPlot();
+    
     if (success) {
+      // Visual work duration for watering
+      await Future.delayed(Duration(milliseconds: farmState.waterDuration));
       log('Soil watered successfully');
     } else {
       log('Error: Cannot water this plot');
     }
+    
+    // Reset to normal state
+    farmState.setDroneState(DroneState.normal);
     return success;
   }
 
@@ -477,8 +503,10 @@ abstract class FarmCodeInterpreter {
   }
 
   /// Helper to add delay between operations for visualization
-  Future<void> delay([int milliseconds = 300]) async {
-    await Future.delayed(Duration(milliseconds: milliseconds));
+  /// Uses general duration from schema by default
+  Future<void> delay([int? milliseconds]) async {
+    final duration = milliseconds ?? farmState.generalDuration;
+    await Future.delayed(Duration(milliseconds: duration));
   }
 
   /// Execute sleep operation - pauses drone operation

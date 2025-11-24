@@ -49,6 +49,7 @@ class FarmGridView extends StatelessWidget {
                     child: FarmPlotWidget(
                       plot: plot,
                       hasDrone: hasDrone,
+                      droneState: hasDrone ? farmState.dronePosition.state : null,
                     ),
                   );
                 },

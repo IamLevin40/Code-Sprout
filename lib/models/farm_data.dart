@@ -48,6 +48,13 @@ enum Direction {
   west,
 }
 
+/// Enum representing drone operational states
+enum DroneState {
+  normal,   // Idle or moving
+  tilling,  // Currently tilling soil
+  watering, // Currently watering
+}
+
 /// Extension to get string representation of crop type matching user data schema
 extension CropTypeExtension on CropType {
   String get id {
@@ -306,21 +313,29 @@ class FarmPlot {
 class DronePosition {
   int x;
   int y;
+  DroneState state;
+  
+  // Animated position for smooth transitions (used by UI)
+  double animatedX;
+  double animatedY;
 
   DronePosition({
     this.x = 0,
     this.y = 0,
-  });
+    this.state = DroneState.normal,
+  })  : animatedX = x.toDouble(),
+        animatedY = y.toDouble();
 
-  DronePosition copyWith({int? x, int? y}) {
+  DronePosition copyWith({int? x, int? y, DroneState? state}) {
     return DronePosition(
       x: x ?? this.x,
       y: y ?? this.y,
+      state: state ?? this.state,
     );
   }
 
   @override
-  String toString() => 'DronePosition($x, $y)';
+  String toString() => 'DronePosition($x, $y, state: $state)';
 }
 
 /// Main farm state managing the grid and drone
@@ -339,6 +354,12 @@ class FarmState extends ChangeNotifier {
   /// Research state for checking planting and harvesting permissions
   /// This will be injected from farm_page to enable research-based restrictions
   dynamic researchState;
+  
+  /// Drone work durations from schema (in milliseconds)
+  int get generalDuration => _schema.getDroneWorkDuration('general') ?? 200;
+  int get moveDuration => _schema.getDroneWorkDuration('move(direction)') ?? 1000;
+  int get tillDuration => _schema.getDroneWorkDuration('till()') ?? 600;
+  int get waterDuration => _schema.getDroneWorkDuration('water()') ?? 1000;
 
   FarmState({
     this.gridWidth = 1,
@@ -591,7 +612,8 @@ class FarmState extends ChangeNotifier {
     return _grid.expand((row) => row).toList();
   }
 
-  /// Move drone in a direction
+  /// Move drone in a direction with animation support
+  /// Returns true if move was successful, false if out of bounds
   bool moveDrone(Direction direction) {
     int newX = dronePosition.x;
     int newY = dronePosition.y;
@@ -617,10 +639,60 @@ class FarmState extends ChangeNotifier {
       return false;
     }
 
+    // Update drone grid position
     dronePosition.x = newX;
     dronePosition.y = newY;
+    dronePosition.state = DroneState.normal;
     notifyListeners();
     return true;
+  }
+  
+  /// Animate drone movement with smooth transition (ease-in-out)
+  /// This is called by the interpreter and includes the work duration delay
+  Future<void> animateDroneMove(Direction direction) async {
+    final startX = dronePosition.animatedX;
+    final startY = dronePosition.animatedY;
+    
+    // First attempt the move to update grid position
+    if (!moveDrone(direction)) {
+      return; // Move failed, don't animate
+    }
+    
+    // Target is the new grid position
+    final targetX = dronePosition.x.toDouble();
+    final targetY = dronePosition.y.toDouble();
+    
+    // Animate over moveDuration milliseconds with ease-in-out
+    final duration = moveDuration;
+    final steps = 30; // 30 frames for smooth animation
+    final stepDuration = duration ~/ steps;
+    
+    for (int i = 0; i <= steps; i++) {
+      // Ease-in-out curve: t = t < 0.5 ? 2*t*t : -1 + (4 - 2*t)*t
+      double t = i / steps;
+      t = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+      
+      dronePosition.animatedX = startX + (targetX - startX) * t;
+      dronePosition.animatedY = startY + (targetY - startY) * t;
+      notifyListeners();
+      
+      if (i < steps) {
+        await Future.delayed(Duration(milliseconds: stepDuration));
+      }
+    }
+    
+    // Ensure final position is exact
+    dronePosition.animatedX = targetX;
+    dronePosition.animatedY = targetY;
+    notifyListeners();
+  }
+  
+  /// Set drone state and notify listeners
+  void setDroneState(DroneState state) {
+    if (dronePosition.state != state) {
+      dronePosition.state = state;
+      notifyListeners();
+    }
   }
 
   /// Till the current plot (or area based on completed research)
