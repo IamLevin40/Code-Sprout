@@ -56,7 +56,6 @@ class _CropResearchCardsState extends State<CropResearchCards> {
     final styles = AppStyles();
     
     // Use research card styles
-    final cardHeight = styles.getStyles('research_card.card.height') as double;
     final borderRadius = styles.getStyles('research_card.card.border_radius') as double;
     final borderWidth = styles.getStyles('research_card.card.border_width') as double;
 
@@ -74,7 +73,6 @@ class _CropResearchCardsState extends State<CropResearchCards> {
     final displayName = item.getNameForLanguage(widget.currentLanguage);
 
     return Container(
-      height: cardHeight,
       decoration: BoxDecoration(
         gradient: strokeGradient,
         borderRadius: BorderRadius.circular(borderRadius),
@@ -86,36 +84,55 @@ class _CropResearchCardsState extends State<CropResearchCards> {
           borderRadius: BorderRadius.circular(borderRadius - borderWidth),
         ),
         child: Stack(
+          fit: StackFit.loose,
           children: [
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(8),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Crop icon
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: item.icon.isNotEmpty
-                        ? Image.asset(
-                            item.icon,
-                            width: 64,
-                            height: 64,
-                            errorBuilder: (context, error, stackTrace) {
-                              return const Icon(Icons.image_not_supported, size: 48);
-                            },
-                          )
-                        : const Icon(Icons.agriculture, size: 48),
+                  // Crop icon + default name below
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: item.icon.isNotEmpty
+                            ? Image.asset(
+                                item.icon,
+                                width: 48,
+                                height: 48,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Icon(Icons.image_not_supported, size: 48);
+                                },
+                              )
+                            : const Icon(Icons.agriculture, size: 48),
+                      ),
+                      const SizedBox(height: 6),
+                      SizedBox(
+                        width: 64,
+                        child: Text(
+                          item.defaultName,
+                          style: TextStyle(
+                            color: descColor,
+                            fontSize: descSize * 0.9,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 8),
                   // Content
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           displayName,
@@ -132,8 +149,6 @@ class _CropResearchCardsState extends State<CropResearchCards> {
                             color: descColor,
                             fontSize: descSize,
                           ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 8),
                         // Requirements
@@ -182,6 +197,7 @@ class _CropResearchCardsState extends State<CropResearchCards> {
                       ],
                     ),
                   ),
+                  const SizedBox(width: 8),
                   // Action button
                   if (state == CropResearchState.toBeResearched)
                     _buildResearchButton(item),
@@ -256,31 +272,32 @@ class _CropResearchCardsState extends State<CropResearchCards> {
   Widget _buildLockedOverlay(double borderRadius) {
     final styles = AppStyles();
     final lockIcon = styles.getStyles('research_card.card.locked_overlay.icon.image') as String;
-    
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(borderRadius),
-      ),
-      alignment: Alignment.center,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            lockIcon,
-            width: 48,
-            height: 48,
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Locked',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+    return Positioned.fill(
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.6),
+          borderRadius: BorderRadius.circular(borderRadius),
+        ),
+        alignment: Alignment.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              lockIcon,
+              width: 48,
+              height: 48,
             ),
-          ),
-        ],
+            const SizedBox(height: 8),
+            const Text(
+              'Locked',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -321,36 +338,9 @@ class _CropResearchCardsState extends State<CropResearchCards> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        // Display purchasable items (icons only)
-        if (item.itemPurchases.isNotEmpty) ...[
-          Wrap(
-            spacing: 8,
-            runSpacing: 4,
-            children: item.itemPurchases.map((itemId) {
-              final itemIcon = ResearchItemsSchema.instance.getInventoryIcon(itemId);
-              return Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: itemIcon != null
-                    ? Image.asset(
-                        itemIcon,
-                        width: 20,
-                        height: 20,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Icon(Icons.inventory, size: 16);
-                        },
-                      )
-                    : const Icon(Icons.inventory, size: 16),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 8),
-        ],
-        
+        // Add extra top spacing so purchase controls don't overlap the 'Available' badge
+        const SizedBox(height: 36),
+
         // Multiplier selector
         Row(
           mainAxisSize: MainAxisSize.min,
@@ -362,7 +352,7 @@ class _CropResearchCardsState extends State<CropResearchCards> {
             _buildMultiplierButton(item.id, 100),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
         
         // Purchase button
         _buildPurchaseButton(item),
@@ -432,7 +422,7 @@ class _CropResearchCardsState extends State<CropResearchCards> {
               borderRadius: BorderRadius.circular(borderRadius - borderWidth),
             ),
             alignment: Alignment.center,
-            child: Column(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
@@ -443,24 +433,20 @@ class _CropResearchCardsState extends State<CropResearchCards> {
                     fontWeight: fontWeight,
                   ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.monetization_on,
-                      color: Colors.amber,
-                      size: 14,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '$totalCost',
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: fontSize * 0.8,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+                const SizedBox(width: 8),
+                const Icon(
+                  Icons.monetization_on,
+                  color: Colors.amber,
+                  size: 14,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  '$totalCost',
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),

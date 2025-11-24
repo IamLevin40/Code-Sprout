@@ -37,7 +37,6 @@ class FunctionsResearchCards extends StatelessWidget {
   Widget _buildFunctionsCard(FunctionsResearchItemSchema item, FunctionsResearchState state) {
     final styles = AppStyles();
     
-    final cardHeight = styles.getStyles('research_card.card.height') as double;
     final borderRadius = styles.getStyles('research_card.card.border_radius') as double;
     final borderWidth = styles.getStyles('research_card.card.border_width') as double;
 
@@ -55,7 +54,6 @@ class FunctionsResearchCards extends StatelessWidget {
     final displayDescription = item.getDescriptionForLanguage(currentLanguage);
 
     return Container(
-      height: cardHeight,
       decoration: BoxDecoration(
         gradient: strokeGradient,
         borderRadius: BorderRadius.circular(borderRadius),
@@ -67,15 +65,17 @@ class FunctionsResearchCards extends StatelessWidget {
           borderRadius: BorderRadius.circular(borderRadius - borderWidth),
         ),
         child: Stack(
+          fit: StackFit.loose,
           children: [
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(8),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Function icon
                   Container(
-                    width: 80,
-                    height: 80,
+                    width: 48,
+                    height: 48,
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
@@ -83,20 +83,20 @@ class FunctionsResearchCards extends StatelessWidget {
                     child: item.icon.isNotEmpty
                         ? Image.asset(
                             item.icon,
-                            width: 64,
-                            height: 64,
+                            width: 48,
+                            height: 48,
                             errorBuilder: (context, error, stackTrace) {
                               return const Icon(Icons.image_not_supported, size: 48);
                             },
                           )
                         : const Icon(Icons.functions, size: 48),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 8),
                   // Content
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           item.name,
@@ -113,8 +113,6 @@ class FunctionsResearchCards extends StatelessWidget {
                             color: descColor,
                             fontSize: descSize,
                           ),
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 8),
                         // Requirements
@@ -163,6 +161,7 @@ class FunctionsResearchCards extends StatelessWidget {
                       ],
                     ),
                   ),
+                  const SizedBox(width: 8),
                   // Action button
                   if (state == FunctionsResearchState.toBeResearched)
                     _buildResearchButton(item),
@@ -235,31 +234,32 @@ class FunctionsResearchCards extends StatelessWidget {
   Widget _buildLockedOverlay(double borderRadius) {
     final styles = AppStyles();
     final lockIcon = styles.getStyles('research_card.card.locked_overlay.icon.image') as String;
-    
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(borderRadius),
-      ),
-      alignment: Alignment.center,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            lockIcon,
-            width: 48,
-            height: 48,
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Locked',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+    return Positioned.fill(
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.6),
+          borderRadius: BorderRadius.circular(borderRadius),
+        ),
+        alignment: Alignment.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              lockIcon,
+              width: 48,
+              height: 48,
             ),
-          ),
-        ],
+            const SizedBox(height: 8),
+            const Text(
+              'Locked',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
