@@ -409,20 +409,23 @@ class _FarmPageState extends State<FarmPage> {
   // Layer 2: Top Bar and Control Buttons
   Widget _buildControlLayer() {
     return Padding(
-      padding: const EdgeInsets.all(24.0),
+      padding: const EdgeInsets.all(0),
       child: Column(
         children: [
           // Top bar with back button, title, coins display, and language display
-          Row(
-            children: [
-              _buildBackButton(),
-              const Spacer(),
-              _buildTitleLabel(),
-              const Spacer(),
-              _buildCoinsDisplay(),
-              const SizedBox(width: 16),
-              _buildLanguageDisplay(),
-            ],
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Row(
+              children: [
+                _buildBackButton(),
+                const Spacer(),
+                _buildTitleLabel(),
+                const Spacer(),
+                _buildCoinsDisplay(),
+                const SizedBox(width: 16),
+                _buildLanguageDisplay(),
+              ],
+            ),
           ),
           
           const Spacer(),
@@ -449,7 +452,7 @@ class _FarmPageState extends State<FarmPage> {
             onClearFarmPressed: _showClearFarmDialog,
           ),
           
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
           
           // Bottom controls: Code, Inventory, Research buttons
           FarmBottomControls(
