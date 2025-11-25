@@ -2,20 +2,18 @@ import 'package:flutter/material.dart';
 
 /// Error boundary widget that catches and displays errors in a user-friendly way
 /// Useful for debugging on mobile devices where console logs are not visible
-class ErrorBoundary extends StatelessWidget {
-  final Widget child;
+class ErrorBoundary extends StatefulWidget {
+  final Widget Function() builder;
   final String pageName;
 
   const ErrorBoundary({
     super.key,
-    required this.child,
+    required this.builder,
     required this.pageName,
   });
 
   @override
-  Widget build(BuildContext context) {
-    return child;
-  }
+  State<ErrorBoundary> createState() => _ErrorBoundaryState();
 
   /// Static method to wrap a widget builder with error handling
   static Widget wrapBuild({
@@ -23,23 +21,59 @@ class ErrorBoundary extends StatelessWidget {
     required String pageName,
     required Widget Function() builder,
   }) {
-    try {
-      return builder();
-    } catch (e, stackTrace) {
+    return ErrorBoundary(
+      pageName: pageName,
+      builder: builder,
+    );
+  }
+}
+
+class _ErrorBoundaryState extends State<ErrorBoundary> {
+  Object? _error;
+  StackTrace? _stackTrace;
+
+  @override
+  Widget build(BuildContext context) {
+    if (_error != null) {
       return _buildErrorScreen(
         context: context,
-        pageName: pageName,
+        pageName: widget.pageName,
+        error: _error!,
+        stackTrace: _stackTrace!,
+        onRetry: () {
+          setState(() {
+            _error = null;
+            _stackTrace = null;
+          });
+        },
+      );
+    }
+
+    try {
+      return widget.builder();
+    } catch (e, stackTrace) {
+      // Capture synchronous errors
+      return _buildErrorScreen(
+        context: context,
+        pageName: widget.pageName,
         error: e,
         stackTrace: stackTrace,
+        onRetry: () {
+          setState(() {
+            _error = null;
+            _stackTrace = null;
+          });
+        },
       );
     }
   }
 
-  static Widget _buildErrorScreen({
+  Widget _buildErrorScreen({
     required BuildContext context,
     required String pageName,
     required Object error,
     required StackTrace stackTrace,
+    VoidCallback? onRetry,
   }) {
     // Get a compact stack trace (first 5 lines)
     final stackLines = stackTrace.toString().split('\n').take(5).join('\n');
@@ -161,9 +195,13 @@ class ErrorBoundary extends StatelessWidget {
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: () {
-                          // Refresh by popping and going back
-                          if (Navigator.canPop(context)) {
-                            Navigator.pop(context);
+                          if (onRetry != null) {
+                            onRetry();
+                          } else {
+                            // Refresh by popping and going back
+                            if (Navigator.canPop(context)) {
+                              Navigator.pop(context);
+                            }
                           }
                         },
                         icon: const Icon(Icons.refresh),

@@ -33,8 +33,13 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     super.initState();
-    _loadSchemaAndData();
-    LocalStorageService.instance.userDataNotifier.addListener(_onUserDataChanged);
+    try {
+      _loadSchemaAndData();
+      LocalStorageService.instance.userDataNotifier.addListener(_onUserDataChanged);
+    } catch (e, stackTrace) {
+      debugPrint('Error in SettingsPage initState: $e');
+      debugPrint('Stack trace: $stackTrace');
+    }
   }
 
   @override

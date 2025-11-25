@@ -28,7 +28,7 @@
             "bold": "w700"
         },
         "images": {
-            "logo": "assets/images/logo.png"
+            "logo": "images/logo.png"
         }
     },
     "global": {
@@ -134,21 +134,21 @@
         },
         "items": {
             "home": {
-                "selected": "assets/images/icons/navbuttons/home_selected.png",
-                "unselected": "assets/images/icons/navbuttons/home_unselected.png"
+                "selected": "images/icons/navbuttons/home_selected.png",
+                "unselected": "images/icons/navbuttons/home_unselected.png"
             },
             "course": {
-                "selected": "assets/images/icons/navbuttons/course_selected.png",
-                "unselected": "assets/images/icons/navbuttons/course_unselected.png"
+                "selected": "images/icons/navbuttons/course_selected.png",
+                "unselected": "images/icons/navbuttons/course_unselected.png"
             },
             "sprout": {
-                "selected": "assets/images/icons/navbuttons/sprout_selected.png",
-                "unselected": "assets/images/icons/navbuttons/sprout_unselected.png",
-                "disabled": "assets/images/icons/navbuttons/sprout_disabled.png"
+                "selected": "images/icons/navbuttons/sprout_selected.png",
+                "unselected": "images/icons/navbuttons/sprout_unselected.png",
+                "disabled": "images/icons/navbuttons/sprout_disabled.png"
             },
             "settings": {
-                "selected": "assets/images/icons/navbuttons/settings_selected.png",
-                "unselected": "assets/images/icons/navbuttons/settings_unselected.png"
+                "selected": "images/icons/navbuttons/settings_selected.png",
+                "unselected": "images/icons/navbuttons/settings_unselected.png"
             }
         },
         "selected_indicator": {
@@ -806,7 +806,7 @@
                 "font_weight": "--font_weights.bold"
             },
             "close_button": {
-                "icon": "assets/images/icons/navbuttons/close.png",
+                "icon": "images/icons/navbuttons/close.png",
                 "width": 24,
                 "height": 24
             },
@@ -989,7 +989,7 @@
                         "font_size": "--font_sizes.regular",
                         "font_weight": "--font_weights.bold"
                     },
-                    "icon": "assets/images/icons/on_cards/lock.png"
+                    "icon": "images/icons/on_cards/lock.png"
                 }
             }
         }
@@ -998,7 +998,7 @@
         "width": 144,
         "height": 168,
         "icon": {
-            "image": "assets/images/icons/on_cards/rank_representation.png",
+            "image": "images/icons/on_cards/rank_representation.png",
             "width": 60,
             "height": 60
         },
@@ -1117,8 +1117,8 @@
                 "height": 14,
                 "padding": 4,
                 "icons": {
-                    "highlight": "assets/images/icons/on_cards/leaf_highlight.png",
-                    "unhighlight": "assets/images/icons/on_cards/leaf_unhighlight.png"
+                    "highlight": "images/icons/on_cards/leaf_highlight.png",
+                    "unhighlight": "images/icons/on_cards/leaf_unhighlight.png"
                 },
                 "highlight_shadow": {
                     "color": "--colors.black",
@@ -1134,13 +1134,13 @@
                 "spacing": 8,
                 "light": {
                     "text_color": "--colors.white",
-                    "chapter_icon": "assets/images/icons/on_cards/chapters_light.png",
-                    "duration_icon": "assets/images/icons/on_cards/duration_light.png"
+                    "chapter_icon": "images/icons/on_cards/chapters_light.png",
+                    "duration_icon": "images/icons/on_cards/duration_light.png"
                 },
                 "dark": {
                     "text_color": "--colors.gray",
-                    "chapter_icon": "assets/images/icons/on_cards/chapters_dark.png",
-                    "duration_icon": "assets/images/icons/on_cards/duration_dark.png"
+                    "chapter_icon": "images/icons/on_cards/chapters_dark.png",
+                    "duration_icon": "images/icons/on_cards/duration_dark.png"
                 }
             },
             "progress_text": {
@@ -1175,7 +1175,7 @@
                     "top-bottom": 20
                 },
                 "icon": {
-                    "image": "assets/images/icons/on_cards/lock.png",
+                    "image": "images/icons/on_cards/lock.png",
                     "width": 40,
                     "height": 40
                 },
@@ -1336,7 +1336,7 @@
         },
         "style_coding": {
             "cpp": {
-                "icon": "assets/images/icons/languages/cpp.png",
+                "icon": "images/icons/languages/cpp.png",
                 "background_color": {
                     "begin": {
                         "position": "top_left",
@@ -1359,7 +1359,7 @@
                 }
             },
             "csharp": {
-                "icon": "assets/images/icons/languages/csharp.png",
+                "icon": "images/icons/languages/csharp.png",
                 "background_color": {
                     "begin": {
                         "position": "top_left",
@@ -1382,7 +1382,7 @@
                 }
             },
             "java": {
-                "icon": "assets/images/icons/languages/java.png",
+                "icon": "images/icons/languages/java.png",
                 "background_color": {
                     "begin": {
                         "position": "top_left",
@@ -1405,7 +1405,7 @@
                 }
             },
             "javascript": {
-                "icon": "assets/images/icons/languages/javascript.png",
+                "icon": "images/icons/languages/javascript.png",
                 "background_color": {
                     "begin": {
                         "position": "top_left",
@@ -1428,7 +1428,7 @@
                 }
             },
             "python": {
-                "icon": "assets/images/icons/languages/python.png",
+                "icon": "images/icons/languages/python.png",
                 "background_color": {
                     "begin": {
                         "position": "top_left",
@@ -1456,7 +1456,7 @@
         "transition_duration": 500,
         "back": {
             "icon": {
-                "image": "assets/images/icons/navbuttons/back.png",
+                "image": "images/icons/navbuttons/back.png",
                 "width": 32,
                 "height": 32
             },
@@ -1508,8 +1508,8 @@
                     }
                 },
                 "progress_icons": {
-                    "background": "assets/images/icons/module_items/progress_background.png",
-                    "fill": "assets/images/icons/module_items/progress_fill.png",
+                    "background": "images/icons/module_items/progress_background.png",
+                    "fill": "images/icons/module_items/progress_fill.png",
                     "width": 72,
                     "height": 72
                 },
@@ -1539,8 +1539,8 @@
                 "height": 20,
                 "padding": 10,
                 "icons": {
-                    "highlight": "assets/images/icons/on_cards/leaf_highlight.png",
-                    "unhighlight": "assets/images/icons/on_cards/leaf_unhighlight.png"
+                    "highlight": "images/icons/on_cards/leaf_highlight.png",
+                    "unhighlight": "images/icons/on_cards/leaf_unhighlight.png"
                 },
                 "highlight_shadow": {
                     "color": "--colors.black",
@@ -1555,8 +1555,8 @@
                 "font_weight": "--font_weights.bold",
                 "text_color": "--colors.dark_gray",
                 "dark": {
-                    "chapter_icon": "assets/images/icons/on_cards/chapters_dark.png",
-                    "duration_icon": "assets/images/icons/on_cards/duration_dark.png"
+                    "chapter_icon": "images/icons/on_cards/chapters_dark.png",
+                    "duration_icon": "images/icons/on_cards/duration_dark.png"
                 }
             }
         },
@@ -1592,7 +1592,7 @@
                 "border_width": 2
             },
             "current_card": {
-                "icon": "assets/images/icons/module_items/current.png",
+                "icon": "images/icons/module_items/current.png",
                 "module_title": { 
                     "color": "--colors.white",
                     "font_size": "--font_sizes.title",
@@ -1610,7 +1610,7 @@
                 }
             },
             "finished_card": {
-                "icon": "assets/images/icons/module_items/finished.png",
+                "icon": "images/icons/module_items/finished.png",
                 "module_title": { 
                     "color": "--colors.white",
                     "font_size": "--font_sizes.title",
@@ -1628,7 +1628,7 @@
                 }
             },
             "locked_card": {
-                "icon": "assets/images/icons/module_items/locked.png",
+                "icon": "images/icons/module_items/locked.png",
                 "background_color": "--colors.white",
                 "stroke_color": {
                     "begin": {
@@ -1689,8 +1689,8 @@
                 "height": 14,
                 "padding": 2,
                 "icons": {
-                    "highlight": "assets/images/icons/on_cards/leaf_highlight.png",
-                    "unhighlight": "assets/images/icons/on_cards/leaf_unhighlight.png"
+                    "highlight": "images/icons/on_cards/leaf_highlight.png",
+                    "unhighlight": "images/icons/on_cards/leaf_unhighlight.png"
                 },
                 "highlight_shadow": {
                     "color": "--colors.black",
@@ -2073,7 +2073,7 @@
             },
             "correct_popup": {
                 "height": 192,
-                "icon": "assets/images/icons/module_items/correct.png",
+                "icon": "images/icons/module_items/correct.png",
                 "continue_button": {
                     "background_color": "--colors.ivory_white",
                     "stroke_color": {
@@ -2090,7 +2090,7 @@
             },
             "incorrect_popup": {
                 "height": 192,
-                "icon": "assets/images/icons/module_items/incorrect.png",
+                "icon": "images/icons/module_items/incorrect.png",
                 "continue_button": {
                     "background_color": "--colors.ivory_white",
                     "stroke_color": {
@@ -2107,7 +2107,7 @@
             },
             "module_accomplished_popup": {
                 "height": 300,
-                "icon": "assets/images/icons/module_items/accomplished.png",
+                "icon": "images/icons/module_items/accomplished.png",
                 "progress_display": {
                     "width": 80,
                     "height": 80,
@@ -2134,8 +2134,8 @@
                         }
                     },
                     "progress_icons": {
-                        "background": "assets/images/icons/module_items/progress_background.png",
-                        "fill": "assets/images/icons/module_items/progress_fill.png",
+                        "background": "images/icons/module_items/progress_background.png",
+                        "fill": "images/icons/module_items/progress_fill.png",
                         "width": 48,
                         "height": 48
                     },
@@ -2161,7 +2161,7 @@
             },
             "back_confirmation_popup": {
                 "height": 192,
-                "icon": "assets/images/icons/module_items/leave.png",
+                "icon": "images/icons/module_items/leave.png",
                 "leave_button": {
                     "background_color": "--colors.ivory_white",
                     "stroke_color": {
@@ -2213,7 +2213,7 @@
         "top_layer": {
             "back": {
                 "icon": {
-                    "image": "assets/images/icons/navbuttons/back.png",
+                    "image": "images/icons/navbuttons/back.png",
                     "width": 32,
                     "height": 32
                 },
@@ -2263,7 +2263,7 @@
                     }
                 },
                 "icon": {
-                    "image": "assets/images/icons/sprout_items/miscellaneous/coins.png",
+                    "image": "images/icons/sprout_items/miscellaneous/coins.png",
                     "width": 20,
                     "height": 20
                 },
@@ -2292,9 +2292,9 @@
         },
         "zoom_controls": {
             "icons": {
-                "zoom_in": "assets/images/icons/sprout_items/miscellaneous/zoom_in.png",
-                "center_focus": "assets/images/icons/sprout_items/miscellaneous/center_focus.png",
-                "zoom_out": "assets/images/icons/sprout_items/miscellaneous/zoom_out.png"
+                "zoom_in": "images/icons/sprout_items/miscellaneous/zoom_in.png",
+                "center_focus": "images/icons/sprout_items/miscellaneous/center_focus.png",
+                "zoom_out": "images/icons/sprout_items/miscellaneous/zoom_out.png"
             },
             "spacing": 8,
             "width": 32,
@@ -2343,8 +2343,8 @@
                 "border_radius": 8,
                 "background_color": "--colors.ivory_white",
                 "icons": {
-                    "previous": "assets/images/icons/sprout_items/miscellaneous/previous.png",
-                    "next": "assets/images/icons/sprout_items/miscellaneous/next.png"
+                    "previous": "images/icons/sprout_items/miscellaneous/previous.png",
+                    "next": "images/icons/sprout_items/miscellaneous/next.png"
                 }
             },
             "control_buttons": {
@@ -2364,7 +2364,7 @@
                     }
                 },
                 "run_button": {
-                    "icon": "assets/images/icons/sprout_items/miscellaneous/run.png",
+                    "icon": "images/icons/sprout_items/miscellaneous/run.png",
                     "background_color": {
                         "begin": {
                             "position": "top_left",
@@ -2387,7 +2387,7 @@
                     }
                 },
                 "log_button": {
-                    "icon": "assets/images/icons/sprout_items/miscellaneous/log.png",
+                    "icon": "images/icons/sprout_items/miscellaneous/log.png",
                     "background_color": {
                         "begin": {
                             "position": "top_left",
@@ -2410,7 +2410,7 @@
                     }
                 },
                 "clear_button": {
-                    "icon": "assets/images/icons/sprout_items/miscellaneous/clear.png",
+                    "icon": "images/icons/sprout_items/miscellaneous/clear.png",
                     "background_color": {
                         "begin": {
                             "position": "top_left",
@@ -2433,7 +2433,7 @@
                     }
                 },
                 "stop_button": {
-                    "icon": "assets/images/icons/sprout_items/miscellaneous/stop.png",
+                    "icon": "images/icons/sprout_items/miscellaneous/stop.png",
                     "background_color": {
                         "begin": {
                             "position": "top_left",
@@ -2492,9 +2492,9 @@
                     "width": 16,
                     "height": 16,
                     "images": {
-                        "code": "assets/images/icons/sprout_items/miscellaneous/code.png",
-                        "inventory": "assets/images/icons/sprout_items/miscellaneous/inventory.png",
-                        "research": "assets/images/icons/sprout_items/miscellaneous/research.png"
+                        "code": "images/icons/sprout_items/miscellaneous/code.png",
+                        "inventory": "images/icons/sprout_items/miscellaneous/inventory.png",
+                        "research": "images/icons/sprout_items/miscellaneous/research.png"
                     }
                 }
             },
@@ -2530,7 +2530,7 @@
             "file_toolbar": {
                 "close": {
                     "icon": {
-                        "image": "assets/images/icons/sprout_items/miscellaneous/close.png",
+                        "image": "images/icons/sprout_items/miscellaneous/close.png",
                         "width": 16,
                         "height": 16
                     },
@@ -2555,12 +2555,12 @@
                         "border_radius": 8,
                         "background_color": "--colors.dirty_white",
                         "icons": {
-                            "previous": "assets/images/icons/sprout_items/miscellaneous/previous.png",
-                            "next": "assets/images/icons/sprout_items/miscellaneous/next.png",
-                            "add": "assets/images/icons/sprout_items/miscellaneous/add.png",
-                            "delete": "assets/images/icons/sprout_items/miscellaneous/delete.png",
-                            "indent": "assets/images/icons/sprout_items/miscellaneous/indent.png",
-                            "dedent": "assets/images/icons/sprout_items/miscellaneous/dedent.png"
+                            "previous": "images/icons/sprout_items/miscellaneous/previous.png",
+                            "next": "images/icons/sprout_items/miscellaneous/next.png",
+                            "add": "images/icons/sprout_items/miscellaneous/add.png",
+                            "delete": "images/icons/sprout_items/miscellaneous/delete.png",
+                            "indent": "images/icons/sprout_items/miscellaneous/indent.png",
+                            "dedent": "images/icons/sprout_items/miscellaneous/dedent.png"
                         }
                     }
                 }
@@ -2835,7 +2835,7 @@
                 "font_weight": "--font_weights.regular"
             },
             "close_button": {
-                "icon": "assets/images/icons/navbuttons/close.png",
+                "icon": "images/icons/navbuttons/close.png",
                 "width": 24,
                 "height": 24
             }
@@ -2851,7 +2851,7 @@
                 "font_weight": "--font_weights.bold"
             },
             "close_button": {
-                "icon": "assets/images/icons/navbuttons/close.png",
+                "icon": "images/icons/navbuttons/close.png",
                 "width": 24,
                 "height": 24
             }
@@ -2942,7 +2942,7 @@
             },
             "total_sell_price_display": {
                 "coins_icon": {
-                    "image": "assets/images/icons/sprout_items/miscellaneous/coins.png",
+                    "image": "images/icons/sprout_items/miscellaneous/coins.png",
                     "width": 32,
                     "height": 32
                 },
@@ -3016,7 +3016,7 @@
             },
             "close": {
                 "icon": {
-                    "image": "assets/images/icons/sprout_items/miscellaneous/close.png",
+                    "image": "images/icons/sprout_items/miscellaneous/close.png",
                     "width": 16,
                     "height": 16
                 },
@@ -3063,9 +3063,9 @@
                         "font_weight": "--font_weights.bold"
                     },
                     "icons": {
-                        "crop": "assets/images/icons/sprout_items/miscellaneous/crop_selected.png",
-                        "farm": "assets/images/icons/sprout_items/miscellaneous/farm_selected.png",
-                        "functions": "assets/images/icons/sprout_items/miscellaneous/functions_selected.png"
+                        "crop": "images/icons/sprout_items/miscellaneous/crop_selected.png",
+                        "farm": "images/icons/sprout_items/miscellaneous/farm_selected.png",
+                        "functions": "images/icons/sprout_items/miscellaneous/functions_selected.png"
                     }
                 },
                 "unselected": {
@@ -3086,9 +3086,9 @@
                         "font_weight": "--font_weights.bold"
                     },
                     "icons": {
-                        "crop": "assets/images/icons/sprout_items/miscellaneous/crop_unselected.png",
-                        "farm": "assets/images/icons/sprout_items/miscellaneous/farm_unselected.png",
-                        "functions": "assets/images/icons/sprout_items/miscellaneous/functions_unselected.png"
+                        "crop": "images/icons/sprout_items/miscellaneous/crop_unselected.png",
+                        "farm": "images/icons/sprout_items/miscellaneous/farm_unselected.png",
+                        "functions": "images/icons/sprout_items/miscellaneous/functions_unselected.png"
                     }
                 }
             }
@@ -3110,7 +3110,7 @@
             },
             "error_state": {
                 "icon": {
-                    "image": "assets/images/icons/sprout_items/miscellaneous/sad_face.png",
+                    "image": "images/icons/sprout_items/miscellaneous/sad_face.png",
                     "width": 80,
                     "height": 80
                 },
@@ -3183,16 +3183,16 @@
             "plot_size": 80,
             "plot_spacing": 4,
             "plot_states": {
-                "normal": "assets/images/icons/sprout_items/farm_items/plotland_normal.png",
-                "tilled": "assets/images/icons/sprout_items/farm_items/plotland_tilled.png",
-                "watered": "assets/images/icons/sprout_items/farm_items/plotland_watered.png"
+                "normal": "images/icons/sprout_items/farm_items/plotland_normal.png",
+                "tilled": "images/icons/sprout_items/farm_items/plotland_tilled.png",
+                "watered": "images/icons/sprout_items/farm_items/plotland_watered.png"
             },
             "drone_states": {
-                "normal": "assets/images/icons/sprout_items/farm_items/drone_normal.png",
-                "tilling": "assets/images/icons/sprout_items/farm_items/drone_tilling.png",
-                "watering": "assets/images/icons/sprout_items/farm_items/drone_watering.png",
-                "planting": "assets/images/icons/sprout_items/farm_items/drone_planting.png",
-                "harvesting": "assets/images/icons/sprout_items/farm_items/drone_harvesting.png"
+                "normal": "images/icons/sprout_items/farm_items/drone_normal.png",
+                "tilling": "images/icons/sprout_items/farm_items/drone_tilling.png",
+                "watering": "images/icons/sprout_items/farm_items/drone_watering.png",
+                "planting": "images/icons/sprout_items/farm_items/drone_planting.png",
+                "harvesting": "images/icons/sprout_items/farm_items/drone_harvesting.png"
             },
             "drone_size": {
                 "width": 64,
@@ -3323,7 +3323,7 @@
                     "font_weight": "--font_weights.bold"
                 },
                 "icon": {
-                    "image": "assets/images/icons/on_cards/lock.png",
+                    "image": "images/icons/on_cards/lock.png",
                     "width": 48,
                     "height": 48
                 }
@@ -3428,7 +3428,7 @@
                     "font_weight": "--font_weights.bold"
                 },
                 "icon": {
-                    "image": "assets/images/icons/sprout_items/miscellaneous/coins.png",
+                    "image": "images/icons/sprout_items/miscellaneous/coins.png",
                     "width": 16,
                     "height": 16
                 }

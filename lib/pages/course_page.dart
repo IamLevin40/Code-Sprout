@@ -40,14 +40,24 @@ class _CoursePageState extends State<CoursePage> {
   @override
   void initState() {
     super.initState();
-    _loadData();
-    LocalStorageService.instance.userDataNotifier.addListener(_onUserDataChanged);
+    try {
+      _loadData();
+      LocalStorageService.instance.userDataNotifier.addListener(_onUserDataChanged);
+    } catch (e, stackTrace) {
+      debugPrint('Error in CoursePage initState: $e');
+      debugPrint('Stack trace: $stackTrace');
+    }
   }
 
   void _onUserDataChanged() {
-    final ud = LocalStorageService.instance.userDataNotifier.value;
-    if (!mounted) return;
-    setState(() => _userData = ud);
+    try {
+      final ud = LocalStorageService.instance.userDataNotifier.value;
+      if (!mounted) return;
+      setState(() => _userData = ud);
+    } catch (e, stackTrace) {
+      debugPrint('Error in CoursePage _onUserDataChanged: $e');
+      debugPrint('Stack trace: $stackTrace');
+    }
   }
 
   /// Load available languages and user data

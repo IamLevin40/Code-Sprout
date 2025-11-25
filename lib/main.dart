@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -11,8 +12,26 @@ import 'pages/login_page.dart';
 import 'pages/main_navigation_page.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
+  // Catch all errors, including those in async operations
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    
+    // Catch Flutter framework errors
+    FlutterError.onError = (FlutterErrorDetails details) {
+      FlutterError.presentError(details);
+      debugPrint('Flutter Error: ${details.exception}');
+      debugPrint('Stack Trace: ${details.stack}');
+    };
+    
+    await _initializeAndRunApp();
+  }, (error, stackTrace) {
+    // Catch async errors that escape other handlers
+    debugPrint('Uncaught async error: $error');
+    debugPrint('Stack trace: $stackTrace');
+  });
+}
+
+Future<void> _initializeAndRunApp() async {
   try {
     // Initialize Firebase
     await Firebase.initializeApp(
@@ -25,7 +44,9 @@ void main() async {
     await ResearchItemsSchema.instance.loadSchemas();
     
     runApp(const MyApp());
-  } catch (e) {
+  } catch (e, stackTrace) {
+    debugPrint('Initialization error: $e');
+    debugPrint('Stack trace: $stackTrace');
     // If initialization fails, show error instead of black screen
     runApp(MaterialApp(
       home: Scaffold(

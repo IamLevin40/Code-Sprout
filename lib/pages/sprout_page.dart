@@ -38,10 +38,15 @@ class _SproutPageState extends State<SproutPage> {
   @override
   void initState() {
     super.initState();
-    _notificationController = NotificationController();
-    _init();
-    // Listen to local cached user data changes so UI updates immediately
-    LocalStorageService.instance.userDataNotifier.addListener(_onUserDataChanged);
+    try {
+      _notificationController = NotificationController();
+      _init();
+      // Listen to local cached user data changes so UI updates immediately
+      LocalStorageService.instance.userDataNotifier.addListener(_onUserDataChanged);
+    } catch (e, stackTrace) {
+      debugPrint('Error in SproutPage initState: $e');
+      debugPrint('Stack trace: $stackTrace');
+    }
   }
 
   @override
