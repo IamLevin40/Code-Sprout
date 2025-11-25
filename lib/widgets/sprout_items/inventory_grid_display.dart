@@ -30,8 +30,6 @@ class InventoryGridDisplay extends StatelessWidget {
     final styles = AppStyles();
     
     // Get all styles
-    final lockedIconImage = styles.getStyles('sprout_researches.locked_overlay.icon.image') as String;
-
     final cardHeight = styles.getStyles('sprout_page.inventory.card.height') as double;
     final cardBorderRadius = styles.getStyles('sprout_page.inventory.card.border_radius') as double;
     final cardBorderWidth = styles.getStyles('sprout_page.inventory.card.border_width') as double;
@@ -57,6 +55,7 @@ class InventoryGridDisplay extends StatelessWidget {
     final lockedLabelColor = styles.getStyles('sprout_page.inventory.card.locked_overlay.locked_label.color') as Color;
     final lockedLabelSize = styles.getStyles('sprout_page.inventory.card.locked_overlay.locked_label.font_size') as double;
     final lockedLabelWeight = styles.getStyles('sprout_page.inventory.card.locked_overlay.locked_label.font_weight') as FontWeight;
+    final lockedIconImage = styles.getStyles('sprout_page.inventory.card.locked_overlay.icon') as String;
 
     final double itemWidth = (maxWidth - (columns - 1) * spacing) / columns;
 

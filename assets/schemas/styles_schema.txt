@@ -988,7 +988,8 @@
                         "color": "--colors.dark_gray",
                         "font_size": "--font_sizes.regular",
                         "font_weight": "--font_weights.bold"
-                    }
+                    },
+                    "icon": "images/icons/on_cards/lock.png"
                 }
             }
         }
@@ -2208,13 +2209,6 @@
             "font_size": "--font_sizes.regular"
         }
     },
-    "sprout_researches": {
-        "locked_overlay": {
-            "icon": {
-                "image": "images/icons/on_cards/lock.png"
-            }
-        }
-    },
     "farm_page": {
         "top_layer": {
             "back": {
@@ -2597,6 +2591,22 @@
                 "color": "--colors.ivory_white",
                 "font_size": "--font_sizes.regular",
                 "font_weight": "--font_weights.regular"
+            },
+            "close_button": {
+                "icon": "images/icons/navbuttons/close.png",
+                "width": 24,
+                "height": 24
+            }
+        },
+        "inventory_popup": {
+            "transition_duration": 250,
+            "height": 300,
+            "border_radius": 16,
+            "background_color": "rgba(25, 29, 62, 0.9)",
+            "title": {
+                "color": "--colors.white",
+                "font_size": "--font_sizes.title",
+                "font_weight": "--font_weights.bold"
             },
             "close_button": {
                 "icon": "images/icons/navbuttons/close.png",
