@@ -1,23 +1,92 @@
+import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'services/auth_service.dart';
 import 'models/styles_schema.dart';
+import 'models/farm_data_schema.dart';
+import 'models/research_items_schema.dart';
 import 'miscellaneous/touch_mouse_drag_scroll_behavior.dart';
 import 'pages/register_page.dart';
 import 'pages/login_page.dart';
 import 'pages/main_navigation_page.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  
-  // Load app styles from schema
-  await AppStyles().loadStyles();
-  
-  runApp(const MyApp());
+  // Catch all errors, including those in async operations
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    
+    // Catch Flutter framework errors
+    FlutterError.onError = (FlutterErrorDetails details) {
+      FlutterError.presentError(details);
+      debugPrint('Flutter Error: ${details.exception}');
+      debugPrint('Stack Trace: ${details.stack}');
+    };
+    
+    await _initializeAndRunApp();
+  }, (error, stackTrace) {
+    // Catch async errors that escape other handlers
+    debugPrint('Uncaught async error: $error');
+    debugPrint('Stack trace: $stackTrace');
+  });
+}
+
+Future<void> _initializeAndRunApp() async {
+  try {
+    // Enable immersive sticky fullscreen on Android so navigation/status bars
+    // are hidden and can be temporarily revealed with edge swipes.
+    try {
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+      }
+    } catch (e, st) {
+      debugPrint('Failed to set immersiveSticky mode: $e');
+      debugPrint('Stack: $st');
+    }
+    // Initialize Firebase
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    
+    // Load app styles and schemas
+    await AppStyles().loadStyles();
+    await FarmDataSchema().loadSchema();
+    await ResearchItemsSchema.instance.loadSchemas();
+    
+    runApp(const MyApp());
+  } catch (e, stackTrace) {
+    debugPrint('Initialization error: $e');
+    debugPrint('Stack trace: $stackTrace');
+    // If initialization fails, show error instead of black screen
+    runApp(MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                const SizedBox(height: 16),
+                const Text(
+                  'Initialization Error',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Error: $e',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 14),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ));
+  }
 }
 
 class MyApp extends StatelessWidget {

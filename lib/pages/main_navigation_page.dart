@@ -6,6 +6,7 @@ import 'settings_page.dart';
 import '../widgets/main_header.dart';
 import '../models/styles_schema.dart';
 import '../services/local_storage_service.dart';
+import '../widgets/error_boundary.dart';
 
 /// Main scaffold with bottom navigation
 class MainNavigationPage extends StatefulWidget {
@@ -43,8 +44,8 @@ class _MainNavigationPageState extends State<MainNavigationPage> with WidgetsBin
     final userData = LocalStorageService.instance.userDataNotifier.value;
 
     final enabled = userData == null
-        ? _sproutEnabled
-        : (userData.get('interaction.hasLearnedModule') as bool?) ?? false;
+      ? _sproutEnabled
+      : (userData.get('interaction.hasLearnedChapter') as bool?) ?? false;
 
     final styles = AppStyles();
     final itemsMap = styles.getStyles('bottom_navigation.items') as Map<String, dynamic>;
@@ -69,7 +70,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> with WidgetsBin
 
       final enabled = userData == null
         ? _sproutEnabled
-        : (userData.get('interaction.hasLearnedModule') as bool?) ?? false;
+        : (userData.get('interaction.hasLearnedChapter') as bool?) ?? false;
 
       final styles = AppStyles();
       final itemsMap = styles.getStyles('bottom_navigation.items') as Map<String, dynamic>;
@@ -86,8 +87,16 @@ class _MainNavigationPageState extends State<MainNavigationPage> with WidgetsBin
       });
 
       _updateIndicatorPosition();
-    } catch (e) {
-      // ignore
+    } catch (e, stackTrace) {
+      // Log error but don't crash - navigation should still work
+      debugPrint('Error loading user data in MainNavigationPage: $e');
+      debugPrint('Stack trace: $stackTrace');
+      // Ensure UI is still usable even if data load fails
+      if (mounted) {
+        setState(() {
+          _sproutEnabled = false;
+        });
+      }
     }
   }
 
@@ -153,8 +162,61 @@ class _MainNavigationPageState extends State<MainNavigationPage> with WidgetsBin
     });
   }
 
+  /// Helper method to build error display for failed page instantiation
+  Widget _buildPageError(BuildContext context, String pageName, Object error, StackTrace stackTrace) {
+    final stackLines = stackTrace.toString().split('\n').take(5).join('\n');
+    return Container(
+      color: Colors.white,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+              const SizedBox(height: 16),
+              Text(
+                'Error Loading $pageName',
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red.shade200),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Error:', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 4),
+                    SelectableText(error.toString(), style: const TextStyle(fontSize: 12)),
+                    const SizedBox(height: 8),
+                    const Text('Stack Trace:', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 4),
+                    SelectableText(stackLines, style: const TextStyle(fontSize: 10, fontFamily: 'monospace')),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    return ErrorBoundary.wrapBuild(
+      context: context,
+      pageName: 'MainNavigationPage',
+      builder: () => _buildMainContent(context),
+    );
+  }
+
+  Widget _buildMainContent(BuildContext context) {
     final styles = AppStyles();
     final itemsMap = styles.getStyles('bottom_navigation.items') as Map<String, dynamic>;
     final navKeys = itemsMap.keys.toList();
@@ -166,24 +228,57 @@ class _MainNavigationPageState extends State<MainNavigationPage> with WidgetsBin
       _iconKeys.removeRange(itemCount, _iconKeys.length);
     }
 
+    // Wrap each page with a Builder to catch instantiation errors
     final pages = [
-      HomePage(
-        onTabSelected: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-          if (_scrollController.hasClients) {
-            _scrollController.animateTo(
-              0.0,
-              duration: Duration(milliseconds: (styles.getStyles('global.animation.scroll_back_duration') as int)),
-              curve: Curves.easeOut,
+      Builder(
+        builder: (context) {
+          try {
+            return HomePage(
+              onTabSelected: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+                if (_scrollController.hasClients) {
+                  _scrollController.animateTo(
+                    0.0,
+                    duration: Duration(milliseconds: (styles.getStyles('global.animation.scroll_back_duration') as num).toInt()),
+                    curve: Curves.easeOut,
+                  );
+                }
+              },
             );
+          } catch (e, stackTrace) {
+            return _buildPageError(context, 'HomePage', e, stackTrace);
           }
         },
       ),
-      const CoursePage(),
-      const SproutPage(),
-      const SettingsPage(),
+      Builder(
+        builder: (context) {
+          try {
+            return const CoursePage();
+          } catch (e, stackTrace) {
+            return _buildPageError(context, 'CoursePage', e, stackTrace);
+          }
+        },
+      ),
+      Builder(
+        builder: (context) {
+          try {
+            return const SproutPage();
+          } catch (e, stackTrace) {
+            return _buildPageError(context, 'SproutPage', e, stackTrace);
+          }
+        },
+      ),
+      Builder(
+        builder: (context) {
+          try {
+            return const SettingsPage();
+          } catch (e, stackTrace) {
+            return _buildPageError(context, 'SettingsPage', e, stackTrace);
+          }
+        },
+      ),
     ];
 
     final contentPadding = (styles.getStyles('bottom_navigation.bar.content_padding') as double) + MediaQuery.of(context).padding.bottom;
@@ -282,7 +377,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> with WidgetsBin
                                                 if (_scrollController.hasClients) {
                                                   _scrollController.animateTo(
                                                     0.0,
-                                                    duration: Duration(milliseconds: (styles.getStyles('global.animation.scroll_back_duration') as int)),
+                                                    duration: Duration(milliseconds: (styles.getStyles('global.animation.scroll_back_duration') as num).toInt()),
                                                     curve: Curves.easeOut,
                                                   );
                                                 }
@@ -315,7 +410,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> with WidgetsBin
                                     AnimatedPositioned(
                                       left: _indicatorLeft,
                                       duration: _animateIndicator
-                                          ? Duration(milliseconds: styles.getStyles('bottom_navigation.selected_indicator.animation_duration') as int)
+                                          ? Duration(milliseconds: (styles.getStyles('bottom_navigation.selected_indicator.animation_duration') as num).toInt())
                                           : Duration.zero,
                                       curve: Curves.easeInOut,
                                       child: Container(

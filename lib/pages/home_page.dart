@@ -11,6 +11,8 @@ import '../services/firestore_service.dart';
 import '../widgets/course_cards/continue_course_cards.dart';
 import '../widgets/course_cards/recommended_course_cards.dart';
 import '../widgets/course_cards/discover_course_cards.dart';
+import '../widgets/error_boundary.dart';
+import '../widgets/safe_future_builder.dart';
 import 'module_list_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -29,8 +31,14 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final content = _buildStackedContent();
-    return content;
+    return ErrorBoundary.wrapBuild(
+      context: context,
+      pageName: 'HomePage',
+      builder: () {
+        final content = _buildStackedContent();
+        return content;
+      },
+    );
   }
 
   @override
@@ -45,14 +53,25 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _loadUserData();
-    LocalStorageService.instance.userDataNotifier.addListener(_onUserDataChanged);
+    try {
+      _loadUserData();
+      LocalStorageService.instance.userDataNotifier.addListener(_onUserDataChanged);
+    } catch (e, stackTrace) {
+      debugPrint('Error in HomePage initState: $e');
+      debugPrint('Stack trace: $stackTrace');
+      // Continue execution - page should still render even if data loading fails
+    }
   }
 
   void _onUserDataChanged() {
-    final ud = LocalStorageService.instance.userDataNotifier.value;
-    if (!mounted) return;
-    setState(() => _userData = ud);
+    try {
+      final ud = LocalStorageService.instance.userDataNotifier.value;
+      if (!mounted) return;
+      setState(() => _userData = ud);
+    } catch (e, stackTrace) {
+      debugPrint('Error in _onUserDataChanged: $e');
+      debugPrint('Stack trace: $stackTrace');
+    }
   }
 
   Future<void> _loadUserData() async {
@@ -89,13 +108,11 @@ class _HomePageState extends State<HomePage> {
             children: [
               // Rank display section
               if (_userData != null) ...[
-                FutureBuilder<RankData>(
+                SafeFutureBuilder<RankData>(
                   future: RankData.load(),
-                  builder: (ctx, rsnap) {
-                    if (!rsnap.hasData) return const SizedBox();
-                    final rankData = rsnap.data!;
+                  debugLabel: 'RankData',
+                  builder: (ctx, rankData) {
                     final userMap = _userData!.toFirestore();
-
                     final display = rankData.getDisplayData(userMap);
                     final title = display['title'] as String;
                     final progressValue = display['progressValue'] as double;
@@ -165,13 +182,14 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              FutureBuilder<List<String>>(
+              SafeFutureBuilder<List<String>>(
                 future: CourseDataSchema().getRecommendedLanguages(),
-                builder: (context, snap) {
-                  if (!snap.hasData) {
-                    return SizedBox(height: styles.getStyles('course_cards.recommended_card.attribute.height') as double, child: const Center(child: CircularProgressIndicator()));
-                  }
-                  final langs = snap.data!;
+                debugLabel: 'RecommendedLanguages',
+                loadingBuilder: (context) => SizedBox(
+                  height: styles.getStyles('course_cards.recommended_card.attribute.height') as double,
+                  child: const Center(child: CircularProgressIndicator()),
+                ),
+                builder: (context, langs) {
                     final listHeight = styles.getStyles('course_cards.recommended_card.attribute.height') as double;
                     return LayoutBuilder(
                       builder: (ctx, constraints) {
@@ -191,13 +209,24 @@ class _HomePageState extends State<HomePage> {
                                 child: Row(
                                   children: [
                                     for (int i = 0; i < langs.length; i++) ...[
-                                      FutureBuilder<Map<String, dynamic>>(
+                                      SafeFutureBuilder<Map<String, dynamic>>(
                                         future: CourseDataSchema().loadModuleSchema(langs[i]).then((module) => {'id': langs[i], 'name': module.programmingLanguage}),
-                                        builder: (cctx, csnap) {
-                                          final displayName = csnap.hasData ? (csnap.data!['name'] as String) : langs[i];
+                                        debugLabel: 'ModuleSchema-${langs[i]}',
+                                        builder: (cctx, data) {
+                                          final displayName = data['name'] as String;
                                           return RecommendedCourseCard(
                                             languageId: langs[i],
                                             languageName: displayName,
+                                            difficulty: 'Beginner',
+                                            userData: _userData,
+                                            onTap: () => _onCourseCardTap(langs[i], 'Beginner'),
+                                          );
+                                        },
+                                        errorBuilder: (context, error, stack) {
+                                          // Fallback to language ID if schema fails to load
+                                          return RecommendedCourseCard(
+                                            languageId: langs[i],
+                                            languageName: langs[i],
                                             difficulty: 'Beginner',
                                             userData: _userData,
                                             onTap: () => _onCourseCardTap(langs[i], 'Beginner'),
@@ -234,13 +263,14 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              FutureBuilder<List<String>>(
+              SafeFutureBuilder<List<String>>(
                 future: CourseDataSchema().getAvailableLanguages(),
-                builder: (context, snap) {
-                  if (!snap.hasData) {
-                    return SizedBox(height: styles.getStyles('course_cards.discover_card.attribute.height') as double, child: const Center(child: CircularProgressIndicator()));
-                  }
-                  final langs = snap.data!;
+                debugLabel: 'DiscoverLanguages',
+                loadingBuilder: (context) => SizedBox(
+                  height: styles.getStyles('course_cards.discover_card.attribute.height') as double,
+                  child: const Center(child: CircularProgressIndicator()),
+                ),
+                builder: (context, langs) {
                   final listHeight = styles.getStyles('course_cards.discover_card.attribute.height') as double;
                   return LayoutBuilder(
                     builder: (ctx, constraints) {
@@ -260,13 +290,23 @@ class _HomePageState extends State<HomePage> {
                               child: Row(
                                 children: [
                                   for (int i = 0; i < langs.length; i++) ...[
-                                    FutureBuilder<Map<String, dynamic>>(
+                                    SafeFutureBuilder<Map<String, dynamic>>(
                                       future: CourseDataSchema().loadModuleSchema(langs[i]).then((module) => {'id': langs[i], 'name': module.programmingLanguage}),
-                                      builder: (cctx, csnap) {
-                                        final displayName = csnap.hasData ? (csnap.data!['name'] as String) : langs[i];
+                                      debugLabel: 'DiscoverSchema-${langs[i]}',
+                                      builder: (cctx, data) {
+                                        final displayName = data['name'] as String;
                                         return DiscoverCourseCard(
                                           languageId: langs[i],
                                           languageName: displayName,
+                                          difficulty: 'Beginner',
+                                          userData: _userData,
+                                          onTap: () => _onCourseCardTap(langs[i], 'Beginner'),
+                                        );
+                                      },
+                                      errorBuilder: (context, error, stack) {
+                                        return DiscoverCourseCard(
+                                          languageId: langs[i],
+                                          languageName: langs[i],
                                           difficulty: 'Beginner',
                                           userData: _userData,
                                           onTap: () => _onCourseCardTap(langs[i], 'Beginner'),
@@ -303,13 +343,14 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              FutureBuilder<List<String>>(
+              SafeFutureBuilder<List<String>>(
                 future: CourseDataSchema().getAvailableLanguages(),
-                builder: (context, snap) {
-                  if (!snap.hasData) {
-                    return SizedBox(height: styles.getStyles('course_cards.discover_card.attribute.height') as double, child: const Center(child: CircularProgressIndicator()));
-                  }
-                  final langs = snap.data!;
+                debugLabel: 'ChallengeLanguages',
+                loadingBuilder: (context) => SizedBox(
+                  height: styles.getStyles('course_cards.discover_card.attribute.height') as double,
+                  child: const Center(child: CircularProgressIndicator()),
+                ),
+                builder: (context, langs) {
                   final listHeight = styles.getStyles('course_cards.discover_card.attribute.height') as double;
                   return LayoutBuilder(
                     builder: (ctx, constraints) {
@@ -329,10 +370,11 @@ class _HomePageState extends State<HomePage> {
                               child: Row(
                                 children: [
                                   for (int i = 0; i < langs.length; i++) ...[
-                                    FutureBuilder<Map<String, dynamic>>(
+                                    SafeFutureBuilder<Map<String, dynamic>>(
                                       future: CourseDataSchema().loadModuleSchema(langs[i]).then((module) => {'id': langs[i], 'name': module.programmingLanguage}),
-                                      builder: (cctx, csnap) {
-                                        final displayName = csnap.hasData ? (csnap.data!['name'] as String) : langs[i];
+                                      debugLabel: 'ChallengeSchema-${langs[i]}',
+                                      builder: (cctx, data) {
+                                        final displayName = data['name'] as String;
                                         return Row(
                                           children: [
                                             DiscoverCourseCard(
@@ -346,6 +388,27 @@ class _HomePageState extends State<HomePage> {
                                             DiscoverCourseCard(
                                               languageId: langs[i],
                                               languageName: displayName,
+                                              difficulty: 'Advanced',
+                                              userData: _userData,
+                                              onTap: () => _onCourseCardTap(langs[i], 'Advanced'),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                      errorBuilder: (context, error, stack) {
+                                        return Row(
+                                          children: [
+                                            DiscoverCourseCard(
+                                              languageId: langs[i],
+                                              languageName: langs[i],
+                                              difficulty: 'Intermediate',
+                                              userData: _userData,
+                                              onTap: () => _onCourseCardTap(langs[i], 'Intermediate'),
+                                            ),
+                                            SizedBox(width: styles.getStyles('course_cards.discover_card.attribute.spacing') as double),
+                                            DiscoverCourseCard(
+                                              languageId: langs[i],
+                                              languageName: langs[i],
                                               difficulty: 'Advanced',
                                               userData: _userData,
                                               onTap: () => _onCourseCardTap(langs[i], 'Advanced'),
@@ -424,7 +487,7 @@ class _HomePageState extends State<HomePage> {
           child: child,
         );
       },
-      transitionDuration: Duration(milliseconds: AppStyles().getStyles('module_pages.transition_duration') as int),
+      transitionDuration: Duration(milliseconds: (AppStyles().getStyles('module_pages.transition_duration') as num).toInt()),
     ));
   }
 }

@@ -74,7 +74,7 @@ class RankData {
   /// Returns the XP requirement to reach the next rank from current rank (i.e., the requirement value of next rank)
   int getNextRankRequirement(Map<String, dynamic> userData) {
     final crt = getCurrentRank(userData);
-    final idx = crt['index'] as int;
+    final idx = (crt['index'] as num).toInt();
     if (idx >= _ranks.length - 1) return 0;
     return _ranks[idx + 1].experiencePointsRequirement;
   }
@@ -82,7 +82,7 @@ class RankData {
   /// Returns the total XP required to reach the next rank from start (accumulated)
   int getTotalXPForNextRank(Map<String, dynamic> userData) {
     final crt = getCurrentRank(userData);
-    final idx = crt['index'] as int;
+    final idx = (crt['index'] as num).toInt();
     int acc = 0;
     for (int i = 0; i <= idx + 1 && i < _ranks.length; i++) {
       acc += _ranks[i].experiencePointsRequirement;

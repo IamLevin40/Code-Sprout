@@ -1,12 +1,10 @@
 {
     "accountInformation": {
-        "username": "string (null) [required]",
-        "theme": "string (|light|dark|auto|)"
+        "username": "string (null) [required]"
     },
     "interaction": {
         "hasPlayedTutorial": "boolean (false)",
-        "hasLearnedModule": "boolean (false)",
-        "difficulty": "string (|easy|normal|hard|)"
+        "hasLearnedChapter": "boolean (false)"
     },
     "lastInteraction": {
         "languageId": "string (null)",
@@ -14,44 +12,15 @@
     },
     "sproutProgress": {
         "selectedLanguage": "string (null)",
-        "cropItems": {
-            "wheat": {
-                "isLocked": "boolean (false)",
-                "quantity": "number (0)"
-            },
-            "carrot": {
-                "isLocked": "boolean (true)",
-                "quantity": "number (0)"
-            },
-            "potato": {
-                "isLocked": "boolean (true)",
-                "quantity": "number (0)"
-            },
-            "beetroot": {
-                "isLocked": "boolean (true)",
-                "quantity": "number (0)"
-            },
-            "radish": {
-                "isLocked": "boolean (true)",
-                "quantity": "number (0)"
-            },
-            "onion": {
-                "isLocked": "boolean (true)",
-                "quantity": "number (0)"
-            },
-            "lettuce": {
-                "isLocked": "boolean (true)",
-                "quantity": "number (0)"
-            },
-            "tomato": {
-                "isLocked": "boolean (true)",
-                "quantity": "number (0)"
-            },
-            "garlic": {
-                "isLocked": "boolean (true)",
-                "quantity": "number (0)"
-            }
-        }
+        "isLanguageUnlocked": {
+            "cpp": "boolean (false)",
+            "csharp": "boolean (false)",
+            "java": "boolean (false)",
+            "python": "boolean (false)",
+            "javascript": "boolean (false)"
+        },
+        "coins": "number (0)",
+        "inventory": "reference (inventory_schema.txt)"
     },
     "rankProgress": {
         "experiencePoints": "number (0)"

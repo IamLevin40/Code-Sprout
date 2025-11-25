@@ -6,7 +6,7 @@ class CorrectLevelPopup {
   static Future<void> show(BuildContext context) {
     final styles = AppStyles();
 
-    final transitionMs = styles.getStyles('module_pages.level_popups.global.transition_duration') as int;
+    final transitionMs = (styles.getStyles('module_pages.level_popups.global.transition_duration') as num).toInt();
     final overlayColor = styles.getStyles('module_pages.level_popups.global.overlay_color') as Color;
     final popupBg = styles.getStyles('module_pages.level_popups.global.background_color') as Color;
     final popupBorderRadius = styles.getStyles('module_pages.level_popups.global.border_radius') as double;

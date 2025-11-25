@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'inventory_data.dart';
 
 /// Represents a field definition in the schema
 class SchemaField {
@@ -152,15 +153,17 @@ class SchemaField {
 class UserDataSchema {
   final Map<String, dynamic> _schema;
   final Map<String, SchemaField> _flattenedFields = <String, SchemaField>{};
+  InventorySchema? _inventorySchema;
   
-  UserDataSchema(this._schema) {
+  UserDataSchema(this._schema, {InventorySchema? inventorySchema}) {
+    _inventorySchema = inventorySchema;
     _flattenSchema();
   }
 
   /// Load schema from assets file
   static Future<UserDataSchema> load() async {
     try {
-      final schemaContent = await rootBundle.loadString('schemas/user_data_schema.txt');
+      final schemaContent = await rootBundle.loadString('assets/schemas/user_data_schema.txt');
       
       // Find the JSON part (after the comments)
       final jsonStart = schemaContent.indexOf('{');
@@ -171,7 +174,10 @@ class UserDataSchema {
       final jsonContent = schemaContent.substring(jsonStart).trim();
       final schemaMap = json.decode(jsonContent) as Map<String, dynamic>;
       
-      return UserDataSchema(schemaMap);
+      // Load inventory schema
+      final inventorySchema = await InventorySchema.load();
+      
+      return UserDataSchema(schemaMap, inventorySchema: inventorySchema);
     } catch (e) {
       throw Exception('Failed to load user data schema: $e');
     }
@@ -185,8 +191,20 @@ class UserDataSchema {
       final path = prefix.isEmpty ? key : '$prefix.$key';
       
       if (value is String) {
-        // This is a field definition (e.g., "string (null) [required]")
-        _flattenedFields[path] = SchemaField.parse(value);
+        // Check if this is a reference to another schema
+        if (value.startsWith('reference (') && value.endsWith(')')) {
+          // This is a reference - expand it from inventory schema
+          if (_inventorySchema != null) {
+            // Flatten each inventory item
+            for (final itemId in _inventorySchema!.getAllItemIds()) {
+              _flattenedFields['$path.$itemId.isLocked'] = SchemaField(dataType: 'boolean', defaultValue: false);
+              _flattenedFields['$path.$itemId.quantity'] = SchemaField(dataType: 'number', defaultValue: 0);
+            }
+          }
+        } else {
+          // This is a field definition (e.g., "string (null) [required]")
+          _flattenedFields[path] = SchemaField.parse(value);
+        }
       } else if (value is Map<String, dynamic>) {
         // This is a nested structure (map within map)
         // Recursively flatten it
@@ -220,9 +238,19 @@ class UserDataSchema {
     
     schema.forEach((key, value) {
       if (value is String) {
-        // This is a field definition
-        final field = SchemaField.parse(value);
-        result[key] = field.getDefaultValue();
+        // Check if this is a reference to another schema
+        if (value.startsWith('reference (') && value.endsWith(')')) {
+          // This is a reference - populate from inventory schema
+          if (_inventorySchema != null) {
+            result[key] = _inventorySchema!.createDefaultInventory();
+          } else {
+            result[key] = <String, dynamic>{};
+          }
+        } else {
+          // This is a field definition
+          final field = SchemaField.parse(value);
+          result[key] = field.getDefaultValue();
+        }
       } else if (value is Map<String, dynamic>) {
         // This is a nested map, recursively build it
         result[key] = _buildNestedMap(value);
@@ -350,6 +378,24 @@ class UserDataSchema {
     }
     
     // Process the current level
+    // If the current path points to a reference string (e.g. "reference (inventory_schema.txt)")
+    if (current is String) {
+      final str = current.trim();
+      if (str.startsWith('reference (') && str.endsWith(')')) {
+        // Expand the referenced schema using the loaded inventory schema (if available)
+        if (_inventorySchema != null) {
+          for (final itemId in _inventorySchema!.getAllItemIds()) {
+            // Represent each inventory item as a Map placeholder so callers can inspect keys
+            result[itemId] = {
+              'isLocked': SchemaField(dataType: 'boolean', defaultValue: false),
+              'quantity': SchemaField(dataType: 'number', defaultValue: 0),
+            };
+          }
+        }
+      }
+      return result;
+    }
+
     if (current is Map<String, dynamic>) {
       current.forEach((key, value) {
         if (value is String) {

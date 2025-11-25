@@ -8,6 +8,7 @@ import '../models/user_data.dart';
 import '../widgets/level_popups/module_accomplished_popup.dart';
 import '../widgets/level_popups/back_confirmation_popup.dart';
 import '../widgets/module_items/level_content_display.dart';
+import '../widgets/error_boundary.dart';
 
 class ModuleLevelsPage extends StatefulWidget {
   final String languageId;
@@ -84,19 +85,24 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
   }
 
   Future<void> _handleNext(int totalLevels) async {
-    // If not last level, go to next level locally
     if (_currentLevelIndex < totalLevels) {
       setState(() => _currentLevelIndex += 1);
       return;
     }
 
-    // Last level -> module accomplished: advance module for user and go back
     final navigator = Navigator.of(context);
     final ud = LocalStorageService.instance.userDataNotifier.value;
     if (ud == null) {
       if (mounted) navigator.pop();
       return;
     }
+
+    final moduleCount = await CourseDataSchema().getModuleCountInChapter(
+      languageId: widget.languageId,
+      difficulty: widget.difficulty,
+      chapterNumber: widget.chapterNumber,
+    );
+    final bool chapterCompleted = widget.moduleNumber >= moduleCount;
 
     final userMap = ud.toFirestore();
     final updated = await CourseDataSchema().advanceModule(
@@ -111,7 +117,6 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
       final base = Map<String, dynamic>.from(ud.toJson());
       updated.forEach((k, v) => base[k] = v);
 
-      // Ensure lastInteraction is updated to reflect the played module
       final li = (base['lastInteraction'] is Map)
           ? Map<String, dynamic>.from(base['lastInteraction'] as Map)
           : <String, dynamic>{};
@@ -119,20 +124,25 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
       li['difficulty'] = widget.difficulty;
       base['lastInteraction'] = li;
 
-      // Ensure interaction.hasLearnedModule is set to true
       final interaction = (base['interaction'] is Map)
           ? Map<String, dynamic>.from(base['interaction'] as Map)
           : <String, dynamic>{};
-      interaction['hasLearnedModule'] = true;
+      if (chapterCompleted) {
+        interaction['hasLearnedChapter'] = true;
+      }
       base['interaction'] = interaction;
 
-      final newUser = UserData.fromJson(base);
+      final sprout = (base['sproutProgress'] is Map) ? Map<String, dynamic>.from(base['sproutProgress'] as Map) : <String, dynamic>{};
+      final isLangUnlocked = (sprout['isLanguageUnlocked'] is Map) ? Map<String, dynamic>.from(sprout['isLanguageUnlocked'] as Map) : <String, dynamic>{};
+      if (chapterCompleted) isLangUnlocked[widget.languageId] = true;
+      sprout['isLanguageUnlocked'] = isLangUnlocked;
+      base['sproutProgress'] = sprout;
 
+      final newUser = UserData.fromJson(base);
       try {
         LocalStorageService.instance.userDataNotifier.value = newUser;
       } catch (_) {}
 
-      // Persist locally and remotely in background so UI is not blocked
       LocalStorageService.instance.saveUserData(newUser).catchError((_) {});
       Future(() async {
         try {
@@ -145,7 +155,6 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
       try {
         final base = Map<String, dynamic>.from(ud.toJson());
         updated.forEach((k, v) => base[k] = v);
-        // Make sure lastInteraction and interaction flags are present for progress
         final li = (base['lastInteraction'] is Map)
             ? Map<String, dynamic>.from(base['lastInteraction'] as Map)
             : <String, dynamic>{};
@@ -155,10 +164,9 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
         final interaction = (base['interaction'] is Map)
             ? Map<String, dynamic>.from(base['interaction'] as Map)
             : <String, dynamic>{};
-        interaction['hasLearnedModule'] = true;
+        if (chapterCompleted) interaction['hasLearnedChapter'] = true;
         base['interaction'] = interaction;
 
-        // compute updated progress for the course/difficulty
         final progress = await CourseDataSchema().getProgressPercentage(
           userData: base,
           languageId: widget.languageId,
@@ -169,10 +177,9 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
           if (!mounted) return;
           await ModuleAccomplishedPopup.show(context, progressPercent: progress);
           if (!mounted) return;
-          navigator.pop(); // back to module list
+          navigator.pop();
         });
       } catch (_) {
-        // fallback: just pop back
         if (mounted) navigator.pop();
       }
     }
@@ -180,9 +187,13 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final styles = AppStyles();
+    return ErrorBoundary.wrapBuild(
+      context: context,
+      pageName: 'ModuleLevelsPage',
+      builder: () {
+        final styles = AppStyles();
 
-    final backIconImage = styles.getStyles('module_pages.back.icon.image') as String;
+        final backIconImage = styles.getStyles('module_pages.back.icon.image') as String;
     final backIconWidth = styles.getStyles('module_pages.back.icon.width') as double;
     final backIconHeight = styles.getStyles('module_pages.back.icon.height') as double;
     final backBgColor = styles.getStyles('module_pages.back.background_color') as Color;
@@ -509,6 +520,8 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
           ),
         ),
       ),
+    );
+      },
     );
   }
 }

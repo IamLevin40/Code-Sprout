@@ -7,6 +7,7 @@ import '../services/local_storage_service.dart';
 import '../models/user_data.dart';
 import 'module_levels_page.dart';
 import '../widgets/module_items/progress_display.dart';
+import '../widgets/error_boundary.dart';
 
 class ModuleListPage extends StatefulWidget {
   final String languageId;
@@ -73,9 +74,13 @@ class _ModuleListPageState extends State<ModuleListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final styles = AppStyles();
+    return ErrorBoundary.wrapBuild(
+      context: context,
+      pageName: 'ModuleListPage',
+      builder: () {
+        final styles = AppStyles();
 
-    final backIconImage = styles.getStyles('module_pages.back.icon.image') as String;
+        final backIconImage = styles.getStyles('module_pages.back.icon.image') as String;
     final backIconWidth = styles.getStyles('module_pages.back.icon.width') as double;
     final backIconHeight = styles.getStyles('module_pages.back.icon.height') as double;
     final backBgColor = styles.getStyles('module_pages.back.background_color') as Color;
@@ -133,7 +138,7 @@ class _ModuleListPageState extends State<ModuleListPage> {
 
                         final info = snap.data!;
                         final String displayName = info['displayName'] as String;
-                        final int chapterCount = info['chapterCount'] as int;
+                        final int chapterCount = (info['chapterCount'] as num).toInt();
                         final dynamic est = info['estimatedDuration'];
                         final double progress = info['progress'] as double;
 
@@ -339,8 +344,8 @@ class _ModuleListPageState extends State<ModuleListPage> {
                       if (!snap.hasData) return const SizedBox();
                       final info = snap.data!;
                       final modulesByDifficulty = info['modulesByDifficulty'] as Map<String, Map<String, Module>>;
-                      final int curChap = info['currentChapter'] as int;
-                      final int curMod = info['currentModule'] as int;
+                      final int curChap = (info['currentChapter'] as num).toInt();
+                      final int curMod = (info['currentModule'] as num).toInt();
 
                       final listingTitleColor = styles.getStyles('module_pages.module_listing.title.color') as Color;
                       final listingTitleFontSize = styles.getStyles('module_pages.module_listing.title.font_size') as double;
@@ -608,6 +613,8 @@ class _ModuleListPageState extends State<ModuleListPage> {
           ),
         ),
       ),
+    );
+      },
     );
   }
 }

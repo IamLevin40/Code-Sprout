@@ -6,6 +6,7 @@ import '../models/styles_schema.dart';
 import '../models/user_data.dart';
 import '../models/user_data_schema.dart';
 import '../services/local_storage_service.dart';
+import '../widgets/error_boundary.dart';
 
 /// Settings page for user data manipulation and testing
 /// Dynamically renders UI based on the schema definition
@@ -22,6 +23,7 @@ class _SettingsPageState extends State<SettingsPage> {
   final Map<String, dynamic> _fieldValues = {};
   
   bool _isSaving = false;
+  bool _isReloadingSchema = false;
   
   UserData? _currentUserData;
   UserDataSchema? _schema;
@@ -31,8 +33,13 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     super.initState();
-    _loadSchemaAndData();
-    LocalStorageService.instance.userDataNotifier.addListener(_onUserDataChanged);
+    try {
+      _loadSchemaAndData();
+      LocalStorageService.instance.userDataNotifier.addListener(_onUserDataChanged);
+    } catch (e, stackTrace) {
+      debugPrint('Error in SettingsPage initState: $e');
+      debugPrint('Stack trace: $stackTrace');
+    }
   }
 
   @override
@@ -158,6 +165,45 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
+  Future<void> _reloadSchema() async {
+    if (_isReloadingSchema || _uid == null) return;
+
+    setState(() {
+      _isReloadingSchema = true;
+    });
+
+    try {
+      // Force reload the schema
+      await UserData.reloadSchema();
+      
+      // Clear existing controllers and field values
+      for (final controller in _controllers.values) {
+        controller.dispose();
+      }
+      _controllers.clear();
+      _fieldValues.clear();
+      
+      // Reload everything with new schema
+      await _loadSchemaAndData();
+      
+      if (!mounted) return;
+      
+      setState(() {
+        _isReloadingSchema = false;
+      });
+      
+      _showSuccessSnackBar('Schema reloaded successfully!');
+    } catch (e) {
+      if (!mounted) return;
+      
+      setState(() {
+        _isReloadingSchema = false;
+      });
+      
+      _showErrorSnackBar('Failed to reload schema: $e');
+    }
+  }
+
   void _showSaveSuccessDialog() {
     final styles = AppStyles();
     
@@ -247,12 +293,29 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  void _showSuccessSnackBar(String message) {
+    final styles = AppStyles();
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: styles.getStyles('settings_page.save_button.background_color') as Color,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final styles = AppStyles();
+    return ErrorBoundary.wrapBuild(
+      context: context,
+      pageName: 'SettingsPage',
+      builder: () {
+        final styles = AppStyles();
 
-    return Container(
-      color: styles.getStyles('global.background.color') as Color,
+        return Container(
+          color: styles.getStyles('global.background.color') as Color,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 24.0),
         child: Form(
@@ -280,52 +343,92 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               const SizedBox(height: 8),
 
-              // Save Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isSaving ? null : _saveUserData,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: styles.getStyles('settings_page.save_button.background_color') as Color,
-                    foregroundColor: styles.getStyles('settings_page.save_button.text.color') as Color,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(styles.getStyles('settings_page.save_button.border_radius') as double),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: _isSaving
-                      ? Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SizedBox(
-                              width: styles.getStyles('settings_page.save_button.progress_indicator.width') as double,
-                              height: styles.getStyles('settings_page.save_button.progress_indicator.height') as double,
-                              child: CircularProgressIndicator(
-                                strokeWidth: styles.getStyles('settings_page.save_button.progress_indicator.stroke_weight') as double,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                    styles.getStyles('settings_page.save_button.text.color') as Color),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              'Saving...',
+              // Action Buttons Row
+              Row(
+                children: [
+                  // Save Button
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton(
+                      onPressed: _isSaving ? null : _saveUserData,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: styles.getStyles('settings_page.save_button.background_color') as Color,
+                        foregroundColor: styles.getStyles('settings_page.save_button.text.color') as Color,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(styles.getStyles('settings_page.save_button.border_radius') as double),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: _isSaving
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  width: styles.getStyles('settings_page.save_button.progress_indicator.width') as double,
+                                  height: styles.getStyles('settings_page.save_button.progress_indicator.height') as double,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: styles.getStyles('settings_page.save_button.progress_indicator.stroke_weight') as double,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        styles.getStyles('settings_page.save_button.text.color') as Color),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Saving...',
+                                  style: TextStyle(
+                                    fontSize: styles.getStyles('settings_page.save_button.text.font_size') as double,
+                                    fontWeight: styles.getStyles('settings_page.save_button.text.font_weight') as FontWeight,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Text(
+                              'Save Changes',
                               style: TextStyle(
                                 fontSize: styles.getStyles('settings_page.save_button.text.font_size') as double,
                                 fontWeight: styles.getStyles('settings_page.save_button.text.font_weight') as FontWeight,
                               ),
                             ),
-                          ],
-                        )
-                      : Text(
-                          'Save Changes',
-                          style: TextStyle(
-                            fontSize: styles.getStyles('settings_page.save_button.text.font_size') as double,
-                            fontWeight: styles.getStyles('settings_page.save_button.text.font_weight') as FontWeight,
-                          ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  // Reload Schema Button
+                  Expanded(
+                    flex: 1,
+                    child: ElevatedButton.icon(
+                      onPressed: _isReloadingSchema ? null : _reloadSchema,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: styles.getStyles('settings_page.subtitle.color') as Color,
+                        foregroundColor: styles.getStyles('settings_page.save_button.text.color') as Color,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(styles.getStyles('settings_page.save_button.border_radius') as double),
                         ),
-                ),
+                        elevation: 0,
+                      ),
+                      icon: _isReloadingSchema
+                          ? SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    styles.getStyles('settings_page.save_button.text.color') as Color),
+                              ),
+                            )
+                          : const Icon(Icons.refresh, size: 20),
+                      label: Text(
+                        _isReloadingSchema ? 'Reloading...' : 'Reload Schema',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: styles.getStyles('settings_page.save_button.text.font_weight') as FontWeight,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
 
@@ -366,6 +469,8 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
         ),
       ),
+    );
+      },
     );
   }
 
@@ -461,17 +566,57 @@ class _SettingsPageState extends State<SettingsPage> {
       final currentPath = '$parentPath.$key';
       
       if (value is SchemaField) {
-        // It's an actual field
-        widgets.add(_buildField(key, value, currentPath, depth));
+        // If this is a reference field (e.g. "reference (inventory_schema.txt)"),
+        // expand it into its referenced structure so it becomes editable in the UI.
+        if (value.dataType.toLowerCase() == 'reference') {
+          // Resolve the expanded structure for this reference path
+          final nestedStructure = _schema!.getStructureAtPath(currentPath);
+
+          widgets.add(_buildNestedMapHeader(key, depth));
+          widgets.add(const SizedBox(height: 12));
+
+          final nestedWidgets = _buildStructureWidgets(currentPath, nestedStructure, depth + 1);
+
+          final styles = AppStyles();
+          widgets.add(Container(
+            margin: EdgeInsets.only(left: (depth + 1) * 16.0),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: styles.getStyles('settings_page.nested_container.background_color') as Color,
+              borderRadius: BorderRadius.circular(styles.getStyles('settings_page.nested_container.border_radius') as double),
+              border: Border.all(
+                color: styles.getStyles('settings_page.nested_container.border.color') as Color,
+                width: styles.getStyles('settings_page.nested_container.border.width') as double,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: nestedWidgets,
+            ),
+          ));
+        } else {
+          // Regular simple field
+          widgets.add(_buildField(key, value, currentPath, depth));
+        }
       } else if (value is Map<String, dynamic>) {
-        // It's a nested map structure
+        // It's a nested map structure.
         widgets.add(_buildNestedMapHeader(key, depth));
         widgets.add(const SizedBox(height: 12));
-        
-        // Recursively build nested structure
-        final nestedStructure = _schema!.getStructureAtPath(currentPath);
+
+        // Two possibilities:
+        // - The map's values are already SchemaField objects (expanded reference)
+        // - The map is a plain nested structure and we should query the schema
+        Map<String, dynamic> nestedStructure;
+        final hasSchemaFieldValues = value.values.any((v) => v is SchemaField || (v is Map && v.values.any((vv) => vv is SchemaField)));
+        if (hasSchemaFieldValues) {
+          // Use the inline map directly. Example: inventory -> { itemId: {isLocked: SchemaField, ...}, ... }
+          nestedStructure = value.map((k, v) => MapEntry(k, v));
+        } else {
+          nestedStructure = _schema!.getStructureAtPath(currentPath);
+        }
+
         final nestedWidgets = _buildStructureWidgets(currentPath, nestedStructure, depth + 1);
-        
+
         final styles = AppStyles();
         widgets.add(Container(
           margin: EdgeInsets.only(left: (depth + 1) * 16.0),

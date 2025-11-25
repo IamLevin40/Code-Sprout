@@ -18,7 +18,7 @@ class RankDataSchema {
   static Future<RankDataSchema> load() async {
     if (_cached != null) return _cached!;
 
-    final content = await rootBundle.loadString('schemas/rank_schema.txt');
+    final content = await rootBundle.loadString('assets/schemas/rank_schema.txt');
     final jsonStart = content.indexOf('{');
     final jsonContent = content.substring(jsonStart);
     final Map<String, dynamic> map = json.decode(jsonContent) as Map<String, dynamic>;

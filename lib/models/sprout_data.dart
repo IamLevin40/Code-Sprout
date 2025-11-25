@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'user_data.dart';
+import 'inventory_data.dart';
 import '../services/firestore_service.dart';
 
 /// Helper utilities for Sprout-related user data and logic
@@ -70,24 +71,27 @@ class SproutData {
 
 }
 
-/// Data model representing a crop item instance
-class CropItem {
+/// Data model representing an inventory item instance (seeds or crops)
+class InventoryItem {
   final String id;
   final String displayName;
+  final String? iconPath;
   final bool isLocked;
   final int quantity;
 
-  CropItem({
+  InventoryItem({
     required this.id,
     required this.displayName,
+    this.iconPath,
     required this.isLocked,
     required this.quantity,
   });
 
-  CropItem copyWith({String? displayName, bool? isLocked, int? quantity}) {
-    return CropItem(
+  InventoryItem copyWith({String? displayName, bool? isLocked, int? quantity}) {
+    return InventoryItem(
       id: id,
       displayName: displayName ?? this.displayName,
+      iconPath: iconPath,
       isLocked: isLocked ?? this.isLocked,
       quantity: quantity ?? this.quantity,
     );
@@ -95,23 +99,26 @@ class CropItem {
 }
 
 class SproutDataHelpers {
-  /// Return the ordered list of crop ids defined in the user data schema
-  static Future<List<String>> getCropKeysFromSchema() async {
+  /// Return the ordered list of inventory item ids defined in the user data schema
+  static Future<List<String>> getInventoryKeysFromSchema() async {
     final schema = await UserData.getSchema();
-    final Map<String, dynamic> structure = schema.getStructureAtPath('sproutProgress.cropItems');
+    final Map<String, dynamic> structure = schema.getStructureAtPath('sproutProgress.inventory');
     return structure.keys.toList();
   }
 
-  /// Build a list of CropItem for a given user (or defaults if userData is null)
-  static Future<List<CropItem>> getCropItemsForUser(UserData? userData) async {
+  /// Build a list of InventoryItem for a given user (or defaults if userData is null)
+  static Future<List<InventoryItem>> getInventoryItemsForUser(UserData? userData) async {
     final schema = await UserData.getSchema();
     final Map<String, dynamic> defaults = schema.createDefaultData();
-    final List<String> keys = (schema.getStructureAtPath('sproutProgress.cropItems')).keys.toList();
-    final List<CropItem> items = [];
+    final List<String> keys = (schema.getStructureAtPath('sproutProgress.inventory')).keys.toList();
+    
+    // Load inventory schema to get display names
+    final inventorySchema = await InventorySchema.load();
+    final List<InventoryItem> items = [];
 
     for (final k in keys) {
-      final dynamic defIsLocked = (defaults['sproutProgress']?['cropItems']?[k]?['isLocked']);
-      final dynamic defQuantity = (defaults['sproutProgress']?['cropItems']?[k]?['quantity']);
+      final dynamic defIsLocked = (defaults['sproutProgress']?['inventory']?[k]?['isLocked']);
+      final dynamic defQuantity = (defaults['sproutProgress']?['inventory']?[k]?['quantity']);
 
       bool isLocked = true;
       int qty = 0;
@@ -120,87 +127,89 @@ class SproutDataHelpers {
       if (defQuantity is num) qty = defQuantity.toInt();
 
       if (userData != null) {
-        final dynamic uIsLocked = userData.get('sproutProgress.cropItems.$k.isLocked');
-        final dynamic uQty = userData.get('sproutProgress.cropItems.$k.quantity');
+        final dynamic uIsLocked = userData.get('sproutProgress.inventory.$k.isLocked');
+        final dynamic uQty = userData.get('sproutProgress.inventory.$k.quantity');
 
         if (uIsLocked is bool) isLocked = uIsLocked;
         if (uQty is num) qty = uQty.toInt();
       }
 
-      final display = '${k[0].toUpperCase()}${k.substring(1)}';
+      // Get display name and icon from inventory schema
+      final displayName = inventorySchema.getItemName(k) ?? k;
+      final iconPath = inventorySchema.getItemIcon(k);
 
-      items.add(CropItem(id: k, displayName: display, isLocked: isLocked, quantity: qty));
+      items.add(InventoryItem(id: k, displayName: displayName, iconPath: iconPath, isLocked: isLocked, quantity: qty));
     }
 
     return items;
   }
 
-  /// Update a crop's quantity by delta (positive or negative) 
-  /// Will only perform the update when the crop is unlocked
-  static Future<UserData> updateCropQuantity({
+  /// Update an inventory item's quantity by delta (positive or negative) 
+  /// Will only perform the update when the item is unlocked
+  static Future<UserData> updateInventoryQuantity({
     required UserData userData,
-    required String cropId,
+    required String itemId,
     required int delta,
   }) async {
     final Map<String, dynamic> originalMap = userData.toFirestore();
-    final cropInfo = _readCropInfo(originalMap, cropId);
-    final bool isLocked = cropInfo['isLocked'] as bool;
-    final int currentQty = cropInfo['quantity'] as int;
+    final itemInfo = _readInventoryInfo(originalMap, itemId);
+    final bool isLocked = itemInfo['isLocked'] as bool;
+    final int currentQty = (itemInfo['quantity'] as num).toInt();
 
     if (isLocked) {
-      throw Exception('Crop $cropId is locked and cannot be modified');
+      throw Exception('Inventory item $itemId is locked and cannot be modified');
     }
 
     final int newQty = (currentQty + delta) < 0 ? 0 : (currentQty + delta);
 
     try {
-      await userData.updateFields({'sproutProgress.cropItems.$cropId.quantity': newQty});
+      await userData.updateFields({'sproutProgress.inventory.$itemId.quantity': newQty});
     } catch (e) {
-      throw Exception('Failed to persist crop quantity update: $e');
+      throw Exception('Failed to persist inventory quantity update: $e');
     }
 
     try {
       final refreshed = await FirestoreService.getUserData(userData.uid, forceRefresh: true);
       if (refreshed != null) return refreshed;
     } catch (e) {
-      debugPrint('Failed to refresh user data after updating crop quantity: $e');
+      debugPrint('Failed to refresh user data after updating inventory quantity: $e');
     }
 
-    return userData.copyWith({'sproutProgress.cropItems.$cropId.quantity': newQty});
+    return userData.copyWith({'sproutProgress.inventory.$itemId.quantity': newQty});
   }
 
-  /// Return a new copy of the userData map with updated crop quantity
-  static Map<String, dynamic> _withUpdatedCropQuantityMap(Map<String, dynamic> userData, String cropId, int newQty) {
+  /// Return a new copy of the userData map with updated inventory item quantity
+  static Map<String, dynamic> _withUpdatedInventoryQuantityMap(Map<String, dynamic> userData, String itemId, int newQty) {
     final newData = Map<String, dynamic>.from(userData);
 
     final sp = (userData['sproutProgress'] is Map<String, dynamic>)
         ? Map<String, dynamic>.from(userData['sproutProgress'] as Map<String, dynamic>)
         : <String, dynamic>{};
 
-    final cropItems = (sp['cropItems'] is Map<String, dynamic>)
-        ? Map<String, dynamic>.from(sp['cropItems'] as Map<String, dynamic>)
+    final inventory = (sp['inventory'] is Map<String, dynamic>)
+        ? Map<String, dynamic>.from(sp['inventory'] as Map<String, dynamic>)
         : <String, dynamic>{};
 
-    final crop = (cropItems[cropId] is Map<String, dynamic>)
-        ? Map<String, dynamic>.from(cropItems[cropId] as Map<String, dynamic>)
+    final item = (inventory[itemId] is Map<String, dynamic>)
+        ? Map<String, dynamic>.from(inventory[itemId] as Map<String, dynamic>)
         : <String, dynamic>{};
 
-    crop['quantity'] = newQty;
-    cropItems[cropId] = crop;
-    sp['cropItems'] = cropItems;
+    item['quantity'] = newQty;
+    inventory[itemId] = item;
+    sp['inventory'] = inventory;
     newData['sproutProgress'] = sp;
     return newData;
   }
 
-  /// Apply a delta to a crop's quantity in a plain userData map
-  /// If the crop is locked the original map is returned unchanged
-  static Map<String, dynamic> applyCropQuantityDelta(Map<String, dynamic> userData, String cropId, int delta) {
+  /// Apply a delta to an inventory item's quantity in a plain userData map
+  /// If the item is locked the original map is returned unchanged
+  static Map<String, dynamic> applyInventoryQuantityDelta(Map<String, dynamic> userData, String itemId, int delta) {
     final sp = userData['sproutProgress'] as Map<String, dynamic>?;
-    final cropItems = sp != null ? (sp['cropItems'] as Map<String, dynamic>?) : null;
-    final crop = (cropItems != null) ? (cropItems[cropId] as Map<String, dynamic>?) : null;
+    final inventory = sp != null ? (sp['inventory'] as Map<String, dynamic>?) : null;
+    final item = (inventory != null) ? (inventory[itemId] as Map<String, dynamic>?) : null;
 
-    final bool isLocked = crop != null && crop['isLocked'] is bool ? crop['isLocked'] as bool : true;
-    final int currentQty = crop != null && crop['quantity'] is num ? (crop['quantity'] as num).toInt() : 0;
+    final bool isLocked = item != null && item['isLocked'] is bool ? item['isLocked'] as bool : true;
+    final int currentQty = item != null && item['quantity'] is num ? (item['quantity'] as num).toInt() : 0;
 
     if (isLocked) {
       // Locked: do not modify
@@ -209,28 +218,28 @@ class SproutDataHelpers {
 
     int newQty = currentQty + delta;
     if (newQty < 0) newQty = 0;
-    return _withUpdatedCropQuantityMap(userData, cropId, newQty);
+    return _withUpdatedInventoryQuantityMap(userData, itemId, newQty);
   }
 
   /// Convenience helpers for add/subtract
-  static Map<String, dynamic> addCropQuantity(Map<String, dynamic> userData, String cropId, int amount) {
+  static Map<String, dynamic> addInventoryQuantity(Map<String, dynamic> userData, String itemId, int amount) {
     if (amount <= 0) return userData;
-    return applyCropQuantityDelta(userData, cropId, amount);
+    return applyInventoryQuantityDelta(userData, itemId, amount);
   }
 
-  static Map<String, dynamic> subtractCropQuantity(Map<String, dynamic> userData, String cropId, int amount) {
+  static Map<String, dynamic> subtractInventoryQuantity(Map<String, dynamic> userData, String itemId, int amount) {
     if (amount <= 0) return userData;
-    return applyCropQuantityDelta(userData, cropId, -amount);
+    return applyInventoryQuantityDelta(userData, itemId, -amount);
   }
 
-  /// Read crop info (isLocked, quantity) from a plain userData map
-  static Map<String, Object> _readCropInfo(Map<String, dynamic> userData, String cropId) {
+  /// Read inventory item info (isLocked, quantity) from a plain userData map
+  static Map<String, Object> _readInventoryInfo(Map<String, dynamic> userData, String itemId) {
     final sp = userData['sproutProgress'] as Map<String, dynamic>?;
-    final cropItems = sp != null ? (sp['cropItems'] as Map<String, dynamic>?) : null;
-    final crop = (cropItems != null) ? (cropItems[cropId] as Map<String, dynamic>?) : null;
+    final inventory = sp != null ? (sp['inventory'] as Map<String, dynamic>?) : null;
+    final item = (inventory != null) ? (inventory[itemId] as Map<String, dynamic>?) : null;
 
-    final bool isLocked = crop != null && crop['isLocked'] is bool ? crop['isLocked'] as bool : true;
-    final int qty = crop != null && crop['quantity'] is num ? (crop['quantity'] as num).toInt() : 0;
+    final bool isLocked = item != null && item['isLocked'] is bool ? item['isLocked'] as bool : true;
+    final int qty = item != null && item['quantity'] is num ? (item['quantity'] as num).toInt() : 0;
 
     return {'isLocked': isLocked, 'quantity': qty};
   }
