@@ -5,6 +5,7 @@ import '../models/research_items_schema.dart';
 import '../models/farm_data.dart';
 import '../services/local_storage_service.dart';
 import '../services/firestore_service.dart';
+import '../widgets/farm_items/notification_display.dart';
 
 /// Handles research completion operations
 class ResearchCompletionHandler {
@@ -16,13 +17,16 @@ class ResearchCompletionHandler {
     required Map<String, int> requirements,
     required ResearchState researchState,
     required FarmState farmState,
+    NotificationController? notificationController,
   }) async {
     try {
       final userData = LocalStorageService.instance.userDataNotifier.value;
       if (userData == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('User data not available')),
-        );
+        if (notificationController != null) {
+          notificationController.showError('User data not available');
+        } else {
+          debugPrint('Research completion failed: User data not available');
+        }
         return;
       }
       
@@ -35,9 +39,11 @@ class ResearchCompletionHandler {
         final newValue = currentValue - required;
         
         if (newValue < 0) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Insufficient items in inventory')),
-          );
+          if (notificationController != null) {
+            notificationController.showError('Insufficient items in inventory');
+          } else {
+            debugPrint('Insufficient items in inventory');
+          }
           return;
         }
         
@@ -69,18 +75,19 @@ class ResearchCompletionHandler {
       }
       
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Research completed successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        if (notificationController != null) {
+          notificationController.showSuccess('Research completed successfully!');
+        } else {
+          debugPrint('Research completed successfully!');
+        }
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to complete research: $e')),
-        );
+        if (notificationController != null) {
+          notificationController.showError('Failed to complete research: $e');
+        } else {
+          debugPrint('Failed to complete research: $e');
+        }
       }
     }
   }

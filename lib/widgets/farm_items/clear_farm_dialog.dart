@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import '../../models/farm_data.dart';
 import '../../models/styles_schema.dart';
 import '../../miscellaneous/handle_farm_progress.dart';
+import 'notification_display.dart';
 
 /// Shows a dialog to confirm clearing the farm with FadeTransition animation
 Future<void> showClearFarmDialog({
   required BuildContext context,
   required FarmState farmState,
+  required NotificationController notificationController,
 }) {
   final styles = AppStyles();
   final transitionMs = styles.getStyles('farm_page.clear_farm_dialog.transition_duration') as int;
@@ -28,6 +30,7 @@ Future<void> showClearFarmDialog({
     pageBuilder: (context, animation, secondaryAnimation) {
       return _ClearFarmDialogContent(
         farmState: farmState,
+        notificationController: notificationController,
       );
     },
   );
@@ -36,9 +39,11 @@ Future<void> showClearFarmDialog({
 /// Internal dialog content widget
 class _ClearFarmDialogContent extends StatelessWidget {
   final FarmState farmState;
+  final NotificationController notificationController;
 
   const _ClearFarmDialogContent({
     required this.farmState,
+    required this.notificationController,
   });
 
   void _clearFarm(BuildContext context) {
@@ -49,11 +54,9 @@ class _ClearFarmDialogContent extends StatelessWidget {
     // Save farm progress after clearing
     FarmProgressHandler.saveFarmProgress(farmState: farmState);
     
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Farm cleared! Crops have been returned to inventory as seeds.'),
-        duration: Duration(seconds: 2),
-      ),
+    // Show success notification
+    notificationController.showSuccess(
+      'Farm cleared! Crops have been returned to inventory as seeds.',
     );
   }
 

@@ -4,6 +4,7 @@ import '../../models/research_data.dart';
 import '../../models/user_data.dart';
 import '../../models/research_items_schema.dart';
 import '../../miscellaneous/glass_effect.dart';
+import '../farm_items/notification_display.dart';
 
 /// Widget that displays crop research cards
 class CropResearchCards extends StatefulWidget {
@@ -11,6 +12,7 @@ class CropResearchCards extends StatefulWidget {
   final UserData? userData;
   final String? currentLanguage;
   final Function(String researchId, Map<String, int> requirements)? onResearchCompleted;
+  final NotificationController? notificationController;
 
   const CropResearchCards({
     super.key,
@@ -18,6 +20,7 @@ class CropResearchCards extends StatefulWidget {
     required this.userData,
     this.currentLanguage,
     this.onResearchCompleted,
+    this.notificationController,
   });
 
   @override
@@ -568,19 +571,19 @@ class _CropResearchCardsState extends State<CropResearchCards> {
     );
     
     if (success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Purchased ${item.itemPurchases.join(", ")} x$multiplier for $totalCost coins!'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      if (widget.notificationController != null) {
+        widget.notificationController!.showSuccess(
+          'Purchased ${item.itemPurchases.join(", ")} x$multiplier for $totalCost coins!',
+        );
+      } else {
+          debugPrint('Purchase: Purchased ${item.itemPurchases.join(", ")} x$multiplier for $totalCost coins!');
+      }
     } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Purchase failed. Insufficient coins.'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (widget.notificationController != null) {
+        widget.notificationController!.showError('Purchase failed. Insufficient coins.');
+      } else {
+          debugPrint('Purchase failed. Insufficient coins.');
+      }
     }
   }
 }

@@ -16,6 +16,7 @@ import '../widgets/farm_items/research_lab_display.dart';
 import '../widgets/farm_items/clear_farm_dialog.dart';
 import '../widgets/farm_items/add_file_dialog.dart';
 import '../widgets/farm_items/farm_loading_view.dart';
+import '../widgets/farm_items/notification_display.dart';
 import '../compilers/base_interpreter.dart';
 import '../services/local_storage_service.dart';
 import '../miscellaneous/interactive_viewport_controller.dart';
@@ -67,10 +68,14 @@ class _FarmPageState extends State<FarmPage> {
   // Network / auto-save helpers
   Timer? _connectivityTimer;
   bool _pendingRemoteSave = false;
+  
+  // Notification controller
+  late NotificationController _notificationController;
 
   @override
   void initState() {
     super.initState();
+    _notificationController = NotificationController();
     _researchState = ResearchState();
     _farmState = FarmState(researchState: _researchState);
     _codeFiles = LanguageCodeFiles.createDefault(widget.languageId);
@@ -149,6 +154,7 @@ class _FarmPageState extends State<FarmPage> {
         languageId: widget.languageId,
         codeFiles: _codeFiles,
         codeController: _codeController,
+        notificationController: _notificationController,
       );
     } catch (_) {
       anyFailed = true;
@@ -208,6 +214,7 @@ class _FarmPageState extends State<FarmPage> {
       final loadedFiles = await CodeFilesHandler.loadCodeFiles(
         context: context,
         languageId: widget.languageId,
+        notificationController: _notificationController,
       );
       
       if (loadedFiles != null && mounted) {
@@ -231,6 +238,7 @@ class _FarmPageState extends State<FarmPage> {
         languageId: widget.languageId,
         codeFiles: _codeFiles,
         codeController: _codeController,
+        notificationController: _notificationController,
       );
     } catch (e) {
       // Mark that a remote save is pending; a periodic connectivity check
@@ -310,6 +318,7 @@ class _FarmPageState extends State<FarmPage> {
     _viewportController.dispose();
     _logScrollController.dispose();
     _connectivityTimer?.cancel();
+    _notificationController.dispose();
     super.dispose();
   }
 
@@ -382,6 +391,7 @@ class _FarmPageState extends State<FarmPage> {
       setShowExecutionLog: (value) => setState(() => _showExecutionLog = value),
       setExecutionLog: (_) {},
       setCurrentInterpreter: (interp) => _currentInterpreter = interp,
+      notificationController: _notificationController,
     );
   }
   
@@ -424,6 +434,7 @@ class _FarmPageState extends State<FarmPage> {
       languageId: widget.languageId,
       isExecuting: _isExecuting,
       onStateChanged: () => setState(() {}),
+      notificationController: _notificationController,
     );
   }
   
@@ -434,6 +445,7 @@ class _FarmPageState extends State<FarmPage> {
       languageId: widget.languageId,
       isExecuting: _isExecuting,
       onStateChanged: () => setState(() {}),
+      notificationController: _notificationController,
     );
   }
   
@@ -463,6 +475,7 @@ class _FarmPageState extends State<FarmPage> {
       codeController: _codeController,
       isExecuting: _isExecuting,
       onStateChanged: () => setState(() {}),
+      notificationController: _notificationController,
     );
   }
   
@@ -477,6 +490,7 @@ class _FarmPageState extends State<FarmPage> {
       selectedExecutionFileIndex: _selectedExecutionFileIndex,
       onExecutionIndexChanged: (index) => setState(() => _selectedExecutionFileIndex = index),
       onStateChanged: () => setState(() {}),
+      notificationController: _notificationController,
     );
   }
   
@@ -487,7 +501,11 @@ class _FarmPageState extends State<FarmPage> {
   }
 
   void _showInventoryPopup() {
-    showInventoryPopup(context, LocalStorageService.instance.userDataNotifier.value);
+    showInventoryPopup(
+      context,
+      LocalStorageService.instance.userDataNotifier.value,
+      notificationController: _notificationController,
+    );
   }
 
   /// Show confirmation dialog before clearing farm
@@ -495,6 +513,7 @@ class _FarmPageState extends State<FarmPage> {
     showClearFarmDialog(
       context: context,
       farmState: _farmState,
+      notificationController: _notificationController,
     );
   }
 
@@ -507,6 +526,7 @@ class _FarmPageState extends State<FarmPage> {
       requirements: requirements,
       researchState: _researchState,
       farmState: _farmState,
+      notificationController: _notificationController,
     );
   }
 
@@ -570,6 +590,17 @@ class _FarmPageState extends State<FarmPage> {
         // Layer 5: Research Lab Overlay with slide animation
         _buildResearchLabOverlayWithAnimation(
           Duration(milliseconds: researchLabTransitionMs),
+        ),
+
+        // Layer 6: Topmost notification overlay
+        Positioned(
+          left: 24,
+          right: 24,
+          top: 72,
+          child: NotificationDisplay(
+            controller: _notificationController,
+            position: NotificationPosition.topToBottom,
+          ),
         ),
       ],
     );
@@ -705,6 +736,7 @@ class _FarmPageState extends State<FarmPage> {
             setState(() => _showResearchLab = false);
           },
           onResearchCompleted: _handleResearchCompleted,
+          notificationController: _notificationController,
         ),
       ),
     );

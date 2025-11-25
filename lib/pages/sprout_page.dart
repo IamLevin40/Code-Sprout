@@ -11,6 +11,7 @@ import '../models/sprout_data.dart' as sprout;
 import '../models/inventory_data.dart' as inv;
 import '../widgets/sprout_items/current_language_card.dart';
 import '../widgets/sprout_items/inventory_grid_display.dart';
+import '../widgets/farm_items/notification_display.dart';
 import 'farm_page.dart';
 
 class SproutPage extends StatefulWidget {
@@ -30,10 +31,12 @@ class _SproutPageState extends State<SproutPage> {
   String? _selectedLanguage;
   
   UserData? _userData;
+  late NotificationController _notificationController;
 
   @override
   void initState() {
     super.initState();
+    _notificationController = NotificationController();
     _init();
     // Listen to local cached user data changes so UI updates immediately
     LocalStorageService.instance.userDataNotifier.addListener(_onUserDataChanged);
@@ -42,6 +45,7 @@ class _SproutPageState extends State<SproutPage> {
   @override
   void dispose() {
     LocalStorageService.instance.userDataNotifier.removeListener(_onUserDataChanged);
+    _notificationController.dispose();
     super.dispose();
   }
 
@@ -114,10 +118,12 @@ class _SproutPageState extends State<SproutPage> {
     try {
       final items = await sprout.SproutDataHelpers.getInventoryItemsForUser(ud);
       final schema = await inv.InventorySchema.load();
-      if (mounted) setState(() {
+      if (mounted) {
+        setState(() {
         _inventoryItems = items;
         _inventorySchema = schema;
       });
+      }
     } catch (_) {}
   }
 
@@ -127,11 +133,13 @@ class _SproutPageState extends State<SproutPage> {
 
     return Container(
       color: styles.getStyles('global.background.color') as Color,
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
             // Rank display section
             if (_userData != null) ...[
               Center(
@@ -222,9 +230,7 @@ class _SproutPageState extends State<SproutPage> {
                     child: GestureDetector(
                       onTap: () {
                         if (_selectedLanguage == null || _selectedLanguage!.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Please select a language first')),
-                          );
+                          _notificationController.showError('Please select a language first');
                           return;
                         }
                         
@@ -279,10 +285,23 @@ class _SproutPageState extends State<SproutPage> {
                 maxWidth: constraints.maxWidth,
                 inventorySchema: _inventorySchema,
                 userData: _userData,
+                notificationController: _notificationController,
               );
             }),
-          ],
-        ),
+              ],
+            ),
+          ),
+          // Notification display moved to overlay (Layer 2 style)
+          Positioned(
+            left: 24,
+            right: 24,
+            top: 24,
+            child: NotificationDisplay(
+              controller: _notificationController,
+              position: NotificationPosition.topToBottom,
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -5,9 +5,10 @@ import '../../models/sprout_data.dart' as sprout;
 import '../../models/inventory_data.dart' as inv;
 import '../../services/local_storage_service.dart';
 import '../sprout_items/inventory_grid_display.dart';
+import 'notification_display.dart';
 
 /// Shows an animated inventory popup dialog
-Future<void> showInventoryPopup(BuildContext context, UserData? userData) {
+Future<void> showInventoryPopup(BuildContext context, UserData? userData, {NotificationController? notificationController}) {
   final styles = AppStyles();
   final transitionMs = styles.getStyles('farm_page.inventory_popup.transition_duration') as int;
   
@@ -27,7 +28,7 @@ Future<void> showInventoryPopup(BuildContext context, UserData? userData) {
       );
     },
     pageBuilder: (context, animation, secondaryAnimation) {
-      return _InventoryPopupDialog(userData: userData);
+      return _InventoryPopupDialog(userData: userData, notificationController: notificationController);
     },
   );
 }
@@ -35,8 +36,9 @@ Future<void> showInventoryPopup(BuildContext context, UserData? userData) {
 /// Internal inventory popup dialog widget
 class _InventoryPopupDialog extends StatefulWidget {
   final UserData? userData;
+  final NotificationController? notificationController;
 
-  const _InventoryPopupDialog({required this.userData});
+  const _InventoryPopupDialog({required this.userData, this.notificationController});
 
   @override
   State<_InventoryPopupDialog> createState() => _InventoryPopupDialogState();
@@ -151,6 +153,7 @@ class _InventoryPopupDialogState extends State<_InventoryPopupDialog> {
                           maxWidth: constraints.maxWidth,
                           inventorySchema: _inventorySchema,
                           userData: currentUserData,
+                          notificationController: widget.notificationController,
                         );
                       },
                     ),

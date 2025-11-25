@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../models/language_code_files.dart';
 import '../services/code_files_service.dart';
 import '../widgets/farm_items/delete_file_dialog.dart';
+import '../widgets/farm_items/notification_display.dart';
 
 /// Handles code file loading, saving, and navigation operations
 class CodeFilesHandler {
@@ -10,6 +11,7 @@ class CodeFilesHandler {
   static Future<LanguageCodeFiles?> loadCodeFiles({
     required BuildContext context,
     required String languageId,
+    NotificationController? notificationController,
   }) async {
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -25,9 +27,11 @@ class CodeFilesHandler {
       return loadedFiles;
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load code files: $e')),
-        );
+        if (notificationController != null) {
+          notificationController.showError('Failed to load code files: $e');
+        } else {
+          debugPrint('Failed to load code files: $e');
+        }
       }
       return null;
     }
@@ -38,6 +42,7 @@ class CodeFilesHandler {
     required String languageId,
     required LanguageCodeFiles codeFiles,
     required TextEditingController codeController,
+    NotificationController? notificationController,
   }) async {
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -52,7 +57,11 @@ class CodeFilesHandler {
         codeFiles: codeFiles,
       );
     } catch (e) {
-      // Silent fail - don't interrupt user experience
+      if (notificationController != null) {
+        notificationController.showError('Failed to save code files: $e');
+      } else {
+        debugPrint('Failed to save code files: $e');
+      }
     }
   }
 
@@ -63,6 +72,7 @@ class CodeFilesHandler {
     required String languageId,
     required bool isExecuting,
     required VoidCallback onStateChanged,
+    NotificationController? notificationController,
   }) {
     if (isExecuting) return;
     
@@ -77,6 +87,7 @@ class CodeFilesHandler {
       languageId: languageId,
       codeFiles: codeFiles,
       codeController: codeController,
+      notificationController: notificationController,
     );
   }
   
@@ -87,6 +98,7 @@ class CodeFilesHandler {
     required String languageId,
     required bool isExecuting,
     required VoidCallback onStateChanged,
+    NotificationController? notificationController,
   }) {
     if (isExecuting) return;
     
@@ -101,6 +113,7 @@ class CodeFilesHandler {
       languageId: languageId,
       codeFiles: codeFiles,
       codeController: codeController,
+      notificationController: notificationController,
     );
   }
   
@@ -112,13 +125,16 @@ class CodeFilesHandler {
     required TextEditingController codeController,
     required String languageId,
     required VoidCallback onStateChanged,
+    NotificationController? notificationController,
   }) {
     final error = codeFiles.addFile(fileName);
     
     if (error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error)),
-      );
+      if (notificationController != null) {
+        notificationController.showError(error);
+      } else {
+        debugPrint(error);
+      }
     } else {
       codeController.text = codeFiles.currentFile.content;
       onStateChanged();
@@ -126,11 +142,13 @@ class CodeFilesHandler {
         languageId: languageId,
         codeFiles: codeFiles,
         codeController: codeController,
+        notificationController: notificationController,
       );
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('File "$fileName" created')),
-      );
+      if (notificationController != null) {
+        notificationController.showSuccess('File "$fileName" created');
+      } else {
+        debugPrint('File "$fileName" created');
+      }
     }
   }
   
@@ -144,13 +162,16 @@ class CodeFilesHandler {
     required int selectedExecutionFileIndex,
     required Function(int) onExecutionIndexChanged,
     required VoidCallback onStateChanged,
+    NotificationController? notificationController,
   }) {
     if (isExecuting) return;
     
     if (codeFiles.files.length <= 1) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cannot delete the only file')),
-      );
+      if (notificationController != null) {
+        notificationController.showError('Cannot delete the only file');
+      } else {
+        debugPrint('Cannot delete the only file');
+      }
       return;
     }
     
@@ -162,7 +183,7 @@ class CodeFilesHandler {
       onConfirm: () {
         final success = codeFiles.deleteCurrentFile();
 
-        if (success) {
+          if (success) {
           // Adjust execution file index if needed
           if (selectedExecutionFileIndex >= codeFiles.files.length) {
             onExecutionIndexChanged(codeFiles.files.length - 1);
@@ -170,15 +191,18 @@ class CodeFilesHandler {
 
           codeController.text = codeFiles.currentFile.content;
           onStateChanged();
-          saveCodeFiles(
-            languageId: languageId,
-            codeFiles: codeFiles,
-            codeController: codeController,
-          );
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('File "$fileName" deleted')),
-          );
+            saveCodeFiles(
+              languageId: languageId,
+              codeFiles: codeFiles,
+              codeController: codeController,
+              notificationController: notificationController,
+            );
+          
+          if (notificationController != null) {
+            notificationController.showSuccess('File "$fileName" deleted');
+          } else {
+            debugPrint('File "$fileName" deleted');
+          }
         }
       },
     );

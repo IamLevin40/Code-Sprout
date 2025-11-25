@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/farm_data.dart';
 import '../models/language_code_files.dart';
 import '../compilers/base_interpreter.dart';
+import '../widgets/farm_items/notification_display.dart';
 
 /// Handles code execution operations and related UI state
 class CodeExecutionHandler {
@@ -22,6 +23,7 @@ class CodeExecutionHandler {
     required Function(bool) setShowExecutionLog,
     required Function(List<String>) setExecutionLog,
     required Function(FarmCodeInterpreter?) setCurrentInterpreter,
+    NotificationController? notificationController,
   }) async {
     if (isExecuting) return;
     
@@ -64,15 +66,16 @@ class CodeExecutionHandler {
           setExecutionLog(validationResult.executionLog);
           logNotifier.value = List.from(validationResult.executionLog);
           farmState.setExecuting(false);
-          // REMOVED: setShowExecutionLog(false) - Keep log visible on validation failure
           if (validationResult.errorLine != null) {
             errorLineNotifier.value = validationResult.errorLine;
           }
           
           if (validationResult.errorMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(validationResult.errorMessage!)),
-            );
+            if (notificationController != null) {
+              notificationController.showError(validationResult.errorMessage!);
+            } else {
+              debugPrint(validationResult.errorMessage);
+            }
           }
         }
         setCurrentInterpreter(null);
@@ -107,9 +110,11 @@ class CodeExecutionHandler {
         }
 
         if (!result.success && result.errorMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(result.errorMessage!)),
-          );
+          if (notificationController != null) {
+            notificationController.showError(result.errorMessage!);
+          } else {
+            debugPrint(result.errorMessage);
+          }
         }
       }
     } catch (e) {
@@ -120,9 +125,11 @@ class CodeExecutionHandler {
         // REMOVED: setShowExecutionLog(false) - Keep log visible on error
         executingLineNotifier.value = null;
         
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Execution error: $e')),
-        );
+        if (notificationController != null) {
+          notificationController.showError('Execution error: $e');
+        } else {
+          debugPrint('Execution error: $e');
+        }
       }
     } finally {
       setCurrentInterpreter(null);

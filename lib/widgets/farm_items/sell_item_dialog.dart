@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/inventory_data.dart';
 import '../../models/user_data.dart';
 import '../../models/styles_schema.dart';
+import 'notification_display.dart';
 
 /// Enum for sell multipliers
 enum SellMultiplier {
@@ -22,6 +23,7 @@ Future<void> showSellItemDialog({
   required InventoryItem item,
   required int currentQuantity,
   required UserData? userData,
+  NotificationController? notificationController,
 }) {
   final styles = AppStyles();
   final transitionMs = styles.getStyles('farm_page.sell_item_dialog.transition_duration') as int;
@@ -45,6 +47,7 @@ Future<void> showSellItemDialog({
         item: item,
         currentQuantity: currentQuantity,
         userData: userData,
+        notificationController: notificationController,
       );
     },
   );
@@ -55,11 +58,13 @@ class _SellItemDialogContent extends StatefulWidget {
   final InventoryItem item;
   final int currentQuantity;
   final UserData? userData;
+  final NotificationController? notificationController;
 
   const _SellItemDialogContent({
     required this.item,
     required this.currentQuantity,
     required this.userData,
+    this.notificationController,
   });
 
   @override
@@ -472,7 +477,7 @@ class _SellItemDialogContentState extends State<_SellItemDialogContent> {
 
   Future<void> _handleSell() async {
     if (widget.userData == null) {
-      _showErrorSnackBar('User data not available');
+      _showError('User data not available');
       return;
     }
 
@@ -491,18 +496,12 @@ class _SellItemDialogContentState extends State<_SellItemDialogContent> {
 
       if (success) {
         Navigator.of(context).pop(true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Sold $_quantityToSell ${widget.item.name} for $_coinsToReceive coins!'),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 2),
-          ),
-        );
+        _showSuccess('Sold $_quantityToSell ${widget.item.name} for $_coinsToReceive coins!');
       } else {
         setState(() {
           _isSelling = false;
         });
-        _showErrorSnackBar('Failed to sell item. Please try again.');
+        _showError('Failed to sell item. Please try again.');
       }
     } catch (e) {
       if (!mounted) return;
@@ -510,17 +509,24 @@ class _SellItemDialogContentState extends State<_SellItemDialogContent> {
       setState(() {
         _isSelling = false;
       });
-      _showErrorSnackBar('Error: $e');
+      _showError('Error: $e');
     }
   }
 
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 3),
-      ),
-    );
+  void _showError(String message) {
+    if (widget.notificationController != null) {
+      widget.notificationController!.showError(message);
+    } else {
+      // No notification controller available; log instead of SnackBar
+      debugPrint('Error notification: $message');
+    }
+  }
+
+  void _showSuccess(String message) {
+    if (widget.notificationController != null) {
+      widget.notificationController!.showSuccess(message);
+    } else {
+      debugPrint('Success notification: $message');
+    }
   }
 }

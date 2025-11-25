@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/language_code_files.dart';
 import '../../models/styles_schema.dart';
 import '../../miscellaneous/handle_code_files.dart';
+import 'notification_display.dart';
 
 /// Shows a dialog to add a new code file
 Future<void> showAddFileDialog({
@@ -11,6 +12,7 @@ Future<void> showAddFileDialog({
   required TextEditingController codeController,
   required bool isExecuting,
   required VoidCallback onStateChanged,
+  NotificationController? notificationController,
 }) {
   if (isExecuting) return Future.value();
   
@@ -37,6 +39,7 @@ Future<void> showAddFileDialog({
         codeFiles: codeFiles,
         codeController: codeController,
         onStateChanged: onStateChanged,
+        notificationController: notificationController,
       );
     },
   );
@@ -48,12 +51,14 @@ class _AddFileDialogContent extends StatefulWidget {
   final LanguageCodeFiles codeFiles;
   final TextEditingController codeController;
   final VoidCallback onStateChanged;
+  final NotificationController? notificationController;
 
   const _AddFileDialogContent({
     required this.languageId,
     required this.codeFiles,
     required this.codeController,
     required this.onStateChanged,
+    this.notificationController,
   });
 
   @override
@@ -88,6 +93,7 @@ class _AddFileDialogContentState extends State<_AddFileDialogContent> {
       codeController: widget.codeController,
       languageId: widget.languageId,
       onStateChanged: widget.onStateChanged,
+      notificationController: widget.notificationController,
     );
   }
 

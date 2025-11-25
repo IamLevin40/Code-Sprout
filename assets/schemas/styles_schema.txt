@@ -3456,5 +3456,47 @@
                 "font_weight": "--font_weights.regular"
             }
         }
+    },
+    "notification_display": {
+        "fade_duration": 300,
+        "spacing": 8,
+        "notification": {
+            "height": 40,
+            "border_radius": 16,
+            "padding_horizontal": 16,
+            "progress_height": 4,
+            "message": {
+                "font_size": "--font_sizes.regular",
+                "font_weight": "--font_weights.bold"
+            },
+            "success": {
+                "background_color": {
+                    "begin": {
+                        "position": "top_left",
+                        "color": "#A2C947"
+                    },
+                    "end": {
+                        "position": "bottom_right",
+                        "color": "#CAF562"
+                    }
+                },
+                "message_color": "--colors.dark_gray",
+                "progress_color": "--colors.dark_green"
+            },
+            "error": {
+                "background_color": {
+                    "begin": {
+                        "position": "top_left",
+                        "color": "#FC4C66"
+                    },
+                    "end": {
+                        "position": "bottom_right",
+                        "color": "#EF576D"
+                    }
+                },
+                "message_color": "--colors.dark_gray",
+                "progress_color": "#D9203B"
+            }
+        }
     }
 }

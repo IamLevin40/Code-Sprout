@@ -5,6 +5,7 @@ import '../../models/inventory_data.dart' as inv;
 import '../../models/user_data.dart';
 import '../../miscellaneous/glass_effect.dart';
 import '../farm_items/sell_item_dialog.dart';
+import '../farm_items/notification_display.dart';
 
 /// Reusable widget for displaying inventory items in a grid
 class InventoryGridDisplay extends StatelessWidget {
@@ -14,6 +15,7 @@ class InventoryGridDisplay extends StatelessWidget {
   final double spacing;
   final inv.InventorySchema? inventorySchema;
   final UserData? userData;
+  final NotificationController? notificationController;
 
   const InventoryGridDisplay({
     super.key,
@@ -23,6 +25,7 @@ class InventoryGridDisplay extends StatelessWidget {
     this.spacing = 8.0,
     this.inventorySchema,
     this.userData,
+    this.notificationController,
   });
 
   @override
@@ -178,16 +181,15 @@ class InventoryGridDisplay extends StatelessWidget {
     );
   }
 
-  Future<void> _showSellDialog(BuildContext context, sprout.InventoryItem item) async {
+  void _showSellDialog(BuildContext context, sprout.InventoryItem item) async {
     // Get schema item for sell amount (item.id is the item key)
     final schemaItem = inventorySchema?.getItem(item.id);
     if (schemaItem == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Item information not available'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (notificationController != null) {
+        notificationController!.showError('Item information not available');
+      } else {
+        debugPrint('Item information not available');
+      }
       return;
     }
 
@@ -197,6 +199,7 @@ class InventoryGridDisplay extends StatelessWidget {
       item: schemaItem,
       currentQuantity: item.quantity,
       userData: userData,
+      notificationController: notificationController,
     );
   }
 }

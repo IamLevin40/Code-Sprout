@@ -5,6 +5,7 @@ import '../../models/user_data.dart';
 import '../research_cards/crop_research_cards.dart';
 import '../research_cards/farm_research_cards.dart';
 import '../research_cards/functions_research_cards.dart';
+import 'notification_display.dart';
 
 /// Enum for research lab tabs
 enum ResearchTab {
@@ -21,6 +22,7 @@ class ResearchLabDisplay extends StatefulWidget {
   final String? currentLanguage;
   final VoidCallback onClose;
   final Function(String researchId, Map<String, int> requirements)? onResearchCompleted;
+  final NotificationController? notificationController;
 
   const ResearchLabDisplay({
     super.key,
@@ -29,6 +31,7 @@ class ResearchLabDisplay extends StatefulWidget {
     this.currentLanguage,
     required this.onClose,
     this.onResearchCompleted,
+    this.notificationController,
   });
 
   @override
@@ -234,6 +237,7 @@ class _ResearchLabDisplayState extends State<ResearchLabDisplay> {
           userData: widget.userData,
           currentLanguage: widget.currentLanguage,
           onResearchCompleted: widget.onResearchCompleted,
+          notificationController: widget.notificationController,
         );
       case ResearchTab.farm:
         return FarmResearchCards(
