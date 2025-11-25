@@ -538,7 +538,7 @@ class _FarmPageState extends State<FarmPage> {
       pageName: 'FarmPage',
       builder: () {
         final styles = AppStyles();
-        final loadingTransitionMs = styles.getStyles('farm_page.loading_view.transition_duration') as int;
+        final loadingTransitionMs = (styles.getStyles('farm_page.loading_view.transition_duration') as num).toInt();
 
         return Scaffold(
       body: SafeArea(
@@ -571,9 +571,9 @@ class _FarmPageState extends State<FarmPage> {
 
   Widget _buildFarmContent() {
     final styles = AppStyles();
-    final codeEditorTransitionMs = styles.getStyles('farm_page.code_editor.transition_duration') as int;
-    final researchLabTransitionMs = styles.getStyles('farm_page.research_lab_display.transition_duration') as int;
-    final executionLogTransitionMs = styles.getStyles('farm_page.execution_log.transition_duration') as int;
+    final codeEditorTransitionMs = (styles.getStyles('farm_page.code_editor.transition_duration') as num).toInt();
+    final researchLabTransitionMs = (styles.getStyles('farm_page.research_lab_display.transition_duration') as num).toInt();
+    final executionLogTransitionMs = (styles.getStyles('farm_page.execution_log.transition_duration') as num).toInt();
 
     return Stack(
       key: const ValueKey('farm_content'),

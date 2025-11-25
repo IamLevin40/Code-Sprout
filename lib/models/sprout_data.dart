@@ -154,7 +154,7 @@ class SproutDataHelpers {
     final Map<String, dynamic> originalMap = userData.toFirestore();
     final itemInfo = _readInventoryInfo(originalMap, itemId);
     final bool isLocked = itemInfo['isLocked'] as bool;
-    final int currentQty = itemInfo['quantity'] as int;
+    final int currentQty = (itemInfo['quantity'] as num).toInt();
 
     if (isLocked) {
       throw Exception('Inventory item $itemId is locked and cannot be modified');

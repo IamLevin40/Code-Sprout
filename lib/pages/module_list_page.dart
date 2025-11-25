@@ -138,7 +138,7 @@ class _ModuleListPageState extends State<ModuleListPage> {
 
                         final info = snap.data!;
                         final String displayName = info['displayName'] as String;
-                        final int chapterCount = info['chapterCount'] as int;
+                        final int chapterCount = (info['chapterCount'] as num).toInt();
                         final dynamic est = info['estimatedDuration'];
                         final double progress = info['progress'] as double;
 
@@ -344,8 +344,8 @@ class _ModuleListPageState extends State<ModuleListPage> {
                       if (!snap.hasData) return const SizedBox();
                       final info = snap.data!;
                       final modulesByDifficulty = info['modulesByDifficulty'] as Map<String, Map<String, Module>>;
-                      final int curChap = info['currentChapter'] as int;
-                      final int curMod = info['currentModule'] as int;
+                      final int curChap = (info['currentChapter'] as num).toInt();
+                      final int curMod = (info['currentModule'] as num).toInt();
 
                       final listingTitleColor = styles.getStyles('module_pages.module_listing.title.color') as Color;
                       final listingTitleFontSize = styles.getStyles('module_pages.module_listing.title.font_size') as double;

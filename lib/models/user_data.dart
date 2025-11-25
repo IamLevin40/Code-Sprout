@@ -503,7 +503,7 @@ class UserData {
         } else if (existing is int) {
           currentQty = existing;
         } else if (existing is Map) {
-          currentQty = (existing['quantity'] is int) ? existing['quantity'] as int : 0;
+          currentQty = (existing['quantity'] is num) ? (existing['quantity'] as num).toInt() : 0;
         } else {
           currentQty = 0;
         }
@@ -586,7 +586,7 @@ class UserData {
         isLocked = false;
       } else if (itemData is Map) {
         // Handle any Map type
-        currentQty = (itemData['quantity'] is int) ? itemData['quantity'] as int : 0;
+        currentQty = (itemData['quantity'] is num) ? (itemData['quantity'] as num).toInt() : 0;
         isLocked = itemData['isLocked'] == true;
       } else {
         currentQty = 0;

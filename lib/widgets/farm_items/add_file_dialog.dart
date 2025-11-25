@@ -17,7 +17,7 @@ Future<void> showAddFileDialog({
   if (isExecuting) return Future.value();
   
   final styles = AppStyles();
-  final transitionMs = styles.getStyles('farm_page.add_file_dialog.transition_duration') as int;
+  final transitionMs = (styles.getStyles('farm_page.add_file_dialog.transition_duration') as num).toInt();
   
   return showGeneralDialog(
     context: context,

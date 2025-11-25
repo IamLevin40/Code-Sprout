@@ -78,8 +78,8 @@ class FarmDataSchema {
     }
     final quantity = info['harvest_quantity'] as Map<String, dynamic>;
     return {
-      'min': quantity['min'] as int,
-      'max': quantity['max'] as int,
+      'min': (quantity['min'] as num).toInt(),
+      'max': (quantity['max'] as num).toInt(),
     };
   }
 

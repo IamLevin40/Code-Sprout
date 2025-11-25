@@ -66,8 +66,8 @@ class CropResearchItemSchema {
       plantEnabled: List<String>.from(json['plant_enabled'] as List? ?? []),
       harvestEnabled: List<String>.from(json['harvest_enabled'] as List? ?? []),
       itemPurchases: List<String>.from(json['item_purchases'] as List? ?? []),
-      purchaseAmount: json['purchase_amount'] as int? ?? 0,
-      experienceGainPoints: json['experience_gain_points'] as int? ?? 0,
+      purchaseAmount: (json['purchase_amount'] as num?)?.toInt() ?? 0,
+      experienceGainPoints: (json['experience_gain_points'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -333,7 +333,7 @@ class ResearchItemsSchema {
       
       // Access inventory using the simplified path
       final inventoryPath = 'sproutProgress.inventory.$itemId.quantity';
-      final available = _getNestedValue(userData, inventoryPath) as int? ?? 0;
+      final available = (_getNestedValue(userData, inventoryPath) as num?)?.toInt() ?? 0;
       debugPrint('Checking item $itemId: required $required, available $available');
       
       if (available < required) {

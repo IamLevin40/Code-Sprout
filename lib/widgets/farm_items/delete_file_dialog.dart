@@ -10,7 +10,7 @@ Future<void> showDeleteFileDialog(
   required VoidCallback onConfirm,
 }) {
   final styles = AppStyles();
-  final transitionMs = styles.getStyles('farm_page.delete_file_dialog.transition_duration') as int;
+  final transitionMs = (styles.getStyles('farm_page.delete_file_dialog.transition_duration') as num).toInt();
   
   return showGeneralDialog(
     context: context,

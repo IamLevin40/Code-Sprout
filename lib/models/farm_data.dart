@@ -1011,7 +1011,7 @@ class FarmState extends ChangeNotifier {
     // Check available seeds
     int availableSeeds = 1 << 30; // Default to large number if no userData
     if (userData != null) {
-      availableSeeds = userData!.get('sproutProgress.inventory.${seedType.id}.quantity') as int? ?? 0;
+      availableSeeds = (userData!.get('sproutProgress.inventory.${seedType.id}.quantity') as num?)?.toInt() ?? 0;
       if (availableSeeds <= 0) {
         debugPrint('No ${seedType.displayName} in inventory');
         return 0;
@@ -1044,7 +1044,7 @@ class FarmState extends ChangeNotifier {
         try {
           final base = Map<String, dynamic>.from(userData!.toJson());
           final parts = 'sproutProgress.inventory.${seedType.id}.quantity'.split('.');
-          final currentQty = (userData!.get('sproutProgress.inventory.${seedType.id}.quantity') as int?) ?? 0;
+          final currentQty = (userData!.get('sproutProgress.inventory.${seedType.id}.quantity') as num?)?.toInt() ?? 0;
           final newQty = (currentQty - 1).clamp(0, 1 << 30);
           _setNestedValue(base, parts, newQty);
 
@@ -1103,7 +1103,7 @@ class FarmState extends ChangeNotifier {
       try {
         final base = Map<String, dynamic>.from(userData!.toJson());
         final parts = 'sproutProgress.inventory.${seedType.id}.quantity'.split('.');
-        final currentQty = (userData!.get('sproutProgress.inventory.${seedType.id}.quantity') as int?) ?? 0;
+        final currentQty = (userData!.get('sproutProgress.inventory.${seedType.id}.quantity') as num?)?.toInt() ?? 0;
         final newQty = (currentQty - seedsUsed).clamp(0, 1 << 30);
         _setNestedValue(base, parts, newQty);
 
@@ -1217,7 +1217,7 @@ class FarmState extends ChangeNotifier {
         try {
           final base = Map<String, dynamic>.from(userData!.toJson());
           final parts = 'sproutProgress.inventory.${cropType.id}.quantity'.split('.');
-          final currentQty = (userData!.get('sproutProgress.inventory.${cropType.id}.quantity') as int?) ?? 0;
+          final currentQty = (userData!.get('sproutProgress.inventory.${cropType.id}.quantity') as num?)?.toInt() ?? 0;
           final newQty = currentQty + quantity;
           _setNestedValue(base, parts, newQty);
 
@@ -1302,7 +1302,7 @@ class FarmState extends ChangeNotifier {
         int totalXP = 0;
         harvestedCrops.forEach((cropId, quantity) {
           final parts = 'sproutProgress.inventory.$cropId.quantity'.split('.');
-          final currentQty = (userData!.get('sproutProgress.inventory.$cropId.quantity') as int?) ?? 0;
+          final currentQty = (userData!.get('sproutProgress.inventory.$cropId.quantity') as num?)?.toInt() ?? 0;
           final newQty = currentQty + quantity;
           _setNestedValue(base, parts, newQty);
           // Calculate XP for this crop type (XP per item harvested)
@@ -1391,7 +1391,7 @@ class FarmState extends ChangeNotifier {
             if (seedType != null) {
               // Get current seed quantity
               final parts = 'sproutProgress.inventory.${seedType.id}.quantity'.split('.');
-              final currentQty = (userData!.get('sproutProgress.inventory.${seedType.id}.quantity') as int?) ?? 0;
+              final currentQty = (userData!.get('sproutProgress.inventory.${seedType.id}.quantity') as num?)?.toInt() ?? 0;
               
               // Add 1 seed per crop
               final newQty = currentQty + 1;
@@ -1432,20 +1432,20 @@ class FarmState extends ChangeNotifier {
   /// Check if user has at least one seed of the specified type
   bool hasSeed(SeedType seedType) {
     if (userData == null) return false;
-    final seedQty = userData!.get('sproutProgress.inventory.${seedType.id}.quantity') as int? ?? 0;
+    final seedQty = (userData!.get('sproutProgress.inventory.${seedType.id}.quantity') as num?)?.toInt() ?? 0;
     return seedQty > 0;
   }
 
   /// Get the quantity of a specific seed type in inventory
   int getSeedInventoryCount(SeedType seedType) {
     if (userData == null) return 0;
-    return userData!.get('sproutProgress.inventory.${seedType.id}.quantity') as int? ?? 0;
+    return (userData!.get('sproutProgress.inventory.${seedType.id}.quantity') as num?)?.toInt() ?? 0;
   }
 
   /// Get the quantity of a specific crop type in inventory
   int getCropInventoryCount(CropType cropType) {
     if (userData == null) return 0;
-    return userData!.get('sproutProgress.inventory.${cropType.id}.quantity') as int? ?? 0;
+    return (userData!.get('sproutProgress.inventory.${cropType.id}.quantity') as num?)?.toInt() ?? 0;
   }
 
   /// Helper: set a nested value inside a Map given dot-separated path parts

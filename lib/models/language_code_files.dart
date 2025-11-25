@@ -309,7 +309,7 @@ class LanguageCodeFiles {
   /// Create from JSON
   factory LanguageCodeFiles.fromJson(String languageId, Map<String, dynamic> json) {
     final filesList = (json['files'] as List?)?.map((f) => CodeFile.fromJson(f as Map<String, dynamic>)).toList() ?? [];
-    final currentIndex = (json['currentFileIndex'] as int?) ?? 0;
+    final currentIndex = (json['currentFileIndex'] as num?)?.toInt() ?? 0;
 
     return LanguageCodeFiles(
       languageId: languageId,

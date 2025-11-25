@@ -177,7 +177,7 @@ class _NotificationCardState extends State<_NotificationCard>
     super.initState();
     
     final styles = AppStyles();
-    final fadeMs = styles.getStyles('notification_display.fade_duration') as int;
+    final fadeMs = (styles.getStyles('notification_display.fade_duration') as num).toInt();
     
     _animationController = AnimationController(
       duration: Duration(milliseconds: fadeMs),

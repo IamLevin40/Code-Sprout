@@ -101,8 +101,8 @@ class EstimatedDuration {
 
   factory EstimatedDuration.fromJson(Map<String, dynamic> json) {
     return EstimatedDuration(
-      hours: json['hours'] as int,
-      minutes: json['minutes'] as int,
+      hours: (json['hours'] as num).toInt(),
+      minutes: (json['minutes'] as num).toInt(),
     );
   }
 

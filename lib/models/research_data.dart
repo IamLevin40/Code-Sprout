@@ -46,7 +46,7 @@ class ResearchRequirements {
       
       // Access inventory using the path: sproutProgress.inventory.{itemId}.quantity
       final inventoryPath = 'sproutProgress.inventory.$itemId.quantity';
-      final available = _getNestedValue(userData, inventoryPath) as int? ?? 0;
+      final available = (_getNestedValue(userData, inventoryPath) as num?)?.toInt() ?? 0;
       
       if (available < required) {
         return false;

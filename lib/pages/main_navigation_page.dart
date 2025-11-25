@@ -241,7 +241,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> with WidgetsBin
                 if (_scrollController.hasClients) {
                   _scrollController.animateTo(
                     0.0,
-                    duration: Duration(milliseconds: (styles.getStyles('global.animation.scroll_back_duration') as int)),
+                    duration: Duration(milliseconds: (styles.getStyles('global.animation.scroll_back_duration') as num).toInt()),
                     curve: Curves.easeOut,
                   );
                 }
@@ -377,7 +377,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> with WidgetsBin
                                                 if (_scrollController.hasClients) {
                                                   _scrollController.animateTo(
                                                     0.0,
-                                                    duration: Duration(milliseconds: (styles.getStyles('global.animation.scroll_back_duration') as int)),
+                                                    duration: Duration(milliseconds: (styles.getStyles('global.animation.scroll_back_duration') as num).toInt()),
                                                     curve: Curves.easeOut,
                                                   );
                                                 }
@@ -410,7 +410,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> with WidgetsBin
                                     AnimatedPositioned(
                                       left: _indicatorLeft,
                                       duration: _animateIndicator
-                                          ? Duration(milliseconds: styles.getStyles('bottom_navigation.selected_indicator.animation_duration') as int)
+                                          ? Duration(milliseconds: (styles.getStyles('bottom_navigation.selected_indicator.animation_duration') as num).toInt())
                                           : Duration.zero,
                                       curve: Curves.easeInOut,
                                       child: Container(

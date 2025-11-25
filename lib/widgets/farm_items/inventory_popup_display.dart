@@ -10,7 +10,7 @@ import 'notification_display.dart';
 /// Shows an animated inventory popup dialog
 Future<void> showInventoryPopup(BuildContext context, UserData? userData, {NotificationController? notificationController}) {
   final styles = AppStyles();
-  final transitionMs = styles.getStyles('farm_page.inventory_popup.transition_duration') as int;
+  final transitionMs = (styles.getStyles('farm_page.inventory_popup.transition_duration') as num).toInt();
   
   return showGeneralDialog(
     context: context,

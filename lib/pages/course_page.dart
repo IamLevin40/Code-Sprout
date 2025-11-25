@@ -315,7 +315,7 @@ class _CoursePageState extends State<CoursePage> {
           child: child,
         );
       },
-     transitionDuration: Duration(milliseconds: AppStyles().getStyles('module_pages.transition_duration') as int),
+     transitionDuration: Duration(milliseconds: (AppStyles().getStyles('module_pages.transition_duration') as num).toInt()),
     ));
   }
 }

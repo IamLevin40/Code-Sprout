@@ -24,7 +24,7 @@ class InventoryItem {
       id: id,
       name: json['name'] as String? ?? id,
       icon: json['icon'] as String,
-      sellAmount: json['sell_amount'] as int? ?? 0,
+      sellAmount: (json['sell_amount'] as num?)?.toInt() ?? 0,
       isLockedByDefault: _parseBooleanValue(json['is_locked']),
       defaultQuantity: _parseNumberValue(json['quantity']),
     );

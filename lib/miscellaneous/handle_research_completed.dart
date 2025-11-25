@@ -35,7 +35,7 @@ class ResearchCompletionHandler {
         final itemId = entry.key; // Simplified ID like "wheat", "carrot"
         final required = entry.value;
         final itemPath = 'sproutProgress.inventory.$itemId.quantity';
-        final currentValue = userData.get(itemPath) as int? ?? 0;
+        final currentValue = (userData.get(itemPath) as num?)?.toInt() ?? 0;
         final newValue = currentValue - required;
         
         if (newValue < 0) {

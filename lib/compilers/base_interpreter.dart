@@ -513,7 +513,7 @@ abstract class FarmCodeInterpreter {
       await Future.delayed(Duration(milliseconds: farmState.harvestDuration));
       
       final cropType = result['cropType'] as CropType;
-      final quantity = result['quantity'] as int;
+      final quantity = (result['quantity'] as num).toInt();
       log('Harvested $quantity ${cropType.displayName}${quantity > 1 ? 's' : ''}!');
       onCropHarvested?.call(cropType);
       

@@ -120,7 +120,7 @@ class RecommendedCourseCard extends StatelessWidget {
     final strokeGradient = styles.getStyles('course_cards.style_coding.$languageId.stroke_color') as LinearGradient;
     final borderWidth = styles.getStyles('course_cards.recommended_card.attribute.border_width') as double;
 
-    final chapters = data['totalChapters'] as int;
+    final chapters = (data['totalChapters'] as num).toInt();
     final duration = data['duration'];
 
     return GestureDetector(

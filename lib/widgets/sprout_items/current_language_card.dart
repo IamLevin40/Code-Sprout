@@ -156,7 +156,7 @@ class CurrentLanguageCard extends StatelessWidget {
   void _showLanguagePicker(BuildContext context) {
     final styles = AppStyles();
 
-    final transitionMs = styles.getStyles('sprout_page.language_selection.transition_duration') as int;
+    final transitionMs = (styles.getStyles('sprout_page.language_selection.transition_duration') as num).toInt();
     final pickerHeight = styles.getStyles('sprout_page.language_selection.height') as double;
     final pickerRadius = styles.getStyles('sprout_page.language_selection.border_radius') as double;
     final pickerBg = styles.getStyles('sprout_page.language_selection.background_color') as Color;
