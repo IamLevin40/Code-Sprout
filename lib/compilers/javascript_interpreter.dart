@@ -288,7 +288,7 @@ class JavaScriptInterpreter extends FarmCodeInterpreter {
       final lineNum = _findStatementLine(stmt);
       notifyLineExecuting(lineNum);
       
-      await delay(200);
+      await delay(farmState.generalDuration);
       
       // Check stop flag again after delay (responsive stopping)
       if (shouldStop) {

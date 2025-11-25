@@ -375,6 +375,7 @@ class _FarmPageState extends State<FarmPage> {
     final styles = AppStyles();
     final codeEditorTransitionMs = styles.getStyles('farm_page.code_editor.transition_duration') as int;
     final researchLabTransitionMs = styles.getStyles('farm_page.research_lab_display.transition_duration') as int;
+    final executionLogTransitionMs = styles.getStyles('farm_page.execution_log.transition_duration') as int;
 
     return Scaffold(
       body: SafeArea(
@@ -386,8 +387,10 @@ class _FarmPageState extends State<FarmPage> {
             // Layer 2: Top Bar and Control Buttons
             _buildControlLayer(),
             
-            // Layer 3: Execution Log Overlay (Only shown when log button pressed)
-            if (_showExecutionLog) _buildExecutionLogOverlay(),
+            // Layer 3: Execution Log Overlay with slide animation
+            _buildExecutionLogOverlayWithAnimation(
+              Duration(milliseconds: executionLogTransitionMs),
+            ),
             
             // Layer 4: Code Editor Overlay with slide animation
             _buildCodeEditorOverlayWithAnimation(
@@ -477,14 +480,25 @@ class _FarmPageState extends State<FarmPage> {
     );
   }
   
-  // Layer 3: Execution Log Overlay
-  Widget _buildExecutionLogOverlay() {
+  // Layer 3: Execution Log Overlay with fade animation
+  Widget _buildExecutionLogOverlayWithAnimation(Duration transitionDuration) {
+    final styles = AppStyles();
+    final logHeight = styles.getStyles('farm_page.execution_log.height') as double;
+
     return Positioned(
       left: 24,
       right: 24,
       bottom: 64,
-      height: 200,
-      child: _buildExecutionLog(),
+      height: logHeight,
+      child: AnimatedOpacity(
+        duration: transitionDuration,
+        opacity: _showExecutionLog ? 1.0 : 0.0,
+        curve: Curves.easeInOut,
+        child: IgnorePointer(
+          ignoring: !_showExecutionLog,
+          child: _buildExecutionLog(),
+        ),
+      ),
     );
   }
   

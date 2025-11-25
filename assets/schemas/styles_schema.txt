@@ -2572,6 +2572,38 @@
                 }
             }
         },
+        "execution_log": {
+            "transition_duration": 250,
+            "height": 200,
+            "border_radius": 16,
+            "border_width": 2,
+            "background_color": "rgba(25, 29, 62, 0.9)",
+            "stroke_color": {
+                "begin": {
+                    "position": "top_left",
+                    "color": "#C1EC5A"
+                },
+                "end": {
+                    "position": "bottom_right",
+                    "color": "#87A938"
+                }
+            },
+            "title": {
+                "color": "--colors.white",
+                "font_size": "--font_sizes.title",
+                "font_weight": "--font_weights.bold"
+            },
+            "message_logs": {
+                "color": "--colors.ivory_white",
+                "font_size": "--font_sizes.regular",
+                "font_weight": "--font_weights.regular"
+            },
+            "close_button": {
+                "icon": "images/icons/navbuttons/close.png",
+                "width": 24,
+                "height": 24
+            }
+        },
         "research_lab_display": {
             "transition_duration": 500,
             "border_radius": 16,
@@ -2658,33 +2690,6 @@
                     }
                 }
             }
-        },
-        "execution_log": {
-            "background_color": {
-                "begin": {
-                    "position": "top_left",
-                    "color": "#1E1E1E"
-                },
-                "end": {
-                    "position": "bottom_right",
-                    "color": "#2D2D2D"
-                }
-            },
-            "border_radius": 12,
-            "border_width": 2,
-            "stroke_color": {
-                "begin": {
-                    "position": "top_left",
-                    "color": "#4CAF50"
-                },
-                "end": {
-                    "position": "bottom_right",
-                    "color": "#204921"
-                }
-            },
-            "text_color": "#D4D4D4",
-            "font_size": 12,
-            "font_weight": "--font_weights.regular"
         },
         "farm_grid": {
             "plot_size": 80,

@@ -285,7 +285,7 @@ class CppInterpreter extends FarmCodeInterpreter {
       final lineNum = _findStatementLine(stmt);
       notifyLineExecuting(lineNum);
       
-      await delay(200);
+      await delay(farmState.generalDuration);
       
       // Check stop flag before executing (responsive stopping)
       if (shouldStop) {

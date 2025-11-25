@@ -139,7 +139,7 @@ class PythonInterpreter extends FarmCodeInterpreter {
       // Notify which line is being executed
       notifyLineExecuting(i + 1);
       
-      await delay(200);
+      await delay(farmState.generalDuration);
       
       // Check stop flag again after delay (responsive stopping)
       if (shouldStop) {
