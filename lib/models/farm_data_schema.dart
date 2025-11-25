@@ -172,6 +172,24 @@ class FarmDataSchema {
     return elapsedTime.inMilliseconds / 1000.0 >= growthDuration;
   }
 
+  /// Get drone work duration for a specific operation
+  /// Returns duration in milliseconds, or null if not found
+  int? getDroneWorkDuration(String operation) {
+    if (_schemaData == null) {
+      throw Exception('Farm data schema not loaded. Call loadSchema() first.');
+    }
+
+    final droneWorkDuration = _schemaData!['drone_work_duration'];
+    if (droneWorkDuration == null || droneWorkDuration is! Map) {
+      return null; // Schema doesn't have drone_work_duration section
+    }
+
+    final duration = droneWorkDuration[operation];
+    if (duration is int) return duration;
+    if (duration is double) return duration.toInt();
+    return null;
+  }
+
   /// Get all available crop types
   List<String> getAllCropTypes() {
     if (_schemaData == null) {

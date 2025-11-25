@@ -5,15 +5,19 @@ import '../../models/sprout_data.dart' as sprout;
 import '../../models/inventory_data.dart' as inv;
 import '../../services/local_storage_service.dart';
 import '../sprout_items/inventory_grid_display.dart';
+import 'notification_display.dart';
 
 /// Shows an animated inventory popup dialog
-Future<void> showInventoryPopup(BuildContext context, UserData? userData) {
+Future<void> showInventoryPopup(BuildContext context, UserData? userData, {NotificationController? notificationController}) {
+  final styles = AppStyles();
+  final transitionMs = styles.getStyles('farm_page.inventory_popup.transition_duration') as int;
+  
   return showGeneralDialog(
     context: context,
     barrierDismissible: true,
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-    barrierColor: Colors.black54,
-    transitionDuration: const Duration(milliseconds: 300),
+    barrierColor: Colors.transparent,
+    transitionDuration: Duration(milliseconds: transitionMs),
     transitionBuilder: (context, animation, secondaryAnimation, child) {
       return FadeTransition(
         opacity: CurvedAnimation(
@@ -24,7 +28,7 @@ Future<void> showInventoryPopup(BuildContext context, UserData? userData) {
       );
     },
     pageBuilder: (context, animation, secondaryAnimation) {
-      return _InventoryPopupDialog(userData: userData);
+      return _InventoryPopupDialog(userData: userData, notificationController: notificationController);
     },
   );
 }
@@ -32,8 +36,9 @@ Future<void> showInventoryPopup(BuildContext context, UserData? userData) {
 /// Internal inventory popup dialog widget
 class _InventoryPopupDialog extends StatefulWidget {
   final UserData? userData;
+  final NotificationController? notificationController;
 
-  const _InventoryPopupDialog({required this.userData});
+  const _InventoryPopupDialog({required this.userData, this.notificationController});
 
   @override
   State<_InventoryPopupDialog> createState() => _InventoryPopupDialogState();
@@ -93,17 +98,17 @@ class _InventoryPopupDialogState extends State<_InventoryPopupDialog> {
   Widget build(BuildContext context) {
     final styles = AppStyles();
 
-    final pickerHeight = styles.getStyles('sprout_page.language_selection.height') as double;
-    final pickerRadius = styles.getStyles('sprout_page.language_selection.border_radius') as double;
-    final pickerBg = styles.getStyles('sprout_page.language_selection.background_color') as Color;
+    final pickerHeight = styles.getStyles('farm_page.inventory_popup.height') as double;
+    final pickerRadius = styles.getStyles('farm_page.inventory_popup.border_radius') as double;
+    final pickerBg = styles.getStyles('farm_page.inventory_popup.background_color') as Color;
 
-    final titleColor = styles.getStyles('sprout_page.language_selection.title.color') as Color;
-    final titleSize = styles.getStyles('sprout_page.language_selection.title.font_size') as double;
-    final titleWeight = styles.getStyles('sprout_page.language_selection.title.font_weight') as FontWeight;
+    final titleColor = styles.getStyles('farm_page.inventory_popup.title.color') as Color;
+    final titleSize = styles.getStyles('farm_page.inventory_popup.title.font_size') as double;
+    final titleWeight = styles.getStyles('farm_page.inventory_popup.title.font_weight') as FontWeight;
 
-    final closeIcon = styles.getStyles('sprout_page.language_selection.close_button.icon') as String;
-    final closeW = styles.getStyles('sprout_page.language_selection.close_button.width') as double;
-    final closeH = styles.getStyles('sprout_page.language_selection.close_button.height') as double;
+    final closeIcon = styles.getStyles('farm_page.inventory_popup.close_button.icon') as String;
+    final closeW = styles.getStyles('farm_page.inventory_popup.close_button.width') as double;
+    final closeH = styles.getStyles('farm_page.inventory_popup.close_button.height') as double;
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -148,6 +153,7 @@ class _InventoryPopupDialogState extends State<_InventoryPopupDialog> {
                           maxWidth: constraints.maxWidth,
                           inventorySchema: _inventorySchema,
                           userData: currentUserData,
+                          notificationController: widget.notificationController,
                         );
                       },
                     ),

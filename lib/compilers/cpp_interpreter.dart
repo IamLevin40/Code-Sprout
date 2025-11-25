@@ -285,7 +285,7 @@ class CppInterpreter extends FarmCodeInterpreter {
       final lineNum = _findStatementLine(stmt);
       notifyLineExecuting(lineNum);
       
-      await delay(200);
+      await delay(farmState.generalDuration);
       
       // Check stop flag before executing (responsive stopping)
       if (shouldStop) {
@@ -1030,13 +1030,13 @@ class CppInterpreter extends FarmCodeInterpreter {
 
     switch (functionName) {
       case 'move':
-        _handleMove(argsString);
+        await _handleMove(argsString);
         break;
       case 'till':
-        executeTill();
+        await executeTill();
         break;
       case 'water':
-        executeWater();
+        await executeWater();
         break;
       case 'plant':
         _handlePlant(argsString);
@@ -1095,7 +1095,7 @@ class CppInterpreter extends FarmCodeInterpreter {
   }
 
   /// Handle move() function
-  void _handleMove(String args) {
+  Future<void> _handleMove(String args) async {
     final dirPattern = RegExp(r'Direction::(\w+)', caseSensitive: false);
     final match = dirPattern.firstMatch(args);
 
@@ -1123,7 +1123,7 @@ class CppInterpreter extends FarmCodeInterpreter {
         throw Exception('Semantical Error: Invalid direction "$dirStr"');
     }
 
-    executeMove(direction);
+    await executeMove(direction);
   }
 
   /// Handle plant() function

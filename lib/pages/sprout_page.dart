@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/styles_schema.dart';
+import '../miscellaneous/number_utils.dart';
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
 import '../services/local_storage_service.dart';
@@ -11,6 +12,7 @@ import '../models/sprout_data.dart' as sprout;
 import '../models/inventory_data.dart' as inv;
 import '../widgets/sprout_items/current_language_card.dart';
 import '../widgets/sprout_items/inventory_grid_display.dart';
+import '../widgets/farm_items/notification_display.dart';
 import 'farm_page.dart';
 
 class SproutPage extends StatefulWidget {
@@ -30,13 +32,22 @@ class _SproutPageState extends State<SproutPage> {
   String? _selectedLanguage;
   
   UserData? _userData;
+  late NotificationController _notificationController;
 
   @override
   void initState() {
     super.initState();
+    _notificationController = NotificationController();
     _init();
     // Listen to local cached user data changes so UI updates immediately
     LocalStorageService.instance.userDataNotifier.addListener(_onUserDataChanged);
+  }
+
+  @override
+  void dispose() {
+    LocalStorageService.instance.userDataNotifier.removeListener(_onUserDataChanged);
+    _notificationController.dispose();
+    super.dispose();
   }
 
   void _onUserDataChanged() {
@@ -108,10 +119,12 @@ class _SproutPageState extends State<SproutPage> {
     try {
       final items = await sprout.SproutDataHelpers.getInventoryItemsForUser(ud);
       final schema = await inv.InventorySchema.load();
-      if (mounted) setState(() {
+      if (mounted) {
+        setState(() {
         _inventoryItems = items;
         _inventorySchema = schema;
       });
+      }
     } catch (_) {}
   }
 
@@ -121,11 +134,13 @@ class _SproutPageState extends State<SproutPage> {
 
     return Container(
       color: styles.getStyles('global.background.color') as Color,
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
             // Rank display section
             if (_userData != null) ...[
               Center(
@@ -216,9 +231,7 @@ class _SproutPageState extends State<SproutPage> {
                     child: GestureDetector(
                       onTap: () {
                         if (_selectedLanguage == null || _selectedLanguage!.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Please select a language first')),
-                          );
+                          _notificationController.showError('Please select a language first');
                           return;
                         }
                         
@@ -257,14 +270,22 @@ class _SproutPageState extends State<SproutPage> {
             const SizedBox(height: 16),
 
             // Inventory
-            Text('Inventory', style: 
-              TextStyle(
-                color: styles.getStyles('sprout_page.inventory.title.color') as Color,
-                fontSize: styles.getStyles('sprout_page.inventory.title.font_size') as double, 
-                fontWeight: styles.getStyles('sprout_page.inventory.title.font_weight') as FontWeight
-              )
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Inventory',
+                    style: TextStyle(
+                      color: styles.getStyles('sprout_page.inventory.title.color') as Color,
+                      fontSize: styles.getStyles('sprout_page.inventory.title.font_size') as double,
+                      fontWeight: styles.getStyles('sprout_page.inventory.title.font_weight') as FontWeight,
+                    ),
+                  ),
+                ),
+                _buildCoinsDisplay(),
+              ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
 
             // Inventory grid (3 columns max)
             LayoutBuilder(builder: (context, constraints) {
@@ -273,17 +294,83 @@ class _SproutPageState extends State<SproutPage> {
                 maxWidth: constraints.maxWidth,
                 inventorySchema: _inventorySchema,
                 userData: _userData,
+                notificationController: _notificationController,
               );
             }),
-          ],
-        ),
+              ],
+            ),
+          ),
+          // Notification display moved to overlay (Layer 2 style)
+          Positioned(
+            left: 24,
+            right: 24,
+            top: 24,
+            child: NotificationDisplay(
+              controller: _notificationController,
+              position: NotificationPosition.topToBottom,
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  @override
-  void dispose() {
-    LocalStorageService.instance.userDataNotifier.removeListener(_onUserDataChanged);
-    super.dispose();
+  Widget _buildCoinsDisplay() {
+    final styles = AppStyles();
+    final width = styles.getStyles('farm_page.top_layer.coins_display.width') as double;
+    final height = styles.getStyles('farm_page.top_layer.coins_display.height') as double;
+    final borderRadius = styles.getStyles('farm_page.top_layer.coins_display.border_radius') as double;
+    final borderWidth = styles.getStyles('farm_page.top_layer.coins_display.border_width') as double;
+    final bgGradient = styles.getStyles('farm_page.top_layer.coins_display.background_color') as LinearGradient;
+    final strokeGradient = styles.getStyles('farm_page.top_layer.coins_display.stroke_color') as LinearGradient;
+    final iconPath = styles.getStyles('farm_page.top_layer.coins_display.icon.image') as String;
+    final iconWidth = styles.getStyles('farm_page.top_layer.coins_display.icon.width') as double;
+    final iconHeight = styles.getStyles('farm_page.top_layer.coins_display.icon.height') as double;
+    final textColor = styles.getStyles('farm_page.top_layer.coins_display.text.color') as Color;
+    final textFontSize = styles.getStyles('farm_page.top_layer.coins_display.text.font_size') as double;
+    final textFontWeight = styles.getStyles('farm_page.top_layer.coins_display.text.font_weight') as FontWeight;
+
+    return ValueListenableBuilder<UserData?>(
+      valueListenable: LocalStorageService.instance.userDataNotifier,
+      builder: (context, userData, _) {
+        final coins = userData?.getCoins() ?? 0;
+
+        return Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            gradient: strokeGradient,
+            borderRadius: BorderRadius.circular(borderRadius),
+          ),
+          padding: EdgeInsets.all(borderWidth),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: bgGradient,
+              borderRadius: BorderRadius.circular(borderRadius - borderWidth),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  iconPath,
+                  width: iconWidth,
+                  height: iconHeight,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  NumberUtils.formatNumberShort(coins),
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: textFontSize,
+                    fontWeight: textFontWeight,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }

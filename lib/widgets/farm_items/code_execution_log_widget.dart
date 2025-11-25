@@ -20,18 +20,25 @@ class CodeExecutionLogWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final styles = AppStyles();
     
-    final bgGradient = styles.getStyles('farm_page.execution_log.background_color') as LinearGradient;
+    final bgColor = styles.getStyles('farm_page.execution_log.background_color') as Color;
     final borderRadius = styles.getStyles('farm_page.execution_log.border_radius') as double;
     final borderWidth = styles.getStyles('farm_page.execution_log.border_width') as double;
     final strokeGradient = styles.getStyles('farm_page.execution_log.stroke_color') as LinearGradient;
-    final textColor = styles.getStyles('farm_page.execution_log.text_color') as Color;
-    final fontSize = styles.getStyles('farm_page.execution_log.font_size') as double;
-    final fontWeight = styles.getStyles('farm_page.execution_log.font_weight') as FontWeight;
+    
+    // Get title styles
+    final titleColor = styles.getStyles('farm_page.execution_log.title.color') as Color;
+    final titleSize = styles.getStyles('farm_page.execution_log.title.font_size') as double;
+    final titleWeight = styles.getStyles('farm_page.execution_log.title.font_weight') as FontWeight;
+    
+    // Get message log styles
+    final messageColor = styles.getStyles('farm_page.execution_log.message_logs.color') as Color;
+    final messageSize = styles.getStyles('farm_page.execution_log.message_logs.font_size') as double;
+    final messageWeight = styles.getStyles('farm_page.execution_log.message_logs.font_weight') as FontWeight;
     
     // Get close button styles
-    final closeIcon = styles.getStyles('sprout_page.language_selection.close_button.icon') as String;
-    final closeW = styles.getStyles('sprout_page.language_selection.close_button.width') as double;
-    final closeH = styles.getStyles('sprout_page.language_selection.close_button.height') as double;
+    final closeIcon = styles.getStyles('farm_page.execution_log.close_button.icon') as String;
+    final closeW = styles.getStyles('farm_page.execution_log.close_button.width') as double;
+    final closeH = styles.getStyles('farm_page.execution_log.close_button.height') as double;
 
     return Container(
       width: double.infinity,
@@ -42,7 +49,7 @@ class CodeExecutionLogWidget extends StatelessWidget {
       padding: EdgeInsets.all(borderWidth),
       child: Container(
         decoration: BoxDecoration(
-          gradient: bgGradient,
+          color: bgColor,
           borderRadius: BorderRadius.circular(borderRadius - borderWidth),
         ),
         padding: const EdgeInsets.all(12),
@@ -56,9 +63,9 @@ class CodeExecutionLogWidget extends StatelessWidget {
                 Text(
                   'Execution Log',
                   style: TextStyle(
-                    color: textColor,
-                    fontSize: fontSize,
-                    fontWeight: FontWeight.bold,
+                    color: titleColor,
+                    fontSize: titleSize,
+                    fontWeight: titleWeight,
                   ),
                 ),
                 GestureDetector(
@@ -90,9 +97,9 @@ class CodeExecutionLogWidget extends StatelessWidget {
                     child: Text(
                       logs.isEmpty ? 'No execution yet...' : logs.join('\n'),
                       style: TextStyle(
-                        color: textColor,
-                        fontSize: fontSize,
-                        fontWeight: fontWeight,
+                        color: messageColor,
+                        fontSize: messageSize,
+                        fontWeight: messageWeight,
                       ),
                     ),
                   );

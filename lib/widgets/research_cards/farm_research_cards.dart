@@ -3,6 +3,7 @@ import '../../models/styles_schema.dart';
 import '../../models/research_data.dart';
 import '../../models/user_data.dart';
 import '../../models/research_items_schema.dart';
+import '../../miscellaneous/glass_effect.dart';
 
 /// Widget that displays farm research cards
 class FarmResearchCards extends StatelessWidget {
@@ -35,22 +36,32 @@ class FarmResearchCards extends StatelessWidget {
   Widget _buildFarmCard(FarmResearchItemSchema item, FarmResearchState state) {
     final styles = AppStyles();
     
-    final cardHeight = styles.getStyles('research_card.card.height') as double;
-    final borderRadius = styles.getStyles('research_card.card.border_radius') as double;
-    final borderWidth = styles.getStyles('research_card.card.border_width') as double;
+    // General card styles
+    final borderRadius = styles.getStyles('research_card.general.border_radius') as double;
+    final borderWidth = styles.getStyles('research_card.general.border_width') as double;
+    final bgGradient = styles.getStyles('research_card.general.background_color') as LinearGradient;
+    final strokeGradient = styles.getStyles('research_card.general.stroke_color') as LinearGradient;
 
-    final bgGradient = styles.getStyles('research_card.card.background_color') as LinearGradient;
-    final strokeGradient = styles.getStyles('research_card.card.stroke_color') as LinearGradient;
+    // Farm-specific styles
+    final nameColor = styles.getStyles('research_card.farm_item.name.color') as Color;
+    final nameSize = styles.getStyles('research_card.farm_item.name.font_size') as double;
+    final nameWeight = styles.getStyles('research_card.farm_item.name.font_weight') as FontWeight;
 
-    final titleColor = styles.getStyles('research_card.card.title.color') as Color;
-    final titleSize = styles.getStyles('research_card.card.title.font_size') as double;
-    final titleWeight = styles.getStyles('research_card.card.title.font_weight') as FontWeight;
+    final descColor = styles.getStyles('research_card.farm_item.description.color') as Color;
+    final descSize = styles.getStyles('research_card.farm_item.description.font_size') as double;
+    final descWeight = styles.getStyles('research_card.farm_item.description.font_weight') as FontWeight;
 
-    final descColor = styles.getStyles('research_card.card.description.color') as Color;
-    final descSize = styles.getStyles('research_card.card.description.font_size') as double;
+    // Requirements styles
+    final reqColor = styles.getStyles('research_card.general.requirements.color') as Color;
+    final reqSize = styles.getStyles('research_card.general.requirements.font_size') as double;
+    final reqWeight = styles.getStyles('research_card.general.requirements.font_weight') as FontWeight;
+    final reqIconWidth = styles.getStyles('research_card.general.requirements.item.icon.width') as double;
+    final reqIconHeight = styles.getStyles('research_card.general.requirements.item.icon.height') as double;
+    final reqQtyColor = styles.getStyles('research_card.general.requirements.item.quantity_label.color') as Color;
+    final reqQtySize = styles.getStyles('research_card.general.requirements.item.quantity_label.font_size') as double;
+    final reqQtyWeight = styles.getStyles('research_card.general.requirements.item.quantity_label.font_weight') as FontWeight;
 
     return Container(
-      height: cardHeight,
       decoration: BoxDecoration(
         gradient: strokeGradient,
         borderRadius: BorderRadius.circular(borderRadius),
@@ -62,15 +73,17 @@ class FarmResearchCards extends StatelessWidget {
           borderRadius: BorderRadius.circular(borderRadius - borderWidth),
         ),
         child: Stack(
+          fit: StackFit.loose,
           children: [
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(8),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Farm feature icon
                   Container(
-                    width: 80,
-                    height: 80,
+                    width: 48,
+                    height: 48,
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
@@ -78,27 +91,27 @@ class FarmResearchCards extends StatelessWidget {
                     child: item.icon.isNotEmpty
                         ? Image.asset(
                             item.icon,
-                            width: 64,
-                            height: 64,
+                            width: 48,
+                            height: 48,
                             errorBuilder: (context, error, stackTrace) {
                               return const Icon(Icons.image_not_supported, size: 48);
                             },
                           )
                         : const Icon(Icons.grid_on, size: 48),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 8),
                   // Content
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           item.name,
                           style: TextStyle(
-                            color: titleColor,
-                            fontSize: titleSize,
-                            fontWeight: titleWeight,
+                            color: nameColor,
+                            fontSize: nameSize,
+                            fontWeight: nameWeight,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -107,9 +120,8 @@ class FarmResearchCards extends StatelessWidget {
                           style: TextStyle(
                             color: descColor,
                             fontSize: descSize,
+                            fontWeight: descWeight,
                           ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 8),
                         // Requirements
@@ -117,9 +129,9 @@ class FarmResearchCards extends StatelessWidget {
                           Text(
                             'Requirements',
                             style: TextStyle(
-                              color: titleColor,
-                              fontSize: descSize,
-                              fontWeight: FontWeight.bold,
+                              color: reqColor,
+                              fontSize: reqSize,
+                              fontWeight: reqWeight,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -134,20 +146,21 @@ class FarmResearchCards extends StatelessWidget {
                                   if (itemIcon != null)
                                     Image.asset(
                                       itemIcon,
-                                      width: 16,
-                                      height: 16,
+                                      width: reqIconWidth,
+                                      height: reqIconHeight,
                                       errorBuilder: (context, error, stackTrace) {
-                                        return const Icon(Icons.inventory, size: 16);
+                                        return Icon(Icons.inventory, size: reqIconWidth);
                                       },
                                     )
                                   else
-                                    const Icon(Icons.inventory, size: 16),
+                                    Icon(Icons.inventory, size: reqIconWidth),
                                   const SizedBox(width: 4),
                                   Text(
                                     'x${entry.value}',
                                     style: TextStyle(
-                                      color: descColor,
-                                      fontSize: descSize * 0.9,
+                                      color: reqQtyColor,
+                                      fontSize: reqQtySize,
+                                      fontWeight: reqQtyWeight,
                                     ),
                                   ),
                                 ],
@@ -158,6 +171,7 @@ class FarmResearchCards extends StatelessWidget {
                       ],
                     ),
                   ),
+                  const SizedBox(width: 8),
                   // Action button
                   if (state == FarmResearchState.toBeResearched)
                     _buildResearchButton(item),
@@ -178,14 +192,15 @@ class FarmResearchCards extends StatelessWidget {
 
   Widget _buildResearchButton(FarmResearchItemSchema item) {
     final styles = AppStyles();
-    final buttonHeight = styles.getStyles('research_card.card.button.height') as double;
-    final borderRadius = styles.getStyles('research_card.card.button.border_radius') as double;
-    final borderWidth = styles.getStyles('research_card.card.button.border_width') as double;
-    final bgGradient = styles.getStyles('research_card.card.button.background_color') as LinearGradient;
-    final strokeGradient = styles.getStyles('research_card.card.button.stroke_color') as LinearGradient;
-    final textColor = styles.getStyles('research_card.card.button.text.color') as Color;
-    final fontSize = styles.getStyles('research_card.card.button.text.font_size') as double;
-    final fontWeight = styles.getStyles('research_card.card.button.text.font_weight') as FontWeight;
+    final buttonWidth = styles.getStyles('research_card.general.research_button.width') as double;
+    final buttonHeight = styles.getStyles('research_card.general.research_button.height') as double;
+    final borderRadius = styles.getStyles('research_card.general.research_button.border_radius') as double;
+    final borderWidth = styles.getStyles('research_card.general.research_button.border_width') as double;
+    final bgGradient = styles.getStyles('research_card.general.research_button.background_color') as LinearGradient;
+    final strokeGradient = styles.getStyles('research_card.general.research_button.stroke_color') as LinearGradient;
+    final textColor = styles.getStyles('research_card.general.research_button.text.color') as Color;
+    final fontSize = styles.getStyles('research_card.general.research_button.text.font_size') as double;
+    final fontWeight = styles.getStyles('research_card.general.research_button.text.font_weight') as FontWeight;
 
     // Check if requirements are met
     final canResearch = userData != null && 
@@ -200,7 +215,7 @@ class FarmResearchCards extends StatelessWidget {
       child: Opacity(
         opacity: canResearch ? 1.0 : 0.5,
         child: Container(
-          width: 120,
+          width: buttonWidth,
           height: buttonHeight,
           decoration: BoxDecoration(
             gradient: strokeGradient,
@@ -229,55 +244,70 @@ class FarmResearchCards extends StatelessWidget {
 
   Widget _buildLockedOverlay(double borderRadius) {
     final styles = AppStyles();
-    final lockIcon = styles.getStyles('research_card.card.locked_overlay.icon.image') as String;
-    
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(borderRadius),
-      ),
-      alignment: Alignment.center,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            lockIcon,
-            width: 48,
-            height: 48,
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Locked',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+    final lockIcon = styles.getStyles('research_card.general.locked_overlay.icon.image') as String;
+    final lockIconWidth = styles.getStyles('research_card.general.locked_overlay.icon.width') as double;
+    final lockIconHeight = styles.getStyles('research_card.general.locked_overlay.icon.height') as double;
+    final bgColor = styles.getStyles('research_card.general.locked_overlay.background.color') as Color;
+    final bgOpacity = styles.getStyles('research_card.general.locked_overlay.background.opacity') as double;
+    final blurSigma = styles.getStyles('research_card.general.locked_overlay.background.blur_sigma') as double;
+    final strokeGradient = styles.getStyles('research_card.general.locked_overlay.stroke_color') as LinearGradient;
+    final strokeThickness = styles.getStyles('research_card.general.locked_overlay.stroke_thickness') as double;
+    final labelColor = styles.getStyles('research_card.general.locked_overlay.locked_label.color') as Color;
+    final labelSize = styles.getStyles('research_card.general.locked_overlay.locked_label.font_size') as double;
+    final labelWeight = styles.getStyles('research_card.general.locked_overlay.locked_label.font_weight') as FontWeight;
+
+    return Positioned.fill(
+      child: GlassEffect(
+        background: bgColor,
+        opacity: bgOpacity,
+        blurSigma: blurSigma,
+        strokeGradient: strokeGradient,
+        strokeThickness: strokeThickness,
+        borderRadius: borderRadius,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              lockIcon,
+              width: lockIconWidth,
+              height: lockIconHeight,
             ),
-          ),
-        ],
+            const SizedBox(height: 8),
+            Text(
+              'Locked',
+              style: TextStyle(
+                color: labelColor,
+                fontSize: labelSize,
+                fontWeight: labelWeight,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildUnlockedBadge(double borderRadius) {
     final styles = AppStyles();
-    final badgeGradient = styles.getStyles('research_card.card.badge.background_color') as LinearGradient;
-    final badgeTextColor = styles.getStyles('research_card.card.badge.text.color') as Color;
-    final badgeFontSize = (styles.getStyles('research_card.card.badge.text.font_size') as num).toDouble();
-    final badgeFontWeight = styles.getStyles('research_card.card.badge.text.font_weight') as FontWeight;
-    final padH = styles.getStyles('research_card.card.badge.padding_horizontal') as int? ?? 12;
-    final padV = styles.getStyles('research_card.card.badge.padding_vertical') as int? ?? 6;
-    final badgeRadius = styles.getStyles('research_card.card.badge.border_radius') as int? ?? (borderRadius / 2).toInt();
+    final badgeWidth = styles.getStyles('research_card.general.available_badge.width') as double;
+    final badgeHeight = styles.getStyles('research_card.general.available_badge.height') as double;
+    final badgeRadius = styles.getStyles('research_card.general.available_badge.border_radius') as double;
+    final badgeGradient = styles.getStyles('research_card.general.available_badge.background_color') as LinearGradient;
+    final badgeTextColor = styles.getStyles('research_card.general.available_badge.text.color') as Color;
+    final badgeFontSize = styles.getStyles('research_card.general.available_badge.text.font_size') as double;
+    final badgeFontWeight = styles.getStyles('research_card.general.available_badge.text.font_weight') as FontWeight;
 
     return Positioned(
       top: 8,
       right: 8,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: padH.toDouble(), vertical: padV.toDouble()),
+        width: badgeWidth,
+        height: badgeHeight,
         decoration: BoxDecoration(
           gradient: badgeGradient,
-          borderRadius: BorderRadius.circular(badgeRadius.toDouble()),
+          borderRadius: BorderRadius.circular(badgeRadius),
         ),
+        alignment: Alignment.center,
         child: Text(
           'Unlocked',
           style: TextStyle(

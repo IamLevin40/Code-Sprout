@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../../models/styles_schema.dart';
+import '../../miscellaneous/handle_code_editing.dart';
 
-/// Code editor widget for writing farm drone code with file management toolbar
+/// Code editor widget - Complete redesign with new layout structure
+/// Features: Background layer + Code button on top + Text editor + File toolbar
+/// Mobile-friendly with horizontal/vertical scrollbars for infinite extension
 class CodeEditorWidget extends StatefulWidget {
   final String initialCode;
   final Function(String) onCodeChanged;
@@ -12,9 +14,8 @@ class CodeEditorWidget extends StatefulWidget {
   final TextEditingController? controller;
   final bool isReadOnly;
   
-  // File management options (optional)
+  // File management options
   final String? currentFileName;
-  final bool showFileToolbar;
   final VoidCallback? onAddFile;
   final VoidCallback? onDeleteFile;
   final VoidCallback? onNextFile;
@@ -31,7 +32,6 @@ class CodeEditorWidget extends StatefulWidget {
     this.controller,
     this.isReadOnly = false,
     this.currentFileName,
-    this.showFileToolbar = false,
     this.onAddFile,
     this.onDeleteFile,
     this.onNextFile,
@@ -49,7 +49,8 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
   late FocusNode _focusNode;
   int? _highlightLine;
   int? _errorLine;
-  late ScrollController _scrollController;
+  late ScrollController _horizontalScrollController;
+  late ScrollController _verticalScrollController;
   
   @override
   void initState() {
@@ -64,7 +65,8 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
       _ownsController = true;
     }
     _focusNode = FocusNode();
-    _scrollController = ScrollController();
+    _horizontalScrollController = ScrollController();
+    _verticalScrollController = ScrollController();
     _controller.addListener(() {
       widget.onCodeChanged(_controller.text);
     });
@@ -79,7 +81,8 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
     widget.executingLineNotifier?.removeListener(_onExecutingLineChanged);
     widget.errorLineNotifier?.removeListener(_onErrorLineChanged);
     _focusNode.dispose();
-    _scrollController.dispose();
+    _horizontalScrollController.dispose();
+    _verticalScrollController.dispose();
     if (_ownsController) {
       _controller.dispose();
     }
@@ -87,575 +90,290 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
   }
 
   void _onExecutingLineChanged() {
-    final notifier = widget.executingLineNotifier!;
-    final line = notifier.value; // 1-based index or null
-    setState(() {
-      _highlightLine = line;
-    });
+    CodeEditingHandler.onExecutingLineChanged(
+      executingLineNotifier: widget.executingLineNotifier!,
+      setHighlightLine: (line) => setState(() => _highlightLine = line),
+    );
   }
 
   void _onErrorLineChanged() {
-    final notifier = widget.errorLineNotifier!;
-    final line = notifier.value; // 1-based index or null
-    setState(() {
-      _errorLine = line;
-    });
-  }
-
-  // Insert text at current selection and place caret at optional caretOffset
-  void _insertText(String insert, {int? caretOffsetFromStart}) {
-    final text = _controller.text;
-    final sel = _controller.selection;
-    final start = sel.start >= 0 ? sel.start : 0;
-    final end = sel.end >= 0 ? sel.end : 0;
-    final newText = text.replaceRange(start, end, insert);
-    final caret = (caretOffsetFromStart != null)
-        ? start + caretOffsetFromStart
-        : start + insert.length;
-    _controller.value = TextEditingValue(
-      text: newText,
-      selection: TextSelection.collapsed(offset: caret),
+    CodeEditingHandler.onErrorLineChanged(
+      errorLineNotifier: widget.errorLineNotifier!,
+      setErrorLine: (line) => setState(() => _errorLine = line),
     );
   }
 
   KeyEventResult _handleKey(FocusNode node, KeyEvent event) {
-    if (event is! KeyDownEvent) return KeyEventResult.ignored;
-
-    // Enter / Return => smart auto-indent
-    if (event.logicalKey == LogicalKeyboardKey.enter || event.logicalKey == LogicalKeyboardKey.numpadEnter) {
-      final sel = _controller.selection;
-      final pos = sel.start >= 0 ? sel.start : 0;
-      final text = _controller.text;
-
-      // find start of current line
-      final lastNl = pos > 0 ? text.lastIndexOf('\n', pos - 1) : -1;
-      final lineStart = lastNl == -1 ? 0 : lastNl + 1;
-      final linePrefix = text.substring(lineStart, pos);
-
-      final baseIndentMatch = RegExp(r'^[ \t]*').firstMatch(linePrefix);
-      final baseIndent = baseIndentMatch?.group(0) ?? '';
-
-      // If caret is between an auto-paired brace pair like '{|}', create a new indented block
-      final prevChar = pos > 0 ? text[pos - 1] : null;
-      final nextChar = pos < text.length ? text[pos] : null;
-      if (prevChar == '{' && nextChar == '}') {
-        final innerIndent = '$baseIndent    ';
-        final insert = '\n$innerIndent\n$baseIndent';
-        // place caret after first newline + innerIndent
-        _insertText(insert, caretOffsetFromStart: 1 + innerIndent.length);
-        return KeyEventResult.handled;
-      }
-
-      // Otherwise, carry indentation and increase if line ends with '{'
-      String indent = baseIndent;
-      if (linePrefix.trimRight().endsWith('{') || linePrefix.trimRight().endsWith(':')) {
-        indent = '$baseIndent    ';
-      }
-      final insert = '\n$indent';
-      _insertText(insert, caretOffsetFromStart: 1 + indent.length);
-      return KeyEventResult.handled;
-    }
-
-    // Shift+Tab => unindent
-    if (event.logicalKey == LogicalKeyboardKey.tab && HardwareKeyboard.instance.isShiftPressed) {
-      _unindentText();
-      return KeyEventResult.handled;
-    }
-
-    // Tab insertion
-    if (event.logicalKey == LogicalKeyboardKey.tab) {
-      final sel = _controller.selection;
-      if (sel.start != sel.end) {
-        _indentText();
-      } else {
-        _insertText('    ');
-      }
-      return KeyEventResult.handled;
-    }
-
-    // Use character if available
-    final char = event.character;
-    if (char == null || char.isEmpty) return KeyEventResult.ignored;
-
-    // Auto-dedent when typing '}' at start of a line
-    if (char == '}') {
-      final sel = _controller.selection;
-      final pos = sel.start >= 0 ? sel.start : 0;
-      final text = _controller.text;
-      final lastNl = pos > 0 ? text.lastIndexOf('\n', pos - 1) : -1;
-      final lineStart = lastNl == -1 ? 0 : lastNl + 1;
-      int leadingSpaces = 0;
-      while (lineStart + leadingSpaces < text.length && leadingSpaces < 4 && text[lineStart + leadingSpaces] == ' ') {
-        leadingSpaces++;
-      }
-      // If caret is at indentation position (right before non-space), dedent then insert '}'
-      if (pos == lineStart + leadingSpaces) {
-        if (leadingSpaces > 0) {
-          final newText = text.replaceRange(lineStart, lineStart + leadingSpaces, '');
-          final newPos = (pos - leadingSpaces).clamp(0, newText.length);
-          _controller.value = TextEditingValue(text: newText, selection: TextSelection.collapsed(offset: newPos));
-          _insertText('}');
-          return KeyEventResult.handled;
-        } else {
-          _insertText('}');
-          return KeyEventResult.handled;
-        }
-      }
-      // otherwise fallthrough to normal closing char behavior
-    }
-
-    const openToClose = {
-      '{': '}',
-      '[': ']',
-      '(': ')',
-      '"': '"',
-      "'": "'",
-    };
-
-    // If typed an opening char, auto-insert pair and place caret between
-    if (openToClose.containsKey(char)) {
-      final close = openToClose[char]!;
-      // If there's a selection, wrap selection with pair
-      final sel = _controller.selection;
-      if (sel.start != sel.end) {
-        final selected = _controller.text.substring(sel.start, sel.end);
-        _insertText('$char$selected$close', caretOffsetFromStart: char.length + selected.length);
-      } else {
-        _insertText('$char$close', caretOffsetFromStart: 1);
-      }
-      return KeyEventResult.handled;
-    }
-
-    // If typed a closing char and next char equals it, skip over instead of inserting duplicate
-    if (openToClose.containsValue(char)) {
-      final sel = _controller.selection;
-      final pos = sel.start;
-      final text = _controller.text;
-      if (pos < text.length && text[pos] == char) {
-        // Move caret forward
-        _controller.selection = TextSelection.collapsed(offset: pos + 1);
-        return KeyEventResult.handled;
-      }
-    }
-
-    return KeyEventResult.ignored;
-  }
-
-  void _unindentText() {
-    final sel = _controller.selection;
-    final text = _controller.text;
-
-    if (sel.start == sel.end) {
-      // Single-line unindent (caret only)
-      final pos = sel.start >= 0 ? sel.start : 0;
-      final lastNl = pos > 0 ? text.lastIndexOf('\n', pos - 1) : -1;
-      final lineStart = lastNl == -1 ? 0 : lastNl + 1;
-      int removeCount = 0;
-      for (int i = 0; i < 4 && lineStart + i < text.length; i++) {
-        if (text[lineStart + i] == ' ') {
-          removeCount++;
-        } else {
-          break;
-        }
-      }
-      if (removeCount > 0) {
-        final newText = text.replaceRange(lineStart, lineStart + removeCount, '');
-        final newPos = (pos - removeCount).clamp(0, newText.length);
-        _controller.value = TextEditingValue(text: newText, selection: TextSelection.collapsed(offset: newPos));
-      }
-    } else {
-      // Multi-line unindent for selected block
-      int selStart = sel.start;
-      int selEnd = sel.end;
-      final firstLineStart = selStart > 0 ? text.lastIndexOf('\n', selStart - 1) + 1 : 0;
-      final lastLineEndIdx = text.indexOf('\n', selEnd);
-      final lastLineEnd = lastLineEndIdx == -1 ? text.length : lastLineEndIdx;
-
-      final block = text.substring(firstLineStart, lastLineEnd);
-      final lines = block.split('\n');
-      final newLines = <String>[];
-
-      // We'll compute new selection offsets precisely by mapping old offsets to new offsets
-      final relativeSelStart = selStart - firstLineStart;
-      final relativeSelEnd = selEnd - firstLineStart;
-      int accOld = 0; // position within old block
-      int accNew = 0; // position within new block
-      int? newRelStart;
-      int? newRelEnd;
-
-      for (final line in lines) {
-        int removed = 0;
-        for (int i = 0; i < 4 && i < line.length; i++) {
-          if (line[i] == ' ') {
-            removed++;
-          } else {
-            break;
-          }
-        }
-        final newLine = line.substring(removed);
-        newLines.add(newLine);
-
-        final oldLineLen = line.length;
-        final newLineLen = newLine.length;
-
-        // Check if relativeSelStart lies within this old line
-        if (newRelStart == null) {
-          if (relativeSelStart <= accOld + oldLineLen) {
-            final offsetInLine = (relativeSelStart - accOld).clamp(0, oldLineLen);
-            final adjusted = (offsetInLine - removed).clamp(0, newLineLen);
-            newRelStart = accNew + adjusted;
-          }
-        }
-
-        // Check if relativeSelEnd lies within this old line
-        if (newRelEnd == null) {
-          if (relativeSelEnd <= accOld + oldLineLen) {
-            final offsetInLine = (relativeSelEnd - accOld).clamp(0, oldLineLen);
-            final adjusted = (offsetInLine - removed).clamp(0, newLineLen);
-            newRelEnd = accNew + adjusted;
-          }
-        }
-
-        // advance accumulators (+1 for newline except maybe after last line)
-        accOld += oldLineLen + 1;
-        accNew += newLineLen + 1;
-      }
-
-      // If selection end falls exactly at end, and wasn't captured because of bounds, set to new block length
-      final newBlock = newLines.join('\n');
-      final newBlockLen = newBlock.length;
-      newRelStart ??= 0;
-      newRelEnd ??= newBlockLen;
-
-      final newText = text.replaceRange(firstLineStart, lastLineEnd, newBlock);
-      final newSelStart = firstLineStart + newRelStart;
-      final newSelEnd = firstLineStart + newRelEnd;
-      _controller.value = TextEditingValue(text: newText, selection: TextSelection(baseOffset: newSelStart, extentOffset: newSelEnd));
-    }
-  }
-
-  void _indentText() {
-    final sel = _controller.selection;
-    final text = _controller.text;
-
-    // If no selection, behave like Tab insert
-    if (sel.start == sel.end) {
-      _insertText('    ');
-      return;
-    }
-
-    final selStart = sel.start;
-    final selEnd = sel.end;
-    final firstLineStart = selStart > 0 ? text.lastIndexOf('\n', selStart - 1) + 1 : 0;
-    final lastLineEndIdx = text.indexOf('\n', selEnd);
-    final lastLineEnd = lastLineEndIdx == -1 ? text.length : lastLineEndIdx;
-
-    final block = text.substring(firstLineStart, lastLineEnd);
-    final lines = block.split('\n');
-    final newLines = <String>[];
-
-    // Compute selection mapping from old block -> new block by accumulating
-    final relativeSelStart = selStart - firstLineStart;
-    final relativeSelEnd = selEnd - firstLineStart;
-    int accOld = 0;
-    int accNew = 0;
-    int? newRelStart;
-    int? newRelEnd;
-
-    for (final line in lines) {
-      final newLine = '    $line';
-      newLines.add(newLine);
-
-      final oldLineLen = line.length;
-      final newLineLen = oldLineLen + 4;
-
-      if (newRelStart == null) {
-        if (relativeSelStart <= accOld + oldLineLen) {
-          final offsetInLine = (relativeSelStart - accOld).clamp(0, oldLineLen);
-          final adjusted = (offsetInLine + 4).clamp(0, newLineLen);
-          newRelStart = accNew + adjusted;
-        }
-      }
-
-      if (newRelEnd == null) {
-        if (relativeSelEnd <= accOld + oldLineLen) {
-          final offsetInLine = (relativeSelEnd - accOld).clamp(0, oldLineLen);
-          final adjusted = (offsetInLine + 4).clamp(0, newLineLen);
-          newRelEnd = accNew + adjusted;
-        }
-      }
-
-      accOld += oldLineLen + 1;
-      accNew += newLineLen + 1;
-    }
-
-    final newBlock = newLines.join('\n');
-    final newBlockLen = newBlock.length;
-    newRelStart ??= 0;
-    newRelEnd ??= newBlockLen;
-
-    final newText = text.replaceRange(firstLineStart, lastLineEnd, newBlock);
-    final newSelStart = firstLineStart + newRelStart;
-    final newSelEnd = firstLineStart + newRelEnd;
-    _controller.value = TextEditingValue(text: newText, selection: TextSelection(baseOffset: newSelStart, extentOffset: newSelEnd));
+    return CodeEditingHandler.handleKey(
+      node: node,
+      event: event,
+      controller: _controller,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final styles = AppStyles();
-    // Try to read theme styles; tests may run without styles loaded, so provide
-    // sensible default fallbacks to avoid throwing in widget tests.
-    late final LinearGradient bgGradient;
-    late final double borderRadius;
-    late final double borderWidth;
-    late final LinearGradient strokeGradient;
-    late final Color textColor;
-    late final double fontSize;
-    String? closeIcon;
-    late final double closeSize;
-    late final Color highlightColor;
-    try {
-      bgGradient = styles.getStyles('farm_page.code_editor.background_color') as LinearGradient;
-      borderRadius = styles.getStyles('farm_page.code_editor.border_radius') as double;
-      borderWidth = styles.getStyles('farm_page.code_editor.border_width') as double;
-      strokeGradient = styles.getStyles('farm_page.code_editor.stroke_color') as LinearGradient;
-      textColor = styles.getStyles('farm_page.code_editor.text_style.color') as Color;
-      fontSize = styles.getStyles('farm_page.code_editor.text_style.font_size') as double;
-      closeIcon = styles.getStyles('farm_page.code_editor.close_button.icon') as String;
-      closeSize = styles.getStyles('farm_page.code_editor.close_button.width') as double;
-      highlightColor = styles.getStyles('farm_page.code_editor.highlight_line_color') as Color;
-    } catch (_) {
-      bgGradient = const LinearGradient(colors: [Colors.white, Colors.white]);
-      borderRadius = 8.0;
-      borderWidth = 2.0;
-      strokeGradient = LinearGradient(colors: [Colors.grey.shade300, Colors.grey.shade300]);
-      textColor = Colors.black;
-      fontSize = 12.0;
-      closeIcon = null;
-      closeSize = 24.0;
-      highlightColor = Colors.yellow;
-    }
+    
+    // Load all styling from farm_page.code_editor path
+    final editorBorderRadius = styles.getStyles('farm_page.code_editor.border_radius') as double;
+    final editorBgColor = styles.getStyles('farm_page.code_editor.background_color') as Color;
+    
+    final textEditorBorderRadius = styles.getStyles('farm_page.code_editor.text_editor.border_radius') as double;
+    final textEditorBgColor = styles.getStyles('farm_page.code_editor.text_editor.background_color') as Color;
+    final codeTextColor = styles.getStyles('farm_page.code_editor.text_editor.code_text.color') as Color;
+    final codeTextFontSize = styles.getStyles('farm_page.code_editor.text_editor.code_text.font_size') as double;
+    final codeTextFontWeight = styles.getStyles('farm_page.code_editor.text_editor.code_text.font_weight') as FontWeight;
+    final scrollBarHandleColor = styles.getStyles('farm_page.code_editor.text_editor.scroll_bar.handle_color') as Color;
+    final scrollBarBgColor = styles.getStyles('farm_page.code_editor.text_editor.scroll_bar.background_color') as Color;
+    final scrollBarBorderRadius = styles.getStyles('farm_page.code_editor.text_editor.scroll_bar.border_radius') as double;
+    final scrollBarThickness = styles.getStyles('farm_page.code_editor.text_editor.scroll_bar.thickness') as double;
+    
+    final closeIconPath = styles.getStyles('farm_page.code_editor.file_toolbar.close.icon.image') as String;
+    final closeIconWidth = styles.getStyles('farm_page.code_editor.file_toolbar.close.icon.width') as double;
+    final closeIconHeight = styles.getStyles('farm_page.code_editor.file_toolbar.close.icon.height') as double;
+    final closeBgColor = styles.getStyles('farm_page.code_editor.file_toolbar.close.background_color') as Color;
+    final closeBorderRadius = styles.getStyles('farm_page.code_editor.file_toolbar.close.border_radius') as double;
+    final closeWidth = styles.getStyles('farm_page.code_editor.file_toolbar.close.width') as double;
+    final closeHeight = styles.getStyles('farm_page.code_editor.file_toolbar.close.height') as double;
+    
+    final tabOptionsWidth = styles.getStyles('farm_page.code_editor.file_toolbar.tab_options.width') as double;
+    final tabOptionsHeight = styles.getStyles('farm_page.code_editor.file_toolbar.tab_options.height') as double;
+    final tabOptionsBorderRadius = styles.getStyles('farm_page.code_editor.file_toolbar.tab_options.border_radius') as double;
+    final tabOptionsBgColor = styles.getStyles('farm_page.code_editor.file_toolbar.tab_options.background_color') as Color;
+    final fileNameColor = styles.getStyles('farm_page.code_editor.file_toolbar.tab_options.file_name.color') as Color;
+    final fileNameFontSize = styles.getStyles('farm_page.code_editor.file_toolbar.tab_options.file_name.font_size') as double;
+    final fileNameFontWeight = styles.getStyles('farm_page.code_editor.file_toolbar.tab_options.file_name.font_weight') as FontWeight;
+    
+    final tabButtonWidth = styles.getStyles('farm_page.code_editor.file_toolbar.tab_options.tab_buttons.width') as double;
+    final tabButtonHeight = styles.getStyles('farm_page.code_editor.file_toolbar.tab_options.tab_buttons.height') as double;
+    final tabButtonBorderRadius = styles.getStyles('farm_page.code_editor.file_toolbar.tab_options.tab_buttons.border_radius') as double;
+    final tabButtonBgColor = styles.getStyles('farm_page.code_editor.file_toolbar.tab_options.tab_buttons.background_color') as Color;
+    final previousIconPath = styles.getStyles('farm_page.code_editor.file_toolbar.tab_options.tab_buttons.icons.previous') as String;
+    final nextIconPath = styles.getStyles('farm_page.code_editor.file_toolbar.tab_options.tab_buttons.icons.next') as String;
+    final addIconPath = styles.getStyles('farm_page.code_editor.file_toolbar.tab_options.tab_buttons.icons.add') as String;
+    final deleteIconPath = styles.getStyles('farm_page.code_editor.file_toolbar.tab_options.tab_buttons.icons.delete') as String;
+    final indentIconPath = styles.getStyles('farm_page.code_editor.file_toolbar.tab_options.tab_buttons.icons.indent') as String;
+    final dedentIconPath = styles.getStyles('farm_page.code_editor.file_toolbar.tab_options.tab_buttons.icons.dedent') as String;
 
-    final editorWidget = Container(
-      width: double.infinity,
-      height: 500,
+    return Container(
       decoration: BoxDecoration(
-        gradient: strokeGradient,
-        borderRadius: BorderRadius.circular(borderRadius),
+        color: editorBgColor,
+        borderRadius: BorderRadius.circular(editorBorderRadius),
       ),
-      padding: EdgeInsets.all(borderWidth),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: bgGradient,
-          borderRadius: BorderRadius.circular(borderRadius - borderWidth),
-        ),
-        child: Column(
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Code Editor',
-                    style: TextStyle(
-                      color: textColor,
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      // Mobile/toolbar indent button - inserts 4 spaces at caret
-                      IconButton(
-                        icon: const Icon(Icons.format_indent_increase),
-                        color: textColor,
-                        onPressed: _indentText,
-                        tooltip: 'Indent (Tab)',
-                      ),
-                      // Unindent button
-                      IconButton(
-                        icon: const Icon(Icons.format_indent_decrease),
-                        color: textColor,
-                        onPressed: _unindentText,
-                        tooltip: 'Unindent (Shift+Tab)',
-                      ),
-                      // Close button: use asset if provided, otherwise fallback to an IconButton
-                      if (closeIcon != null && closeIcon.isNotEmpty)
-                        GestureDetector(
-                          onTap: widget.onClose,
-                          child: Image.asset(
-                            closeIcon,
-                            width: closeSize,
-                            height: closeSize,
-                          ),
-                        )
-                      else
-                        IconButton(
-                          icon: const Icon(Icons.close),
-                          color: textColor,
-                          onPressed: widget.onClose,
-                        ),
-                    ],
-                  ),
-                ],
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        children: [
+          // Text editor with scrollbars
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: textEditorBgColor,
+                borderRadius: BorderRadius.circular(textEditorBorderRadius),
               ),
-            ),
-            // Code area
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                child: LayoutBuilder(builder: (context, constraints) {
-                  final textStyle = TextStyle(
-                    color: textColor,
-                    fontSize: fontSize,
-                  );
-
-                  // Build TextSpan with line highlighting
-                  TextSpan buildHighlightedText() {
-                    final lines = _controller.text.split('\n');
-                    final List<TextSpan> lineSpans = [];
-                    
-                    for (int i = 0; i < lines.length; i++) {
-                      final lineNumber = i + 1;
-                      final isExecuting = _highlightLine == lineNumber;
-                      final isError = _errorLine == lineNumber;
-                      
-                      Color? backgroundColor;
-                      if (isError) {
-                        backgroundColor = Colors.red.withValues(alpha: 0.5);
-                      } else if (isExecuting) {
-                        backgroundColor = highlightColor.withValues(alpha: 0.5);
-                      }
-                      
-                      lineSpans.add(TextSpan(
-                        text: lines[i] + (i < lines.length - 1 ? '\n' : ''),
-                        style: textStyle.copyWith(
-                          backgroundColor: backgroundColor,
-                        ),
-                      ));
-                    }
-                    
-                    return TextSpan(children: lineSpans);
-                  }
-
-                  return Focus(
-                    onKeyEvent: _handleKey,
-                    child: Theme(
-                      data: Theme.of(context).copyWith(
-                        textSelectionTheme: TextSelectionThemeData(
-                          selectionColor: highlightColor,
-                        ),
-                      ),
-                      child: widget.isReadOnly
-                          ? SingleChildScrollView(
-                              controller: _scrollController,
-                              child: ConstrainedBox(
-                                constraints: BoxConstraints(minHeight: constraints.maxHeight - 16.0),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(0),
-                                  child: Align(
-                                    alignment: Alignment.topLeft,
-                                    child: SelectableText.rich(
-                                      buildHighlightedText(),
-                                      style: textStyle,
-                                      textAlign: TextAlign.start,
+              padding: const EdgeInsets.all(12),
+              child: ScrollbarTheme(
+                data: ScrollbarThemeData(
+                  thumbColor: WidgetStateProperty.all(scrollBarHandleColor),
+                  trackColor: WidgetStateProperty.all(scrollBarBgColor),
+                  thickness: WidgetStateProperty.all(scrollBarThickness),
+                  radius: Radius.circular(scrollBarBorderRadius),
+                ),
+                child: Scrollbar(
+                  controller: _horizontalScrollController,
+                  thumbVisibility: true,
+                  trackVisibility: true,
+                  child: Scrollbar(
+                    controller: _verticalScrollController,
+                    thumbVisibility: true,
+                    trackVisibility: true,
+                  child: SingleChildScrollView(
+                    controller: _horizontalScrollController,
+                    scrollDirection: Axis.horizontal,
+                    child: SingleChildScrollView(
+                      controller: _verticalScrollController,
+                      scrollDirection: Axis.vertical,
+                      child: Focus(
+                        onKeyEvent: _handleKey,
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: IntrinsicWidth(
+                            stepWidth: 960,
+                            child: Padding(
+                              // leave space for scrollbars so they don't overlap content
+                              padding: EdgeInsets.only(right: scrollBarThickness, bottom: scrollBarThickness + 8),
+                              child: Stack(
+                                alignment: Alignment.topLeft,
+                                children: [
+                                  // Background highlighted lines (transparent text so only backgrounds show)
+                                  SelectableText.rich(
+                                    _buildHighlightedText(_controller.text, codeTextColor, codeTextFontSize, codeTextFontWeight),
+                                    style: TextStyle(
+                                      color: Colors.transparent,
+                                      fontSize: codeTextFontSize,
+                                      fontWeight: codeTextFontWeight,
                                     ),
                                   ),
-                                ),
-                              ),
-                            )
-                          : TextField(
-                              controller: _controller,
-                              scrollController: _scrollController,
-                              readOnly: false,
-                              maxLines: null,
-                              expands: true,
-                              textAlignVertical: TextAlignVertical.top,
-                              style: textStyle,
-                              decoration: const InputDecoration(
-                                border: InputBorder.none,
-                                hintText: '// Write your code here...',
-                                hintStyle: TextStyle(color: Colors.grey),
+                                  // Foreground editable text
+                                  TextField(
+                                    controller: _controller,
+                                    readOnly: widget.isReadOnly,
+                                    maxLines: null,
+                                    style: TextStyle(
+                                      color: codeTextColor,
+                                      fontSize: codeTextFontSize,
+                                      fontWeight: codeTextFontWeight,
+                                    ),
+                                    decoration: const InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: '// Write your code here...',
+                                      contentPadding: EdgeInsets.zero,
+                                      isDense: true,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
+                          ),
+                        ),
+                      ),
                     ),
-                  );
-                }),
+                    ),
+                  ),
+                ),
               ),
             ),
-          ],
+          ),
+          const SizedBox(height: 8),
+          // File toolbar at bottom (centered)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Back button (left)
+              GestureDetector(
+                onTap: widget.onClose,
+                child: Container(
+                  width: closeWidth,
+                  height: closeHeight,
+                  decoration: BoxDecoration(
+                    color: closeBgColor,
+                    borderRadius: BorderRadius.circular(closeBorderRadius),
+                  ),
+                  child: Center(
+                    child: Image.asset(
+                      closeIconPath,
+                      width: closeIconWidth,
+                      height: closeIconHeight,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Tab options container (right)
+              Container(
+                width: tabOptionsWidth,
+                height: tabOptionsHeight,
+                decoration: BoxDecoration(
+                  color: tabOptionsBgColor,
+                  borderRadius: BorderRadius.circular(tabOptionsBorderRadius),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Dedent button
+                    _buildTabButton(dedentIconPath, () => CodeEditingHandler.unindentText(controller: _controller), tabButtonWidth, tabButtonHeight, tabButtonBorderRadius, tabButtonBgColor),
+                    const SizedBox(width: 4),
+                    // Indent button
+                    _buildTabButton(indentIconPath, () => CodeEditingHandler.indentText(controller: _controller), tabButtonWidth, tabButtonHeight, tabButtonBorderRadius, tabButtonBgColor),
+                    const SizedBox(width: 4),
+                    // Previous button
+                    _buildTabButton(previousIconPath, widget.onPreviousFile, tabButtonWidth, tabButtonHeight, tabButtonBorderRadius, tabButtonBgColor),
+                    // File name
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Text(
+                          widget.currentFileName ?? 'Untitled',
+                          style: TextStyle(
+                            color: fileNameColor,
+                            fontSize: fileNameFontSize,
+                            fontWeight: fileNameFontWeight,
+                          ),
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                    // Next button
+                    _buildTabButton(nextIconPath, widget.onNextFile, tabButtonWidth, tabButtonHeight, tabButtonBorderRadius, tabButtonBgColor),
+                    const SizedBox(width: 4),
+                    // Add button
+                    _buildTabButton(addIconPath, widget.onAddFile, tabButtonWidth, tabButtonHeight, tabButtonBorderRadius, tabButtonBgColor),
+                    const SizedBox(width: 4),
+                    // Delete button
+                    _buildTabButton(deleteIconPath, widget.canDeleteFile ? widget.onDeleteFile : null, tabButtonWidth, tabButtonHeight, tabButtonBorderRadius, tabButtonBgColor),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabButton(String iconPath, VoidCallback? onTap, double width, double height, double borderRadius, Color bgColor) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(borderRadius),
+        ),
+        child: Center(
+          child: Image.asset(
+            iconPath,
+            width: width * 0.6,
+            height: height * 0.6,
+          ),
         ),
       ),
     );
+  }
 
-    // If file toolbar is enabled, wrap the editor with it
-    if (widget.showFileToolbar) {
-      return Column(
-        children: [
-          // File management toolbar
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 102, 87, 87).withValues(alpha: 0.1),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
-              ),
-            ),
-            child: Row(
-              children: [
-                // Add file button
-                IconButton(
-                  icon: const Icon(Icons.add, color: Colors.black),
-                  onPressed: widget.onAddFile,
-                  iconSize: 20,
-                  tooltip: 'Add File',
-                ),
-                // Delete file button
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.black),
-                  onPressed: widget.canDeleteFile ? widget.onDeleteFile : null,
-                  iconSize: 20,
-                  tooltip: 'Delete File',
-                ),
-                const SizedBox(width: 8),
-                // File selector
-                IconButton(
-                  icon: const Icon(Icons.arrow_left, color: Colors.black),
-                  onPressed: widget.onPreviousFile,
-                  iconSize: 20,
-                ),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 102, 87, 87).withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      widget.currentFileName ?? 'Untitled',
-                      style: const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.arrow_right, color: Colors.black),
-                  onPressed: widget.onNextFile,
-                  iconSize: 20,
-                ),
-              ],
-            ),
-          ),
-          // Code editor
-          Expanded(child: editorWidget),
-        ],
-      );
-    } else {
-      return editorWidget;
+  // Build a TextSpan used by a background SelectableText.rich to render
+  // highlighted line backgrounds (text rendered transparent so only backgrounds show).
+  TextSpan _buildHighlightedText(String text, Color textColor, double fontSize, FontWeight fontWeight) {
+    final styles = AppStyles();
+    final validColor = styles.getStyles('farm_page.code_editor.text_editor.highlight.valid_color') as Color;
+    final errorColor = styles.getStyles('farm_page.code_editor.text_editor.highlight.error_color') as Color;
+    
+    final lines = text.split('\n');
+    final List<TextSpan> spans = [];
+
+    for (int i = 0; i < lines.length; i++) {
+      final lineNumber = i + 1;
+      final isExec = _highlightLine == lineNumber;
+      final isErr = _errorLine == lineNumber;
+
+      Color? bg;
+      if (isErr) {
+        bg = errorColor;
+      } else if (isExec) {
+        bg = validColor;
+      }
+
+      spans.add(TextSpan(
+        text: lines[i] + (i < lines.length - 1 ? '\n' : ''),
+        style: TextStyle(
+          backgroundColor: bg,
+        ),
+      ));
     }
+
+    return TextSpan(children: spans);
   }
 }

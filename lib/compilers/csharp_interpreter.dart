@@ -298,7 +298,7 @@ class CSharpInterpreter extends FarmCodeInterpreter {
       final lineNum = _findStatementLine(stmt);
       notifyLineExecuting(lineNum);
       
-      await delay(200);
+      await delay(farmState.generalDuration);
       
       // Check stop flag again after delay (responsive stopping)
       if (shouldStop) {
@@ -1040,7 +1040,7 @@ class CSharpInterpreter extends FarmCodeInterpreter {
   }
 
   /// Handle move() function
-  void _handleMove(String args) {
+  Future<void> _handleMove(String args) async {
     final dirPattern = RegExp(r'Direction\.(\w+)', caseSensitive: false);
     final match = dirPattern.firstMatch(args);
 
@@ -1068,7 +1068,7 @@ class CSharpInterpreter extends FarmCodeInterpreter {
         throw Exception('Semantical Error: Invalid direction "$dirStr"');
     }
 
-    executeMove(direction);
+    await executeMove(direction);
   }
 
   /// Handle plant() function (now uses SeedType)

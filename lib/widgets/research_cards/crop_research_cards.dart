@@ -3,6 +3,9 @@ import '../../models/styles_schema.dart';
 import '../../models/research_data.dart';
 import '../../models/user_data.dart';
 import '../../models/research_items_schema.dart';
+import '../../models/inventory_data.dart';
+import '../../miscellaneous/glass_effect.dart';
+import '../farm_items/notification_display.dart';
 
 /// Widget that displays crop research cards
 class CropResearchCards extends StatefulWidget {
@@ -10,6 +13,7 @@ class CropResearchCards extends StatefulWidget {
   final UserData? userData;
   final String? currentLanguage;
   final Function(String researchId, Map<String, int> requirements)? onResearchCompleted;
+  final NotificationController? notificationController;
 
   const CropResearchCards({
     super.key,
@@ -17,6 +21,7 @@ class CropResearchCards extends StatefulWidget {
     required this.userData,
     this.currentLanguage,
     this.onResearchCompleted,
+    this.notificationController,
   });
 
   @override
@@ -55,26 +60,39 @@ class _CropResearchCardsState extends State<CropResearchCards> {
   Widget _buildCropCard(CropResearchItemSchema item, CropResearchState state) {
     final styles = AppStyles();
     
-    // Use research card styles
-    final cardHeight = styles.getStyles('research_card.card.height') as double;
-    final borderRadius = styles.getStyles('research_card.card.border_radius') as double;
-    final borderWidth = styles.getStyles('research_card.card.border_width') as double;
+    // General card styles
+    final borderRadius = styles.getStyles('research_card.general.border_radius') as double;
+    final borderWidth = styles.getStyles('research_card.general.border_width') as double;
+    final bgGradient = styles.getStyles('research_card.general.background_color') as LinearGradient;
+    final strokeGradient = styles.getStyles('research_card.general.stroke_color') as LinearGradient;
 
-    final bgGradient = styles.getStyles('research_card.card.background_color') as LinearGradient;
-    final strokeGradient = styles.getStyles('research_card.card.stroke_color') as LinearGradient;
+    // Crop-specific styles
+    final defaultNameColor = styles.getStyles('research_card.crop_item.default_name.color') as Color;
+    final defaultNameSize = styles.getStyles('research_card.crop_item.default_name.font_size') as double;
+    final defaultNameWeight = styles.getStyles('research_card.crop_item.default_name.font_weight') as FontWeight;
 
-    final titleColor = styles.getStyles('research_card.card.title.color') as Color;
-    final titleSize = styles.getStyles('research_card.card.title.font_size') as double;
-    final titleWeight = styles.getStyles('research_card.card.title.font_weight') as FontWeight;
+    final langNameColor = styles.getStyles('research_card.crop_item.language_specific_name.color') as Color;
+    final langNameSize = styles.getStyles('research_card.crop_item.language_specific_name.font_size') as double;
+    final langNameWeight = styles.getStyles('research_card.crop_item.language_specific_name.font_weight') as FontWeight;
 
-    final descColor = styles.getStyles('research_card.card.description.color') as Color;
-    final descSize = styles.getStyles('research_card.card.description.font_size') as double;
+    final descColor = styles.getStyles('research_card.crop_item.description.color') as Color;
+    final descSize = styles.getStyles('research_card.crop_item.description.font_size') as double;
+    final descWeight = styles.getStyles('research_card.crop_item.description.font_weight') as FontWeight;
 
-    // Get language-specific name
+    // Requirements styles
+    final reqColor = styles.getStyles('research_card.general.requirements.color') as Color;
+    final reqSize = styles.getStyles('research_card.general.requirements.font_size') as double;
+    final reqWeight = styles.getStyles('research_card.general.requirements.font_weight') as FontWeight;
+    final reqIconWidth = styles.getStyles('research_card.general.requirements.item.icon.width') as double;
+    final reqIconHeight = styles.getStyles('research_card.general.requirements.item.icon.height') as double;
+    final reqQtyColor = styles.getStyles('research_card.general.requirements.item.quantity_label.color') as Color;
+    final reqQtySize = styles.getStyles('research_card.general.requirements.item.quantity_label.font_size') as double;
+    final reqQtyWeight = styles.getStyles('research_card.general.requirements.item.quantity_label.font_weight') as FontWeight;
+
+    // Get display names
     final displayName = item.getNameForLanguage(widget.currentLanguage);
 
     return Container(
-      height: cardHeight,
       decoration: BoxDecoration(
         gradient: strokeGradient,
         borderRadius: BorderRadius.circular(borderRadius),
@@ -86,43 +104,63 @@ class _CropResearchCardsState extends State<CropResearchCards> {
           borderRadius: BorderRadius.circular(borderRadius - borderWidth),
         ),
         child: Stack(
+          fit: StackFit.loose,
           children: [
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(8),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Crop icon
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: item.icon.isNotEmpty
-                        ? Image.asset(
-                            item.icon,
-                            width: 64,
-                            height: 64,
-                            errorBuilder: (context, error, stackTrace) {
-                              return const Icon(Icons.image_not_supported, size: 48);
-                            },
-                          )
-                        : const Icon(Icons.agriculture, size: 48),
+                  // Crop icon + default name below
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: item.icon.isNotEmpty
+                            ? Image.asset(
+                                item.icon,
+                                width: 48,
+                                height: 48,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Icon(Icons.image_not_supported, size: 48);
+                                },
+                              )
+                            : const Icon(Icons.agriculture, size: 48),
+                      ),
+                      const SizedBox(height: 6),
+                      SizedBox(
+                        width: 64,
+                        child: Text(
+                          item.defaultName,
+                          style: TextStyle(
+                            color: defaultNameColor,
+                            fontSize: defaultNameSize,
+                            fontWeight: defaultNameWeight,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 8),
                   // Content
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           displayName,
                           style: TextStyle(
-                            color: titleColor,
-                            fontSize: titleSize,
-                            fontWeight: titleWeight,
+                            color: langNameColor,
+                            fontSize: langNameSize,
+                            fontWeight: langNameWeight,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -131,9 +169,8 @@ class _CropResearchCardsState extends State<CropResearchCards> {
                           style: TextStyle(
                             color: descColor,
                             fontSize: descSize,
+                            fontWeight: descWeight,
                           ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 8),
                         // Requirements
@@ -141,9 +178,9 @@ class _CropResearchCardsState extends State<CropResearchCards> {
                           Text(
                             'Requirements',
                             style: TextStyle(
-                              color: titleColor,
-                              fontSize: descSize,
-                              fontWeight: FontWeight.bold,
+                              color: reqColor,
+                              fontSize: reqSize,
+                              fontWeight: reqWeight,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -158,20 +195,21 @@ class _CropResearchCardsState extends State<CropResearchCards> {
                                   if (itemIcon != null)
                                     Image.asset(
                                       itemIcon,
-                                      width: 16,
-                                      height: 16,
+                                      width: reqIconWidth,
+                                      height: reqIconHeight,
                                       errorBuilder: (context, error, stackTrace) {
-                                        return const Icon(Icons.inventory, size: 16);
+                                        return Icon(Icons.inventory, size: reqIconWidth);
                                       },
                                     )
                                   else
-                                    const Icon(Icons.inventory, size: 16),
+                                    Icon(Icons.inventory, size: reqIconWidth),
                                   const SizedBox(width: 4),
                                   Text(
                                     'x${entry.value}',
                                     style: TextStyle(
-                                      color: descColor,
-                                      fontSize: descSize * 0.9,
+                                      color: reqQtyColor,
+                                      fontSize: reqQtySize,
+                                      fontWeight: reqQtyWeight,
                                     ),
                                   ),
                                 ],
@@ -182,6 +220,7 @@ class _CropResearchCardsState extends State<CropResearchCards> {
                       ],
                     ),
                   ),
+                  const SizedBox(width: 8),
                   // Action button
                   if (state == CropResearchState.toBeResearched)
                     _buildResearchButton(item),
@@ -193,9 +232,9 @@ class _CropResearchCardsState extends State<CropResearchCards> {
             // Locked overlay
             if (state == CropResearchState.locked)
               _buildLockedOverlay(borderRadius - borderWidth),
-            // Purchase badge
+            // Available badge
             if (state == CropResearchState.purchase)
-              _buildPurchaseBadge(borderRadius - borderWidth),
+              _buildAvailableBadge(borderRadius - borderWidth),
           ],
         ),
       ),
@@ -204,14 +243,15 @@ class _CropResearchCardsState extends State<CropResearchCards> {
 
   Widget _buildResearchButton(CropResearchItemSchema item) {
     final styles = AppStyles();
-    final buttonHeight = styles.getStyles('research_card.card.button.height') as double;
-    final borderRadius = styles.getStyles('research_card.card.button.border_radius') as double;
-    final borderWidth = styles.getStyles('research_card.card.button.border_width') as double;
-    final bgGradient = styles.getStyles('research_card.card.button.background_color') as LinearGradient;
-    final strokeGradient = styles.getStyles('research_card.card.button.stroke_color') as LinearGradient;
-    final textColor = styles.getStyles('research_card.card.button.text.color') as Color;
-    final fontSize = styles.getStyles('research_card.card.button.text.font_size') as double;
-    final fontWeight = styles.getStyles('research_card.card.button.text.font_weight') as FontWeight;
+    final buttonWidth = styles.getStyles('research_card.general.research_button.width') as double;
+    final buttonHeight = styles.getStyles('research_card.general.research_button.height') as double;
+    final borderRadius = styles.getStyles('research_card.general.research_button.border_radius') as double;
+    final borderWidth = styles.getStyles('research_card.general.research_button.border_width') as double;
+    final bgGradient = styles.getStyles('research_card.general.research_button.background_color') as LinearGradient;
+    final strokeGradient = styles.getStyles('research_card.general.research_button.stroke_color') as LinearGradient;
+    final textColor = styles.getStyles('research_card.general.research_button.text.color') as Color;
+    final fontSize = styles.getStyles('research_card.general.research_button.text.font_size') as double;
+    final fontWeight = styles.getStyles('research_card.general.research_button.text.font_weight') as FontWeight;
 
     // Check if requirements are met
     final canResearch = widget.userData != null && 
@@ -226,7 +266,7 @@ class _CropResearchCardsState extends State<CropResearchCards> {
       child: Opacity(
         opacity: canResearch ? 1.0 : 0.5,
         child: Container(
-          width: 120,
+          width: buttonWidth,
           height: buttonHeight,
           decoration: BoxDecoration(
             gradient: strokeGradient,
@@ -255,55 +295,70 @@ class _CropResearchCardsState extends State<CropResearchCards> {
 
   Widget _buildLockedOverlay(double borderRadius) {
     final styles = AppStyles();
-    final lockIcon = styles.getStyles('research_card.card.locked_overlay.icon.image') as String;
-    
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(borderRadius),
-      ),
-      alignment: Alignment.center,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            lockIcon,
-            width: 48,
-            height: 48,
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Locked',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+    final lockIcon = styles.getStyles('research_card.general.locked_overlay.icon.image') as String;
+    final lockIconWidth = styles.getStyles('research_card.general.locked_overlay.icon.width') as double;
+    final lockIconHeight = styles.getStyles('research_card.general.locked_overlay.icon.height') as double;
+    final bgColor = styles.getStyles('research_card.general.locked_overlay.background.color') as Color;
+    final bgOpacity = styles.getStyles('research_card.general.locked_overlay.background.opacity') as double;
+    final blurSigma = styles.getStyles('research_card.general.locked_overlay.background.blur_sigma') as double;
+    final strokeGradient = styles.getStyles('research_card.general.locked_overlay.stroke_color') as LinearGradient;
+    final strokeThickness = styles.getStyles('research_card.general.locked_overlay.stroke_thickness') as double;
+    final labelColor = styles.getStyles('research_card.general.locked_overlay.locked_label.color') as Color;
+    final labelSize = styles.getStyles('research_card.general.locked_overlay.locked_label.font_size') as double;
+    final labelWeight = styles.getStyles('research_card.general.locked_overlay.locked_label.font_weight') as FontWeight;
+
+    return Positioned.fill(
+      child: GlassEffect(
+        background: bgColor,
+        opacity: bgOpacity,
+        blurSigma: blurSigma,
+        strokeGradient: strokeGradient,
+        strokeThickness: strokeThickness,
+        borderRadius: borderRadius,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              lockIcon,
+              width: lockIconWidth,
+              height: lockIconHeight,
             ),
-          ),
-        ],
+            const SizedBox(height: 8),
+            Text(
+              'Locked',
+              style: TextStyle(
+                color: labelColor,
+                fontSize: labelSize,
+                fontWeight: labelWeight,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildPurchaseBadge(double borderRadius) {
+  Widget _buildAvailableBadge(double borderRadius) {
     final styles = AppStyles();
-    final badgeGradient = styles.getStyles('research_card.card.badge.background_color') as LinearGradient;
-    final badgeTextColor = styles.getStyles('research_card.card.badge.text.color') as Color;
-    final badgeFontSize = (styles.getStyles('research_card.card.badge.text.font_size') as num).toDouble();
-    final badgeFontWeight = styles.getStyles('research_card.card.badge.text.font_weight') as FontWeight;
-    final padH = styles.getStyles('research_card.card.badge.padding_horizontal') as int? ?? 12;
-    final padV = styles.getStyles('research_card.card.badge.padding_vertical') as int? ?? 6;
-    final badgeRadius = styles.getStyles('research_card.card.badge.border_radius') as int? ?? (borderRadius / 2).toInt();
+    final badgeWidth = styles.getStyles('research_card.general.available_badge.width') as double;
+    final badgeHeight = styles.getStyles('research_card.general.available_badge.height') as double;
+    final badgeRadius = styles.getStyles('research_card.general.available_badge.border_radius') as double;
+    final badgeGradient = styles.getStyles('research_card.general.available_badge.background_color') as LinearGradient;
+    final badgeTextColor = styles.getStyles('research_card.general.available_badge.text.color') as Color;
+    final badgeFontSize = styles.getStyles('research_card.general.available_badge.text.font_size') as double;
+    final badgeFontWeight = styles.getStyles('research_card.general.available_badge.text.font_weight') as FontWeight;
 
     return Positioned(
       top: 8,
       right: 8,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: padH.toDouble(), vertical: padV.toDouble()),
+        width: badgeWidth,
+        height: badgeHeight,
         decoration: BoxDecoration(
           gradient: badgeGradient,
-          borderRadius: BorderRadius.circular(badgeRadius.toDouble()),
+          borderRadius: BorderRadius.circular(badgeRadius),
         ),
+        alignment: Alignment.center,
         child: Text(
           'Available',
           style: TextStyle(
@@ -321,36 +376,9 @@ class _CropResearchCardsState extends State<CropResearchCards> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        // Display purchasable items (icons only)
-        if (item.itemPurchases.isNotEmpty) ...[
-          Wrap(
-            spacing: 8,
-            runSpacing: 4,
-            children: item.itemPurchases.map((itemId) {
-              final itemIcon = ResearchItemsSchema.instance.getInventoryIcon(itemId);
-              return Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: itemIcon != null
-                    ? Image.asset(
-                        itemIcon,
-                        width: 20,
-                        height: 20,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Icon(Icons.inventory, size: 16);
-                        },
-                      )
-                    : const Icon(Icons.inventory, size: 16),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 8),
-        ],
-        
+        // Add extra top spacing so purchase controls don't overlap the 'Available' badge
+        const SizedBox(height: 36),
+
         // Multiplier selector
         Row(
           mainAxisSize: MainAxisSize.min,
@@ -362,7 +390,7 @@ class _CropResearchCardsState extends State<CropResearchCards> {
             _buildMultiplierButton(item.id, 100),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
         
         // Purchase button
         _buildPurchaseButton(item),
@@ -371,44 +399,102 @@ class _CropResearchCardsState extends State<CropResearchCards> {
   }
 
   Widget _buildMultiplierButton(String itemId, int multiplier) {
+    final styles = AppStyles();
     final isSelected = _getMultiplier(itemId) == multiplier;
     
-    return GestureDetector(
-      onTap: () => _setMultiplier(itemId, multiplier),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: isSelected 
-              ? Colors.blue.withValues(alpha: 0.8)
-              : Colors.grey.withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(
-            color: isSelected ? Colors.blue : Colors.grey,
-            width: 1,
+    final height = styles.getStyles('research_card.crop_item.purchase_multipliers.general.height') as double;
+    final borderRadius = styles.getStyles('research_card.crop_item.purchase_multipliers.general.border_radius') as double;
+    final borderWidth = styles.getStyles('research_card.crop_item.purchase_multipliers.general.border_width') as double;
+    
+    if (isSelected) {
+      final bgGradient = styles.getStyles('research_card.crop_item.purchase_multipliers.selected.background_color') as LinearGradient;
+      final strokeGradient = styles.getStyles('research_card.crop_item.purchase_multipliers.selected.stroke_color') as LinearGradient;
+      final textColor = styles.getStyles('research_card.crop_item.purchase_multipliers.selected.text.color') as Color;
+      final fontSize = styles.getStyles('research_card.crop_item.purchase_multipliers.selected.text.font_size') as double;
+      final fontWeight = styles.getStyles('research_card.crop_item.purchase_multipliers.selected.text.font_weight') as FontWeight;
+      
+      return GestureDetector(
+        onTap: () => _setMultiplier(itemId, multiplier),
+        child: Container(
+          height: height,
+          decoration: BoxDecoration(
+            gradient: strokeGradient,
+            borderRadius: BorderRadius.circular(borderRadius),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(borderWidth),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: bgGradient,
+                borderRadius: BorderRadius.circular(borderRadius - borderWidth),
+              ),
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                '${multiplier}x',
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: fontSize,
+                  fontWeight: fontWeight,
+                ),
+              ),
+            ),
           ),
         ),
-        child: Text(
-          '${multiplier}x',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 12,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+      );
+    } else {
+      final bgColor = styles.getStyles('research_card.crop_item.purchase_multipliers.unselected.background_color') as Color;
+      final strokeGradient = styles.getStyles('research_card.crop_item.purchase_multipliers.unselected.stroke_color') as LinearGradient;
+      final textColor = styles.getStyles('research_card.crop_item.purchase_multipliers.unselected.text.color') as Color;
+      final fontSize = styles.getStyles('research_card.crop_item.purchase_multipliers.unselected.text.font_size') as double;
+      final fontWeight = styles.getStyles('research_card.crop_item.purchase_multipliers.unselected.text.font_weight') as FontWeight;
+      
+      return GestureDetector(
+        onTap: () => _setMultiplier(itemId, multiplier),
+        child: Container(
+          height: height,
+          decoration: BoxDecoration(
+            gradient: strokeGradient,
+            borderRadius: BorderRadius.circular(borderRadius),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(borderWidth),
+            child: Container(
+              decoration: BoxDecoration(
+                color: bgColor,
+                borderRadius: BorderRadius.circular(borderRadius - borderWidth),
+              ),
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                '${multiplier}x',
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: fontSize,
+                  fontWeight: fontWeight,
+                ),
+              ),
+            ),
           ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   Widget _buildPurchaseButton(CropResearchItemSchema item) {
     final styles = AppStyles();
-    final buttonHeight = styles.getStyles('research_card.card.button.height') as double;
-    final borderRadius = styles.getStyles('research_card.card.button.border_radius') as double;
-    final borderWidth = styles.getStyles('research_card.card.button.border_width') as double;
-    final bgGradient = styles.getStyles('research_card.card.button.background_color') as LinearGradient;
-    final strokeGradient = styles.getStyles('research_card.card.button.stroke_color') as LinearGradient;
-    final textColor = styles.getStyles('research_card.card.button.text.color') as Color;
-    final fontSize = styles.getStyles('research_card.card.button.text.font_size') as double;
-    final fontWeight = styles.getStyles('research_card.card.button.text.font_weight') as FontWeight;
+    final buttonWidth = styles.getStyles('research_card.crop_item.purchase_button.width') as double;
+    final buttonHeight = styles.getStyles('research_card.crop_item.purchase_button.height') as double;
+    final borderRadius = styles.getStyles('research_card.crop_item.purchase_button.border_radius') as double;
+    final borderWidth = styles.getStyles('research_card.crop_item.purchase_button.border_width') as double;
+    final bgGradient = styles.getStyles('research_card.crop_item.purchase_button.background_color') as LinearGradient;
+    final strokeGradient = styles.getStyles('research_card.crop_item.purchase_button.stroke_color') as LinearGradient;
+    final textColor = styles.getStyles('research_card.crop_item.purchase_button.text.color') as Color;
+    final fontSize = styles.getStyles('research_card.crop_item.purchase_button.text.font_size') as double;
+    final fontWeight = styles.getStyles('research_card.crop_item.purchase_button.text.font_weight') as FontWeight;
+    final iconImage = styles.getStyles('research_card.crop_item.purchase_button.icon.image') as String;
+    final iconWidth = styles.getStyles('research_card.crop_item.purchase_button.icon.width') as double;
+    final iconHeight = styles.getStyles('research_card.crop_item.purchase_button.icon.height') as double;
 
     final multiplier = _getMultiplier(item.id);
     final totalCost = item.purchaseAmount * multiplier;
@@ -419,7 +505,7 @@ class _CropResearchCardsState extends State<CropResearchCards> {
       child: Opacity(
         opacity: canAfford ? 1.0 : 0.5,
         child: Container(
-          width: 120,
+          width: buttonWidth,
           height: buttonHeight,
           decoration: BoxDecoration(
             gradient: strokeGradient,
@@ -432,8 +518,9 @@ class _CropResearchCardsState extends State<CropResearchCards> {
               borderRadius: BorderRadius.circular(borderRadius - borderWidth),
             ),
             alignment: Alignment.center,
-            child: Column(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   'Buy',
@@ -443,24 +530,20 @@ class _CropResearchCardsState extends State<CropResearchCards> {
                     fontWeight: fontWeight,
                   ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.monetization_on,
-                      color: Colors.amber,
-                      size: 14,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '$totalCost',
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: fontSize * 0.8,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+                const SizedBox(width: 4),
+                Image.asset(
+                  iconImage,
+                  width: iconWidth,
+                  height: iconHeight,
+                ),
+                const SizedBox(width: 2),
+                Text(
+                  '$totalCost',
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: fontSize,
+                    fontWeight: fontWeight,
+                  ),
                 ),
               ],
             ),
@@ -489,19 +572,36 @@ class _CropResearchCardsState extends State<CropResearchCards> {
     );
     
     if (success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Purchased ${item.itemPurchases.join(", ")} x$multiplier for $totalCost coins!'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      // Resolve item display names from inventory schema for a friendly message
+      try {
+        final inventorySchema = await InventorySchema.load();
+        final names = item.itemPurchases.map((id) => inventorySchema.getItemName(id) ?? id).toList();
+        final namesStr = names.join(', ');
+
+        if (widget.notificationController != null) {
+          widget.notificationController!.showSuccess(
+            'Purchased $namesStr x$multiplier for $totalCost coins!',
+          );
+        } else {
+          debugPrint('Purchase: Purchased $namesStr x$multiplier for $totalCost coins!');
+        }
+      } catch (e) {
+        // Fallback to IDs if schema load fails
+        final ids = item.itemPurchases.join(', ');
+        if (widget.notificationController != null) {
+          widget.notificationController!.showSuccess(
+            'Purchased $ids x$multiplier for $totalCost coins!',
+          );
+        } else {
+          debugPrint('Purchase: Purchased $ids x$multiplier for $totalCost coins!');
+        }
+      }
     } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Purchase failed. Insufficient coins.'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (widget.notificationController != null) {
+        widget.notificationController!.showError('Purchase failed. Insufficient coins.');
+      } else {
+          debugPrint('Purchase failed. Insufficient coins.');
+      }
     }
   }
 }
