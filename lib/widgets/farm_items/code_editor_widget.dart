@@ -277,10 +277,16 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
                   color: tabOptionsBgColor,
                   borderRadius: BorderRadius.circular(tabOptionsBorderRadius),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    // Dedent button
+                    _buildTabButton(dedentIconPath, () => CodeEditingHandler.unindentText(controller: _controller), tabButtonWidth, tabButtonHeight, tabButtonBorderRadius, tabButtonBgColor),
+                    const SizedBox(width: 4),
+                    // Indent button
+                    _buildTabButton(indentIconPath, () => CodeEditingHandler.indentText(controller: _controller), tabButtonWidth, tabButtonHeight, tabButtonBorderRadius, tabButtonBgColor),
+                    const SizedBox(width: 4),
                     // Previous button
                     _buildTabButton(previousIconPath, widget.onPreviousFile, tabButtonWidth, tabButtonHeight, tabButtonBorderRadius, tabButtonBgColor),
                     // File name
@@ -307,12 +313,6 @@ class _CodeEditorWidgetState extends State<CodeEditorWidget> {
                     const SizedBox(width: 4),
                     // Delete button
                     _buildTabButton(deleteIconPath, widget.canDeleteFile ? widget.onDeleteFile : null, tabButtonWidth, tabButtonHeight, tabButtonBorderRadius, tabButtonBgColor),
-                    const SizedBox(width: 4),
-                    // Indent button
-                    _buildTabButton(indentIconPath, () => CodeEditingHandler.indentText(controller: _controller), tabButtonWidth, tabButtonHeight, tabButtonBorderRadius, tabButtonBgColor),
-                    const SizedBox(width: 4),
-                    // Dedent button
-                    _buildTabButton(dedentIconPath, () => CodeEditingHandler.unindentText(controller: _controller), tabButtonWidth, tabButtonHeight, tabButtonBorderRadius, tabButtonBgColor),
                   ],
                 ),
               ),

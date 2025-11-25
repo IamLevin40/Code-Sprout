@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/language_code_files.dart';
 import '../services/code_files_service.dart';
+import '../widgets/farm_items/delete_file_dialog.dart';
 
 /// Handles code file loading, saving, and navigation operations
 class CodeFilesHandler {
@@ -155,46 +156,31 @@ class CodeFilesHandler {
     
     final fileName = codeFiles.currentFileName;
     
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete File'),
-        content: Text('Are you sure you want to delete "$fileName"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              
-              final success = codeFiles.deleteCurrentFile();
-              
-              if (success) {
-                // Adjust execution file index if needed
-                if (selectedExecutionFileIndex >= codeFiles.files.length) {
-                  onExecutionIndexChanged(codeFiles.files.length - 1);
-                }
-                
-                codeController.text = codeFiles.currentFile.content;
-                onStateChanged();
-                saveCodeFiles(
-                  languageId: languageId,
-                  codeFiles: codeFiles,
-                  codeController: codeController,
-                );
-                
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('File "$fileName" deleted')),
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+    showDeleteFileDialog(
+      context,
+      fileName: fileName,
+      onConfirm: () {
+        final success = codeFiles.deleteCurrentFile();
+
+        if (success) {
+          // Adjust execution file index if needed
+          if (selectedExecutionFileIndex >= codeFiles.files.length) {
+            onExecutionIndexChanged(codeFiles.files.length - 1);
+          }
+
+          codeController.text = codeFiles.currentFile.content;
+          onStateChanged();
+          saveCodeFiles(
+            languageId: languageId,
+            codeFiles: codeFiles,
+            codeController: codeController,
+          );
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('File "$fileName" deleted')),
+          );
+        }
+      },
     );
   }
 }
