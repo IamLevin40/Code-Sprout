@@ -2255,11 +2255,11 @@
                 "stroke_color": {
                     "begin": {
                         "position": "top_left",
-                        "color": "#FFD23F"
+                        "color": "--colors.light_green"
                     },
                     "end": {
                         "position": "bottom_right",
-                        "color": "#ED6810"
+                        "color": "--colors.dark_green"
                     }
                 },
                 "icon": {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/styles_schema.dart';
+import '../miscellaneous/number_utils.dart';
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
 import '../services/local_storage_service.dart';
@@ -269,14 +270,22 @@ class _SproutPageState extends State<SproutPage> {
             const SizedBox(height: 16),
 
             // Inventory
-            Text('Inventory', style: 
-              TextStyle(
-                color: styles.getStyles('sprout_page.inventory.title.color') as Color,
-                fontSize: styles.getStyles('sprout_page.inventory.title.font_size') as double, 
-                fontWeight: styles.getStyles('sprout_page.inventory.title.font_weight') as FontWeight
-              )
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Inventory',
+                    style: TextStyle(
+                      color: styles.getStyles('sprout_page.inventory.title.color') as Color,
+                      fontSize: styles.getStyles('sprout_page.inventory.title.font_size') as double,
+                      fontWeight: styles.getStyles('sprout_page.inventory.title.font_weight') as FontWeight,
+                    ),
+                  ),
+                ),
+                _buildCoinsDisplay(),
+              ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
 
             // Inventory grid (3 columns max)
             LayoutBuilder(builder: (context, constraints) {
@@ -303,6 +312,65 @@ class _SproutPageState extends State<SproutPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildCoinsDisplay() {
+    final styles = AppStyles();
+    final width = styles.getStyles('farm_page.top_layer.coins_display.width') as double;
+    final height = styles.getStyles('farm_page.top_layer.coins_display.height') as double;
+    final borderRadius = styles.getStyles('farm_page.top_layer.coins_display.border_radius') as double;
+    final borderWidth = styles.getStyles('farm_page.top_layer.coins_display.border_width') as double;
+    final bgGradient = styles.getStyles('farm_page.top_layer.coins_display.background_color') as LinearGradient;
+    final strokeGradient = styles.getStyles('farm_page.top_layer.coins_display.stroke_color') as LinearGradient;
+    final iconPath = styles.getStyles('farm_page.top_layer.coins_display.icon.image') as String;
+    final iconWidth = styles.getStyles('farm_page.top_layer.coins_display.icon.width') as double;
+    final iconHeight = styles.getStyles('farm_page.top_layer.coins_display.icon.height') as double;
+    final textColor = styles.getStyles('farm_page.top_layer.coins_display.text.color') as Color;
+    final textFontSize = styles.getStyles('farm_page.top_layer.coins_display.text.font_size') as double;
+    final textFontWeight = styles.getStyles('farm_page.top_layer.coins_display.text.font_weight') as FontWeight;
+
+    return ValueListenableBuilder<UserData?>(
+      valueListenable: LocalStorageService.instance.userDataNotifier,
+      builder: (context, userData, _) {
+        final coins = userData?.getCoins() ?? 0;
+
+        return Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            gradient: strokeGradient,
+            borderRadius: BorderRadius.circular(borderRadius),
+          ),
+          padding: EdgeInsets.all(borderWidth),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: bgGradient,
+              borderRadius: BorderRadius.circular(borderRadius - borderWidth),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  iconPath,
+                  width: iconWidth,
+                  height: iconHeight,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  NumberUtils.formatNumberShort(coins),
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: textFontSize,
+                    fontWeight: textFontWeight,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

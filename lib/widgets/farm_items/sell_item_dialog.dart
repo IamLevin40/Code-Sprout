@@ -280,7 +280,6 @@ class _SellItemDialogContentState extends State<_SellItemDialogContent> {
                   fontWeight: nameWeight,
                 ),
               ),
-              const SizedBox(height: 4),
               // Quantity
               Text(
                 'x${widget.currentQuantity}',
