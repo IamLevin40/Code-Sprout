@@ -18,7 +18,7 @@ class AppStyles {
     if (_stylesData != null) return; // Already loaded
 
     try {
-      final String jsonString = await rootBundle.loadString('schemas/styles_schema.txt');
+      final String jsonString = await rootBundle.loadString('assets/schemas/styles_schema.txt');
       _stylesData = jsonDecode(jsonString);
     } catch (e) {
       throw Exception('Failed to load styles schema: $e');

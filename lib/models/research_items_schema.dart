@@ -225,7 +225,7 @@ class ResearchItemsSchema {
   Future<void> _loadCropResearchSchema() async {
     try {
       final String schemaText = await rootBundle.loadString(
-        'schemas/researches/crop_research_items_schema.txt',
+        'assets/schemas/researches/crop_research_items_schema.txt',
       );
       final Map<String, dynamic> schemaJson = json.decode(schemaText);
       
@@ -245,7 +245,7 @@ class ResearchItemsSchema {
   Future<void> _loadFarmResearchSchema() async {
     try {
       final String schemaText = await rootBundle.loadString(
-        'schemas/researches/farm_research_items_schema.txt',
+        'assets/schemas/researches/farm_research_items_schema.txt',
       );
       final Map<String, dynamic> schemaJson = json.decode(schemaText);
       
@@ -265,7 +265,7 @@ class ResearchItemsSchema {
   Future<void> _loadFunctionsResearchSchema() async {
     try {
       final String schemaText = await rootBundle.loadString(
-        'schemas/researches/functions_research_items_schema.txt',
+        'assets/schemas/researches/functions_research_items_schema.txt',
       );
       final Map<String, dynamic> schemaJson = json.decode(schemaText);
       

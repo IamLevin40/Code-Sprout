@@ -12,16 +12,48 @@ import 'pages/main_navigation_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
   
-  // Load app styles and schemas
-  await AppStyles().loadStyles();
-  await FarmDataSchema().loadSchema();
-  await ResearchItemsSchema.instance.loadSchemas();
-  
-  runApp(const MyApp());
+  try {
+    // Initialize Firebase
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    
+    // Load app styles and schemas
+    await AppStyles().loadStyles();
+    await FarmDataSchema().loadSchema();
+    await ResearchItemsSchema.instance.loadSchemas();
+    
+    runApp(const MyApp());
+  } catch (e) {
+    // If initialization fails, show error instead of black screen
+    runApp(MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                const SizedBox(height: 16),
+                const Text(
+                  'Initialization Error',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Error: $e',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 14),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ));
+  }
 }
 
 class MyApp extends StatelessWidget {
