@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'services/auth_service.dart';
@@ -33,6 +35,16 @@ void main() async {
 
 Future<void> _initializeAndRunApp() async {
   try {
+    // Enable immersive sticky fullscreen on Android so navigation/status bars
+    // are hidden and can be temporarily revealed with edge swipes.
+    try {
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+      }
+    } catch (e, st) {
+      debugPrint('Failed to set immersiveSticky mode: $e');
+      debugPrint('Stack: $st');
+    }
     // Initialize Firebase
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
