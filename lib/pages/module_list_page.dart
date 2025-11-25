@@ -7,6 +7,7 @@ import '../services/local_storage_service.dart';
 import '../models/user_data.dart';
 import 'module_levels_page.dart';
 import '../widgets/module_items/progress_display.dart';
+import '../widgets/error_boundary.dart';
 
 class ModuleListPage extends StatefulWidget {
   final String languageId;
@@ -73,9 +74,13 @@ class _ModuleListPageState extends State<ModuleListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final styles = AppStyles();
+    return ErrorBoundary.wrapBuild(
+      context: context,
+      pageName: 'ModuleListPage',
+      builder: () {
+        final styles = AppStyles();
 
-    final backIconImage = styles.getStyles('module_pages.back.icon.image') as String;
+        final backIconImage = styles.getStyles('module_pages.back.icon.image') as String;
     final backIconWidth = styles.getStyles('module_pages.back.icon.width') as double;
     final backIconHeight = styles.getStyles('module_pages.back.icon.height') as double;
     final backBgColor = styles.getStyles('module_pages.back.background_color') as Color;
@@ -608,6 +613,8 @@ class _ModuleListPageState extends State<ModuleListPage> {
           ),
         ),
       ),
+    );
+      },
     );
   }
 }

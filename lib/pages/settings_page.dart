@@ -6,6 +6,7 @@ import '../models/styles_schema.dart';
 import '../models/user_data.dart';
 import '../models/user_data_schema.dart';
 import '../services/local_storage_service.dart';
+import '../widgets/error_boundary.dart';
 
 /// Settings page for user data manipulation and testing
 /// Dynamically renders UI based on the schema definition
@@ -302,10 +303,14 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final styles = AppStyles();
+    return ErrorBoundary.wrapBuild(
+      context: context,
+      pageName: 'SettingsPage',
+      builder: () {
+        final styles = AppStyles();
 
-    return Container(
-      color: styles.getStyles('global.background.color') as Color,
+        return Container(
+          color: styles.getStyles('global.background.color') as Color,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 24.0),
         child: Form(
@@ -459,6 +464,8 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
         ),
       ),
+    );
+      },
     );
   }
 

@@ -11,6 +11,7 @@ import '../services/firestore_service.dart';
 import '../widgets/course_cards/continue_course_cards.dart';
 import '../widgets/course_cards/recommended_course_cards.dart';
 import '../widgets/course_cards/discover_course_cards.dart';
+import '../widgets/error_boundary.dart';
 import 'module_list_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -29,8 +30,14 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final content = _buildStackedContent();
-    return content;
+    return ErrorBoundary.wrapBuild(
+      context: context,
+      pageName: 'HomePage',
+      builder: () {
+        final content = _buildStackedContent();
+        return content;
+      },
+    );
   }
 
   @override

@@ -8,6 +8,7 @@ import '../models/user_data.dart';
 import '../widgets/level_popups/module_accomplished_popup.dart';
 import '../widgets/level_popups/back_confirmation_popup.dart';
 import '../widgets/module_items/level_content_display.dart';
+import '../widgets/error_boundary.dart';
 
 class ModuleLevelsPage extends StatefulWidget {
   final String languageId;
@@ -186,9 +187,13 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final styles = AppStyles();
+    return ErrorBoundary.wrapBuild(
+      context: context,
+      pageName: 'ModuleLevelsPage',
+      builder: () {
+        final styles = AppStyles();
 
-    final backIconImage = styles.getStyles('module_pages.back.icon.image') as String;
+        final backIconImage = styles.getStyles('module_pages.back.icon.image') as String;
     final backIconWidth = styles.getStyles('module_pages.back.icon.width') as double;
     final backIconHeight = styles.getStyles('module_pages.back.icon.height') as double;
     final backBgColor = styles.getStyles('module_pages.back.background_color') as Color;
@@ -515,6 +520,8 @@ class _ModuleLevelsPageState extends State<ModuleLevelsPage> {
           ),
         ),
       ),
+    );
+      },
     );
   }
 }

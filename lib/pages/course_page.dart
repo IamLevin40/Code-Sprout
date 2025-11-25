@@ -4,6 +4,7 @@ import '../models/course_data_schema.dart';
 import '../models/user_data.dart';
 import '../widgets/course_cards/main_course_cards.dart';
 import '../widgets/course_cards/continue_course_cards.dart';
+import '../widgets/error_boundary.dart';
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
 import '../services/local_storage_service.dart';
@@ -112,13 +113,17 @@ class _CoursePageState extends State<CoursePage> {
 
   @override
   Widget build(BuildContext context) {
-    final styles = AppStyles();
+    return ErrorBoundary.wrapBuild(
+      context: context,
+      pageName: 'CoursePage',
+      builder: () {
+        final styles = AppStyles();
 
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+        if (_isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-    final screenWidth = MediaQuery.of(context).size.width;
+        final screenWidth = MediaQuery.of(context).size.width;
 
     final double selectorGap = styles.getStyles('course_page.selector.gap') as double;
     final double selectorHeight = (styles.getStyles('course_page.selector.height') as num).toDouble();
@@ -238,6 +243,8 @@ class _CoursePageState extends State<CoursePage> {
           ),
         ),
       ),
+    );
+      },
     );
   }
 

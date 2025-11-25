@@ -13,6 +13,7 @@ import '../models/inventory_data.dart' as inv;
 import '../widgets/sprout_items/current_language_card.dart';
 import '../widgets/sprout_items/inventory_grid_display.dart';
 import '../widgets/farm_items/notification_display.dart';
+import '../widgets/error_boundary.dart';
 import 'farm_page.dart';
 
 class SproutPage extends StatefulWidget {
@@ -130,10 +131,14 @@ class _SproutPageState extends State<SproutPage> {
 
   @override
   Widget build(BuildContext context) {
-    final styles = AppStyles();
+    return ErrorBoundary.wrapBuild(
+      context: context,
+      pageName: 'SproutPage',
+      builder: () {
+        final styles = AppStyles();
 
-    return Container(
-      color: styles.getStyles('global.background.color') as Color,
+        return Container(
+          color: styles.getStyles('global.background.color') as Color,
       child: Stack(
         children: [
           Padding(
@@ -312,6 +317,8 @@ class _SproutPageState extends State<SproutPage> {
           ),
         ],
       ),
+    );
+      },
     );
   }
 

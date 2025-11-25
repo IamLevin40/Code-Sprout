@@ -17,6 +17,7 @@ import '../widgets/farm_items/clear_farm_dialog.dart';
 import '../widgets/farm_items/add_file_dialog.dart';
 import '../widgets/farm_items/farm_loading_view.dart';
 import '../widgets/farm_items/notification_display.dart';
+import '../widgets/error_boundary.dart';
 import '../compilers/base_interpreter.dart';
 import '../services/local_storage_service.dart';
 import '../miscellaneous/interactive_viewport_controller.dart';
@@ -532,10 +533,14 @@ class _FarmPageState extends State<FarmPage> {
 
   @override
   Widget build(BuildContext context) {
-    final styles = AppStyles();
-    final loadingTransitionMs = styles.getStyles('farm_page.loading_view.transition_duration') as int;
+    return ErrorBoundary.wrapBuild(
+      context: context,
+      pageName: 'FarmPage',
+      builder: () {
+        final styles = AppStyles();
+        final loadingTransitionMs = styles.getStyles('farm_page.loading_view.transition_duration') as int;
 
-    return Scaffold(
+        return Scaffold(
       body: SafeArea(
         child: AnimatedSwitcher(
           duration: Duration(milliseconds: loadingTransitionMs),
@@ -559,6 +564,8 @@ class _FarmPageState extends State<FarmPage> {
                 ),
         ),
       ),
+    );
+      },
     );
   }
 
