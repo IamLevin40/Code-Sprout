@@ -192,13 +192,11 @@ class InventoryGridDisplay extends StatelessWidget {
     }
 
     // Show sell dialog
-    await showDialog(
+    await showSellItemDialog(
       context: context,
-      builder: (context) => SellItemDialog(
-        item: schemaItem,
-        currentQuantity: item.quantity,
-        userData: userData,
-      ),
+      item: schemaItem,
+      currentQuantity: item.quantity,
+      userData: userData,
     );
   }
 }

@@ -2856,6 +2856,156 @@
                 "height": 24
             }
         },
+        "sell_item_dialog": {
+            "transition_duration": 250,
+            "width": 300,
+            "border_radius": 16,
+            "background_color": "--colors.ivory_white",
+            "title": {
+                "color": "--colors.dark_purple",
+                "font_size": "--font_sizes.title",
+                "font_weight": "--font_weights.bold"
+            },
+            "item_display": {
+                "icon": {
+                    "width": 48,
+                    "height": 48
+                },
+                "name": {
+                    "color": "--colors.dark_purple",
+                    "font_size": "--font_sizes.regular",
+                    "font_weight": "--font_weights.bold"
+                },
+                "quantity": {
+                    "color": "--colors.gray",
+                    "font_size": "--font_sizes.regular",
+                    "font_weight": "--font_weights.regular"
+                },
+                "sell_price_per": {
+                    "color": "--colors.dark_green",
+                    "font_size": "--font_sizes.regular",
+                    "font_weight": "--font_weights.bold"
+                }
+            },
+            "purchase_multipliers": {
+                "general": {
+                    "width": 40,
+                    "height": 32,
+                    "border_radius": 8,
+                    "border_width": 2
+                },
+                "selected": {
+                    "background_color": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "#435B77"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "#6D8BAF"
+                        }
+                    },
+                    "stroke_color": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "#87A1BF"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "--colors.dark_gray"
+                        }
+                    },
+                    "text": {
+                        "color": "--colors.white",
+                        "font_size": "--font_sizes.regular",
+                        "font_weight": "--font_weights.bold"
+                    }
+                },
+                "unselected": {
+                    "background_color": "#E7EEF6",
+                    "stroke_color": {
+                        "begin": {
+                            "position": "top_left",
+                            "color": "#87A1BF"
+                        },
+                        "end": {
+                            "position": "bottom_right",
+                            "color": "--colors.dark_gray"
+                        }
+                    },
+                    "text": {
+                        "color": "--colors.dark_gray",
+                        "font_size": "--font_sizes.regular",
+                        "font_weight": "--font_weights.regular"
+                    }
+                }
+            },
+            "total_sell_price_display": {
+                "coins_icon": {
+                    "image": "images/icons/sprout_items/miscellaneous/coins.png",
+                    "width": 32,
+                    "height": 32
+                },
+                "sell_price_label": {
+                    "color": "--colors.dark_purple",
+                    "font_size": "--font_sizes.title",
+                    "font_weight": "--font_weights.bold"
+                }
+            },
+            "cancel_button": {
+                "width": 96,
+                "height": 32,
+                "border_radius": 8,
+                "border_width": 2,
+                "background_color": "--colors.white",
+                "stroke_color": {
+                    "begin": {
+                        "position": "top_left",
+                        "color": "#C1EC5A"
+                    },
+                    "end": {
+                        "position": "bottom_right",
+                        "color": "#87A938"
+                    }
+                },
+                "text": {
+                    "color": "--colors.dark_gray",
+                    "font_size": "--font_sizes.regular",
+                    "font_weight": "--font_weights.bold"
+                }
+            },
+            "sell_button": {
+                "width": 96,
+                "height": 32,
+                "border_radius": 8,
+                "border_width": 2,
+                "background_color": {
+                    "begin": {
+                        "position": "top_left",
+                        "color": "#A2C947"
+                    },
+                    "end": {
+                        "position": "bottom_right",
+                        "color": "#CAF562"
+                    }
+                },
+                "stroke_color": {
+                    "begin": {
+                        "position": "top_left",
+                        "color": "#C1EC5A"
+                    },
+                    "end": {
+                        "position": "bottom_right",
+                        "color": "#87A938"
+                    }
+                },
+                "text": {
+                    "color": "--colors.dark_gray",
+                    "font_size": "--font_sizes.regular",
+                    "font_weight": "--font_weights.bold"
+                }
+            }
+        },
         "research_lab_display": {
             "transition_duration": 500,
             "border_radius": 16,
