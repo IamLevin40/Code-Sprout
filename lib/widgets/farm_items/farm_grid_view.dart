@@ -80,6 +80,8 @@ class FarmGridView extends StatelessWidget {
     final normalImage = styles.getStyles('farm_page.farm_grid.drone_states.normal') as String;
     final tillingImage = styles.getStyles('farm_page.farm_grid.drone_states.tilling') as String;
     final wateringImage = styles.getStyles('farm_page.farm_grid.drone_states.watering') as String;
+    final plantingImage = styles.getStyles('farm_page.farm_grid.drone_states.planting') as String;
+    final harvestingImage = styles.getStyles('farm_page.farm_grid.drone_states.harvesting') as String;
 
     String droneImage;
     switch (farmState.dronePosition.state) {
@@ -88,6 +90,12 @@ class FarmGridView extends StatelessWidget {
         break;
       case DroneState.watering:
         droneImage = wateringImage;
+        break;
+      case DroneState.planting:
+        droneImage = plantingImage;
+        break;
+      case DroneState.harvesting:
+        droneImage = harvestingImage;
         break;
       default:
         droneImage = normalImage;

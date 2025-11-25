@@ -464,40 +464,67 @@ abstract class FarmCodeInterpreter {
     return success;
   }
 
-  /// Execute plant operation (now uses SeedType)
-  bool executePlant(SeedType seed) {
+  /// Execute plant operation (now uses SeedType) with state visualization
+  Future<bool> executePlant(SeedType seed) async {
     if (!_isFunctionUnlocked('plant(seedType)')) {
       log('Error: Function not unlocked. Research the required functions to use plant(seedType)');
       return false;
     }
     log('Planting ${seed.displayName}...');
+    
+    // Set planting state
+    farmState.setDroneState(DroneState.planting);
+    
     // `plantSeed` now returns the number of plots planted (int).
     final plantedCount = farmState.plantSeed(seed);
+    
     if (plantedCount > 0) {
+      // Visual work duration for planting
+      await Future.delayed(Duration(milliseconds: farmState.plantDuration));
       log('${seed.displayName} planted successfully on $plantedCount plot${plantedCount > 1 ? 's' : ''}');
+      
+      // Reset to normal state
+      farmState.setDroneState(DroneState.normal);
       return true;
     } else {
       log('Error: Cannot plant on this plot (check if you have seeds or plot is not tillable)');
+      
+      // Reset to normal state even on failure
+      farmState.setDroneState(DroneState.normal);
       return false;
     }
   }
 
-  /// Execute harvest operation
+  /// Execute harvest operation with state visualization
   Future<bool> executeHarvest() async {
     if (!_isFunctionUnlocked('harvest()')) {
       log('Error: Function not unlocked. Research the required functions to use harvest()');
       return false;
     }
     log('Harvesting crop...');
+    
+    // Set harvesting state
+    farmState.setDroneState(DroneState.harvesting);
+    
     final result = await farmState.harvestCurrentPlot();
+    
     if (result != null) {
+      // Visual work duration for harvesting
+      await Future.delayed(Duration(milliseconds: farmState.harvestDuration));
+      
       final cropType = result['cropType'] as CropType;
       final quantity = result['quantity'] as int;
       log('Harvested $quantity ${cropType.displayName}${quantity > 1 ? 's' : ''}!');
       onCropHarvested?.call(cropType);
+      
+      // Reset to normal state
+      farmState.setDroneState(DroneState.normal);
       return true;
     } else {
       log('Error: Nothing to harvest here');
+      
+      // Reset to normal state even on failure
+      farmState.setDroneState(DroneState.normal);
       return false;
     }
   }

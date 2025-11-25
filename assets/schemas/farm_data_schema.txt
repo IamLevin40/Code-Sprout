@@ -3,7 +3,9 @@
         "general": 200,
         "move(direction)": 400,
         "till()": 300,
-        "water()": 500
+        "water()": 500,
+        "plant(seedType)": 300,
+        "harvest()": 300
     },
     "crop_info": {
         "wheat": {

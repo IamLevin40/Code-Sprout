@@ -50,9 +50,11 @@ enum Direction {
 
 /// Enum representing drone operational states
 enum DroneState {
-  normal,   // Idle or moving
-  tilling,  // Currently tilling soil
-  watering, // Currently watering
+  normal,     // Idle or moving
+  tilling,    // Currently tilling soil
+  watering,   // Currently watering
+  planting,   // Currently planting seeds
+  harvesting, // Currently harvesting crops
 }
 
 /// Extension to get string representation of crop type matching user data schema
@@ -360,6 +362,8 @@ class FarmState extends ChangeNotifier {
   int get moveDuration => _schema.getDroneWorkDuration('move(direction)') ?? 1000;
   int get tillDuration => _schema.getDroneWorkDuration('till()') ?? 600;
   int get waterDuration => _schema.getDroneWorkDuration('water()') ?? 1000;
+  int get plantDuration => _schema.getDroneWorkDuration('plant(seedType)') ?? 300;
+  int get harvestDuration => _schema.getDroneWorkDuration('harvest()') ?? 300;
 
   FarmState({
     this.gridWidth = 1,

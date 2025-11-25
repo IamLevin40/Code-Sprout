@@ -3190,7 +3190,9 @@
             "drone_states": {
                 "normal": "images/icons/sprout_items/farm_items/drone_normal.png",
                 "tilling": "images/icons/sprout_items/farm_items/drone_tilling.png",
-                "watering": "images/icons/sprout_items/farm_items/drone_watering.png"
+                "watering": "images/icons/sprout_items/farm_items/drone_watering.png",
+                "planting": "images/icons/sprout_items/farm_items/drone_planting.png",
+                "harvesting": "images/icons/sprout_items/farm_items/drone_harvesting.png"
             },
             "drone_size": {
                 "width": 64,
