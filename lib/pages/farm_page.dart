@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
+import 'dart:io';
 import '../models/farm_data.dart';
 import '../models/styles_schema.dart';
 import '../models/language_code_files.dart';
@@ -13,6 +15,7 @@ import '../widgets/farm_items/farm_bottom_controls.dart';
 import '../widgets/farm_items/research_lab_display.dart';
 import '../widgets/farm_items/clear_farm_dialog.dart';
 import '../widgets/farm_items/add_file_dialog.dart';
+import '../widgets/farm_items/farm_loading_view.dart';
 import '../compilers/base_interpreter.dart';
 import '../services/local_storage_service.dart';
 import '../miscellaneous/interactive_viewport_controller.dart';
@@ -56,6 +59,14 @@ class _FarmPageState extends State<FarmPage> {
   bool _showExecutionLog = false;
   late ScrollController _logScrollController;
   bool _autoScrollEnabled = true;
+  
+  // Loading state management
+  FarmLoadingState _loadingState = FarmLoadingState.loading;
+  String? _loadingErrorMessage;
+  bool _isDataLoaded = false;
+  // Network / auto-save helpers
+  Timer? _connectivityTimer;
+  bool _pendingRemoteSave = false;
 
   @override
   void initState() {
@@ -82,71 +93,199 @@ class _FarmPageState extends State<FarmPage> {
       });
     } catch (_) {}
     
-    // Load files and progress from Firestore
-    _loadCodeFiles();
-    _loadFarmProgress();
-    _loadResearchProgress();
+    // Start loading all required data
+    _initializeFarmData();
 
-    // Ensure viewport centers once after the first frame
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_centeredOnce) {
-        if (_resetViewportToCenter()) {
-          _centeredOnce = true;
+    // Start lightweight periodic connectivity checks to flush pending remote saves.
+    // Uses a simple DNS lookup to avoid adding external dependencies.
+    _connectivityTimer = Timer.periodic(const Duration(seconds: 5), (_) async {
+      try {
+        final hasNet = await _hasNetworkConnection();
+        if (hasNet) {
+          if (_loadingState == FarmLoadingState.error) {
+            // If initial loading previously failed due to connectivity, try again when network returns.
+            _initializeFarmData();
+          }
+
+          if (_pendingRemoteSave && _isDataLoaded) {
+            _performPendingSaves();
+          }
         }
-      }
+      } catch (_) {}
     });
   }
+
+  /// Lightweight network check. Returns true when a DNS lookup succeeds.
+  Future<bool> _hasNetworkConnection() async {
+    try {
+      final result = await InternetAddress.lookup('example.com').timeout(const Duration(seconds: 4));
+      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Attempt to perform any pending remote saves and clear the pending flag on success.
+  Future<void> _performPendingSaves() async {
+    if (!_isDataLoaded) return;
+    bool anyFailed = false;
+    // Try farm progress
+    try {
+      await FarmProgressHandler.saveFarmProgress(farmState: _farmState);
+    } catch (_) {
+      anyFailed = true;
+    }
+
+    // Try research progress
+    try {
+      await ResearchProgressHandler.saveResearchProgress(researchState: _researchState);
+    } catch (_) {
+      anyFailed = true;
+    }
+
+    // Try code files
+    try {
+      await CodeFilesHandler.saveCodeFiles(
+        languageId: widget.languageId,
+        codeFiles: _codeFiles,
+        codeController: _codeController,
+      );
+    } catch (_) {
+      anyFailed = true;
+    }
+
+    _pendingRemoteSave = anyFailed;
+  }
   
-  Future<void> _loadCodeFiles() async {
-    final loadedFiles = await CodeFilesHandler.loadCodeFiles(
-      context: context,
-      languageId: widget.languageId,
-    );
+  /// Initialize farm data by loading all required resources
+  Future<void> _initializeFarmData() async {
+    setState(() {
+      _loadingState = FarmLoadingState.loading;
+      _loadingErrorMessage = null;
+      _isDataLoaded = false;
+    });
     
-    if (loadedFiles != null && mounted) {
-      setState(() {
-        _codeFiles = loadedFiles;
-        _selectedExecutionFileIndex = _codeFiles.currentFileIndex;
-        _codeController.text = _codeFiles.currentFile.content;
-      });
+    try {
+      // Load all data in parallel for better performance
+      final results = await Future.wait([
+        _loadCodeFiles(),
+        _loadFarmProgress(),
+        _loadResearchProgress(),
+      ], eagerError: true);
+      
+      // Check if all loads were successful
+      final allSuccess = results.every((result) => result == true);
+      
+      if (allSuccess && mounted) {
+        setState(() {
+          _loadingState = FarmLoadingState.success;
+          _isDataLoaded = true;
+        });
+        
+        // Ensure viewport centers after successful load
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!_centeredOnce && mounted) {
+            if (_resetViewportToCenter()) {
+              _centeredOnce = true;
+            }
+          }
+        });
+      } else {
+        throw Exception('Some data failed to load');
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _loadingState = FarmLoadingState.error;
+          _loadingErrorMessage = 'Failed to load farm data. ${e.toString()}';
+        });
+      }
+    }
+  }
+  
+  Future<bool> _loadCodeFiles() async {
+    try {
+      final loadedFiles = await CodeFilesHandler.loadCodeFiles(
+        context: context,
+        languageId: widget.languageId,
+      );
+      
+      if (loadedFiles != null && mounted) {
+        setState(() {
+          _codeFiles = loadedFiles;
+          _selectedExecutionFileIndex = _codeFiles.currentFileIndex;
+          _codeController.text = _codeFiles.currentFile.content;
+        });
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
     }
   }
   
   Future<void> _saveCodeFiles() async {
-    await CodeFilesHandler.saveCodeFiles(
-      languageId: widget.languageId,
-      codeFiles: _codeFiles,
-      codeController: _codeController,
-    );
+    if (!_isDataLoaded) return; // Only save if data is loaded
+    try {
+      await CodeFilesHandler.saveCodeFiles(
+        languageId: widget.languageId,
+        codeFiles: _codeFiles,
+        codeController: _codeController,
+      );
+    } catch (e) {
+      // Mark that a remote save is pending; a periodic connectivity check
+      // will attempt to flush pending saves when network returns.
+      _pendingRemoteSave = true;
+    }
   }
 
   /// Load farm progress from Firestore and apply to farm state
-  Future<void> _loadFarmProgress() async {
-    await FarmProgressHandler.loadFarmProgress(
-      farmState: _farmState,
-      onFarmStateChanged: _onFarmStateChanged,
-    );
-    if (mounted) setState(() {});
+  Future<bool> _loadFarmProgress() async {
+    try {
+      await FarmProgressHandler.loadFarmProgress(
+        farmState: _farmState,
+        onFarmStateChanged: _onFarmStateChanged,
+      );
+      if (mounted) setState(() {});
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   /// Load research progress from Firestore
-  Future<void> _loadResearchProgress() async {
-    await ResearchProgressHandler.loadResearchProgress(
-      researchState: _researchState,
-      farmState: _farmState,
-      onResearchStateChanged: _onResearchStateChanged,
-    );
-    if (mounted) setState(() {});
+  Future<bool> _loadResearchProgress() async {
+    try {
+      await ResearchProgressHandler.loadResearchProgress(
+        researchState: _researchState,
+        farmState: _farmState,
+        onResearchStateChanged: _onResearchStateChanged,
+      );
+      if (mounted) setState(() {});
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   /// Save farm progress to Firestore
   Future<void> _saveFarmProgress() async {
-    await FarmProgressHandler.saveFarmProgress(farmState: _farmState);
+    if (!_isDataLoaded) return; // Only save if data is loaded
+    try {
+      await FarmProgressHandler.saveFarmProgress(farmState: _farmState);
+    } catch (e) {
+      _pendingRemoteSave = true;
+    }
   }
 
   /// Save research progress to Firestore
   Future<void> _saveResearchProgress() async {
-    await ResearchProgressHandler.saveResearchProgress(researchState: _researchState);
+    if (!_isDataLoaded) return; // Only save if data is loaded
+    try {
+      await ResearchProgressHandler.saveResearchProgress(researchState: _researchState);
+    } catch (e) {
+      _pendingRemoteSave = true;
+    }
   }
 
   @override
@@ -156,7 +295,7 @@ class _FarmPageState extends State<FarmPage> {
       _currentInterpreter!.stop();
     }
     
-    // Save progress when leaving page
+    // Save progress when leaving page (attempt, will mark pending if offline)
     _saveFarmProgress();
     _saveResearchProgress();
     
@@ -170,6 +309,7 @@ class _FarmPageState extends State<FarmPage> {
     _codeController.dispose();
     _viewportController.dispose();
     _logScrollController.dispose();
+    _connectivityTimer?.cancel();
     super.dispose();
   }
 
@@ -373,37 +513,65 @@ class _FarmPageState extends State<FarmPage> {
   @override
   Widget build(BuildContext context) {
     final styles = AppStyles();
+    final loadingTransitionMs = styles.getStyles('farm_page.loading_view.transition_duration') as int;
+
+    return Scaffold(
+      body: SafeArea(
+        child: AnimatedSwitcher(
+          duration: Duration(milliseconds: loadingTransitionMs),
+          switchInCurve: Curves.easeInOut,
+          switchOutCurve: Curves.easeInOut,
+          child: _loadingState == FarmLoadingState.success
+              ? _buildFarmContent()
+              : FarmLoadingView(
+                  key: ValueKey(_loadingState),
+                  state: _loadingState,
+                  errorMessage: _loadingErrorMessage,
+                  onGoBack: () {
+                    // Stop execution if running before navigating back
+                    if (_isExecuting && _currentInterpreter != null) {
+                      _currentInterpreter!.stop();
+                      _farmState.setExecuting(false);
+                    }
+                    Navigator.of(context).pop();
+                  },
+                  onTryAgain: _initializeFarmData,
+                ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFarmContent() {
+    final styles = AppStyles();
     final codeEditorTransitionMs = styles.getStyles('farm_page.code_editor.transition_duration') as int;
     final researchLabTransitionMs = styles.getStyles('farm_page.research_lab_display.transition_duration') as int;
     final executionLogTransitionMs = styles.getStyles('farm_page.execution_log.transition_duration') as int;
 
-    return Scaffold(
-      body: SafeArea(
-        child: Stack(
-          children: [
-            // Layer 1: Farm Grid View (Bottom Layer - Centered)
-            _buildFarmGridLayer(),
-            
-            // Layer 2: Top Bar and Control Buttons
-            _buildControlLayer(),
-            
-            // Layer 3: Execution Log Overlay with slide animation
-            _buildExecutionLogOverlayWithAnimation(
-              Duration(milliseconds: executionLogTransitionMs),
-            ),
-            
-            // Layer 4: Code Editor Overlay with slide animation
-            _buildCodeEditorOverlayWithAnimation(
-              Duration(milliseconds: codeEditorTransitionMs),
-            ),
-            
-            // Layer 5: Research Lab Overlay with slide animation
-            _buildResearchLabOverlayWithAnimation(
-              Duration(milliseconds: researchLabTransitionMs),
-            ),
-          ],
+    return Stack(
+      key: const ValueKey('farm_content'),
+      children: [
+        // Layer 1: Farm Grid View (Bottom Layer - Centered)
+        _buildFarmGridLayer(),
+        
+        // Layer 2: Top Bar and Control Buttons
+        _buildControlLayer(),
+        
+        // Layer 3: Execution Log Overlay with slide animation
+        _buildExecutionLogOverlayWithAnimation(
+          Duration(milliseconds: executionLogTransitionMs),
         ),
-      ),
+        
+        // Layer 4: Code Editor Overlay with slide animation
+        _buildCodeEditorOverlayWithAnimation(
+          Duration(milliseconds: codeEditorTransitionMs),
+        ),
+        
+        // Layer 5: Research Lab Overlay with slide animation
+        _buildResearchLabOverlayWithAnimation(
+          Duration(milliseconds: researchLabTransitionMs),
+        ),
+      ],
     );
   }
   
