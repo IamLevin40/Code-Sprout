@@ -3,6 +3,7 @@ import '../../models/styles_schema.dart';
 import '../../models/research_data.dart';
 import '../../models/user_data.dart';
 import '../../models/research_items_schema.dart';
+import '../../models/inventory_data.dart';
 import '../../miscellaneous/glass_effect.dart';
 import '../farm_items/notification_display.dart';
 
@@ -571,12 +572,29 @@ class _CropResearchCardsState extends State<CropResearchCards> {
     );
     
     if (success && mounted) {
-      if (widget.notificationController != null) {
-        widget.notificationController!.showSuccess(
-          'Purchased ${item.itemPurchases.join(", ")} x$multiplier for $totalCost coins!',
-        );
-      } else {
-          debugPrint('Purchase: Purchased ${item.itemPurchases.join(", ")} x$multiplier for $totalCost coins!');
+      // Resolve item display names from inventory schema for a friendly message
+      try {
+        final inventorySchema = await InventorySchema.load();
+        final names = item.itemPurchases.map((id) => inventorySchema.getItemName(id) ?? id).toList();
+        final namesStr = names.join(', ');
+
+        if (widget.notificationController != null) {
+          widget.notificationController!.showSuccess(
+            'Purchased $namesStr x$multiplier for $totalCost coins!',
+          );
+        } else {
+          debugPrint('Purchase: Purchased $namesStr x$multiplier for $totalCost coins!');
+        }
+      } catch (e) {
+        // Fallback to IDs if schema load fails
+        final ids = item.itemPurchases.join(', ');
+        if (widget.notificationController != null) {
+          widget.notificationController!.showSuccess(
+            'Purchased $ids x$multiplier for $totalCost coins!',
+          );
+        } else {
+          debugPrint('Purchase: Purchased $ids x$multiplier for $totalCost coins!');
+        }
       }
     } else if (mounted) {
       if (widget.notificationController != null) {
