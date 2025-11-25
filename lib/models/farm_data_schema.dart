@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/services.dart';
-import '../miscellaneous/asset_path.dart';
 import 'inventory_data.dart';
 
 /// Service class to handle farm data schema from farm_data_schema.txt
@@ -22,7 +21,7 @@ class FarmDataSchema {
     if (_schemaData != null) return; // Already loaded
 
     try {
-      final String jsonString = await rootBundle.loadString(resolveAssetPath('schemas/farm_data_schema.txt'));
+      final String jsonString = await rootBundle.loadString('assets/schemas/farm_data_schema.txt');
       _schemaData = jsonDecode(jsonString);
       
       // Load inventory schema for icon lookups
@@ -101,7 +100,7 @@ class FarmDataSchema {
       throw Exception('Crop type not found: $cropType');
     }
     final stages = info['crop_stages'] as Map<String, dynamic>;
-    return stages.map((key, value) => MapEntry(key, resolveAssetPath(value as String)));
+    return stages.map((key, value) => MapEntry(key, 'assets/${value as String}'));
   }
 
   /// Get the total number of stages for a crop type
@@ -117,7 +116,7 @@ class FarmDataSchema {
     if (!stages.containsKey(key)) {
       throw Exception('Stage $stageIndex not found for crop type: $cropType');
     }
-    return resolveAssetPath(stages[key]!);
+    return stages[key]!;
   }
 
   /// Calculate which stage a crop should be at based on elapsed time

@@ -338,7 +338,7 @@ class _SellItemDialogContentState extends State<_SellItemDialogContent> {
           gradient: isDisabled 
               ? null 
               : (isSelected ? selectedStrokeGradient : unselectedStrokeGradient),
-          color: isDisabled ? quantityColor.withOpacity(0.3) : null,
+          color: isDisabled ? quantityColor.withAlpha(77) : null,
           borderRadius: BorderRadius.circular(multiplierBorderRadius),
         ),
         padding: EdgeInsets.all(multiplierBorderWidth),
@@ -357,7 +357,7 @@ class _SellItemDialogContentState extends State<_SellItemDialogContent> {
               multiplier.label,
               style: TextStyle(
                 color: isDisabled
-                    ? quantityColor.withOpacity(0.5)
+                    ? quantityColor.withAlpha(128)
                     : (isSelected ? selectedTextColor : unselectedTextColor),
                 fontSize: isSelected ? selectedTextSize : unselectedTextSize,
                 fontWeight: isSelected ? selectedTextWeight : unselectedTextWeight,

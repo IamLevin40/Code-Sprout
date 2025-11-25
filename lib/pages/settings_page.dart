@@ -22,6 +22,7 @@ class _SettingsPageState extends State<SettingsPage> {
   final Map<String, dynamic> _fieldValues = {};
   
   bool _isSaving = false;
+  bool _isReloadingSchema = false;
   
   UserData? _currentUserData;
   UserDataSchema? _schema;
@@ -158,6 +159,45 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
+  Future<void> _reloadSchema() async {
+    if (_isReloadingSchema || _uid == null) return;
+
+    setState(() {
+      _isReloadingSchema = true;
+    });
+
+    try {
+      // Force reload the schema
+      await UserData.reloadSchema();
+      
+      // Clear existing controllers and field values
+      for (final controller in _controllers.values) {
+        controller.dispose();
+      }
+      _controllers.clear();
+      _fieldValues.clear();
+      
+      // Reload everything with new schema
+      await _loadSchemaAndData();
+      
+      if (!mounted) return;
+      
+      setState(() {
+        _isReloadingSchema = false;
+      });
+      
+      _showSuccessSnackBar('Schema reloaded successfully!');
+    } catch (e) {
+      if (!mounted) return;
+      
+      setState(() {
+        _isReloadingSchema = false;
+      });
+      
+      _showErrorSnackBar('Failed to reload schema: $e');
+    }
+  }
+
   void _showSaveSuccessDialog() {
     final styles = AppStyles();
     
@@ -247,6 +287,19 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  void _showSuccessSnackBar(String message) {
+    final styles = AppStyles();
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: styles.getStyles('settings_page.save_button.background_color') as Color,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final styles = AppStyles();
@@ -280,52 +333,92 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               const SizedBox(height: 8),
 
-              // Save Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isSaving ? null : _saveUserData,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: styles.getStyles('settings_page.save_button.background_color') as Color,
-                    foregroundColor: styles.getStyles('settings_page.save_button.text.color') as Color,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(styles.getStyles('settings_page.save_button.border_radius') as double),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: _isSaving
-                      ? Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SizedBox(
-                              width: styles.getStyles('settings_page.save_button.progress_indicator.width') as double,
-                              height: styles.getStyles('settings_page.save_button.progress_indicator.height') as double,
-                              child: CircularProgressIndicator(
-                                strokeWidth: styles.getStyles('settings_page.save_button.progress_indicator.stroke_weight') as double,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                    styles.getStyles('settings_page.save_button.text.color') as Color),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              'Saving...',
+              // Action Buttons Row
+              Row(
+                children: [
+                  // Save Button
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton(
+                      onPressed: _isSaving ? null : _saveUserData,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: styles.getStyles('settings_page.save_button.background_color') as Color,
+                        foregroundColor: styles.getStyles('settings_page.save_button.text.color') as Color,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(styles.getStyles('settings_page.save_button.border_radius') as double),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: _isSaving
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  width: styles.getStyles('settings_page.save_button.progress_indicator.width') as double,
+                                  height: styles.getStyles('settings_page.save_button.progress_indicator.height') as double,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: styles.getStyles('settings_page.save_button.progress_indicator.stroke_weight') as double,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        styles.getStyles('settings_page.save_button.text.color') as Color),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Saving...',
+                                  style: TextStyle(
+                                    fontSize: styles.getStyles('settings_page.save_button.text.font_size') as double,
+                                    fontWeight: styles.getStyles('settings_page.save_button.text.font_weight') as FontWeight,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Text(
+                              'Save Changes',
                               style: TextStyle(
                                 fontSize: styles.getStyles('settings_page.save_button.text.font_size') as double,
                                 fontWeight: styles.getStyles('settings_page.save_button.text.font_weight') as FontWeight,
                               ),
                             ),
-                          ],
-                        )
-                      : Text(
-                          'Save Changes',
-                          style: TextStyle(
-                            fontSize: styles.getStyles('settings_page.save_button.text.font_size') as double,
-                            fontWeight: styles.getStyles('settings_page.save_button.text.font_weight') as FontWeight,
-                          ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  // Reload Schema Button
+                  Expanded(
+                    flex: 1,
+                    child: ElevatedButton.icon(
+                      onPressed: _isReloadingSchema ? null : _reloadSchema,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: styles.getStyles('settings_page.subtitle.color') as Color,
+                        foregroundColor: styles.getStyles('settings_page.save_button.text.color') as Color,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(styles.getStyles('settings_page.save_button.border_radius') as double),
                         ),
-                ),
+                        elevation: 0,
+                      ),
+                      icon: _isReloadingSchema
+                          ? SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    styles.getStyles('settings_page.save_button.text.color') as Color),
+                              ),
+                            )
+                          : const Icon(Icons.refresh, size: 20),
+                      label: Text(
+                        _isReloadingSchema ? 'Reloading...' : 'Reload Schema',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: styles.getStyles('settings_page.save_button.text.font_weight') as FontWeight,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
 

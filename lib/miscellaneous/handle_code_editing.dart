@@ -69,7 +69,7 @@ class CodeEditingHandler {
       final prevChar = pos > 0 ? text[pos - 1] : null;
       final nextChar = pos < text.length ? text[pos] : null;
       if (prevChar == '{' && nextChar == '}') {
-        final indent = baseIndent + '    ';
+        final indent = '$baseIndent    ';
         final insert = '\n$indent\n$baseIndent';
         insertText(
           controller: controller,

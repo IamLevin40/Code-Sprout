@@ -72,7 +72,7 @@ class InventorySchema {
   /// Load inventory schema from assets
   static Future<InventorySchema> load() async {
     try {
-      final String schemaText = await rootBundle.loadString('schemas/inventory_schema.txt');
+      final String schemaText = await rootBundle.loadString('assets/schemas/inventory_schema.txt');
       final Map<String, dynamic> schemaJson = json.decode(schemaText);
       
       final itemsData = schemaJson['items'] as Map<String, dynamic>? ?? {};

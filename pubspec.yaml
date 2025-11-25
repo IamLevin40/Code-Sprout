@@ -25,7 +25,37 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/
+    - assets/images/
+    - assets/images/icons/
+    - assets/images/icons/languages/
+    - assets/images/icons/module_items/
+    - assets/images/icons/navbuttons/
+    - assets/images/icons/on_cards/
+    - assets/images/icons/sprout_items/
+    - assets/images/icons/sprout_items/crop_items/
+    - assets/images/icons/sprout_items/farm_items/
+    - assets/images/icons/sprout_items/miscellaneous/
+    - assets/images/icons/sprout_items/seed_items/
+    - assets/references/
+    - assets/schemas/
+    - assets/schemas/courses/
+    - assets/schemas/courses/cpp/
+    - assets/schemas/courses/cpp/advanced/
+    - assets/schemas/courses/cpp/advanced/chapter_1/
+    - assets/schemas/courses/cpp/beginner/
+    - assets/schemas/courses/cpp/beginner/chapter_1/
+    - assets/schemas/courses/cpp/beginner/chapter_2/
+    - assets/schemas/courses/cpp/intermediate/
+    - assets/schemas/courses/cpp/intermediate/chapter_1/
+    - assets/schemas/courses/csharp/
+    - assets/schemas/courses/java/
+    - assets/schemas/courses/javascript/
+    - assets/schemas/courses/javascript/beginner/
+    - assets/schemas/courses/javascript/beginner/chapter_1/
+    - assets/schemas/courses/python/
+    - assets/schemas/courses/python/beginner/
+    - assets/schemas/courses/python/beginner/chapter_1/
+    - assets/schemas/researches/
   fonts:
     - family: Poppins
       fonts:

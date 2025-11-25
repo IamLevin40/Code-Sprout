@@ -631,17 +631,11 @@ void main() {
 
       // Ensure grid is at least 3x3 for this test and then till a plot at (1,1)
       farmState.expandGrid(3, 3);
-      // Debug info in case of failures
-      print('DEBUG: farmState.gridWidth=${farmState.gridWidth}, gridHeight=${farmState.gridHeight}');
-      print('DEBUG: total plots=${farmState.getAllPlots().length}');
       farmState.dronePosition = DronePosition(x: 1, y: 1);
       farmState.tillCurrentPlot();
       final originalPlot = farmState.getPlot(1, 1);
       expect(originalPlot, isNotNull);
       expect(originalPlot?.state, equals(PlotState.tilled));
-
-      // Debug after till
-      print('DEBUG after till: gridWidth=${farmState.gridWidth}, gridHeight=${farmState.gridHeight}, plots=${farmState.getAllPlots().length}');
 
       // Expand grid
       // Add the 4x4 farm research schema so expansion uses its condition
@@ -660,9 +654,6 @@ void main() {
       );
       researchState.completeResearch('farm_4x4_farmland');
       farmState.applyFarmResearchConditions();
-
-      // Debug after expansion
-      print('DEBUG after expansion: gridWidth=${farmState.gridWidth}, gridHeight=${farmState.gridHeight}, plots=${farmState.getAllPlots().length}');
 
       // Original plot should be preserved
       final preservedPlot = farmState.getPlot(1, 1);

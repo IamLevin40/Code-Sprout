@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'course_data.dart';
-import '../miscellaneous/asset_path.dart';
 
 class CourseDataSchema {
   static final CourseDataSchema _instance = CourseDataSchema._internal();
@@ -22,7 +21,7 @@ class CourseDataSchema {
     }
 
     try {
-      final String jsonString = await rootBundle.loadString(resolveAssetPath('schemas/courses_schema.txt'));
+      final String jsonString = await rootBundle.loadString('assets/schemas/courses_schema.txt');
       final Map<String, dynamic> jsonData = json.decode(jsonString);
 
       // Only parse entries that look like course definitions (have module_schema_file)
@@ -69,7 +68,7 @@ class CourseDataSchema {
       }
 
       // Load the module schema file
-      final String jsonString = await rootBundle.loadString(resolveAssetPath(courseSchema.moduleSchemaFile));
+      final String jsonString = await rootBundle.loadString('assets/${courseSchema.moduleSchemaFile}');
       final Map<String, dynamic> jsonData = json.decode(jsonString);
       
       final moduleSchema = ModuleData.fromJson(jsonData);
@@ -89,7 +88,7 @@ class CourseDataSchema {
     }
 
     try {
-      final String jsonString = await rootBundle.loadString(resolveAssetPath(levelSchemaPath));
+      final String jsonString = await rootBundle.loadString('assets/$levelSchemaPath');
       final Map<String, dynamic> jsonData = json.decode(jsonString);
       
       final levelSchema = LevelData.fromJson(jsonData);

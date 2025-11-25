@@ -149,7 +149,7 @@ void main() {
           researchState: researchState,
         );
 
-        final code = 'move(Direction.NORTH)';
+        const code = 'move(Direction.NORTH)';
         final result = await interpreter.execute(code);
 
         expect(result.success, isFalse);
@@ -163,7 +163,7 @@ void main() {
           researchState: researchState,
         );
 
-        final code = 'till()';
+        const code = 'till()';
         final result = await interpreter.execute(code);
 
         expect(result.success, isFalse);
@@ -177,7 +177,7 @@ void main() {
           researchState: researchState,
         );
 
-        final code = 'water()';
+        const code = 'water()';
         final result = await interpreter.execute(code);
 
         expect(result.success, isFalse);
@@ -191,7 +191,7 @@ void main() {
           researchState: researchState,
         );
 
-        final code = 'plant(SeedType.WHEAT)';
+        const code = 'plant(SeedType.WHEAT)';
         final result = await interpreter.execute(code);
 
         expect(result.success, isFalse);
@@ -205,7 +205,7 @@ void main() {
           researchState: researchState,
         );
 
-        final code = 'harvest()';
+        const code = 'harvest()';
         final result = await interpreter.execute(code);
 
         expect(result.success, isFalse);
@@ -219,7 +219,7 @@ void main() {
           researchState: researchState,
         );
 
-        final code = 'sleep(1)';
+        const code = 'sleep(1)';
         final result = await interpreter.execute(code);
 
         expect(result.success, isFalse);
@@ -233,7 +233,7 @@ void main() {
           researchState: researchState,
         );
 
-        final code = 'x = get_position_x()';
+        const code = 'x = get_position_x()';
         final result = await interpreter.execute(code);
 
         expect(result.success, isTrue); // Code executes but function returns error value
@@ -247,7 +247,7 @@ void main() {
           researchState: researchState,
         );
 
-        final code = 'state = get_plot_state()';
+        const code = 'state = get_plot_state()';
         final result = await interpreter.execute(code);
 
         expect(result.success, isTrue);
@@ -261,7 +261,7 @@ void main() {
           researchState: researchState,
         );
 
-        final code = 'can = can_till()';
+        const code = 'can = can_till()';
         final result = await interpreter.execute(code);
 
         expect(result.success, isTrue);
@@ -275,7 +275,7 @@ void main() {
           researchState: researchState,
         );
 
-        final code = 'has = has_seed(SeedType.WHEAT)';
+        const code = 'has = has_seed(SeedType.WHEAT)';
         final result = await interpreter.execute(code);
 
         expect(result.success, isTrue);
@@ -294,7 +294,7 @@ void main() {
           researchState: researchState,
         );
 
-        final code = 'move(Direction.NORTH)';
+        const code = 'move(Direction.NORTH)';
         final result = await interpreter.execute(code);
 
         expect(result.success, isTrue);
@@ -310,7 +310,7 @@ void main() {
           researchState: researchState,
         );
 
-        final code = 'till()';
+        const code = 'till()';
         final result = await interpreter.execute(code);
 
         expect(result.success, isTrue);
@@ -327,7 +327,7 @@ void main() {
           researchState: researchState,
         );
 
-        final code = '''
+        const code = '''
 till()
 water()
 ''';
@@ -349,7 +349,7 @@ water()
           researchState: researchState,
         );
 
-        final code = '''
+        const code = '''
 till()
 water()
 plant(SeedType.WHEAT)
@@ -370,7 +370,7 @@ plant(SeedType.WHEAT)
           researchState: researchState,
         );
 
-        final code = 'harvest()';
+        const code = 'harvest()';
         final result = await interpreter.execute(code);
 
         // Will fail because no crop to harvest, but function is unlocked
@@ -388,7 +388,7 @@ plant(SeedType.WHEAT)
           researchState: researchState,
         );
 
-        final code = '''
+        const code = '''
 x = get_position_x()
 y = get_position_y()
 grid_x = get_plot_grid_x()
@@ -413,7 +413,7 @@ grid_y = get_plot_grid_y()
           researchState: researchState,
         );
 
-        final code = '''
+        const code = '''
 state = get_plot_state()
 crop = get_crop_type()
 grown = is_crop_grown()
@@ -438,7 +438,7 @@ grown = is_crop_grown()
           researchState: researchState,
         );
 
-        final code = '''
+        const code = '''
 can_t = can_till()
 can_w = can_water()
 can_p = can_plant()
@@ -463,7 +463,7 @@ can_h = can_harvest()
           researchState: researchState,
         );
 
-        final code = '''
+        const code = '''
 has = has_seed(SeedType.WHEAT)
 seed_count = get_seed_inventory_count(SeedType.WHEAT)
 crop_count = get_crop_inventory_count(CropType.WHEAT)
@@ -488,7 +488,7 @@ crop_count = get_crop_inventory_count(CropType.WHEAT)
           researchState: researchState,
         );
 
-        final code = '''
+        const code = '''
 move(Direction.NORTH)
 till()
 ''';
@@ -518,7 +518,7 @@ till()
           researchState: researchState,
         );
 
-        final code = '''
+        const code = '''
 move(Direction.NORTH)
 if can_till():
     till()
@@ -542,7 +542,7 @@ has = has_seed(SeedType.WHEAT)
           researchState: null, // No research state
         );
 
-        final code = '''
+        const code = '''
 move(Direction.NORTH)
 till()
 water()
@@ -562,7 +562,7 @@ plant(SeedType.WHEAT)
           researchState: researchState,
         );
 
-        final code = 'move(Direction.NORTH)';
+        const code = 'move(Direction.NORTH)';
         final result = await interpreter.execute(code);
 
         expect(result.success, isFalse);
@@ -579,7 +579,7 @@ plant(SeedType.WHEAT)
           researchState: researchState,
         );
 
-        final code = 'plant(SeedType.WHEAT)';
+        const code = 'plant(SeedType.WHEAT)';
         final result = await interpreter.execute(code);
 
         expect(result.success, isFalse);

@@ -1,12 +1,10 @@
 {
     "accountInformation": {
-        "username": "string (null) [required]",
-        "theme": "string (|light|dark|auto|)"
+        "username": "string (null) [required]"
     },
     "interaction": {
         "hasPlayedTutorial": "boolean (false)",
-        "hasLearnedChapter": "boolean (false)",
-        "difficulty": "string (|easy|normal|hard|)"
+        "hasLearnedChapter": "boolean (false)"
     },
     "lastInteraction": {
         "languageId": "string (null)",
