@@ -430,19 +430,6 @@ class _HomePageState extends State<HomePage> {
                   );
                 },
               ),
-              const SizedBox(height: 16),
-              
-              // Logout button
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: ElevatedButton.icon(
-                  onPressed: () => _showLogoutDialog(context, AuthService()),
-                  icon: Icon(Icons.logout, color: styles.getStyles('home_page.logout_button.icon.color') as Color),
-                  label: Text('Logout', style: TextStyle(fontSize: styles.getStyles('home_page.logout_button.text.font_size') as double,
-                    fontWeight: styles.getStyles('home_page.logout_button.text.font_weight') as FontWeight)),
-                  style: ElevatedButton.styleFrom(backgroundColor: styles.getStyles('home_page.logout_button.background_color') as Color),
-                ),
-              ),
             ],
           ),
         ),
@@ -450,29 +437,6 @@ class _HomePageState extends State<HomePage> {
     );
 
     return core;
-  }
-
-  void _showLogoutDialog(BuildContext context, AuthService authService) {
-    final styles = AppStyles();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(styles.getStyles('home_page.logout_dialog.border_radius') as double)),
-        title: Text('Logout', style: TextStyle(fontWeight: styles.getStyles('home_page.logout_dialog.title.font_weight') as FontWeight, color: styles.getStyles('home_page.logout_dialog.title.color') as Color)),
-        content: Text('Are you sure you want to logout?', style: TextStyle(color: styles.getStyles('home_page.logout_dialog.message.color') as Color)),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('Cancel', style: TextStyle(color: styles.getStyles('home_page.logout_dialog.cancel_button.color') as Color))),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await authService.signOut();
-              if (context.mounted) Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
-            },
-            child: const Text('Logout'),
-          ),
-        ],
-      ),
-    );
   }
 
   /// Handle course card tap
