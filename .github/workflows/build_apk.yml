@@ -6,7 +6,7 @@ on:
     branches:
       - main
       - master
-      - feat/gamified-sprout-pages
+      - feat/app-contents-and-quality-improvements
 
 jobs:
   build_apk:
