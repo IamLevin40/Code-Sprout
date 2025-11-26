@@ -26,16 +26,28 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - assets/images/crops/
+    - assets/images/crops/beetroot/
+    - assets/images/crops/carrot/
+    - assets/images/crops/garlic/
+    - assets/images/crops/lettuce/
+    - assets/images/crops/onion/
+    - assets/images/crops/potato/
+    - assets/images/crops/radish/
+    - assets/images/crops/tomato/
+    - assets/images/crops/wheat/
     - assets/images/icons/
     - assets/images/icons/languages/
     - assets/images/icons/module_items/
     - assets/images/icons/nav_buttons/
     - assets/images/icons/on_cards/
     - assets/images/icons/sprout_items/
-    - assets/images/icons/sprout_items/crop_items/
+    - assets/images/icons/sprout_items/crop_research_items/
     - assets/images/icons/sprout_items/farm_items/
+    - assets/images/icons/sprout_items/farm_research_items/
+    - assets/images/icons/sprout_items/functions_research_items/
+    - assets/images/icons/sprout_items/inventory_items/
     - assets/images/icons/sprout_items/miscellaneous/
-    - assets/images/icons/sprout_items/seed_items/
     - assets/references/
     - assets/schemas/
     - assets/schemas/courses/

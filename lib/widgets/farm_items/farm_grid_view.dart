@@ -105,7 +105,7 @@ class FarmGridView extends StatelessWidget {
     final droneHeight = styles.getStyles('farm_page.farm_grid.drone_size.height') as double;
 
     final leftPos = left + (plotSize - droneWidth) / 2;
-    final topPos = top + (plotSize - droneHeight) - 16;
+    final topPos = top + (plotSize - droneHeight) - 32;
 
     return Positioned(
       left: leftPos,

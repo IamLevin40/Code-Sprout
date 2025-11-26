@@ -258,6 +258,11 @@
                 "color": "--colors.dark_gray",
                 "font_size": "--font_sizes.regular",
                 "font_weight": "--font_weights.bold"
+            },
+            "progress_indicator": {
+                "width": 16,
+                "height": 16,
+                "stroke_weight": 2
             }
         },
         "register_link": {
@@ -379,6 +384,11 @@
                 "color": "--colors.dark_gray",
                 "font_size": "--font_sizes.regular",
                 "font_weight": "--font_weights.bold"
+            },
+            "progress_indicator": {
+                "width": 16,
+                "height": 16,
+                "stroke_weight": 2
             }
         },
         "login_link": {
@@ -3263,8 +3273,8 @@
                 "height": 64
             },
             "crop_size": {
-                "width": 64,
-                "height": 64
+                "width": 32,
+                "height": 32
             },
             "crop_placeholder": {
                 "color": "--colors.white",

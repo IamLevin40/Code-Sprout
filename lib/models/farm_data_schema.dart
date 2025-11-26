@@ -100,7 +100,7 @@ class FarmDataSchema {
       throw Exception('Crop type not found: $cropType');
     }
     final stages = info['crop_stages'] as Map<String, dynamic>;
-    return stages.map((key, value) => MapEntry(key, 'assets/${value as String}'));
+    return stages.map((key, value) => MapEntry(key, value as String));
   }
 
   /// Get the total number of stages for a crop type
