@@ -134,21 +134,21 @@
         },
         "items": {
             "home": {
-                "selected": "assets/images/icons/navbuttons/home_selected.png",
-                "unselected": "assets/images/icons/navbuttons/home_unselected.png"
+                "selected": "assets/images/icons/nav_buttons/home_selected.png",
+                "unselected": "assets/images/icons/nav_buttons/home_unselected.png"
             },
             "course": {
-                "selected": "assets/images/icons/navbuttons/course_selected.png",
-                "unselected": "assets/images/icons/navbuttons/course_unselected.png"
+                "selected": "assets/images/icons/nav_buttons/course_selected.png",
+                "unselected": "assets/images/icons/nav_buttons/course_unselected.png"
             },
             "sprout": {
-                "selected": "assets/images/icons/navbuttons/sprout_selected.png",
-                "unselected": "assets/images/icons/navbuttons/sprout_unselected.png",
-                "disabled": "assets/images/icons/navbuttons/sprout_disabled.png"
+                "selected": "assets/images/icons/nav_buttons/sprout_selected.png",
+                "unselected": "assets/images/icons/nav_buttons/sprout_unselected.png",
+                "disabled": "assets/images/icons/nav_buttons/sprout_disabled.png"
             },
             "settings": {
-                "selected": "assets/images/icons/navbuttons/settings_selected.png",
-                "unselected": "assets/images/icons/navbuttons/settings_unselected.png"
+                "selected": "assets/images/icons/nav_buttons/settings_selected.png",
+                "unselected": "assets/images/icons/nav_buttons/settings_unselected.png"
             }
         },
         "selected_indicator": {
@@ -870,7 +870,7 @@
                 "font_weight": "--font_weights.bold"
             },
             "close_button": {
-                "icon": "assets/images/icons/navbuttons/close.png",
+                "icon": "assets/images/icons/nav_buttons/close.png",
                 "width": 24,
                 "height": 24
             },
@@ -1520,7 +1520,7 @@
         "transition_duration": 500,
         "back": {
             "icon": {
-                "image": "assets/images/icons/navbuttons/back.png",
+                "image": "assets/images/icons/nav_buttons/back.png",
                 "width": 32,
                 "height": 32
             },
@@ -2277,7 +2277,7 @@
         "top_layer": {
             "back": {
                 "icon": {
-                    "image": "assets/images/icons/navbuttons/back.png",
+                    "image": "assets/images/icons/nav_buttons/back.png",
                     "width": 32,
                     "height": 32
                 },
@@ -2899,7 +2899,7 @@
                 "font_weight": "--font_weights.regular"
             },
             "close_button": {
-                "icon": "assets/images/icons/navbuttons/close.png",
+                "icon": "assets/images/icons/nav_buttons/close.png",
                 "width": 24,
                 "height": 24
             }
@@ -2915,7 +2915,7 @@
                 "font_weight": "--font_weights.bold"
             },
             "close_button": {
-                "icon": "assets/images/icons/navbuttons/close.png",
+                "icon": "assets/images/icons/nav_buttons/close.png",
                 "width": 24,
                 "height": 24
             }
