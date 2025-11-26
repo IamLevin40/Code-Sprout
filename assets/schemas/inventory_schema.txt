@@ -2,126 +2,126 @@
     "items": {
         "wheat_seeds": {
             "name": "Wheat Seeds",
-            "icon": "assets/images/icons/sprout_items/seed_items/wheat_seeds.png",
-            "sell_amount": 0,
+            "icon": "assets/images/icons/sprout_items/inventory_items/wheat_seeds.png",
+            "sell_amount": 1,
             "is_locked": "boolean (false)",
             "quantity": "number (10)"
         },
         "wheat": {
             "name": "Wheat",
-            "icon": "assets/images/icons/sprout_items/crop_items/wheat.png",
+            "icon": "assets/images/icons/sprout_items/inventory_items/wheat.png",
             "sell_amount": 3,
             "is_locked": "boolean (false)",
             "quantity": "number (0)"
         },
         "carrot_seeds": {
             "name": "Carrot Seeds",
-            "icon": "assets/images/icons/sprout_items/seed_items/carrot_seeds.png",
+            "icon": "assets/images/icons/sprout_items/inventory_items/carrot_seeds.png",
             "sell_amount": 5,
             "is_locked": "boolean (true)",
             "quantity": "number (0)"
         },
         "carrot": {
             "name": "Carrot",
-            "icon": "assets/images/icons/sprout_items/crop_items/carrot.png",
+            "icon": "assets/images/icons/sprout_items/inventory_items/carrot.png",
             "sell_amount": 8,
             "is_locked": "boolean (true)",
             "quantity": "number (0)"
         },
         "potato_seeds": {
             "name": "Potato Seeds",
-            "icon": "assets/images/icons/sprout_items/seed_items/potato_seeds.png",
+            "icon": "assets/images/icons/sprout_items/inventory_items/potato_seeds.png",
             "sell_amount": 7,
             "is_locked": "boolean (true)",
             "quantity": "number (0)"
         },
         "potato": {
             "name": "Potato",
-            "icon": "assets/images/icons/sprout_items/crop_items/potato.png",
+            "icon": "assets/images/icons/sprout_items/inventory_items/potato.png",
             "sell_amount": 12,
             "is_locked": "boolean (true)",
             "quantity": "number (0)"
         },
         "beetroot_seeds": {
             "name": "Beetroot Seeds",
-            "icon": "assets/images/icons/sprout_items/seed_items/beetroot_seeds.png",
+            "icon": "assets/images/icons/sprout_items/inventory_items/beetroot_seeds.png",
             "sell_amount": 10,
             "is_locked": "boolean (true)",
             "quantity": "number (0)"
         },
         "beetroot": {
             "name": "Beetroot",
-            "icon": "assets/images/icons/sprout_items/crop_items/beetroot.png",
+            "icon": "assets/images/icons/sprout_items/inventory_items/beetroot.png",
             "sell_amount": 15,
             "is_locked": "boolean (true)",
             "quantity": "number (0)"
         },
         "radish_seeds": {
             "name": "Radish Seeds",
-            "icon": "assets/images/icons/sprout_items/seed_items/radish_seeds.png",
+            "icon": "assets/images/icons/sprout_items/inventory_items/radish_seeds.png",
             "sell_amount": 12,
             "is_locked": "boolean (true)",
             "quantity": "number (0)"
         },
         "radish": {
             "name": "Radish",
-            "icon": "assets/images/icons/sprout_items/crop_items/radish.png",
+            "icon": "assets/images/icons/sprout_items/inventory_items/radish.png",
             "sell_amount": 20,
             "is_locked": "boolean (true)",
             "quantity": "number (0)"
         },
         "onion_seeds": {
             "name": "Onion Seeds",
-            "icon": "assets/images/icons/sprout_items/seed_items/onion_seeds.png",
+            "icon": "assets/images/icons/sprout_items/inventory_items/onion_seeds.png",
             "sell_amount": 11,
             "is_locked": "boolean (true)",
             "quantity": "number (0)"
         },
         "onion": {
             "name": "Onion",
-            "icon": "assets/images/icons/sprout_items/crop_items/onion.png",
+            "icon": "assets/images/icons/sprout_items/inventory_items/onion.png",
             "sell_amount": 18,
             "is_locked": "boolean (true)",
             "quantity": "number (0)"
         },
         "lettuce_seeds": {
             "name": "Lettuce Seeds",
-            "icon": "assets/images/icons/sprout_items/seed_items/lettuce_seeds.png",
+            "icon": "assets/images/icons/sprout_items/inventory_items/lettuce_seeds.png",
             "sell_amount": 6,
             "is_locked": "boolean (true)",
             "quantity": "number (0)"
         },
         "lettuce": {
             "name": "Lettuce",
-            "icon": "assets/images/icons/sprout_items/crop_items/lettuce.png",
+            "icon": "assets/images/icons/sprout_items/inventory_items/lettuce.png",
             "sell_amount": 10,
             "is_locked": "boolean (true)",
             "quantity": "number (0)"
         },
         "tomato_seeds": {
             "name": "Tomato Seeds",
-            "icon": "assets/images/icons/sprout_items/seed_items/tomato_seeds.png",
+            "icon": "assets/images/icons/sprout_items/inventory_items/tomato_seeds.png",
             "sell_amount": 8,
             "is_locked": "boolean (true)",
             "quantity": "number (0)"
         },
         "tomato": {
             "name": "Tomato",
-            "icon": "assets/images/icons/sprout_items/crop_items/tomato.png",
+            "icon": "assets/images/icons/sprout_items/inventory_items/tomato.png",
             "sell_amount": 14,
             "is_locked": "boolean (true)",
             "quantity": "number (0)"
         },
         "garlic_seeds": {
             "name": "Garlic Seeds",
-            "icon": "assets/images/icons/sprout_items/seed_items/garlic_seeds.png",
+            "icon": "assets/images/icons/sprout_items/inventory_items/garlic_seeds.png",
             "sell_amount": 13,
             "is_locked": "boolean (true)",
             "quantity": "number (0)"
         },
         "garlic": {
             "name": "Garlic",
-            "icon": "assets/images/icons/sprout_items/crop_items/garlic.png",
+            "icon": "assets/images/icons/sprout_items/inventory_items/garlic.png",
             "sell_amount": 22,
             "is_locked": "boolean (true)",
             "quantity": "number (0)"

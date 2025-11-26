@@ -19,7 +19,7 @@
             "python": "boolean (false)",
             "javascript": "boolean (false)"
         },
-        "coins": "number (0)",
+        "coins": "number (50)",
         "inventory": "reference (inventory_schema.txt)"
     },
     "rankProgress": {
