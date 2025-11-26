@@ -63,7 +63,7 @@ class _BooleanFieldSettingsState extends State<BooleanFieldSettings> {
         boxShadow: [
           BoxShadow(
             color: (styles.getStyles('settings_page.section_card.shadow.color') as Color)
-                .withOpacity((styles.getStyles('settings_page.section_card.shadow.opacity') as double) / 100),
+                .withValues(alpha: (styles.getStyles('settings_page.section_card.shadow.opacity') as double) / 100),
             blurRadius: styles.getStyles('settings_page.section_card.shadow.blur_radius') as double,
           ),
         ],
@@ -114,7 +114,7 @@ class _BooleanFieldSettingsState extends State<BooleanFieldSettings> {
                     Switch(
                       value: _value,
                       onChanged: widget.isEditable ? _handleChange : null,
-                      activeColor: styles.getStyles('settings_page.switch_field.active_track_color') as Color,
+                      activeThumbColor: styles.getStyles('settings_page.switch_field.active_track_color') as Color,
                     ),
                   ],
                 ),

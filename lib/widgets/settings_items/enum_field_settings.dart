@@ -74,7 +74,7 @@ class _EnumFieldSettingsState extends State<EnumFieldSettings> {
         boxShadow: [
           BoxShadow(
             color: (styles.getStyles('settings_page.section_card.shadow.color') as Color)
-                .withOpacity((styles.getStyles('settings_page.section_card.shadow.opacity') as double) / 100),
+                .withValues(alpha: (styles.getStyles('settings_page.section_card.shadow.opacity') as double) / 100),
             blurRadius: styles.getStyles('settings_page.section_card.shadow.blur_radius') as double,
           ),
         ],
@@ -133,7 +133,7 @@ class _EnumFieldSettingsState extends State<EnumFieldSettings> {
             SizedBox(height: styles.getStyles('settings_page.field_label.spacing') as double),
             _isEditing
                 ? DropdownButtonFormField<String>(
-                    value: _selectedValue,
+                    initialValue: _selectedValue,
                     style: TextStyle(
                       color: styles.getStyles('global.text.primary.color') as Color,
                       fontSize: styles.getStyles('global.text.primary.font_size') as double,
