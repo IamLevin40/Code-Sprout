@@ -37,12 +37,12 @@
         },
         "text": {
             "primary": {
-                "color": "--colors.gray",
+                "color": "--colors.dark_purple",
                 "font_size": "--font_sizes.regular",
                 "font_weight": "--font_weights.regular"
             },
             "secondary": {
-                "color": "--colors.dirty_white",
+                "color": "--colors.gray",
                 "font_size": "--font_sizes.regular",
                 "font_weight": "--font_weights.regular"
             },
@@ -162,36 +162,32 @@
     },
     "login_page": {
         "logo_container": {
-            "background_color": {
-                "begin": {
-                    "position": "top_left",
-                    "color": "--colors.light_purple"
-                },
-                "end": {
-                    "position": "bottom_right",
-                    "color": "--colors.light_green"
-                }
-            },
+            "width": 128,
+            "height": 128,
+            "border_radius": 16,
+            "background_color": "--colors.ivory_white",
             "icon": {
-                "color": "--colors.white",
-                "font_size": "--font_sizes.heading"
+                "image": "--images.logo",
+                "width": 96,
+                "height": 96
             }
         },
         "title": {
-            "color": "--colors.gray",
+            "color": "--colors.light_purple",
             "font_size": "--font_sizes.heading",
             "font_weight": "--font_weights.bold"
         },
         "subtitle": {
-            "color": "--colors.dirty_white",
+            "color": "--colors.gray",
             "font_size": "--font_sizes.regular",
             "font_weight": "--font_weights.regular"
         },
         "error_container": {
+            "border_radius": 8,
             "background_color": "--colors.white",
             "border": {
                 "color": "--colors.pastel_red",
-                "width": 1
+                "width": 2
             },
             "text": {
                 "color": "--colors.pastel_red",
@@ -199,53 +195,69 @@
             },
             "icon": {
                 "color": "--colors.pastel_red",
-                "width": 20,
-                "height": 20
-            },
-            "border_radius": 12
+                "width": 16,
+                "height": 16
+            }
         },
         "email_field": {
+            "border_radius": 8,
+            "background_color": "--colors.white",
             "icon": {
                 "color": "--colors.light_purple"
             },
             "border": {
-                "color": "--colors.ivory_white",
-                "width": 1
+                "color": "--colors.dirty_white",
+                "width": 2
             },
             "focused_border": {
                 "color": "--colors.light_purple",
                 "width": 2
-            },
-            "background_color": "--colors.white",
-            "border_radius": 12
+            }
         },
         "password_field": {
+            "border_radius": 8,
+            "background_color": "--colors.white",
             "icon": {
                 "color": "--colors.dark_green"
             },
             "border": {
-                "color": "--colors.ivory_white",
-                "width": 1
+                "color": "--colors.dirty_white",
+                "width": 2
             },
             "focused_border": {
                 "color": "--colors.dark_green",
                 "width": 2
-            },
-            "background_color": "--colors.white",
-            "border_radius": 12
+            }
         },
         "login_button": {
-            "background_color": "--colors.light_purple",
+            "width": 120,
+            "height": 48,
+            "border_radius": 8,
+            "border_width": 2,
+            "background_color": {
+                "begin": {
+                    "position": "top_left",
+                    "color": "#A2C947"
+                },
+                "end": {
+                    "position": "bottom_right",
+                    "color": "#CAF562"
+                }
+            },
+            "stroke_color": {
+                "begin": {
+                    "position": "top_left",
+                    "color": "#C1EC5A"
+                },
+                "end": {
+                    "position": "bottom_right",
+                    "color": "#87A938"
+                }
+            },
             "text": {
-                "color": "--colors.white",
+                "color": "--colors.dark_gray",
                 "font_size": "--font_sizes.regular",
                 "font_weight": "--font_weights.bold"
-            },
-            "border_radius": 12,
-            "progress_indicator": {
-                "width": 20,
-                "height": 20,
-                "stroke_weight": 2
             }
         },
         "register_link": {
@@ -256,36 +268,32 @@
     },
     "register_page": {
         "logo_container": {
-            "background_color": {
-                "begin": {
-                    "position": "top_left",
-                    "color": "--colors.light_green"
-                },
-                "end": {
-                    "position": "bottom_right",
-                    "color": "--colors.light_purple"
-                }
-            },
+            "width": 128,
+            "height": 128,
+            "border_radius": 16,
+            "background_color": "--colors.ivory_white",
             "icon": {
-                "color": "--colors.white",
-                "font_size": "--font_sizes.heading"
+                "image": "--images.logo",
+                "width": 96,
+                "height": 96
             }
         },
         "title": {
-            "color": "--colors.gray",
+            "color": "--colors.light_purple",
             "font_size": "--font_sizes.heading",
             "font_weight": "--font_weights.bold"
         },
         "subtitle": {
-            "color": "--colors.dirty_white",
+            "color": "--colors.gray",
             "font_size": "--font_sizes.regular",
             "font_weight": "--font_weights.regular"
         },
         "error_container": {
+            "border_radius": 8,
             "background_color": "--colors.white",
             "border": {
                 "color": "--colors.pastel_red",
-                "width": 1
+                "width": 2
             },
             "text": {
                 "color": "--colors.pastel_red",
@@ -295,66 +303,82 @@
                 "color": "--colors.pastel_red",
                 "width": 20,
                 "height": 20
-            },
-            "border_radius": 12
+            }
         },
         "username_field": {
+            "border_radius": 8,
+            "background_color": "--colors.white",
             "icon": {
-                "color": "--colors.dark_green"
+                "color": "--colors.dark_purple"
             },
             "border": {
-                "color": "--colors.ivory_white",
+                "color": "--colors.dirty_white",
                 "width": 2
             },
             "focused_border": {
-                "color": "--colors.dark_green",
+                "color": "--colors.dark_purple",
                 "width": 2
-            },
-            "background_color": "--colors.white",
-            "border_radius": 12
+            }
         },
         "email_field": {
+            "border_radius": 8,
+            "background_color": "--colors.white",
+            "icon": {
+                "color": "--colors.dark_purple"
+            },
+            "border": {
+                "color": "--colors.dirty_white",
+                "width": 2
+            },
+            "focused_border": {
+                "color": "--colors.dark_purple",
+                "width": 2
+            }
+        },
+        "password_field": {
+            "border_radius": 8,
+            "background_color": "--colors.white",
             "icon": {
                 "color": "--colors.dark_green"
             },
             "border": {
-                "color": "--colors.ivory_white",
-                "width": 1
+                "color": "--colors.dirty_white",
+                "width": 2
             },
             "focused_border": {
                 "color": "--colors.dark_green",
                 "width": 2
-            },
-            "background_color": "--colors.white",
-            "border_radius": 12
-        },
-        "password_field": {
-            "icon": {
-                "color": "--colors.light_purple"
-            },
-            "border": {
-                "color": "--colors.ivory_white",
-                "width": 1
-            },
-            "focused_border": {
-                "color": "--colors.light_purple",
-                "width": 2
-            },
-            "background_color": "--colors.white",
-            "border_radius": 12
+            }
         },
         "register_button": {
-            "background_color": "--colors.dark_green",
+            "width": 120,
+            "height": 48,
+            "border_radius": 8,
+            "border_width": 2,
+            "background_color": {
+                "begin": {
+                    "position": "top_left",
+                    "color": "#A2C947"
+                },
+                "end": {
+                    "position": "bottom_right",
+                    "color": "#CAF562"
+                }
+            },
+            "stroke_color": {
+                "begin": {
+                    "position": "top_left",
+                    "color": "#C1EC5A"
+                },
+                "end": {
+                    "position": "bottom_right",
+                    "color": "#87A938"
+                }
+            },
             "text": {
-                "color": "--colors.white",
+                "color": "--colors.dark_gray",
                 "font_size": "--font_sizes.regular",
                 "font_weight": "--font_weights.bold"
-            },
-            "border_radius": 12,
-            "progress_indicator": {
-                "width": 20,
-                "height": 20,
-                "stroke_weight": 2
             }
         },
         "login_link": {
@@ -363,11 +387,12 @@
             "font_weight": "--font_weights.bold"
         },
         "success_dialog": {
+            "border_radius": 16,
             "background_color": "--colors.white",
             "icon": {
                 "color": "--colors.dark_green",
-                "width": 60,
-                "height": 60
+                "width": 48,
+                "height": 48
             },
             "title": {
                 "color": "--colors.gray",
@@ -379,15 +404,14 @@
                 "font_size": "--font_sizes.regular"
             },
             "button": {
+                "border_radius": 12,
                 "background_color": "--colors.dark_green",
                 "text": {
                     "color": "--colors.white",
                     "font_size": "--font_sizes.regular",
                     "font_weight": "--font_weights.bold"
-                },
-                "border_radius": 12
-            },
-            "border_radius": 20
+                }
+            }
         }
     },
     "home_page": {

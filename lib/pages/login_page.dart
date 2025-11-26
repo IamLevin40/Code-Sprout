@@ -69,19 +69,22 @@ class _LoginPageState extends State<LoginPage> {
               key: _formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // Logo/Icon
                   Container(
-                    padding: const EdgeInsets.all(20),
+                    width: styles.getStyles('login_page.logo_container.width') as double,
+                    height: styles.getStyles('login_page.logo_container.height') as double,
                     decoration: BoxDecoration(
-                      gradient: styles.getStyles('login_page.logo_container.background_color') as LinearGradient,
-                      shape: BoxShape.circle,
+                      color: styles.getStyles('login_page.logo_container.background_color') as Color,
+                      borderRadius: BorderRadius.circular(styles.getStyles('login_page.logo_container.border_radius') as double),
                     ),
-                    child: Icon(
-                      Icons.login,
-                      size: styles.getStyles('login_page.logo_container.icon.font_size') as double,
-                      color: styles.getStyles('login_page.logo_container.icon.color') as Color,
+                    child: Center(
+                      child: Image.asset(
+                        styles.getStyles('login_page.logo_container.icon.image') as String,
+                        width: styles.getStyles('login_page.logo_container.icon.width') as double,
+                        height: styles.getStyles('login_page.logo_container.icon.height') as double,
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -235,33 +238,56 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 32),
 
                   // Login Button
-                  ElevatedButton(
-                    onPressed: _isLoading ? null : _login,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: styles.getStyles('login_page.login_button.background_color') as Color,
-                      foregroundColor: styles.getStyles('login_page.login_button.text.color') as Color,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(styles.getStyles('login_page.login_button.border_radius') as double),
-                      ),
-                      elevation: 0,
+                  Container(
+                    width: styles.getStyles('login_page.login_button.width') as double,
+                    height: styles.getStyles('login_page.login_button.height') as double,
+                    decoration: BoxDecoration(
+                      gradient: styles.getStyles('login_page.login_button.stroke_color') as LinearGradient,
+                      borderRadius: BorderRadius.circular(styles.getStyles('login_page.login_button.border_radius') as double),
                     ),
-                    child: _isLoading
-                        ? SizedBox(
-                            height: styles.getStyles('login_page.login_button.progress_indicator.height') as double,
-                            width: styles.getStyles('login_page.login_button.progress_indicator.width') as double,
-                            child: CircularProgressIndicator(
-                              strokeWidth: styles.getStyles('login_page.login_button.progress_indicator.stroke_weight') as double,
-                              valueColor: AlwaysStoppedAnimation<Color>(styles.getStyles('login_page.login_button.text.color') as Color),
-                            ),
-                          )
-                        : Text(
-                            'Login',
-                            style: TextStyle(
-                              fontSize: styles.getStyles('login_page.login_button.text.font_size') as double,
-                              fontWeight: styles.getStyles('login_page.login_button.text.font_weight') as FontWeight,
-                            ),
+                    child: Padding(
+                      padding: EdgeInsets.all(styles.getStyles('login_page.login_button.border_width') as double),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: styles.getStyles('login_page.login_button.background_color') as LinearGradient,
+                          borderRadius: BorderRadius.circular(
+                            (styles.getStyles('login_page.login_button.border_radius') as double) - 
+                            (styles.getStyles('login_page.login_button.border_width') as double)
                           ),
+                        ),
+                        child: TextButton(
+                          onPressed: _isLoading ? null : _login,
+                          style: TextButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                (styles.getStyles('login_page.login_button.border_radius') as double) - 
+                                (styles.getStyles('login_page.login_button.border_width') as double)
+                              ),
+                            ),
+                            padding: EdgeInsets.zero,
+                          ),
+                          child: Center(
+                            child: _isLoading
+                                ? SizedBox(
+                                    height: styles.getStyles('login_page.login_button.progress_indicator.height') as double,
+                                    width: styles.getStyles('login_page.login_button.progress_indicator.width') as double,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: styles.getStyles('login_page.login_button.progress_indicator.stroke_weight') as double,
+                                      valueColor: AlwaysStoppedAnimation<Color>(styles.getStyles('login_page.login_button.text.color') as Color),
+                                    ),
+                                  )
+                                : Text(
+                                    'Login',
+                                    style: TextStyle(
+                                      color: styles.getStyles('login_page.login_button.text.color') as Color,
+                                      fontSize: styles.getStyles('login_page.login_button.text.font_size') as double,
+                                      fontWeight: styles.getStyles('login_page.login_button.text.font_weight') as FontWeight,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 24),
 
