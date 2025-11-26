@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'field_label_settings.dart';
+import '../../models/styles_schema.dart';
 
 /// A widget for editing enum fields in user settings
 class EnumFieldSettings extends StatefulWidget {
@@ -55,11 +56,33 @@ class _EnumFieldSettingsState extends State<EnumFieldSettings> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(vertical: 8),
+    final styles = AppStyles();
+    
+    return Container(
+      margin: EdgeInsets.symmetric(
+        vertical: (styles.getStyles('settings_page.divider.height') as double) / 3,
+      ),
+      decoration: BoxDecoration(
+        color: styles.getStyles('settings_page.section_card.background_color') as Color,
+        borderRadius: BorderRadius.circular(
+          styles.getStyles('settings_page.section_card.border_radius') as double,
+        ),
+        border: Border.all(
+          color: styles.getStyles('settings_page.section_card.stroke_color') as Color,
+          width: styles.getStyles('settings_page.section_card.border_width') as double,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: (styles.getStyles('settings_page.section_card.shadow.color') as Color)
+                .withOpacity((styles.getStyles('settings_page.section_card.shadow.opacity') as double) / 100),
+            blurRadius: styles.getStyles('settings_page.section_card.shadow.blur_radius') as double,
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(
+          styles.getStyles('settings_page.dropdown_field.padding') as double? ?? 16.0,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -75,19 +98,29 @@ class _EnumFieldSettingsState extends State<EnumFieldSettings> {
                       ? Row(
                           children: [
                             IconButton(
-                              icon: const Icon(Icons.check, color: Colors.green),
+                              icon: Icon(
+                                Icons.check,
+                                color: styles.getStyles('settings_page.dropdown_field.focused_stroke_color') as Color,
+                              ),
                               onPressed: _handleSave,
                               tooltip: 'Save',
                             ),
                             IconButton(
-                              icon: const Icon(Icons.close, color: Colors.red),
+                              icon: Icon(
+                                Icons.close,
+                                color: styles.getStyles('settings_page.dropdown_field.error_border') as Color,
+                              ),
                               onPressed: _handleCancel,
                               tooltip: 'Cancel',
                             ),
                           ],
                         )
                       : IconButton(
-                          icon: const Icon(Icons.edit),
+                          icon: Icon(
+                            Icons.edit,
+                            color: styles.getStyles('settings_page.dropdown_field.icon.color') as Color,
+                            size: styles.getStyles('settings_page.dropdown_field.icon.width') as double,
+                          ),
                           onPressed: () {
                             setState(() {
                               _isEditing = true;
@@ -97,12 +130,49 @@ class _EnumFieldSettingsState extends State<EnumFieldSettings> {
                         ),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: styles.getStyles('settings_page.field_label.spacing') as double),
             _isEditing
                 ? DropdownButtonFormField<String>(
                     value: _selectedValue,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
+                    style: TextStyle(
+                      color: styles.getStyles('global.text.primary.color') as Color,
+                      fontSize: styles.getStyles('global.text.primary.font_size') as double,
+                    ),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: styles.getStyles('settings_page.dropdown_field.background_color') as Color,
+                      prefixIcon: Icon(
+                        Icons.arrow_drop_down_circle,
+                        color: styles.getStyles('settings_page.dropdown_field.icon.color') as Color,
+                        size: styles.getStyles('settings_page.dropdown_field.icon.width') as double,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(
+                          styles.getStyles('settings_page.dropdown_field.border_radius') as double,
+                        ),
+                        borderSide: BorderSide(
+                          color: styles.getStyles('settings_page.dropdown_field.normal_stroke_color') as Color,
+                          width: styles.getStyles('settings_page.dropdown_field.border_width') as double,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(
+                          styles.getStyles('settings_page.dropdown_field.border_radius') as double,
+                        ),
+                        borderSide: BorderSide(
+                          color: styles.getStyles('settings_page.dropdown_field.focused_stroke_color') as Color,
+                          width: styles.getStyles('settings_page.dropdown_field.border_width') as double,
+                        ),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(
+                          styles.getStyles('settings_page.dropdown_field.border_radius') as double,
+                        ),
+                        borderSide: BorderSide(
+                          color: styles.getStyles('settings_page.dropdown_field.error_border') as Color,
+                          width: styles.getStyles('settings_page.dropdown_field.border_width') as double,
+                        ),
+                      ),
                     ),
                     items: widget.allowedValues.map((value) {
                       return DropdownMenuItem<String>(
@@ -115,24 +185,30 @@ class _EnumFieldSettingsState extends State<EnumFieldSettings> {
                         _selectedValue = newValue;
                       });
                     },
-                    hint: Text('Select ${widget.displayName.toLowerCase()}'),
+                    hint: Text(
+                      'Select ${widget.displayName.toLowerCase()}',
+                      style: TextStyle(
+                        color: styles.getStyles('global.text.secondary.color') as Color,
+                      ),
+                    ),
                   )
                 : Text(
                     _selectedValue ?? 'Not set',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: styles.getStyles('global.text.primary.font_size') as double,
                       color: _selectedValue == null
-                          ? Colors.grey
-                          : Colors.black87,
+                          ? styles.getStyles('global.text.secondary.color') as Color
+                          : styles.getStyles('global.text.primary.color') as Color,
+                      fontWeight: styles.getStyles('global.text.primary.font_weight') as FontWeight,
                     ),
                   ),
             if (_isEditing) ...[
-              const SizedBox(height: 8),
+              SizedBox(height: (styles.getStyles('settings_page.field_label.spacing') as double) / 2),
               Text(
                 'Available options: ${widget.allowedValues.join(", ")}',
                 style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
+                  fontSize: styles.getStyles('global.text.primary.font_size') as double,
+                  color: styles.getStyles('global.text.secondary.color') as Color,
                 ),
               ),
             ],

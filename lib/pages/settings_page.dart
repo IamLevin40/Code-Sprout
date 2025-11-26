@@ -172,10 +172,11 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void _showErrorSnackBar(String message) {
+    final styles = AppStyles();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.red,
+        backgroundColor: styles.getStyles('settings_page.text_field.error_border') as Color,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 4),
       ),
@@ -204,19 +205,24 @@ class _SettingsPageState extends State<SettingsPage> {
         if (_isLoading) {
           return Container(
             color: styles.getStyles('global.background.color') as Color,
-            child: const Center(
-              child: CircularProgressIndicator(),
+            child: Center(
+              child: CircularProgressIndicator(
+                strokeWidth: styles.getStyles('settings_page.loading_indicator.stroke_weight') as double,
+                color: styles.getStyles('settings_page.title.color') as Color,
+              ),
             ),
           );
         }
 
         return Container(
           color: styles.getStyles('global.background.color') as Color,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+          child: SafeArea(
+            bottom: true,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                 // Header
                 Text(
                   'Account Settings',
@@ -243,7 +249,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   displayName: 'Email Address',
                   currentValue: _userEmail,
                   isEditable: !_isSavingEmail,
-                  fieldType: 'required',
+                  fieldType: 'string',
+                  isRequired: true,
                   validator: AccountValidation.validateEmail,
                   onSave: _saveEmail,
                 ),
@@ -254,7 +261,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   displayName: 'Password',
                   currentValue: '********',
                   isEditable: !_isSavingPassword,
-                  fieldType: 'required',
+                  fieldType: 'string',
+                  isRequired: true,
                   isPassword: true,
                   validator: AccountValidation.validatePassword,
                   onSave: _savePassword,
@@ -266,41 +274,68 @@ class _SettingsPageState extends State<SettingsPage> {
                   displayName: 'Username',
                   currentValue: _username,
                   isEditable: !_isSavingUsername,
-                  fieldType: 'required',
+                  fieldType: 'string',
+                  isRequired: true,
                   validator: AccountValidation.validateUsername,
                   onSave: _saveUsername,
                 ),
 
-                const SizedBox(height: 32),
+                SizedBox(height: styles.getStyles('settings_page.divider.height') as double),
 
-                // Logout Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: _handleLogout,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
+                // Logout Button (centered) - uses stroke_color as outer gradient and background_color as inner gradient
+                Center(
+                  child: SizedBox(
+                    width: styles.getStyles('settings_page.logout_button.width') as double,
+                    height: styles.getStyles('settings_page.logout_button.height') as double,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: styles.getStyles('settings_page.logout_button.stroke_color') as LinearGradient,
                         borderRadius: BorderRadius.circular(
-                          styles.getStyles('settings_page.save_button.border_radius') as double,
+                          styles.getStyles('settings_page.logout_button.border_radius') as double,
                         ),
                       ),
-                      elevation: 0,
-                    ),
-                    icon: const Icon(Icons.logout, size: 20),
-                    label: Text(
-                      'Logout',
-                      style: TextStyle(
-                        fontSize: styles.getStyles('settings_page.save_button.text.font_size') as double,
-                        fontWeight: styles.getStyles('settings_page.save_button.text.font_weight') as FontWeight,
+                      child: Padding(
+                        padding: EdgeInsets.all(
+                          styles.getStyles('settings_page.logout_button.border_width') as double,
+                        ),
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: styles.getStyles('settings_page.logout_button.background_color') as LinearGradient,
+                            borderRadius: BorderRadius.circular(
+                              (styles.getStyles('settings_page.logout_button.border_radius') as double) -
+                                  (styles.getStyles('settings_page.logout_button.border_width') as double),
+                            ),
+                          ),
+                          child: TextButton(
+                            onPressed: _handleLogout,
+                            style: TextButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                  (styles.getStyles('settings_page.logout_button.border_radius') as double) -
+                                      (styles.getStyles('settings_page.logout_button.border_width') as double),
+                                ),
+                              ),
+                              padding: EdgeInsets.zero,
+                            ),
+                            child: Center(
+                              child: Text(
+                                'Logout',
+                                style: TextStyle(
+                                  color: styles.getStyles('settings_page.logout_button.text.color') as Color,
+                                  fontSize: styles.getStyles('settings_page.logout_button.text.font_size') as double,
+                                  fontWeight: styles.getStyles('settings_page.logout_button.text.font_weight') as FontWeight,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: styles.getStyles('settings_page.divider.height') as double),
 
                 // Info Text
                 Container(
@@ -311,8 +346,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       styles.getStyles('settings_page.info_container.border_radius') as double,
                     ),
                     border: Border.all(
-                      color: styles.getStyles('settings_page.info_container.border.color') as Color,
-                      width: styles.getStyles('settings_page.info_container.border.width') as double,
+                      color: styles.getStyles('settings_page.info_container.stroke_color') as Color,
+                      width: styles.getStyles('settings_page.info_container.border_width') as double,
                     ),
                   ),
                   child: Row(
@@ -320,14 +355,15 @@ class _SettingsPageState extends State<SettingsPage> {
                       Icon(
                         Icons.info_outline,
                         color: styles.getStyles('settings_page.info_container.icon.color') as Color,
-                        size: 20,
+                        size: styles.getStyles('settings_page.info_container.icon.width') as double,
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           'Changes to your email require verification. You\'ll receive a confirmation email at your new address.',
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: styles.getStyles('settings_page.info_container.text.font_size') as double,
+                            fontWeight: styles.getStyles('settings_page.info_container.text.font_weight') as FontWeight,
                             color: styles.getStyles('settings_page.info_container.text.color') as Color,
                           ),
                         ),
@@ -338,7 +374,8 @@ class _SettingsPageState extends State<SettingsPage> {
               ],
             ),
           ),
-        );
+        ),
+      );
       },
     );
   }

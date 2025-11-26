@@ -1,65 +1,90 @@
 import 'package:flutter/material.dart';
+import '../../models/styles_schema.dart';
 
 /// A reusable field label widget that displays the field name and its type
 class FieldLabelSettings extends StatelessWidget {
   final String fieldName;
   final String fieldType;
   final bool showTypeBadge;
+  final bool isRequired;
 
   const FieldLabelSettings({
     super.key,
     required this.fieldName,
     required this.fieldType,
     this.showTypeBadge = true,
+    this.isRequired = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final styles = AppStyles();
+    
     return Row(
       children: [
         Text(
           fieldName,
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 15,
+          style: TextStyle(
+            fontWeight: styles.getStyles('settings_page.field_label.font_weight') as FontWeight,
+            fontSize: styles.getStyles('settings_page.field_label.font_size') as double,
+            color: styles.getStyles('settings_page.field_label.color') as Color,
           ),
         ),
         if (showTypeBadge) ...[
-          const SizedBox(width: 8),
+          SizedBox(width: styles.getStyles('settings_page.field_label.spacing') as double),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            padding: EdgeInsets.symmetric(
+              horizontal: styles.getStyles('settings_page.field_label.type_badge.padding_horizontal') as double,
+              vertical: styles.getStyles('settings_page.field_label.type_badge.padding_vertical') as double,
+            ),
             decoration: BoxDecoration(
-              color: _getTypeColor(fieldType).withOpacity(0.2),
-              borderRadius: BorderRadius.circular(4),
+              color: styles.getStyles('settings_page.field_label.type_badge.background_color') as Color,
+              borderRadius: BorderRadius.circular(
+                styles.getStyles('settings_page.field_label.type_badge.border_radius') as double,
+              ),
+              border: Border.all(
+                color: styles.getStyles('settings_page.field_label.type_badge.stroke_color') as Color,
+                width: styles.getStyles('settings_page.field_label.type_badge.border_width') as double,
+              ),
             ),
             child: Text(
               fieldType,
               style: TextStyle(
-                fontSize: 11,
-                color: _getTypeColor(fieldType),
-                fontWeight: FontWeight.w500,
+                fontSize: styles.getStyles('settings_page.field_label.type_badge.text.font_size') as double,
+                color: styles.getStyles('settings_page.field_label.type_badge.text.color') as Color,
+                fontWeight: styles.getStyles('settings_page.field_label.type_badge.text.font_weight') as FontWeight,
+              ),
+            ),
+          ),
+        ],
+        if (isRequired) ...[
+          SizedBox(width: styles.getStyles('settings_page.field_label.required_spacing') as double),
+          Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: styles.getStyles('settings_page.field_label.required_badge.padding_horizontal') as double,
+              vertical: styles.getStyles('settings_page.field_label.required_badge.padding_vertical') as double,
+            ),
+            decoration: BoxDecoration(
+              color: styles.getStyles('settings_page.field_label.required_badge.background_color') as Color,
+              borderRadius: BorderRadius.circular(
+                styles.getStyles('settings_page.field_label.required_badge.border_radius') as double,
+              ),
+              border: Border.all(
+                color: styles.getStyles('settings_page.field_label.required_badge.stroke_color') as Color,
+                width: styles.getStyles('settings_page.field_label.required_badge.border_width') as double,
+              ),
+            ),
+            child: Text(
+              'required',
+              style: TextStyle(
+                fontSize: styles.getStyles('settings_page.field_label.required_badge.text.font_size') as double,
+                color: styles.getStyles('settings_page.field_label.required_badge.text.color') as Color,
+                fontWeight: styles.getStyles('settings_page.field_label.required_badge.text.font_weight') as FontWeight,
               ),
             ),
           ),
         ],
       ],
     );
-  }
-
-  Color _getTypeColor(String type) {
-    switch (type.toLowerCase()) {
-      case 'string':
-        return Colors.blue;
-      case 'number':
-        return Colors.green;
-      case 'boolean':
-        return Colors.orange;
-      case 'timestamp':
-        return Colors.purple;
-      case 'enum':
-        return Colors.teal;
-      default:
-        return Colors.grey;
-    }
   }
 }

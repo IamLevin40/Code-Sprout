@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../models/styles_schema.dart';
 
 /// A dialog shown after successfully saving settings changes
 class SaveSuccessDialog extends StatelessWidget {
@@ -28,20 +29,37 @@ class SaveSuccessDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final styles = AppStyles();
+    
     return AlertDialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
-      title: const Row(
+      title: Row(
         children: [
-          Icon(Icons.check_circle, color: Colors.green, size: 28),
-          SizedBox(width: 12),
-          Text('Success'),
+          Icon(
+            Icons.check_circle,
+            color: styles.getStyles('settings_page.text_field.focused_stroke_color') as Color,
+            size: styles.getStyles('settings_page.success_dialog.icon.width') as double,
+          ),
+          const SizedBox(width: 12),
+          Text(
+            'Success',
+            style: TextStyle(
+              color: styles.getStyles('settings_page.logout_dialog.title.color') as Color,
+              fontSize: styles.getStyles('settings_page.logout_dialog.title.font_size') as double,
+              fontWeight: styles.getStyles('settings_page.logout_dialog.title.font_weight') as FontWeight,
+            ),
+          ),
         ],
       ),
       content: Text(
         message,
-        style: const TextStyle(fontSize: 16),
+        style: TextStyle(
+          fontSize: styles.getStyles('settings_page.logout_dialog.content.font_size') as double,
+          color: styles.getStyles('settings_page.logout_dialog.content.color') as Color,
+          fontWeight: styles.getStyles('settings_page.logout_dialog.content.font_weight') as FontWeight,
+        ),
       ),
       actions: [
         TextButton(
@@ -49,9 +67,13 @@ class SaveSuccessDialog extends StatelessWidget {
             Navigator.of(context).pop();
             onClose?.call();
           },
-          child: const Text(
+          child: Text(
             'OK',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontSize: styles.getStyles('settings_page.logout_dialog.cancel_button.text.font_size') as double,
+              fontWeight: styles.getStyles('settings_page.logout_dialog.cancel_button.text.font_weight') as FontWeight,
+              color: styles.getStyles('settings_page.text_field.focused_stroke_color') as Color,
+            ),
           ),
         ),
       ],

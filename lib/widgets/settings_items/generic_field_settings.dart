@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'field_label_settings.dart';
+import '../../models/styles_schema.dart';
 
 /// A widget for displaying unsupported or complex field types in user settings
 /// This is a read-only display for types that don't have dedicated editors
@@ -32,11 +33,33 @@ class GenericFieldSettings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(vertical: 8),
+    final styles = AppStyles();
+    
+    return Container(
+      margin: EdgeInsets.symmetric(
+        vertical: (styles.getStyles('settings_page.divider.height') as double) / 3,
+      ),
+      decoration: BoxDecoration(
+        color: styles.getStyles('settings_page.section_card.background_color') as Color,
+        borderRadius: BorderRadius.circular(
+          styles.getStyles('settings_page.section_card.border_radius') as double,
+        ),
+        border: Border.all(
+          color: styles.getStyles('settings_page.section_card.stroke_color') as Color,
+          width: styles.getStyles('settings_page.section_card.border_width') as double,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: (styles.getStyles('settings_page.section_card.shadow.color') as Color)
+                .withOpacity((styles.getStyles('settings_page.section_card.shadow.opacity') as double) / 100),
+            blurRadius: styles.getStyles('settings_page.section_card.shadow.blur_radius') as double,
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(
+          styles.getStyles('settings_page.generic_field.padding') as double,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -52,12 +75,13 @@ class GenericFieldSettings extends StatelessWidget {
                         fieldType: fieldType,
                       ),
                       if (description != null) ...[
-                        const SizedBox(height: 4),
+                        SizedBox(height: styles.getStyles('settings_page.generic_field.note_spacing') as double),
                         Text(
                           description!,
                           style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey[600],
+                            fontSize: styles.getStyles('settings_page.generic_field.note_text.font_size') as double,
+                            color: styles.getStyles('settings_page.generic_field.note_text.color') as Color,
+                            fontWeight: styles.getStyles('settings_page.generic_field.note_text.font_weight') as FontWeight,
                           ),
                         ),
                       ],
@@ -66,17 +90,25 @@ class GenericFieldSettings extends StatelessWidget {
                 ),
                 Icon(
                   Icons.info_outline,
-                  color: Colors.grey[400],
+                  color: styles.getStyles('global.text.secondary.color') as Color,
                   size: 20,
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: styles.getStyles('settings_page.generic_field.spacing') as double),
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.all(
+                styles.getStyles('settings_page.generic_field.padding') as double,
+              ),
               decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(8),
+                color: styles.getStyles('settings_page.generic_field.background_color') as Color,
+                borderRadius: BorderRadius.circular(
+                  styles.getStyles('settings_page.generic_field.border_radius') as double,
+                ),
+                border: Border.all(
+                  color: styles.getStyles('settings_page.generic_field.stroke_color') as Color,
+                  width: styles.getStyles('settings_page.generic_field.border_width') as double,
+                ),
               ),
               child: Row(
                 children: [
@@ -84,8 +116,9 @@ class GenericFieldSettings extends StatelessWidget {
                     child: Text(
                       _formatValue(),
                       style: TextStyle(
-                        fontSize: 15,
-                        color: Colors.grey[700],
+                        fontSize: styles.getStyles('settings_page.generic_field.value_text.font_size') as double,
+                        color: styles.getStyles('settings_page.generic_field.value_text.color') as Color,
+                        fontWeight: styles.getStyles('settings_page.generic_field.value_text.font_weight') as FontWeight,
                         fontFamily: 'monospace',
                       ),
                     ),
@@ -93,12 +126,13 @@ class GenericFieldSettings extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: styles.getStyles('settings_page.generic_field.note_spacing') as double),
             Text(
               'This field type is not editable in user settings',
               style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[500],
+                fontSize: styles.getStyles('settings_page.generic_field.note_text.font_size') as double,
+                color: styles.getStyles('settings_page.generic_field.note_text.color') as Color,
+                fontWeight: styles.getStyles('settings_page.generic_field.note_text.font_weight') as FontWeight,
                 fontStyle: FontStyle.italic,
               ),
             ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'field_label_settings.dart';
+import '../../models/styles_schema.dart';
 
 /// A widget for editing boolean fields in user settings
 class BooleanFieldSettings extends StatefulWidget {
@@ -44,11 +45,33 @@ class _BooleanFieldSettingsState extends State<BooleanFieldSettings> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(vertical: 8),
+    final styles = AppStyles();
+    
+    return Container(
+      margin: EdgeInsets.symmetric(
+        vertical: (styles.getStyles('settings_page.divider.height') as double) / 3,
+      ),
+      decoration: BoxDecoration(
+        color: styles.getStyles('settings_page.section_card.background_color') as Color,
+        borderRadius: BorderRadius.circular(
+          styles.getStyles('settings_page.section_card.border_radius') as double,
+        ),
+        border: Border.all(
+          color: styles.getStyles('settings_page.section_card.stroke_color') as Color,
+          width: styles.getStyles('settings_page.section_card.border_width') as double,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: (styles.getStyles('settings_page.section_card.shadow.color') as Color)
+                .withOpacity((styles.getStyles('settings_page.section_card.shadow.opacity') as double) / 100),
+            blurRadius: styles.getStyles('settings_page.section_card.shadow.blur_radius') as double,
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(
+          styles.getStyles('settings_page.text_field.padding') as double? ?? 16.0,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -64,22 +87,36 @@ class _BooleanFieldSettingsState extends State<BooleanFieldSettings> {
                         fieldType: 'boolean',
                       ),
                       if (widget.description != null) ...[
-                        const SizedBox(height: 4),
+                        SizedBox(height: (styles.getStyles('settings_page.field_label.spacing') as double) / 2),
                         Text(
                           widget.description!,
                           style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey[600],
+                            fontSize: styles.getStyles('global.text.primary.font_size') as double,
+                            color: styles.getStyles('global.text.secondary.color') as Color,
+                            fontWeight: styles.getStyles('global.text.primary.font_weight') as FontWeight,
                           ),
                         ),
                       ],
                     ],
                   ),
                 ),
-                Switch(
-                  value: _value,
-                  onChanged: widget.isEditable ? _handleChange : null,
-                  activeColor: Colors.green,
+                Row(
+                  children: [
+                    Text(
+                      _value ? 'On' : 'Off',
+                      style: TextStyle(
+                        fontSize: styles.getStyles('settings_page.switch_field.value_text.font_size') as double,
+                        fontWeight: styles.getStyles('settings_page.switch_field.value_text.font_weight') as FontWeight,
+                        color: styles.getStyles('settings_page.switch_field.value_text.color') as Color,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Switch(
+                      value: _value,
+                      onChanged: widget.isEditable ? _handleChange : null,
+                      activeColor: styles.getStyles('settings_page.switch_field.active_track_color') as Color,
+                    ),
+                  ],
                 ),
               ],
             ),
