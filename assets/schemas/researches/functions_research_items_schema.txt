@@ -1,6 +1,6 @@
 {
     "func_move": {
-        "icon": "images/icons/sprout_items/function_items/move.png",
+        "icon": "assets/images/icons/sprout_items/function_items/move.png",
         "name": "move(direction)",
         "language_specific_description": {
             "cpp": "move(Direction::North)\nmove(Direction::South)\nmove(Direction::East)\nmove(Direction::West)\n\nMoves drone by 1 tile toward the given direction.",
@@ -14,7 +14,7 @@
         "functions_unlocked": ["move(direction)"]
     },
     "func_till": {
-        "icon": "images/icons/sprout_items/function_items/till.png",
+        "icon": "assets/images/icons/sprout_items/function_items/till.png",
         "name": "till()",
         "language_specific_description": {
             "cpp": "till()\n\nTills the soil at current position for planting preparation.",
@@ -28,7 +28,7 @@
         "functions_unlocked": ["till()"]
     },
     "func_water": {
-        "icon": "images/icons/sprout_items/function_items/water.png",
+        "icon": "assets/images/icons/sprout_items/function_items/water.png",
         "name": "water()",
         "language_specific_description": {
             "cpp": "water()\n\nWaters soil at current position.",
@@ -42,7 +42,7 @@
         "functions_unlocked": ["water()"]
     },
     "func_plant": {
-        "icon": "images/icons/sprout_items/function_items/plant.png",
+        "icon": "assets/images/icons/sprout_items/function_items/plant.png",
         "name": "plant(crop)",
         "language_specific_description": {
             "cpp": "plant(CropType::Wheat)\n\nPlants the given crop type at current position.",
@@ -56,7 +56,7 @@
         "functions_unlocked": ["plant(seedType)"]
     },
     "func_harvest": {
-        "icon": "images/icons/sprout_items/function_items/harvest.png",
+        "icon": "assets/images/icons/sprout_items/function_items/harvest.png",
         "name": "harvest()",
         "language_specific_description": {
             "cpp": "harvest()\n\nHarvests crops from the current position.",
@@ -70,7 +70,7 @@
         "functions_unlocked": ["harvest()"]
     },
     "func_sleep": {
-        "icon": "images/icons/sprout_items/function_items/sleep.png",
+        "icon": "assets/images/icons/sprout_items/function_items/sleep.png",
         "name": "sleep(duration)",
         "language_specific_description": {
             "cpp": "sleep(2)\n\nPauses drone operation for the given duration in seconds.",
@@ -84,7 +84,7 @@
         "functions_unlocked": ["sleep(duration)"]
     },
     "func_getters": {
-        "icon": "images/icons/sprout_items/function_items/getters.png",
+        "icon": "assets/images/icons/sprout_items/function_items/getters.png",
         "name": "Getter Functions",
         "language_specific_description": {
             "cpp": "getPositionX(), getPositionY(), getPlotGridX(), getPlotGridY()\n\nReturns position and grid information.",
@@ -98,7 +98,7 @@
         "functions_unlocked": ["getPositionX()", "getPositionY()", "getPlotGridX()", "getPlotGridY()"]
     },
     "func_state_checkers": {
-        "icon": "images/icons/sprout_items/function_items/checkers.png",
+        "icon": "assets/images/icons/sprout_items/function_items/checkers.png",
         "name": "State Checker Functions",
         "language_specific_description": {
             "cpp": "getPlotState(), getCropType(), isCropGrown()\n\nReturns current plot and crop state information.",
@@ -112,7 +112,7 @@
         "functions_unlocked": ["getPlotState()", "getCropType()", "isCropGrown()"]
     },
     "func_can_checkers": {
-        "icon": "images/icons/sprout_items/function_items/can_checkers.png",
+        "icon": "assets/images/icons/sprout_items/function_items/can_checkers.png",
         "name": "Action Validator Functions",
         "language_specific_description": {
             "cpp": "canTill(), canWater(), canPlant(), canHarvest()\n\nChecks if actions can be performed at current position.",
@@ -126,7 +126,7 @@
         "functions_unlocked": ["canTill()", "canWater()", "canPlant()", "canHarvest()"]
     },
     "func_inventory": {
-        "icon": "images/icons/sprout_items/function_items/inventory.png",
+        "icon": "assets/images/icons/sprout_items/function_items/inventory.png",
         "name": "Inventory Functions",
         "language_specific_description": {
             "cpp": "hasSeed(SeedType), getSeedInventoryCount(SeedType), getCropInventoryCount(CropType)\n\nChecks and retrieves inventory information.",

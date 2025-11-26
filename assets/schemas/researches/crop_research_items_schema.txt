@@ -1,6 +1,6 @@
 {
     "crop_wheat": {
-        "icon": "images/icons/sprout_items/crop_items/wheat.png",
+        "icon": "assets/images/icons/sprout_items/crop_items/wheat.png",
         "default_name": "Wheat",
         "language_specific_name": {
             "cpp": "Crop::Wheat",
@@ -20,7 +20,7 @@
         "experience_gain_points": 5
     },
     "crop_carrot": {
-        "icon": "images/icons/sprout_items/crop_items/carrot.png",
+        "icon": "assets/images/icons/sprout_items/crop_items/carrot.png",
         "default_name": "Carrot",
         "language_specific_name": {
             "cpp": "Crop::Carrot",
@@ -42,7 +42,7 @@
         "experience_gain_points": 7
     },
     "crop_potato": {
-        "icon": "images/icons/sprout_items/crop_items/potato.png",
+        "icon": "assets/images/icons/sprout_items/crop_items/potato.png",
         "default_name": "Potato",
         "language_specific_name": {
             "cpp": "Crop::Potato",
@@ -65,7 +65,7 @@
         "experience_gain_points": 10
     },
     "crop_beetroot": {
-        "icon": "images/icons/sprout_items/crop_items/beetroot.png",
+        "icon": "assets/images/icons/sprout_items/crop_items/beetroot.png",
         "default_name": "Beetroot",
         "language_specific_name": {
             "cpp": "Crop::Beetroot",
@@ -88,7 +88,7 @@
         "experience_gain_points": 15
     },
     "crop_radish": {
-        "icon": "images/icons/sprout_items/crop_items/radish.png",
+        "icon": "assets/images/icons/sprout_items/crop_items/radish.png",
         "default_name": "Radish",
         "language_specific_name": {
             "cpp": "Crop::Radish",

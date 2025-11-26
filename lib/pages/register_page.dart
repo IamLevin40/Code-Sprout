@@ -227,19 +227,22 @@ class _RegisterPageState extends State<RegisterPage> {
               key: _formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // Logo/Icon
                   Container(
-                    padding: const EdgeInsets.all(20),
+                    width: styles.getStyles('register_page.logo_container.width') as double,
+                    height: styles.getStyles('register_page.logo_container.height') as double,
                     decoration: BoxDecoration(
-                      gradient: styles.getStyles('register_page.logo_container.background_color') as LinearGradient,
-                      shape: BoxShape.circle,
+                      color: styles.getStyles('register_page.logo_container.background_color') as Color,
+                      borderRadius: BorderRadius.circular(styles.getStyles('register_page.logo_container.border_radius') as double),
                     ),
-                    child: Icon(
-                      Icons.person_add,
-                      size: styles.getStyles('register_page.logo_container.icon.font_size') as double,
-                      color: styles.getStyles('register_page.logo_container.icon.color') as Color,
+                    child: Center(
+                      child: Image.asset(
+                        styles.getStyles('register_page.logo_container.icon.image') as String,
+                        width: styles.getStyles('register_page.logo_container.icon.width') as double,
+                        height: styles.getStyles('register_page.logo_container.icon.height') as double,
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -499,33 +502,56 @@ class _RegisterPageState extends State<RegisterPage> {
                   const SizedBox(height: 32),
 
                   // Register Button
-                  ElevatedButton(
-                    onPressed: _isLoading ? null : _register,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: styles.getStyles('register_page.register_button.background_color') as Color,
-                      foregroundColor: styles.getStyles('register_page.register_button.text.color') as Color,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(styles.getStyles('register_page.register_button.border_radius') as double),
-                      ),
-                      elevation: 0,
+                  Container(
+                    width: styles.getStyles('register_page.register_button.width') as double,
+                    height: styles.getStyles('register_page.register_button.height') as double,
+                    decoration: BoxDecoration(
+                      gradient: styles.getStyles('register_page.register_button.stroke_color') as LinearGradient,
+                      borderRadius: BorderRadius.circular(styles.getStyles('register_page.register_button.border_radius') as double),
                     ),
-                    child: _isLoading
-                        ? SizedBox(
-                            height: styles.getStyles('register_page.register_button.progress_indicator.height') as double,
-                            width: styles.getStyles('register_page.register_button.progress_indicator.width') as double,
-                            child: CircularProgressIndicator(
-                              strokeWidth: styles.getStyles('register_page.register_button.progress_indicator.stroke_weight') as double,
-                              valueColor: AlwaysStoppedAnimation<Color>(styles.getStyles('register_page.register_button.text.color') as Color),
-                            ),
-                          )
-                        : Text(
-                            'Register',
-                            style: TextStyle(
-                              fontSize: styles.getStyles('register_page.register_button.text.font_size') as double,
-                              fontWeight: styles.getStyles('register_page.register_button.text.font_weight') as FontWeight,
-                            ),
+                    child: Padding(
+                      padding: EdgeInsets.all(styles.getStyles('register_page.register_button.border_width') as double),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: styles.getStyles('register_page.register_button.background_color') as LinearGradient,
+                          borderRadius: BorderRadius.circular(
+                            (styles.getStyles('register_page.register_button.border_radius') as double) - 
+                            (styles.getStyles('register_page.register_button.border_width') as double)
                           ),
+                        ),
+                        child: TextButton(
+                          onPressed: _isLoading ? null : _register,
+                          style: TextButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                (styles.getStyles('register_page.register_button.border_radius') as double) - 
+                                (styles.getStyles('register_page.register_button.border_width') as double)
+                              ),
+                            ),
+                            padding: EdgeInsets.zero,
+                          ),
+                          child: Center(
+                            child: _isLoading
+                                ? SizedBox(
+                                    height: styles.getStyles('register_page.register_button.progress_indicator.height') as double,
+                                    width: styles.getStyles('register_page.register_button.progress_indicator.width') as double,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: styles.getStyles('register_page.register_button.progress_indicator.stroke_weight') as double,
+                                      valueColor: AlwaysStoppedAnimation<Color>(styles.getStyles('register_page.register_button.text.color') as Color),
+                                    ),
+                                  )
+                                : Text(
+                                    'Register',
+                                    style: TextStyle(
+                                      color: styles.getStyles('register_page.register_button.text.color') as Color,
+                                      fontSize: styles.getStyles('register_page.register_button.text.font_size') as double,
+                                      fontWeight: styles.getStyles('register_page.register_button.text.font_weight') as FontWeight,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 24),
 
