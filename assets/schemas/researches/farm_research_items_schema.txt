@@ -1,6 +1,6 @@
 {
     "farm_3x3_farmland": {
-        "icon": "images/icons/sprout_items/farm_items/farmland_expansion.png",
+        "icon": "assets/images/icons/sprout_items/farm_items/farmland_expansion.png",
         "name": "3x3 Farmland",
         "description": "Unlock the basic 3x3 farm grid.",
         "predecessor_ids": [],
@@ -13,7 +13,7 @@
         }
     },
     "farm_watering_can_3x1": {
-        "icon": "images/icons/sprout_items/farm_items/watering_can.png",
+        "icon": "assets/images/icons/sprout_items/farm_items/watering_can.png",
         "name": "3x1 Watering Can",
         "description": "Water 3 tiles in a straight line.",
         "predecessor_ids": [],
@@ -26,7 +26,7 @@
         }
     },
     "farm_tilling_hoe_3x1": {
-        "icon": "images/icons/sprout_items/farm_items/tilling_hoe.png",
+        "icon": "assets/images/icons/sprout_items/farm_items/tilling_hoe.png",
         "name": "3x1 Tilling Hoe",
         "description": "Till 3 tiles in a straight line.",
         "predecessor_ids": [],
@@ -39,7 +39,7 @@
         }
     },
     "farm_4x4_farmland": {
-        "icon": "images/icons/sprout_items/farm_items/farmland_expansion.png",
+        "icon": "assets/images/icons/sprout_items/farm_items/farmland_expansion.png",
         "name": "4x4 Farmland",
         "description": "Expand farm to 4x4 grid.",
         "predecessor_ids": ["farm_3x3_farmland"],
@@ -54,7 +54,7 @@
         }
     },
     "farm_5x5_farmland": {
-        "icon": "images/icons/sprout_items/farm_items/farmland_expansion.png",
+        "icon": "assets/images/icons/sprout_items/farm_items/farmland_expansion.png",
         "name": "5x5 Farmland",
         "description": "Expand farm to 5x5 grid.",
         "predecessor_ids": ["farm_4x4_farmland"],
@@ -70,7 +70,7 @@
         }
     },
     "farm_watering_can_3x3": {
-        "icon": "images/icons/sprout_items/farm_items/watering_can.png",
+        "icon": "assets/images/icons/sprout_items/farm_items/watering_can.png",
         "name": "3x3 Watering Can",
         "description": "Water in a 3x3 area.",
         "predecessor_ids": ["farm_watering_can_3x1"],
@@ -85,7 +85,7 @@
         }
     },
     "farm_tilling_hoe_3x3": {
-        "icon": "images/icons/sprout_items/farm_items/tilling_hoe.png",
+        "icon": "assets/images/icons/sprout_items/farm_items/tilling_hoe.png",
         "name": "3x3 Tilling Hoe",
         "description": "Till in a 3x3 area.",
         "predecessor_ids": ["farm_tilling_hoe_3x1"],
@@ -100,7 +100,7 @@
         }
     },
     "farm_harvesting_scythe_3x1": {
-        "icon": "images/icons/sprout_items/farm_items/harvesting_scythe.png",
+        "icon": "assets/images/icons/sprout_items/farm_items/harvesting_scythe.png",
         "name": "3x1 Harvesting Scythe",
         "description": "Harvest 3 tiles in a straight line.",
         "predecessor_ids": [],
@@ -113,7 +113,7 @@
         }
     },
     "farm_harvesting_scythe_3x3": {
-        "icon": "images/icons/sprout_items/farm_items/harvesting_scythe.png",
+        "icon": "assets/images/icons/sprout_items/farm_items/harvesting_scythe.png",
         "name": "3x3 Harvesting Scythe",
         "description": "Harvest in a 3x3 area.",
         "predecessor_ids": ["farm_harvesting_scythe_3x1"],
@@ -129,7 +129,7 @@
         }
     },
     "farm_planting_bag_3x1": {
-        "icon": "images/icons/sprout_items/farm_items/planting_bag.png",
+        "icon": "assets/images/icons/sprout_items/farm_items/planting_bag.png",
         "name": "3x1 Planting Bag",
         "description": "Plant seeds in 3 tiles in a straight line.",
         "predecessor_ids": [],
@@ -142,7 +142,7 @@
         }
     },
     "farm_planting_bag_3x3": {
-        "icon": "images/icons/sprout_items/farm_items/planting_bag.png",
+        "icon": "assets/images/icons/sprout_items/farm_items/planting_bag.png",
         "name": "3x3 Planting Bag",
         "description": "Plant seeds in a 3x3 area.",
         "predecessor_ids": ["farm_planting_bag_3x1"],
@@ -158,7 +158,7 @@
         }
     },
     "farm_6x6_farmland": {
-        "icon": "images/icons/sprout_items/farm_items/farmland_expansion.png",
+        "icon": "assets/images/icons/sprout_items/farm_items/farmland_expansion.png",
         "name": "6x6 Farmland",
         "description": "Expand farm to 6x6 grid.",
         "predecessor_ids": ["farm_5x5_farmland"],
@@ -175,7 +175,7 @@
         }
     },
     "farm_watering_can_5x5": {
-        "icon": "images/icons/sprout_items/farm_items/watering_can.png",
+        "icon": "assets/images/icons/sprout_items/farm_items/watering_can.png",
         "name": "5x5 Watering Can",
         "description": "Water in a 5x5 area.",
         "predecessor_ids": ["farm_watering_can_3x3"],
@@ -191,7 +191,7 @@
         }
     },
     "farm_harvesting_scythe_5x5": {
-        "icon": "images/icons/sprout_items/farm_items/harvesting_scythe.png",
+        "icon": "assets/images/icons/sprout_items/farm_items/harvesting_scythe.png",
         "name": "5x5 Harvesting Scythe",
         "description": "Harvest in a 5x5 area.",
         "predecessor_ids": ["farm_harvesting_scythe_3x3"],
@@ -207,7 +207,7 @@
         }
     },
     "farm_planting_bag_5x5": {
-        "icon": "images/icons/sprout_items/farm_items/planting_bag.png",
+        "icon": "assets/images/icons/sprout_items/farm_items/planting_bag.png",
         "name": "5x5 Planting Bag",
         "description": "Plant seeds in a 5x5 area.",
         "predecessor_ids": ["farm_planting_bag_3x3"],
