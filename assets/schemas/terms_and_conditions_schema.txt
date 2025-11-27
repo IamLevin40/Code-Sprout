@@ -1,0 +1,186 @@
+{
+    "section_1": {
+        "title": "1. Introduction and Acceptance of Terms",
+        "content": [
+            "Welcome to Code Sprout, an innovative educational platform designed to teach programming through interactive gameplay and gamification. By accessing, downloading, installing, or using this application, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.",
+            "These Terms constitute a legally binding agreement between you (the \"User\") and Code Sprout (the \"Service,\" \"Application,\" \"Platform,\" \"We,\" \"Us,\" or \"Our\"). If you do not agree with any part of these Terms, you must immediately discontinue use of the Application.",
+            "We reserve the right to modify, update, or revise these Terms at any time without prior notice. Your continued use of the Application after such changes constitutes acceptance of the modified Terms. It is your responsibility to review these Terms periodically.",
+            "By creating an account or using our Services, you represent that you are at least 13 years of age or have obtained parental or guardian consent if you are under the applicable age of digital consent in your jurisdiction."
+        ]
+    },
+    "section_2": {
+        "title": "2. User Account and Registration",
+        "content": [
+            "To access certain features of Code Sprout, you must create a user account by providing accurate, complete, and current information. You are solely responsible for maintaining the confidentiality of your account credentials, including your username and password.",
+            "You agree to notify us immediately of any unauthorized access or use of your account. We will not be liable for any loss or damage arising from your failure to protect your account information.",
+            "Each user is permitted to create and maintain only one account. Creating multiple accounts for the purpose of gaining unfair advantages, circumventing restrictions, or any other fraudulent activity is strictly prohibited and may result in immediate account termination.",
+            "You must provide a valid email address during registration for account verification and communication purposes. We may send you important notifications regarding your account, updates, and service-related information.",
+            "Usernames must not contain offensive language, impersonate others, infringe on trademarks or intellectual property rights, or violate any applicable laws. We reserve the right to reject or remove any username that violates these guidelines."
+        ]
+    },
+    "section_3": {
+        "title": "3. Educational Purpose and License Grant",
+        "content": [
+            "Code Sprout is designed exclusively for educational purposes to help users learn programming concepts through interactive modules, challenges, and gamified experiences. The Application provides courses in multiple programming languages including C++, C#, Java, Python, and JavaScript.",
+            "Subject to your compliance with these Terms, we grant you a limited, non-exclusive, non-transferable, revocable license to access and use the Application for personal, non-commercial educational purposes only.",
+            "This license does not grant you any ownership rights to the Application, its content, or any intellectual property associated with it. All rights not expressly granted herein are reserved by Code Sprout.",
+            "You may not redistribute, sublicense, rent, lease, sell, or otherwise transfer or exploit the Application or any portion thereof without our prior written consent.",
+            "The educational content provided through Code Sprout is intended as supplementary learning material and should not be considered a substitute for formal education, professional training, or expert advice in software development."
+        ]
+    },
+    "section_4": {
+        "title": "4. User Conduct and Prohibited Activities",
+        "content": [
+            "You agree to use Code Sprout in a lawful, ethical, and respectful manner. You must not engage in any activity that disrupts, damages, or interferes with the proper functioning of the Application or the experience of other users.",
+            "Prohibited activities include, but are not limited to: attempting to gain unauthorized access to any portion of the Application or other users' accounts; using automated scripts, bots, or other tools to manipulate gameplay or gain unfair advantages; reverse engineering, decompiling, or disassembling any part of the Application.",
+            "You must not upload, transmit, or distribute any malicious code, viruses, malware, or any other harmful software through the Application. Any attempt to compromise the security or integrity of our systems will result in immediate account termination and may be reported to law enforcement authorities.",
+            "Harassment, bullying, hate speech, discrimination, or any form of abusive behavior toward other users, moderators, or staff members is strictly forbidden. We maintain a zero-tolerance policy for such conduct.",
+            "You must not use the Application to violate any applicable local, state, national, or international laws or regulations. This includes, but is not limited to, laws regarding data protection, privacy, intellectual property, and export control."
+        ]
+    },
+    "section_5": {
+        "title": "5. Intellectual Property Rights",
+        "content": [
+            "All content, features, functionality, and materials available through Code Sprout, including but not limited to text, graphics, images, logos, icons, animations, audio, video, software code, game mechanics, course materials, and user interface design, are owned by Code Sprout or its licensors and are protected by international copyright, trademark, patent, and other intellectual property laws.",
+            "The Code Sprout name, logo, and all related names, logos, product and service names, designs, and slogans are trademarks of Code Sprout or its affiliates. You must not use such marks without our prior written permission.",
+            "User-generated content, including but not limited to code submissions, solutions, comments, and feedback, remains your property. However, by submitting such content through the Application, you grant Code Sprout a worldwide, non-exclusive, royalty-free, perpetual, irrevocable license to use, reproduce, modify, adapt, publish, translate, distribute, and display such content for purposes of operating, promoting, and improving the Application.",
+            "You represent and warrant that any content you submit does not infringe upon the intellectual property rights, privacy rights, or any other rights of third parties. You agree to indemnify and hold harmless Code Sprout from any claims arising from your submitted content.",
+            "We respect the intellectual property rights of others. If you believe that any content on our Application infringes your copyright or other intellectual property rights, please contact us with detailed information, and we will investigate and take appropriate action in accordance with applicable law."
+        ]
+    },
+    "section_6": {
+        "title": "6. Privacy and Data Collection",
+        "content": [
+            "Your privacy is important to us. Our collection, use, and protection of your personal information are governed by our Privacy Policy, which is incorporated into these Terms by reference. By using Code Sprout, you consent to our data practices as described in the Privacy Policy.",
+            "We collect various types of information to provide and improve our Services, including personal information (such as username and email), usage data (such as progress, achievements, and interaction patterns), device information, and technical data for analytics and troubleshooting purposes.",
+            "We use industry-standard security measures to protect your information from unauthorized access, disclosure, alteration, or destruction. However, no method of transmission over the internet or electronic storage is 100% secure, and we cannot guarantee absolute security.",
+            "We may use third-party service providers, including Firebase for authentication and Firestore for database services, to facilitate our Services. These providers have access to your personal information only to perform specific tasks on our behalf and are obligated to maintain confidentiality.",
+            "Your progress data, including completed modules, earned achievements, inventory items, and other gameplay statistics, is stored securely and associated with your account. This data may be used for purposes of improving the educational experience and developing new features.",
+            "We do not sell, trade, or rent your personal information to third parties. We may share aggregated, anonymized data for research or marketing purposes, but such data cannot be used to identify individual users."
+        ]
+    },
+    "section_7": {
+        "title": "7. Game Progression and Virtual Items",
+        "content": [
+            "Code Sprout features a progression system that includes experience points, levels, ranks, virtual currency (coins), inventory items, and unlockable content. These virtual items and achievements have no real-world monetary value and cannot be exchanged for cash or transferred outside the Application.",
+            "Your progress, including completed courses, earned ranks, accumulated coins, and inventory items, is tied to your account and may be subject to periodic resets, adjustments, or recalculations for game balance purposes or due to system updates.",
+            "We reserve the right to modify, suspend, or discontinue any aspect of the game progression system, including but not limited to currency values, item availability, experience point calculations, and rank requirements, at any time without prior notice.",
+            "Any exploits, bugs, or glitches that result in unintended benefits or unfair advantages must be reported immediately. Deliberately exploiting such issues may result in account suspension, progress reset, or permanent ban.",
+            "The research system, which allows unlocking of new crops, farm features, and programming functions, is designed to enhance the educational experience. Unlocked items and capabilities are intended to be earned through legitimate gameplay and learning progression."
+        ]
+    },
+    "section_8": {
+        "title": "8. Code Execution and Learning Environment",
+        "content": [
+            "Code Sprout provides an integrated development environment (IDE) for writing, testing, and executing code in supported programming languages. The code execution environment is sandboxed and isolated to ensure security and prevent malicious activities.",
+            "You acknowledge that the code execution environment is provided for educational purposes and may have limitations compared to professional development environments. Code execution is subject to resource limits, including memory, processing time, and network access restrictions.",
+            "You must not attempt to use the code execution environment to perform any malicious activities, including but not limited to cryptocurrency mining, distributed denial-of-service attacks, or any activities that violate applicable laws or these Terms.",
+            "Sample code, templates, and educational materials provided through the Application are intended for learning purposes. While we strive for accuracy, we do not guarantee that all code examples are error-free, production-ready, or suitable for commercial use.",
+            "The drone simulation system, which allows users to write code controlling a virtual farming drone, is designed to teach programming concepts through practical application. The simulation environment operates according to specific rules and limitations defined within the game mechanics."
+        ]
+    },
+    "section_9": {
+        "title": "9. Third-Party Services and Links",
+        "content": [
+            "Code Sprout may integrate with or provide links to third-party services, websites, or resources. These third-party services are not under our control, and we are not responsible for their content, privacy practices, or terms of service.",
+            "Your interactions with third-party services, including any purchases, communications, or data sharing, are solely between you and the third party. We do not endorse, guarantee, or assume responsibility for any third-party services.",
+            "The Application uses Firebase Authentication and Firestore Database services provided by Google. Your use of these services is subject to Google's Terms of Service and Privacy Policy in addition to these Terms.",
+            "We may display advertisements or promotional content within the Application. Advertisers and sponsors are responsible for ensuring that their content complies with applicable laws. We do not guarantee the accuracy or reliability of any advertised products or services."
+        ]
+    },
+    "section_10": {
+        "title": "10. Disclaimers and Limitation of Liability",
+        "content": [
+            "THE APPLICATION AND ALL CONTENT, FEATURES, AND SERVICES ARE PROVIDED ON AN \"AS IS\" AND \"AS AVAILABLE\" BASIS WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, OR COURSE OF PERFORMANCE.",
+            "Code Sprout does not warrant that the Application will be uninterrupted, error-free, secure, or free from viruses or other harmful components. We do not guarantee the accuracy, completeness, or reliability of any content or educational materials.",
+            "You acknowledge that your use of the Application is at your sole risk. We shall not be liable for any direct, indirect, incidental, special, consequential, or punitive damages arising from or related to your use of or inability to use the Application.",
+            "In no event shall Code Sprout's total liability to you for all damages, losses, and causes of action exceed the amount paid by you, if any, for accessing the Application in the twelve (12) months preceding the claim. Some jurisdictions do not allow the exclusion of certain warranties or the limitation of liability for incidental or consequential damages, so some of the above limitations may not apply to you.",
+            "You agree to indemnify, defend, and hold harmless Code Sprout, its affiliates, officers, directors, employees, agents, and licensors from and against any claims, liabilities, damages, losses, costs, or expenses arising from your use of the Application, violation of these Terms, or infringement of any third-party rights."
+        ]
+    },
+    "section_11": {
+        "title": "11. Account Termination and Suspension",
+        "content": [
+            "We reserve the right to suspend, disable, or terminate your account at any time, with or without cause, and with or without prior notice, if we believe you have violated these Terms, engaged in fraudulent or illegal activities, or for any other reason at our sole discretion.",
+            "Upon termination, your right to use the Application will immediately cease, and all data associated with your account may be permanently deleted. We are not obligated to retain or provide you with any data after account termination.",
+            "You may request account deletion at any time by contacting our support team. Upon receiving a deletion request, we will permanently remove your account and associated data in accordance with applicable data protection laws, subject to any legal retention obligations.",
+            "If your account is terminated for violation of these Terms, you may be prohibited from creating a new account. Attempting to circumvent a ban or suspension by creating additional accounts may result in further action, including permanent exclusion from the platform."
+        ]
+    },
+    "section_12": {
+        "title": "12. Updates and Service Modifications",
+        "content": [
+            "Code Sprout may periodically release updates, patches, or new versions of the Application to add features, fix bugs, improve performance, or enhance security. Some updates may be automatically downloaded and installed, while others may require your action.",
+            "We reserve the right to modify, suspend, or discontinue any aspect of the Application, including specific features, courses, game mechanics, or the entire Service, temporarily or permanently, with or without notice.",
+            "In the event of significant changes to the Application or discontinuation of the Service, we will make reasonable efforts to notify users in advance. However, we are not liable for any loss or inconvenience resulting from such changes or discontinuation.",
+            "New features or functionality added to the Application may be subject to additional terms and conditions, which will be communicated to you at the time of introduction. Your continued use of the Application after such additions constitutes acceptance of the additional terms."
+        ]
+    },
+    "section_13": {
+        "title": "13. Governing Law and Dispute Resolution",
+        "content": [
+            "These Terms shall be governed by and construed in accordance with the laws of the jurisdiction in which Code Sprout operates, without regard to its conflict of law provisions.",
+            "Any disputes arising from or relating to these Terms or your use of the Application shall first be attempted to be resolved through good-faith negotiations between you and Code Sprout. If negotiations fail, disputes shall be resolved through binding arbitration in accordance with applicable arbitration rules.",
+            "You agree to waive any right to a jury trial and to participate in class action lawsuits or class-wide arbitration. Each party may bring claims against the other only in an individual capacity and not as a plaintiff or class member in any class or representative action.",
+            "If any provision of these Terms is found to be invalid, illegal, or unenforceable, the remaining provisions shall continue in full force and effect. The invalid provision shall be modified to the minimum extent necessary to make it valid and enforceable."
+        ]
+    },
+    "section_14": {
+        "title": "14. Children's Privacy and Parental Consent",
+        "content": [
+            "Code Sprout is committed to protecting the privacy of children. If you are under the age of 13 (or the applicable age of digital consent in your jurisdiction), you must obtain verifiable parental or guardian consent before creating an account or using the Application.",
+            "We do not knowingly collect personal information from children under 13 without parental consent. If we discover that we have inadvertently collected such information, we will take immediate steps to delete it.",
+            "Parents and guardians are encouraged to monitor their children's use of the Application and to educate them about safe and responsible online behavior. Parents may request to review, modify, or delete their child's personal information by contacting our support team.",
+            "By providing consent for your child to use Code Sprout, you agree to these Terms on behalf of your child and acknowledge your responsibility for their activities and conduct within the Application."
+        ]
+    },
+    "section_15": {
+        "title": "15. Accessibility and Technical Requirements",
+        "content": [
+            "Code Sprout strives to make the Application accessible to users with diverse abilities. However, we cannot guarantee that all features will be accessible to all users or compatible with all assistive technologies.",
+            "To use Code Sprout, you must have a compatible device meeting minimum technical requirements, including sufficient processing power, memory, storage space, and a stable internet connection. The Application may not function properly on devices that do not meet these requirements.",
+            "You are responsible for maintaining your device, operating system, and internet connectivity. We are not liable for any issues arising from inadequate hardware, outdated software, or poor network conditions.",
+            "Code Sprout may use cookies, local storage, and similar technologies to enhance user experience, remember preferences, and analyze usage patterns. By using the Application, you consent to our use of these technologies as described in our Privacy Policy."
+        ]
+    },
+    "section_16": {
+        "title": "16. Feedback and User Contributions",
+        "content": [
+            "We welcome and encourage user feedback, suggestions, and ideas for improving Code Sprout. By submitting feedback, you grant us a perpetual, worldwide, royalty-free license to use, implement, and incorporate your suggestions without any obligation to compensate you or provide attribution.",
+            "Any feedback you provide is considered non-confidential and non-proprietary. We may use your feedback for any purpose, including product development, marketing, and research, without restriction.",
+            "If you discover bugs, vulnerabilities, or security issues within the Application, please report them to our development team immediately. Responsible disclosure of security issues will be appreciated and may be acknowledged publicly, subject to your consent.",
+            "User-generated content, such as code solutions, forum posts, or comments, must comply with our community guidelines. Content that is offensive, inappropriate, or violates these Terms may be removed without notice."
+        ]
+    },
+    "section_17": {
+        "title": "17. Export Control and Compliance",
+        "content": [
+            "The Application and related technologies may be subject to export control laws and regulations of various jurisdictions. You agree to comply with all applicable export and import laws and regulations.",
+            "You represent and warrant that you are not located in, under the control of, or a national or resident of any country to which the export of the Application is prohibited by law, regulation, or executive order.",
+            "You agree not to export, re-export, or transfer the Application, directly or indirectly, to any prohibited country, entity, or person without proper authorization from relevant government authorities."
+        ]
+    },
+    "section_18": {
+        "title": "18. Language and Translation",
+        "content": [
+            "These Terms and Conditions are originally drafted in English. If we provide translations of these Terms in other languages, the English version shall prevail in case of any conflicts or discrepancies between versions.",
+            "Code Sprout offers educational content in multiple programming languages and may provide user interface translations. While we strive for accuracy in translations, we do not guarantee that all translations are complete, accurate, or error-free."
+        ]
+    },
+    "section_19": {
+        "title": "19. Force Majeure",
+        "content": [
+            "Code Sprout shall not be liable for any failure or delay in performing its obligations under these Terms due to circumstances beyond its reasonable control, including but not limited to acts of God, natural disasters, war, terrorism, civil unrest, labor disputes, pandemics, government actions, internet service failures, or failures of third-party services.",
+            "In the event of a force majeure event, we will make reasonable efforts to notify users and resume normal operations as soon as practicable."
+        ]
+    },
+    "section_20": {
+        "title": "20. Contact Information and Support",
+        "content": [
+            "If you have any questions, concerns, or feedback regarding these Terms and Conditions, the Application, or our services, please contact us through the support channels provided within the Application or via email.",
+            "We strive to respond to all inquiries in a timely manner, but response times may vary depending on the nature and volume of requests. For urgent security or privacy concerns, please mark your communication accordingly.",
+            "These Terms and Conditions constitute the entire agreement between you and Code Sprout regarding your use of the Application and supersede all prior agreements, understandings, and representations, whether written or oral.",
+            "By clicking \"Accept\" or continuing to use the Application, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions. Thank you for being part of the Code Sprout community and for your commitment to learning and growing as a programmer."
+        ]
+    }
+}

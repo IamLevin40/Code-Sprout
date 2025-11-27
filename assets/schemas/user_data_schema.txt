@@ -4,7 +4,8 @@
     },
     "interaction": {
         "hasPlayedTutorial": "boolean (false)",
-        "hasLearnedChapter": "boolean (false)"
+        "hasLearnedChapter": "boolean (false)",
+        "hasCheckedTermsAndConditions": "boolean (false)"
     },
     "lastInteraction": {
         "languageId": "string (null)",

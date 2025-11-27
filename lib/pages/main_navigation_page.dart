@@ -7,6 +7,7 @@ import '../widgets/main_header.dart';
 import '../models/styles_schema.dart';
 import '../services/local_storage_service.dart';
 import '../widgets/error_boundary.dart';
+import '../widgets/terms_and_conditions_display.dart';
 
 /// Main scaffold with bottom navigation
 class MainNavigationPage extends StatefulWidget {
@@ -20,6 +21,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> with WidgetsBin
   int _currentIndex = 0;
   final ScrollController _scrollController = ScrollController();
   bool _sproutEnabled = true;
+  bool _showTermsAndConditions = false;
 
   final List<GlobalKey> _iconKeys = <GlobalKey>[];
   final GlobalKey _barKey = GlobalKey();
@@ -72,6 +74,11 @@ class _MainNavigationPageState extends State<MainNavigationPage> with WidgetsBin
         ? _sproutEnabled
         : (userData.get('interaction.hasLearnedChapter') as bool?) ?? false;
 
+      // Check if terms and conditions have been accepted
+      final hasChecked = userData == null
+        ? false
+        : (userData.get('interaction.hasCheckedTermsAndConditions') as bool?) ?? false;
+
       final styles = AppStyles();
       final itemsMap = styles.getStyles('bottom_navigation.items') as Map<String, dynamic>;
       final navKeys = itemsMap.keys.toList();
@@ -81,6 +88,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> with WidgetsBin
 
       setState(() {
         _sproutEnabled = enabled;
+        _showTermsAndConditions = !hasChecked;
         if (!_sproutEnabled && sproutIndex >= 0 && _currentIndex == sproutIndex) {
           _currentIndex = 0;
         }
@@ -95,9 +103,16 @@ class _MainNavigationPageState extends State<MainNavigationPage> with WidgetsBin
       if (mounted) {
         setState(() {
           _sproutEnabled = false;
+          _showTermsAndConditions = false;
         });
       }
     }
+  }
+
+  void _onTermsAccepted() {
+    setState(() {
+      _showTermsAndConditions = false;
+    });
   }
 
   @override
@@ -288,18 +303,27 @@ class _MainNavigationPageState extends State<MainNavigationPage> with WidgetsBin
       body: Stack(
         fit: StackFit.expand,
         children: [
-          SingleChildScrollView(
-            controller: _scrollController,
-            padding: EdgeInsets.only(top: headerHeight, bottom: contentPadding),
-            child: pages[_currentIndex],
+          // Main content with ignore pointer when terms are shown
+          Positioned.fill(
+            child: IgnorePointer(
+              ignoring: _showTermsAndConditions,
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                padding: EdgeInsets.only(top: headerHeight, bottom: contentPadding),
+                child: pages[_currentIndex],
+              ),
+            ),
           ),
 
           // Positioned overlay header
-          const Positioned(
+          Positioned(
             left: 0,
             right: 0,
             top: 0,
-            child: MainHeader(),
+            child: IgnorePointer(
+              ignoring: _showTermsAndConditions,
+              child: const MainHeader(),
+            ),
           ),
 
           // Positioned overlay bottom navigation
@@ -307,7 +331,9 @@ class _MainNavigationPageState extends State<MainNavigationPage> with WidgetsBin
             left: 0,
             right: 0,
             bottom: 0,
-            child: SafeArea(
+            child: IgnorePointer(
+              ignoring: _showTermsAndConditions,
+              child: SafeArea(
               top: false,
               child: Container(
                 decoration: BoxDecoration(
@@ -436,7 +462,16 @@ class _MainNavigationPageState extends State<MainNavigationPage> with WidgetsBin
                 ),
               ),
             ),
+            ),
           ),
+
+          // Terms and Conditions overlay
+          if (_showTermsAndConditions)
+            Positioned.fill(
+              child: TermsAndConditionsDisplay(
+                onAccepted: _onTermsAccepted,
+              ),
+            ),
         ],
       ),
     );
