@@ -298,33 +298,30 @@ class _SettingsPageState extends State<SettingsPage> {
                         padding: EdgeInsets.all(
                           styles.getStyles('settings_page.logout_button.border_width') as double,
                         ),
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            gradient: styles.getStyles('settings_page.logout_button.background_color') as LinearGradient,
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: _handleLogout,
                             borderRadius: BorderRadius.circular(
                               (styles.getStyles('settings_page.logout_button.border_radius') as double) -
                                   (styles.getStyles('settings_page.logout_button.border_width') as double),
                             ),
-                          ),
-                          child: TextButton(
-                            onPressed: _handleLogout,
-                            style: TextButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shape: RoundedRectangleBorder(
+                            child: Ink(
+                              decoration: BoxDecoration(
+                                gradient: styles.getStyles('settings_page.logout_button.background_color') as LinearGradient,
                                 borderRadius: BorderRadius.circular(
                                   (styles.getStyles('settings_page.logout_button.border_radius') as double) -
                                       (styles.getStyles('settings_page.logout_button.border_width') as double),
                                 ),
                               ),
-                              padding: EdgeInsets.zero,
-                            ),
-                            child: Center(
-                              child: Text(
-                                'Logout',
-                                style: TextStyle(
-                                  color: styles.getStyles('settings_page.logout_button.text.color') as Color,
-                                  fontSize: styles.getStyles('settings_page.logout_button.text.font_size') as double,
-                                  fontWeight: styles.getStyles('settings_page.logout_button.text.font_weight') as FontWeight,
+                              child: Center(
+                                child: Text(
+                                  'Logout',
+                                  style: TextStyle(
+                                    color: styles.getStyles('settings_page.logout_button.text.color') as Color,
+                                    fontSize: styles.getStyles('settings_page.logout_button.text.font_size') as double,
+                                    fontWeight: styles.getStyles('settings_page.logout_button.text.font_weight') as FontWeight,
+                                  ),
                                 ),
                               ),
                             ),
