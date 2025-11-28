@@ -9,380 +9,258 @@ This document provides a comprehensive overview of how the Code Sprout Flutter a
 ## Firebase Integration Architecture Diagram
 
 ```mermaid
-graph TB
-    %% Client Application Layer
-    subgraph ClientApp["Client Application Layer"]
-        direction TB
-        
-        subgraph UIComponents["UI Components"]
-            LoginPage["Login Page<br/>(Email/Password Input)"]
-            RegisterPage["Register Page<br/>(Account Creation)"]
-            SettingsPage["Settings Page<br/>(Account Management)"]
-            HomePage["Home Page<br/>(Dashboard)"]
-            CoursePage["Course Page<br/>(Course Browser)"]
-            FarmPage["Farm Page<br/>(Code Editor)"]
-            SproutPage["Sprout Page<br/>(Inventory & Research)"]
-            AdminConfigPage["Admin Config Page<br/>(Schema Management)"]
-        end
-        
-        subgraph AuthFlow["Authentication Flow Components"]
-            AuthStateListener["Auth State Listener<br/>(Stream)"]
-            RouteGuard["Route Guard<br/>(Navigation Protection)"]
-        end
-    end
-    
-    %% Service Layer
-    subgraph ServiceLayer["Service Layer (Business Logic)"]
-        direction TB
-        
-        subgraph CoreServices["Core Services"]
-            AuthService["Authentication Service<br/>(AuthService)"]
-            FirestoreService["Firestore Service<br/>(FirestoreService)"]
-            FarmProgressService["Farm Progress Service<br/>(FarmProgressService)"]
-            CodeFilesService["Code Files Service<br/>(CodeFilesService)"]
-            LocalStorageService["Local Storage Service<br/>(LocalStorageService)"]
-        end
-        
-        subgraph DataHandlers["Data Handlers"]
-            HandleFarmProgress["Farm Progress Handler"]
-            HandleCodeFiles["Code Files Handler"]
-            HandleResearchProgress["Research Progress Handler"]
-            HandleResearchCompleted["Research Completed Handler"]
-        end
-    end
-    
-    %% Data Models Layer
-    subgraph DataModels["Data Models & Schemas"]
-        direction TB
-        
-        UserDataModel["User Data Model<br/>(UserData)"]
-        FarmDataModel["Farm Data Model<br/>(FarmState)"]
-        CodeFilesModel["Code Files Model<br/>(LanguageCodeFiles)"]
-        ResearchDataModel["Research Data Model<br/>(ResearchData)"]
-        
-        UserDataSchema["User Data Schema<br/>(Dynamic Structure)"]
-        FarmDataSchema["Farm Data Schema<br/>(Grid Configuration)"]
-        ResearchItemsSchema["Research Items Schema<br/>(Research Tree)"]
-    end
-    
-    %% Local Storage Layer
-    subgraph LocalCache["Local Storage Layer"]
-        direction TB
-        
-        SecureStorage["Flutter Secure Storage<br/>(Encrypted)"]
-        
-        subgraph CacheStructure["Cache Structure"]
-            UserDataCache["User Data Cache<br/>(cached_user_data)"]
-            SyncTimestamp["Sync Timestamp<br/>(last_sync_timestamp)"]
-            ValueNotifier["Value Notifier<br/>(Reactive Updates)"]
-        end
-    end
-    
-    %% Firebase Platform Layer
-    subgraph FirebasePlatform["Firebase Platform"]
-        direction TB
-        
-        subgraph FirebaseSDK["Firebase SDK"]
-            FirebaseCore["Firebase Core<br/>(Initialization)"]
-            FirebaseOptions["Firebase Options<br/>(Platform Configuration)"]
-        end
-        
-        subgraph FirebaseAuth["Firebase Authentication"]
-            AuthAPI["Authentication API"]
-            
-            subgraph AuthMethods["Authentication Methods"]
-                EmailPasswordAuth["Email/Password Auth"]
-                UserManagement["User Management"]
-                SessionManagement["Session Management"]
-                TokenManagement["Token Management"]
-            end
-            
-            subgraph AuthOperations["Auth Operations"]
-                SignIn["Sign In<br/>(signInWithEmailAndPassword)"]
-                SignUp["Sign Up<br/>(createUserWithEmailAndPassword)"]
-                SignOut["Sign Out<br/>(signOut)"]
-                UpdateEmail["Update Email<br/>(verifyBeforeUpdateEmail)"]
-                UpdatePassword["Update Password<br/>(updatePassword)"]
-                DeleteUser["Delete User<br/>(delete)"]
-            end
-            
-            subgraph AuthState["Auth State"]
-                CurrentUser["Current User<br/>(currentUser)"]
-                AuthStateStream["Auth State Stream<br/>(authStateChanges)"]
-                UserToken["User Token<br/>(ID Token)"]
-            end
-        end
-        
-        subgraph CloudFirestore["Cloud Firestore Database"]
-            FirestoreAPI["Firestore API"]
-            
-            subgraph FirestoreCollections["Collections Structure"]
-                UsersCollection["users/ Collection<br/>(Root Collection)"]
-                
-                subgraph UserDocument["users/{userId}/ Document"]
-                    AccountInfo["accountInformation<br/>(username, email)"]
-                    CourseProgress["courseProgress<br/>(completion data)"]
-                    InteractionData["interaction<br/>(UI state)"]
-                    InventoryData["inventory<br/>(items & resources)"]
-                    RankInfo["rank<br/>(level & XP)"]
-                    ResearchInfo["research<br/>(unlocked items)"]
-                    StatisticsData["statistics<br/>(metrics)"]
-                end
-                
-                subgraph SubCollections["Sub-Collections"]
-                    FarmProgressCollection["farmProgress/ SubCollection"]
-                    CodeFilesCollection["codeFiles/ SubCollection"]
-                    
-                    subgraph FarmProgressDocs["farmProgress/ Documents"]
-                        GridDoc["grid Document<br/>(farm state)"]
-                        ResearchDoc["research Document<br/>(research progress)"]
-                    end
-                    
-                    subgraph CodeFilesDocs["codeFiles/ Documents"]
-                        PythonFiles["{languageId} Document<br/>(code files map)"]
-                        JavaFiles["java Document<br/>(code files map)"]
-                        JSFiles["javascript Document<br/>(code files map)"]
-                        CppFiles["cpp Document<br/>(code files map)"]
-                        CSharpFiles["csharp Document<br/>(code files map)"]
-                    end
-                end
-            end
-            
-            subgraph FirestoreOperations["Firestore Operations"]
-                GetDocument["Get Document<br/>(get)"]
-                SetDocument["Set Document<br/>(set)"]
-                UpdateDocument["Update Document<br/>(update)"]
-                DeleteDocument["Delete Document<br/>(delete)"]
-                QueryCollection["Query Collection<br/>(where, limit)"]
-                BatchWrite["Batch Write<br/>(batch)"]
-                Transaction["Transaction<br/>(runTransaction)"]
-            end
-            
-            subgraph FirestoreSecurity["Security & Rules"]
-                SecurityRules["Security Rules<br/>(firestore.rules)"]
-                UserAuthentication["User Authentication<br/>(auth.uid validation)"]
-                DataValidation["Data Validation<br/>(schema enforcement)"]
-            end
-        end
-    end
-    
-    %% Network Layer
-    subgraph NetworkLayer["Network & Communication"]
-        direction TB
-        
-        subgraph NetworkHandling["Network Handling"]
-            OnlineMode["Online Mode<br/>(Live Sync)"]
-            OfflineMode["Offline Mode<br/>(Cache-First)"]
-            NetworkDetection["Network Detection"]
-        end
-        
-        subgraph SyncStrategies["Synchronization Strategies"]
-            CacheFirst["Cache-First Strategy<br/>(Read from Cache)"]
-            WriteThroughCache["Write-Through Cache<br/>(Update Cache & Remote)"]
-            OptimisticUpdate["Optimistic Updates<br/>(UI First, Sync Later)"]
-            BackgroundSync["Background Sync<br/>(Retry on Failure)"]
-        end
-        
-        subgraph ErrorHandling["Error Handling"]
-            AuthErrors["Auth Errors<br/>(FirebaseAuthException)"]
-            FirestoreErrors["Firestore Errors<br/>(FirebaseException)"]
-            NetworkErrors["Network Errors<br/>(Timeout, Offline)"]
-            ValidationErrors["Validation Errors<br/>(Schema Validation)"]
-        end
-    end
-    
-    %% Platform Configuration
-    subgraph PlatformConfig["Platform Configuration"]
-        direction LR
-        
-        WebConfig["Web Platform<br/>(API Key, Auth Domain)"]
-        AndroidConfig["Android Platform<br/>(API Key, App ID)"]
-        IOSConfig["iOS Platform<br/>(API Key, Bundle ID)"]
-    end
-    
-    %% ========== AUTHENTICATION FLOW CONNECTIONS ==========
-    
-    %% Login Flow
-    LoginPage --> AuthService
-    AuthService --> SignIn
-    SignIn --> EmailPasswordAuth
-    EmailPasswordAuth --> AuthAPI
-    AuthAPI --> CurrentUser
+---
+config:
+  layout: elk
+---
+flowchart LR
+ subgraph UI["**User Interface**"]
+    direction TB
+        LoginPage@{ label: "`Login Page`" }
+        RegisterPage@{ label: "`Register Page`" }
+        SettingsPage@{ label: "`Settings Page`" }
+        HomePage@{ label: "`Home Page`" }
+        CoursePage@{ label: "`Course Page`" }
+        FarmPage@{ label: "`Farm Page`" }
+        SproutPage@{ label: "`Sprout Page`" }
+        AdminConfigPage@{ label: "`Admin Config Page`" }
+  end
+ subgraph APP["**App Logic & State**"]
+        AuthStateListener(["Auth State Listener"])
+        RouteGuard(["Route Guard"])
+        ValueNotifier(["Value Notifier"])
+  end
+ subgraph SERVICES["**Service / Business Logic**"]
+        AuthService(["Authentication Service"])
+        FirestoreService(["Firestore Service"])
+        FarmProgressService(["Farm Progress Service"])
+        CodeFilesService(["Code Files Service"])
+        LocalStorageService(["Local Storage Service"])
+        HandleFarmProgress(["Farm Progress Handler"])
+        HandleCodeFiles(["Code Files Handler"])
+        HandleResearchProgress(["Research Progress Handler"])
+        HandleResearchCompleted(["Research Completed Handler"])
+  end
+ subgraph MODELS["**Data Models & Cache**"]
+        UserDataModel(["User Data Model"])
+        FarmDataModel(["Farm Data Model"])
+        CodeFilesModel(["Code Files Model"])
+        ResearchDataModel(["Research Data Model"])
+        UserDataSchema(["User Data Schema"])
+        FarmDataSchema(["Farm Data Schema"])
+        ResearchItemsSchema(["Research Items Schema"])
+        UserDataCache(["User Data Cache"])
+        SyncTimestamp(["Sync Timestamp"])
+        SecureStorage(["Flutter Secure Storage"])
+  end
+ subgraph PLATFORM["**Firebase Platform**"]
+        FirebaseCore(["Firebase Core"])
+        FirebaseAuth(["Firebase Auth"])
+        FirebaseOptions(["Firebase Options"])
+        CloudFirestore(["Cloud Firestore"])
+        FirestoreAPI(["Firestore API"])
+        SecurityRules(["Security Rules"])
+        UserAuthentication(["User Authentication"])
+        DataValidation(["Data Validation"])
+  end
+ subgraph FIRESTOREDATA["**Firestore Collections & Docs**"]
+        UsersCollection(["users/ Collection"])
+        UserDocument(["users/{userId} Doc"])
+        FarmProgressCollection(["farmProgress Subcol"])
+        CodeFilesCollection(["codeFiles Subcol"])
+        GridDoc(["farmProgress/grid Doc"])
+        ResearchDoc(["farmProgress/research Doc"])
+        PythonFiles(["codeFiles/python Doc"])
+        JavaFiles(["codeFiles/java Doc"])
+        JSFiles(["codeFiles/js Doc"])
+        CppFiles(["codeFiles/cpp Doc"])
+        CSharpFiles(["codeFiles/csharp Doc"])
+  end
+ subgraph NETWORK["**Network & Sync**"]
+        OnlineMode(["Online Mode"])
+        OfflineMode(["Offline Mode"])
+        NetworkDetection(["Network Detection"])
+        CacheFirst(["Cache-First Strategy"])
+        WriteThroughCache(["Write-Through Cache"])
+        OptimisticUpdate(["Optimistic Update"])
+        BackgroundSync(["Background Sync"])
+  end
+ subgraph ERRORS["**Error & Validation**"]
+        AuthErrors(["Auth Errors"])
+        FirestoreErrors(["Firestore Errors"])
+        NetworkErrors(["Network Errors"])
+        ValidationErrors(["Validation Errors"])
+  end
+ subgraph PCFG["**Platform Config**"]
+        WebConfig(["Web Platform"])
+        AndroidConfig(["Android Platform"])
+        IOSConfig(["iOS Platform"])
+  end
+ subgraph AUTHMETHODS["**Auth Methods**"]
+        EmailPasswordAuth(["Email/Password"])
+        UserManagement(["User Mgmt"])
+        SessionManagement(["Session Mgmt"])
+        TokenManagement(["Token Mgmt"])
+        SignIn(["Sign In"])
+        SignUp(["Sign Up"])
+        SignOut(["Sign Out"])
+        UpdateEmail(["Update Email"])
+        UpdatePassword(["Update Password"])
+        DeleteUser(["Delete User"])
+        CurrentUser(["Current User"])
+        UserToken(["ID Token"])
+        AuthStateStream(["Auth State changes"])
+        AuthAPI(["Auth API"])
+  end
+    LoginPage -- login --> AuthService
+    RegisterPage -- register --> AuthService
+    SettingsPage --> AuthService
+    HomePage --> FirestoreService
+    CoursePage --> FirestoreService
+    FarmPage --> HandleFarmProgress & HandleCodeFiles
+    SproutPage --> HandleResearchProgress
+    AdminConfigPage -- schema edit --> FirestoreService & UserDataSchema & FarmDataSchema
+    AuthService -- sign in/sign up --> SignIn & SignUp & SignOut
+    SignIn -- email --> EmailPasswordAuth
+    SignUp -- email --> EmailPasswordAuth & UserManagement
+    AuthService --> FirestoreService
+    FirestoreService --> UsersCollection & GetDocument["GetDocument"] & SetDocument["SetDocument"] & UpdateDocument["UpdateDocument"] & QueryCollection["QueryCollection"] & LocalStorageService
+    LocalStorageService --> UserDataCache & SecureStorage & SyncTimestamp & ValueNotifier
+    UsersCollection --> UserDocument
+    UserDocument --> FarmProgressCollection & CodeFilesCollection
+    FarmProgressCollection --> GridDoc & ResearchDoc
+    CodeFilesCollection --> PythonFiles & JavaFiles & JSFiles & CppFiles & CSharpFiles
+    HandleFarmProgress --> FarmProgressService
+    FarmProgressService --> FarmDataModel & FarmProgressCollection & GetDocument & SetDocument
+    HandleCodeFiles --> CodeFilesService
+    CodeFilesService --> CodeFilesModel & CodeFilesCollection & GetDocument & SetDocument
+    HandleResearchProgress --> ResearchDataModel & FirestoreService
+    ResearchDataModel --> ResearchItemsSchema
+    UserDataModel --> UserDataSchema
+    NetworkDetection --> OnlineMode & OfflineMode
+    OnlineMode --> FirestoreAPI
+    OfflineMode --> UserDataCache
+    CacheFirst --> LocalStorageService
+    BackgroundSync --> FirestoreAPI
+    WriteThroughCache --> FirestoreAPI & BackgroundSync
+    AuthAPI --> CurrentUser & TokenManagement
+    TokenManagement --> UserToken
+    UserToken --> FirestoreAPI
     CurrentUser --> AuthStateStream
     AuthStateStream --> AuthStateListener
     AuthStateListener --> RouteGuard
-    
-    %% Registration Flow
-    RegisterPage --> AuthService
-    AuthService --> SignUp
-    SignUp --> EmailPasswordAuth
-    SignUp --> UserManagement
-    AuthService --> FirestoreService
-    FirestoreService --> UsersCollection
-    UsersCollection --> UserDocument
-    
-    %% Session Management
-    AuthStateListener --> HomePage
-    AuthStateListener --> CoursePage
-    AuthStateListener --> FarmPage
-    AuthStateListener --> SproutPage
-    
-    %% Logout Flow
-    SettingsPage --> AuthService
-    AuthService --> SignOut
-    SignOut --> FirestoreService
-    FirestoreService --> LocalStorageService
-    LocalStorageService --> UserDataCache
-    
-    %% Account Update Flow
-    SettingsPage --> UpdateEmail
-    SettingsPage --> UpdatePassword
-    UpdateEmail --> AuthAPI
-    UpdatePassword --> AuthAPI
-    SettingsPage --> FirestoreService
-    
-    %% ========== DATA PERSISTENCE FLOW CONNECTIONS ==========
-    
-    %% User Data Operations
-    FirestoreService --> UserDataModel
-    UserDataModel --> UserDataSchema
-    FirestoreService --> UsersCollection
-    FirestoreService --> GetDocument
-    FirestoreService --> SetDocument
-    FirestoreService --> UpdateDocument
-    FirestoreService --> QueryCollection
-    
-    %% Local Caching Strategy
-    FirestoreService --> LocalStorageService
-    LocalStorageService --> SecureStorage
-    LocalStorageService --> UserDataCache
-    LocalStorageService --> SyncTimestamp
-    LocalStorageService --> ValueNotifier
-    ValueNotifier --> UIComponents
-    
-    %% Farm Progress Operations
-    FarmPage --> HandleFarmProgress
-    HandleFarmProgress --> FarmProgressService
-    FarmProgressService --> FarmDataModel
-    FarmDataModel --> FarmDataSchema
-    FarmProgressService --> FarmProgressCollection
-    FarmProgressCollection --> GridDoc
-    FarmProgressCollection --> ResearchDoc
-    FarmProgressService --> GetDocument
-    FarmProgressService --> SetDocument
-    
-    %% Code Files Operations
-    FarmPage --> HandleCodeFiles
-    HandleCodeFiles --> CodeFilesService
-    CodeFilesService --> CodeFilesModel
-    CodeFilesService --> CodeFilesCollection
-    CodeFilesCollection --> PythonFiles
-    CodeFilesCollection --> JavaFiles
-    CodeFilesCollection --> JSFiles
-    CodeFilesCollection --> CppFiles
-    CodeFilesCollection --> CSharpFiles
-    CodeFilesService --> GetDocument
-    CodeFilesService --> SetDocument
-    
-    %% Research Progress Operations
-    SproutPage --> HandleResearchProgress
-    HandleResearchProgress --> ResearchDataModel
-    ResearchDataModel --> ResearchItemsSchema
-    HandleResearchProgress --> FirestoreService
-    HandleResearchCompleted --> FirestoreService
-    
-    %% ========== SYNCHRONIZATION FLOW CONNECTIONS ==========
-    
-    %% Cache-First Read Strategy
-    UIComponents --> FirestoreService
-    FirestoreService --> CacheFirst
-    CacheFirst --> LocalStorageService
-    LocalStorageService --> NetworkDetection
-    NetworkDetection --> OnlineMode
-    NetworkDetection --> OfflineMode
-    OnlineMode --> FirestoreAPI
-    OfflineMode --> UserDataCache
-    
-    %% Write-Through Strategy
-    UIComponents --> OptimisticUpdate
-    OptimisticUpdate --> LocalStorageService
-    OptimisticUpdate --> WriteThroughCache
-    WriteThroughCache --> FirestoreAPI
-    WriteThroughCache --> BackgroundSync
-    
-    %% ========== INITIALIZATION FLOW CONNECTIONS ==========
-    
-    %% Firebase Initialization
-    ClientApp --> FirebaseCore
-    FirebaseCore --> FirebaseOptions
-    FirebaseOptions --> PlatformConfig
-    PlatformConfig --> WebConfig
-    PlatformConfig --> AndroidConfig
-    PlatformConfig --> IOSConfig
-    
-    FirebaseCore --> FirebaseAuth
-    FirebaseCore --> CloudFirestore
-    
-    %% Schema Loading
-    ClientApp --> UserDataSchema
-    ClientApp --> FarmDataSchema
-    ClientApp --> ResearchItemsSchema
-    
-    %% ========== SECURITY FLOW CONNECTIONS ==========
-    
-    %% Authentication Security
-    AuthAPI --> TokenManagement
-    TokenManagement --> UserToken
-    UserToken --> FirestoreAPI
-    
-    %% Firestore Security
-    FirestoreAPI --> SecurityRules
-    SecurityRules --> UserAuthentication
-    SecurityRules --> DataValidation
+    RouteGuard --> HomePage & CoursePage & FarmPage & SproutPage
+    FirestoreAPI --> SecurityRules & FirestoreErrors
+    SecurityRules --> UserAuthentication & DataValidation
+    DataValidation --> ValidationErrors
     UserAuthentication --> CurrentUser
-    
-    %% ========== ERROR HANDLING CONNECTIONS ==========
-    
-    %% Error Propagation
-    AuthAPI --> AuthErrors
-    FirestoreAPI --> FirestoreErrors
-    NetworkDetection --> NetworkErrors
-    UserDataSchema --> ValidationErrors
-    
     AuthErrors --> AuthService
     FirestoreErrors --> FirestoreService
     NetworkErrors --> FirestoreService
     ValidationErrors --> FirestoreService
-    
-    %% Error Display
-    AuthService --> UIComponents
-    FirestoreService --> UIComponents
-    
-    %% Admin Operations
-    AdminConfigPage --> FirestoreService
-    AdminConfigPage --> UserDataSchema
-    AdminConfigPage --> FarmDataSchema
-    
-    %% Styling
+    FirebaseCore --> FirebaseOptions & FirebaseAuth & CloudFirestore & FirestoreAPI
+    FirebaseOptions --> WebConfig & AndroidConfig & IOSConfig
+    UI --> APP
+    APP --> SERVICES
+    SERVICES --> MODELS & NETWORK
+    MODELS --> FIRESTOREDATA
+    FIRESTOREDATA --> PLATFORM
+    PLATFORM --> ERRORS
+
+    LoginPage@{ shape: stadium}
+    RegisterPage@{ shape: stadium}
+    SettingsPage@{ shape: stadium}
+    HomePage@{ shape: stadium}
+    CoursePage@{ shape: stadium}
+    FarmPage@{ shape: stadium}
+    SproutPage@{ shape: stadium}
+    AdminConfigPage@{ shape: stadium}
+     LoginPage:::uiClass
+     RegisterPage:::uiClass
+     SettingsPage:::uiClass
+     HomePage:::uiClass
+     CoursePage:::uiClass
+     FarmPage:::uiClass
+     SproutPage:::uiClass
+     AdminConfigPage:::uiClass
+     AuthStateListener:::serviceClass
+     RouteGuard:::serviceClass
+     ValueNotifier:::cacheClass
+     AuthService:::serviceClass
+     FirestoreService:::serviceClass
+     FarmProgressService:::serviceClass
+     CodeFilesService:::serviceClass
+     LocalStorageService:::cacheClass
+     HandleFarmProgress:::serviceClass
+     HandleCodeFiles:::serviceClass
+     HandleResearchProgress:::serviceClass
+     HandleResearchCompleted:::serviceClass
+     UserDataModel:::dataClass
+     FarmDataModel:::dataClass
+     CodeFilesModel:::dataClass
+     ResearchDataModel:::dataClass
+     UserDataSchema:::dataClass
+     FarmDataSchema:::dataClass
+     ResearchItemsSchema:::dataClass
+     UserDataCache:::cacheClass
+     SyncTimestamp:::cacheClass
+     SecureStorage:::cacheClass
+     FirebaseCore:::firebaseClass
+     FirebaseAuth:::authClass
+     FirebaseOptions:::firebaseClass
+     CloudFirestore:::firestoreClass
+     FirestoreAPI:::firestoreClass
+     SecurityRules:::firestoreClass
+     UserAuthentication:::authClass
+     DataValidation:::firestoreClass
+     UsersCollection:::firestoreClass
+     UserDocument:::firestoreClass
+     FarmProgressCollection:::firestoreClass
+     CodeFilesCollection:::firestoreClass
+     GridDoc:::firestoreClass
+     ResearchDoc:::firestoreClass
+     PythonFiles:::firestoreClass
+     JavaFiles:::firestoreClass
+     JSFiles:::firestoreClass
+     CppFiles:::firestoreClass
+     CSharpFiles:::firestoreClass
+     OnlineMode:::networkClass
+     OfflineMode:::networkClass
+     NetworkDetection:::networkClass
+     CacheFirst:::cacheClass
+     WriteThroughCache:::cacheClass
+     OptimisticUpdate:::networkClass
+     BackgroundSync:::networkClass
+     AuthErrors:::authClass
+     FirestoreErrors:::firestoreClass
+     NetworkErrors:::networkClass
+     ValidationErrors:::dataClass
+     WebConfig:::platformClass
+     AndroidConfig:::platformClass
+     IOSConfig:::platformClass
+     EmailPasswordAuth:::authClass
+     UserManagement:::authClass
+     SessionManagement:::authClass
+     TokenManagement:::authClass
+     SignIn:::authClass
+     SignUp:::authClass
+     SignOut:::authClass
+     UpdateEmail:::authClass
+     UpdatePassword:::authClass
+     DeleteUser:::authClass
+     CurrentUser:::authClass
+     UserToken:::authClass
+     AuthStateStream:::authClass
+     AuthAPI:::authClass
     classDef uiClass fill:#4A90E2,stroke:#2E5C8A,stroke-width:2px,color:#fff
-    classDef serviceClass fill:#50C878,stroke:#2E7D4E,stroke-width:2px,color:#fff
+    classDef serviceClass fill:#43ac6a,stroke:#267743,stroke-width:2px,color:#fff
     classDef dataClass fill:#F39C12,stroke:#C87F0A,stroke-width:2px,color:#fff
-    classDef firebaseClass fill:#FFA500,stroke:#CC8400,stroke-width:3px,color:#fff
+    classDef cacheClass fill:#9B59B6,stroke:#6C3483,stroke-width:2px,color:#fff
+    classDef firebaseClass fill:#FFA500,stroke:#DA9100,stroke-width:3px,color:#fff
     classDef authClass fill:#E74C3C,stroke:#A93226,stroke-width:2px,color:#fff
     classDef firestoreClass fill:#3498DB,stroke:#21618C,stroke-width:2px,color:#fff
-    classDef cacheClass fill:#9B59B6,stroke:#6C3483,stroke-width:2px,color:#fff
     classDef networkClass fill:#1ABC9C,stroke:#138D75,stroke-width:2px,color:#fff
     classDef platformClass fill:#95A5A6,stroke:#707B7C,stroke-width:2px,color:#fff
-    
-    class UIComponents,LoginPage,RegisterPage,SettingsPage,HomePage,CoursePage,FarmPage,SproutPage,AdminConfigPage uiClass
-    class CoreServices,DataHandlers,AuthService,FirestoreService,FarmProgressService,CodeFilesService serviceClass
-    class DataModels,UserDataModel,FarmDataModel,CodeFilesModel,ResearchDataModel,UserDataSchema,FarmDataSchema,ResearchItemsSchema dataClass
-    class FirebasePlatform,FirebaseSDK,FirebaseCore,FirebaseOptions firebaseClass
-    class FirebaseAuth,AuthAPI,AuthMethods,AuthOperations,AuthState,EmailPasswordAuth,UserManagement,SessionManagement,TokenManagement authClass
-    class CloudFirestore,FirestoreAPI,FirestoreCollections,FirestoreOperations,FirestoreSecurity,UsersCollection firestoreClass
-    class LocalCache,SecureStorage,CacheStructure,LocalStorageService,UserDataCache,SyncTimestamp,ValueNotifier cacheClass
-    class NetworkLayer,NetworkHandling,SyncStrategies,ErrorHandling networkClass
-    class PlatformConfig,WebConfig,AndroidConfig,IOSConfig platformClass
 ```
 
 ---
@@ -733,36 +611,6 @@ service cloud.firestore {
 - **Invalid Value**: Show validation error to user
 
 ---
-
-## Firebase Configuration
-
-### Platform-Specific Configuration
-
-#### Web Platform
-```dart
-apiKey: 'AIzaSyBncPUmC4e_FPC05N7NcGppaU1f6hVqEs4'
-appId: '1:728612970113:web:dc0c3b7e98ddad28433780'
-projectId: 'code-sprout-f213a'
-authDomain: 'code-sprout-f213a.firebaseapp.com'
-storageBucket: 'code-sprout-f213a.firebasestorage.app'
-```
-
-#### Android Platform
-```dart
-apiKey: 'AIzaSyDZU2NU9uqZ90xYd46l-IvWZziAtSSUk5w'
-appId: '1:728612970113:android:02e794ad545b7254433780'
-projectId: 'code-sprout-f213a'
-storageBucket: 'code-sprout-f213a.firebasestorage.app'
-```
-
-#### iOS Platform
-```dart
-apiKey: 'AIzaSyC0nX-Fwaj8Yzx_M-mBsN6rtv7G4OLNTtQ'
-appId: '1:728612970113:ios:ec5b4d86a29320a9433780'
-projectId: 'code-sprout-f213a'
-iosBundleId: 'com.example.codeSprout'
-storageBucket: 'code-sprout-f213a.firebasestorage.app'
-```
 
 ### Initialization Sequence
 ```dart
