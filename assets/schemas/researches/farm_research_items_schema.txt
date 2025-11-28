@@ -1,10 +1,12 @@
 {
     "farm_3x3_farmland": {
-        "icon": "assets/images/icons/sprout_items/farm_items/farmland_expansion.png",
+        "icon": "assets/images/icons/sprout_items/farm_research_items/farmland_expansion.png",
         "name": "3x3 Farmland",
-        "description": "Unlock the basic 3x3 farm grid.",
+        "description": "Expand farm to 3x3 grid.",
         "predecessor_ids": [],
-        "requirements": {},
+        "requirements": {
+            "wheat": 5
+        },
         "conditions_unlocked": {
             "farm_plot_grid": {
                 "x": 3,
@@ -12,39 +14,14 @@
             }
         }
     },
-    "farm_watering_can_3x1": {
-        "icon": "assets/images/icons/sprout_items/farm_items/watering_can.png",
-        "name": "3x1 Watering Can",
-        "description": "Water 3 tiles in a straight line.",
-        "predecessor_ids": [],
-        "requirements": {},
-        "conditions_unlocked": {
-            "water_grid": {
-                "x": 3,
-                "y": 1
-            }
-        }
-    },
-    "farm_tilling_hoe_3x1": {
-        "icon": "assets/images/icons/sprout_items/farm_items/tilling_hoe.png",
-        "name": "3x1 Tilling Hoe",
-        "description": "Till 3 tiles in a straight line.",
-        "predecessor_ids": [],
-        "requirements": {},
-        "conditions_unlocked": {
-            "till_grid": {
-                "x": 3,
-                "y": 1
-            }
-        }
-    },
     "farm_4x4_farmland": {
-        "icon": "assets/images/icons/sprout_items/farm_items/farmland_expansion.png",
+        "icon": "assets/images/icons/sprout_items/farm_research_items/farmland_expansion.png",
         "name": "4x4 Farmland",
         "description": "Expand farm to 4x4 grid.",
         "predecessor_ids": ["farm_3x3_farmland"],
         "requirements": {
-            "wheat": 400
+            "wheat": 45,
+            "carrot": 80
         },
         "conditions_unlocked": {
             "farm_plot_grid": {
@@ -54,13 +31,13 @@
         }
     },
     "farm_5x5_farmland": {
-        "icon": "assets/images/icons/sprout_items/farm_items/farmland_expansion.png",
+        "icon": "assets/images/icons/sprout_items/farm_research_items/farmland_expansion.png",
         "name": "5x5 Farmland",
         "description": "Expand farm to 5x5 grid.",
         "predecessor_ids": ["farm_4x4_farmland"],
         "requirements": {
-            "carrot": 950,
-            "potato": 200
+            "carrot": 320,
+            "potato": 120
         },
         "conditions_unlocked": {
             "farm_plot_grid": {
@@ -69,103 +46,15 @@
             }
         }
     },
-    "farm_watering_can_3x3": {
-        "icon": "assets/images/icons/sprout_items/farm_items/watering_can.png",
-        "name": "3x3 Watering Can",
-        "description": "Water in a 3x3 area.",
-        "predecessor_ids": ["farm_watering_can_3x1"],
-        "requirements": {
-            "carrot": 500
-        },
-        "conditions_unlocked": {
-            "water_grid": {
-                "x": 3,
-                "y": 3
-            }
-        }
-    },
-    "farm_tilling_hoe_3x3": {
-        "icon": "assets/images/icons/sprout_items/farm_items/tilling_hoe.png",
-        "name": "3x3 Tilling Hoe",
-        "description": "Till in a 3x3 area.",
-        "predecessor_ids": ["farm_tilling_hoe_3x1"],
-        "requirements": {
-            "carrot": 500
-        },
-        "conditions_unlocked": {
-            "till_grid": {
-                "x": 3,
-                "y": 3
-            }
-        }
-    },
-    "farm_harvesting_scythe_3x1": {
-        "icon": "assets/images/icons/sprout_items/farm_items/harvesting_scythe.png",
-        "name": "3x1 Harvesting Scythe",
-        "description": "Harvest 3 tiles in a straight line.",
-        "predecessor_ids": [],
-        "requirements": {},
-        "conditions_unlocked": {
-            "harvest_grid": {
-                "x": 3,
-                "y": 1
-            }
-        }
-    },
-    "farm_harvesting_scythe_3x3": {
-        "icon": "assets/images/icons/sprout_items/farm_items/harvesting_scythe.png",
-        "name": "3x3 Harvesting Scythe",
-        "description": "Harvest in a 3x3 area.",
-        "predecessor_ids": ["farm_harvesting_scythe_3x1"],
-        "requirements": {
-            "wheat": 800,
-            "carrot": 300
-        },
-        "conditions_unlocked": {
-            "harvest_grid": {
-                "x": 3,
-                "y": 3
-            }
-        }
-    },
-    "farm_planting_bag_3x1": {
-        "icon": "assets/images/icons/sprout_items/farm_items/planting_bag.png",
-        "name": "3x1 Planting Bag",
-        "description": "Plant seeds in 3 tiles in a straight line.",
-        "predecessor_ids": [],
-        "requirements": {},
-        "conditions_unlocked": {
-            "plant_grid": {
-                "x": 3,
-                "y": 1
-            }
-        }
-    },
-    "farm_planting_bag_3x3": {
-        "icon": "assets/images/icons/sprout_items/farm_items/planting_bag.png",
-        "name": "3x3 Planting Bag",
-        "description": "Plant seeds in a 3x3 area.",
-        "predecessor_ids": ["farm_planting_bag_3x1"],
-        "requirements": {
-            "wheat": 600,
-            "carrot": 400
-        },
-        "conditions_unlocked": {
-            "plant_grid": {
-                "x": 3,
-                "y": 3
-            }
-        }
-    },
     "farm_6x6_farmland": {
-        "icon": "assets/images/icons/sprout_items/farm_items/farmland_expansion.png",
+        "icon": "assets/images/icons/sprout_items/farm_research_items/farmland_expansion.png",
         "name": "6x6 Farmland",
         "description": "Expand farm to 6x6 grid.",
         "predecessor_ids": ["farm_5x5_farmland"],
         "requirements": {
-            "wheat": 1500,
-            "carrot": 1200,
-            "potato": 800
+            "potato": 400,
+            "beetroot": 280,
+            "radish": 120
         },
         "conditions_unlocked": {
             "farm_plot_grid": {
@@ -174,14 +63,132 @@
             }
         }
     },
-    "farm_watering_can_5x5": {
-        "icon": "assets/images/icons/sprout_items/farm_items/watering_can.png",
-        "name": "5x5 Watering Can",
-        "description": "Water in a 5x5 area.",
+    "farm_7x7_farmland": {
+        "icon": "assets/images/icons/sprout_items/farm_research_items/farmland_expansion.png",
+        "name": "7x7 Farmland",
+        "description": "Expand farm to 7x7 grid.",
+        "predecessor_ids": ["farm_6x6_farmland"],
+        "requirements": {
+            "radish": 520,
+            "onion": 480,
+            "lettuce": 400
+        },
+        "conditions_unlocked": {
+            "farm_plot_grid": {
+                "x": 7,
+                "y": 7
+            }
+        }
+    },
+    "farm_8x8_farmland": {
+        "icon": "assets/images/icons/sprout_items/farm_research_items/farmland_expansion.png",
+        "name": "8x8 Farmland",
+        "description": "Expand farm to 8x8 grid.",
+        "predecessor_ids": ["farm_7x7_farmland"],
+        "requirements": {
+            "lettuce": 320,
+            "tomato": 750,
+            "carrot": 1000
+        },
+        "conditions_unlocked": {
+            "farm_plot_grid": {
+                "x": 8,
+                "y": 8
+            }
+        }
+    },
+    "farm_9x9_farmland": {
+        "icon": "assets/images/icons/sprout_items/farm_research_items/farmland_expansion.png",
+        "name": "9x9 Farmland",
+        "description": "Expand farm to 9x9 grid.",
+        "predecessor_ids": ["farm_8x8_farmland"],
+        "requirements": {
+            "potato": 620,
+            "tomato": 1250,
+            "garlic": 800
+        },
+        "conditions_unlocked": {
+            "farm_plot_grid": {
+                "x": 9,
+                "y": 9
+            }
+        }
+    },
+    "farm_watering_can_3x1": {
+        "icon": "assets/images/icons/sprout_items/farm_research_items/watering_can.png",
+        "name": "3x1 Watering Can",
+        "description": "Water in a 3x1 area",
+        "predecessor_ids": [],
+        "requirements": {
+            "wheat": 35,
+            "carrot": 35,
+            "potato": 35
+        },
+        "conditions_unlocked": {
+            "water_grid": {
+                "x": 3,
+                "y": 1
+            }
+        }
+    },
+    "farm_watering_can_3x2": {
+        "icon": "assets/images/icons/sprout_items/farm_research_items/watering_can.png",
+        "name": "3x2 Watering Can",
+        "description": "Water in a 3x2 area",
+        "predecessor_ids": ["farm_watering_can_3x1"],
+        "requirements": {
+            "potato": 350,
+            "beetroot": 200,
+            "radish": 150
+        },
+        "conditions_unlocked": {
+            "water_grid": {
+                "x": 3,
+                "y": 2
+            }
+        }
+    },
+    "farm_watering_can_3x3": {
+        "icon": "assets/images/icons/sprout_items/farm_research_items/watering_can.png",
+        "name": "3x3 Watering Can",
+        "description": "Water in a 3x3 area.",
+        "predecessor_ids": ["farm_watering_can_3x2"],
+        "requirements": {
+            "radish": 600,
+            "onion": 500
+        },
+        "conditions_unlocked": {
+            "water_grid": {
+                "x": 3,
+                "y": 3
+            }
+        }
+    },
+    "farm_watering_can_4x4": {
+        "icon": "assets/images/icons/sprout_items/farm_research_items/watering_can.png",
+        "name": "4x4 Watering Can",
+        "description": "Water in a 4x4 area.",
         "predecessor_ids": ["farm_watering_can_3x3"],
         "requirements": {
-            "beetroot": 1000,
-            "onion": 500
+            "onion": 720,
+            "lettuce": 640 
+        },
+        "conditions_unlocked": {
+            "water_grid": {
+                "x": 4,
+                "y": 4
+            }
+        }
+    },
+    "farm_watering_can_5x5": {
+        "icon": "assets/images/icons/sprout_items/farm_research_items/watering_can.png",
+        "name": "5x5 Watering Can",
+        "description": "Water in a 5x5 area.",
+        "predecessor_ids": ["farm_watering_can_4x4"],
+        "requirements": {
+            "lettuce": 740,
+            "tomato": 1280,
+            "garlic": 880 
         },
         "conditions_unlocked": {
             "water_grid": {
@@ -190,33 +197,250 @@
             }
         }
     },
-    "farm_harvesting_scythe_5x5": {
-        "icon": "assets/images/icons/sprout_items/farm_items/harvesting_scythe.png",
-        "name": "5x5 Harvesting Scythe",
-        "description": "Harvest in a 5x5 area.",
-        "predecessor_ids": ["farm_harvesting_scythe_3x3"],
+    "farm_tilling_hoe_3x1": {
+        "icon": "assets/images/icons/sprout_items/farm_research_items/tilling_hoe.png",
+        "name": "3x1 Tilling Hoe",
+        "description": "Till in a 3x1 area",
+        "predecessor_ids": [],
         "requirements": {
-            "lettuce": 1200,
-            "tomato": 800
+            "wheat": 35,
+            "carrot": 35,
+            "potato": 35
         },
         "conditions_unlocked": {
-            "harvest_grid": {
+            "till_grid": {
+                "x": 3,
+                "y": 1
+            }
+        }
+    },
+    "farm_tilling_hoe_3x2": {
+        "icon": "assets/images/icons/sprout_items/farm_research_items/tilling_hoe.png",
+        "name": "3x2 Tilling Hoe",
+        "description": "Till in a 3x2 area",
+        "predecessor_ids": ["farm_tilling_hoe_3x1"],
+        "requirements": {
+            "potato": 350,
+            "beetroot": 200,
+            "radish": 150
+        },
+        "conditions_unlocked": {
+            "till_grid": {
+                "x": 3,
+                "y": 2
+            }
+        }
+    },
+    "farm_tilling_hoe_3x3": {
+        "icon": "assets/images/icons/sprout_items/farm_research_items/tilling_hoe.png",
+        "name": "3x3 Tilling Hoe",
+        "description": "Till in a 3x3 area.",
+        "predecessor_ids": ["farm_tilling_hoe_3x2"],
+        "requirements": {
+            "radish": 600,
+            "onion": 500
+        },
+        "conditions_unlocked": {
+            "till_grid": {
+                "x": 3,
+                "y": 3
+            }
+        }
+    },
+    "farm_tilling_hoe_4x4": {
+        "icon": "assets/images/icons/sprout_items/farm_research_items/tilling_hoe.png",
+        "name": "4x4 Tilling Hoe",
+        "description": "Till in a 4x4 area.",
+        "predecessor_ids": ["farm_tilling_hoe_3x3"],
+        "requirements": {
+            "onion": 720,
+            "lettuce": 640 
+        },
+        "conditions_unlocked": {
+            "till_grid": {
+                "x": 4,
+                "y": 4
+            }
+        }
+    },
+    "farm_tilling_hoe_5x5": {
+        "icon": "assets/images/icons/sprout_items/farm_research_items/tilling_hoe.png",
+        "name": "5x5 Tilling Hoe",
+        "description": "Till in a 5x5 area.",
+        "predecessor_ids": ["farm_tilling_hoe_4x4"],
+        "requirements": {
+            "lettuce": 740,
+            "tomato": 1280,
+            "garlic": 880 
+        },
+        "conditions_unlocked": {
+            "till_grid": {
                 "x": 5,
                 "y": 5
             }
         }
     },
-    "farm_planting_bag_5x5": {
-        "icon": "assets/images/icons/sprout_items/farm_items/planting_bag.png",
-        "name": "5x5 Planting Bag",
-        "description": "Plant seeds in a 5x5 area.",
-        "predecessor_ids": ["farm_planting_bag_3x3"],
+    "farm_planting_bag_3x1": {
+        "icon": "assets/images/icons/sprout_items/farm_research_items/planting_bag.png",
+        "name": "3x1 Planting Bag",
+        "description": "Plant in a 3x1 area",
+        "predecessor_ids": [],
         "requirements": {
-            "onion": 900,
-            "garlic": 600
+            "wheat": 35,
+            "carrot": 35,
+            "potato": 35
         },
         "conditions_unlocked": {
             "plant_grid": {
+                "x": 3,
+                "y": 1
+            }
+        }
+    },
+    "farm_planting_bag_3x2": {
+        "icon": "assets/images/icons/sprout_items/farm_research_items/planting_bag.png",
+        "name": "3x2 Planting Bag",
+        "description": "Plant in a 3x2 area",
+        "predecessor_ids": ["farm_planting_bag_3x1"],
+        "requirements": {
+            "potato": 350,
+            "beetroot": 200,
+            "radish": 150
+        },
+        "conditions_unlocked": {
+            "plant_grid": {
+                "x": 3,
+                "y": 2
+            }
+        }
+    },
+    "farm_planting_bag_3x3": {
+        "icon": "assets/images/icons/sprout_items/farm_research_items/planting_bag.png",
+        "name": "3x3 Planting Bag",
+        "description": "Plant in a 3x3 area.",
+        "predecessor_ids": ["farm_planting_bag_3x2"],
+        "requirements": {
+            "radish": 600,
+            "onion": 500
+        },
+        "conditions_unlocked": {
+            "plant_grid": {
+                "x": 3,
+                "y": 3
+            }
+        }
+    },
+    "farm_planting_bag_4x4": {
+        "icon": "assets/images/icons/sprout_items/farm_research_items/planting_bag.png",
+        "name": "4x4 Planting Bag",
+        "description": "Plant in a 4x4 area.",
+        "predecessor_ids": ["farm_planting_bag_3x3"],
+        "requirements": {
+            "onion": 720,
+            "lettuce": 640 
+        },
+        "conditions_unlocked": {
+            "plant_grid": {
+                "x": 4,
+                "y": 4
+            }
+        }
+    },
+    "farm_planting_bag_5x5": {
+        "icon": "assets/images/icons/sprout_items/farm_research_items/planting_bag.png",
+        "name": "5x5 Planting Bag",
+        "description": "Plant in a 5x5 area.",
+        "predecessor_ids": ["farm_planting_bag_4x4"],
+        "requirements": {
+            "lettuce": 740,
+            "tomato": 1280,
+            "garlic": 880 
+        },
+        "conditions_unlocked": {
+            "plant_grid": {
+                "x": 5,
+                "y": 5
+            }
+        }
+    },
+    "farm_harvesting_scythe_3x1": {
+        "icon": "assets/images/icons/sprout_items/farm_research_items/harvesting_scythe.png",
+        "name": "3x1 Harvesting Scythe",
+        "description": "Harvest in a 3x1 area",
+        "predecessor_ids": [],
+        "requirements": {
+            "wheat": 35,
+            "carrot": 35,
+            "potato": 35
+        },
+        "conditions_unlocked": {
+            "harvest_grid": {
+                "x": 3,
+                "y": 1
+            }
+        }
+    },
+    "farm_harvesting_scythe_3x2": {
+        "icon": "assets/images/icons/sprout_items/farm_research_items/harvesting_scythe.png",
+        "name": "3x2 Harvesting Scythe",
+        "description": "Harvest in a 3x2 area",
+        "predecessor_ids": ["farm_harvesting_scythe_3x1"],
+        "requirements": {
+            "potato": 350,
+            "beetroot": 200,
+            "radish": 150
+        },
+        "conditions_unlocked": {
+            "harvest_grid": {
+                "x": 3,
+                "y": 2
+            }
+        }
+    },
+    "farm_harvesting_scythe_3x3": {
+        "icon": "assets/images/icons/sprout_items/farm_research_items/harvesting_scythe.png",
+        "name": "3x3 Harvesting Scythe",
+        "description": "Harvest in a 3x3 area.",
+        "predecessor_ids": ["farm_harvesting_scythe_3x2"],
+        "requirements": {
+            "radish": 600,
+            "onion": 500
+        },
+        "conditions_unlocked": {
+            "harvest_grid": {
+                "x": 3,
+                "y": 3
+            }
+        }
+    },
+    "farm_harvesting_scythe_4x4": {
+        "icon": "assets/images/icons/sprout_items/farm_research_items/harvesting_scythe.png",
+        "name": "4x4 Harvesting Scythe",
+        "description": "Harvest in a 4x4 area.",
+        "predecessor_ids": ["farm_harvesting_scythe_3x3"],
+        "requirements": {
+            "onion": 720,
+            "lettuce": 640 
+        },
+        "conditions_unlocked": {
+            "harvest_grid": {
+                "x": 4,
+                "y": 4
+            }
+        }
+    },
+    "farm_harvesting_scythe_5x5": {
+        "icon": "assets/images/icons/sprout_items/farm_research_items/harvesting_scythe.png",
+        "name": "5x5 Harvesting Scythe",
+        "description": "Harvest in a 5x5 area.",
+        "predecessor_ids": ["farm_harvesting_scythe_4x4"],
+        "requirements": {
+            "lettuce": 740,
+            "tomato": 1280,
+            "garlic": 880 
+        },
+        "conditions_unlocked": {
+            "harvest_grid": {
                 "x": 5,
                 "y": 5
             }

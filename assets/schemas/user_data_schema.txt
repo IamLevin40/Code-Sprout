@@ -4,7 +4,8 @@
     },
     "interaction": {
         "hasPlayedTutorial": "boolean (false)",
-        "hasLearnedChapter": "boolean (false)"
+        "hasLearnedChapter": "boolean (false)",
+        "hasCheckedTermsAndConditions": "boolean (false)"
     },
     "lastInteraction": {
         "languageId": "string (null)",
@@ -19,7 +20,7 @@
             "python": "boolean (false)",
             "javascript": "boolean (false)"
         },
-        "coins": "number (0)",
+        "coins": "number (50)",
         "inventory": "reference (inventory_schema.txt)"
     },
     "rankProgress": {

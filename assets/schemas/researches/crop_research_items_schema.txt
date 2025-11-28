@@ -1,13 +1,13 @@
 {
     "crop_wheat": {
-        "icon": "assets/images/icons/sprout_items/crop_items/wheat.png",
+        "icon": "assets/images/icons/sprout_items/crop_research_items/wheat_seeds.png",
         "default_name": "Wheat",
         "language_specific_name": {
-            "cpp": "Crop::Wheat",
-            "csharp": "Crop.Wheat",
-            "java": "Crop.WHEAT",
-            "javascript": "Crop.WHEAT",
-            "python": "Crop.WHEAT"
+            "cpp": "SeedType::WheatSeeds\nCropType::Wheat",
+            "csharp": "SeedType.WheatSeeds\nCropType.Wheat",
+            "java": "SeedType.WHEAT_SEEDS\nCropType.WHEAT",
+            "javascript": "SeedType.WHEAT_SEEDS\nCropType.WHEAT",
+            "python": "SeedType.WHEAT_SEEDS\nCropType.WHEAT"
         },
         "description": "Grows in 5 seconds.",
         "predecessor_ids": [],
@@ -16,98 +16,190 @@
         "plant_enabled": ["wheat_seeds"],
         "harvest_enabled": ["wheat"],
         "item_purchases": ["wheat_seeds"],
-        "purchase_amount": 5,
-        "experience_gain_points": 5
+        "purchase_amount": 3,
+        "experience_gain_points": 2
     },
     "crop_carrot": {
-        "icon": "assets/images/icons/sprout_items/crop_items/carrot.png",
+        "icon": "assets/images/icons/sprout_items/crop_research_items/carrot_seeds.png",
         "default_name": "Carrot",
         "language_specific_name": {
-            "cpp": "Crop::Carrot",
-            "csharp": "Crop.Carrot",
-            "java": "Crop.CARROT",
-            "javascript": "Crop.CARROT",
-            "python": "Crop.CARROT"
+            "cpp": "SeedType::CarrotSeeds\nCropType::Carrot",
+            "csharp": "SeedType.CarrotSeeds\nCropType.Carrot",
+            "java": "SeedType.CARROT_SEEDS\nCropType.CARROT",
+            "javascript": "SeedType.CARROT_SEEDS\nCropType.CARROT",
+            "python": "SeedType.CARROT_SEEDS\nCropType.CARROT"
         },
         "description": "Grows in 7 seconds. Gives 2-3 per harvest.",
         "predecessor_ids": [],
         "requirements": {
-            "wheat": 250
+            "wheat": 35
         },
         "item_unlocks": ["carrot_seeds", "carrot"],
         "plant_enabled": ["carrot_seeds"],
         "harvest_enabled": ["carrot"],
         "item_purchases": ["carrot_seeds"],
-        "purchase_amount": 10,
-        "experience_gain_points": 7
+        "purchase_amount": 5,
+        "experience_gain_points": 4
     },
     "crop_potato": {
-        "icon": "assets/images/icons/sprout_items/crop_items/potato.png",
+        "icon": "assets/images/icons/sprout_items/crop_research_items/potato_seeds.png",
         "default_name": "Potato",
         "language_specific_name": {
-            "cpp": "Crop::Potato",
-            "csharp": "Crop.Potato",
-            "java": "Crop.POTATO",
-            "javascript": "Crop.POTATO",
-            "python": "Crop.POTATO"
+            "cpp": "SeedType::PotatoSeeds\nCropType::Potato",
+            "csharp": "SeedType.PotatoSeeds\nCropType.Potato",
+            "java": "SeedType.POTATO_SEEDS\nCropType.POTATO",
+            "javascript": "SeedType.POTATO_SEEDS\nCropType.POTATO",
+            "python": "SeedType.POTATO_SEEDS\nCropType.POTATO"
         },
-        "description": "Grows in 5 seconds. 2% chance to become a poisonous potato.",
+        "description": "Grows in 5 seconds.",
         "predecessor_ids": ["crop_carrot"],
         "requirements": {
-            "wheat": 350,
-            "carrot": 800
+            "wheat": 45,
+            "carrot": 90
         },
         "item_unlocks": ["potato_seeds", "potato"],
         "plant_enabled": ["potato_seeds"],
         "harvest_enabled": ["potato"],
         "item_purchases": ["potato_seeds"],
-        "purchase_amount": 15,
-        "experience_gain_points": 10
+        "purchase_amount": 8,
+        "experience_gain_points": 7
     },
     "crop_beetroot": {
-        "icon": "assets/images/icons/sprout_items/crop_items/beetroot.png",
+        "icon": "assets/images/icons/sprout_items/crop_research_items/beetroot_seeds.png",
         "default_name": "Beetroot",
         "language_specific_name": {
-            "cpp": "Crop::Beetroot",
-            "csharp": "Crop.Beetroot",
-            "java": "Crop.BEETROOT",
-            "javascript": "Crop.BEETROOT",
-            "python": "Crop.BEETROOT"
+            "cpp": "SeedType::BeetrootSeeds\nCropType::Beetroot",
+            "csharp": "SeedType.BeetrootSeeds\nCropType.Beetroot",
+            "java": "SeedType.BEETROOT_SEEDS\nCropType.BEETROOT",
+            "javascript": "SeedType.BEETROOT_SEEDS\nCropType.BEETROOT",
+            "python": "SeedType.BEETROOT_SEEDS\nCropType.BEETROOT"
         },
-        "description": "Grows in 12.5 seconds. Will get damaged if lasts for 20 seconds.",
+        "description": "Grows in 12.5 seconds.",
         "predecessor_ids": ["crop_potato"],
         "requirements": {
-            "carrot": 1050,
-            "potato": 350
+            "carrot": 120,
+            "potato": 60
         },
         "item_unlocks": ["beetroot_seeds", "beetroot"],
         "plant_enabled": ["beetroot_seeds"],
         "harvest_enabled": ["beetroot"],
         "item_purchases": ["beetroot_seeds"],
-        "purchase_amount": 20,
-        "experience_gain_points": 15
+        "purchase_amount": 11,
+        "experience_gain_points": 10
     },
     "crop_radish": {
-        "icon": "assets/images/icons/sprout_items/crop_items/radish.png",
+        "icon": "assets/images/icons/sprout_items/crop_research_items/radish_seeds.png",
         "default_name": "Radish",
         "language_specific_name": {
-            "cpp": "Crop::Radish",
-            "csharp": "Crop.Radish",
-            "java": "Crop.RADISH",
-            "javascript": "Crop.RADISH",
-            "python": "Crop.RADISH"
+            "cpp": "SeedType::RadishSeeds\nCropType::Radish",
+            "csharp": "SeedType.RadishSeeds\nCropType.Radish",
+            "java": "SeedType.RADISH_SEEDS\nCropType.RADISH",
+            "javascript": "SeedType.RADISH_SEEDS\nCropType.RADISH",
+            "python": "SeedType.RADISH_SEEDS\nCropType.RADISH"
         },
-        "description": "Grows in 5 seconds. Only grows in spring and winter.",
+        "description": "Grows in 5 seconds.",
         "predecessor_ids": ["crop_beetroot"],
         "requirements": {
-            "beetroot": 600,
-            "potato": 650
+            "beetroot": 60,
+            "potato": 80
         },
         "item_unlocks": ["radish_seeds", "radish"],
         "plant_enabled": ["radish_seeds"],
         "harvest_enabled": ["radish"],
         "item_purchases": ["radish_seeds"],
-        "purchase_amount": 25,
-        "experience_gain_points": 20
+        "purchase_amount": 13,
+        "experience_gain_points": 14
+    },
+    "crop_onion": {
+        "icon": "assets/images/icons/sprout_items/crop_research_items/onion_seeds.png",
+        "default_name": "Onion",
+        "language_specific_name": {
+            "cpp": "SeedType::OnionSeeds\nCropType::Onion",
+            "csharp": "SeedType.OnionSeeds\nCropType.Onion",
+            "java": "SeedType.ONION_SEEDS\nCropType.ONION",
+            "javascript": "SeedType.ONION_SEEDS\nCropType.ONION",
+            "python": "SeedType.ONION_SEEDS\nCropType.ONION"
+        },
+        "description": "Grows in 7 seconds.",
+        "predecessor_ids": ["crop_radish"],
+        "requirements": {
+            "beetroot": 80,
+            "radish": 80
+        },
+        "item_unlocks": ["onion_seeds", "onion"],
+        "plant_enabled": ["onion_seeds"],
+        "harvest_enabled": ["onion"],
+        "item_purchases": ["onion_seeds"],
+        "purchase_amount": 17,
+        "experience_gain_points": 17
+    },
+    "crop_lettuce": {
+        "icon": "assets/images/icons/sprout_items/crop_research_items/lettuce_seeds.png",
+        "default_name": "Lettuce",
+        "language_specific_name": {
+            "cpp": "SeedType::LettuceSeeds\nCropType::Lettuce",
+            "csharp": "SeedType.LettuceSeeds\nCropType.Lettuce",
+            "java": "SeedType.LETTUCE_SEEDS\nCropType.LETTUCE",
+            "javascript": "SeedType.LETTUCE_SEEDS\nCropType.LETTUCE",
+            "python": "SeedType.LETTUCE_SEEDS\nCropType.LETTUCE"
+        },
+        "description": "Grows in 10 seconds.",
+        "predecessor_ids": ["crop_onion"],
+        "requirements": {
+            "radish": 75,
+            "onion": 90
+        },
+        "item_unlocks": ["lettuce_seeds", "lettuce"],
+        "plant_enabled": ["lettuce_seeds"],
+        "harvest_enabled": ["lettuce"],
+        "item_purchases": ["lettuce_seeds"],
+        "purchase_amount": 20,
+        "experience_gain_points": 21
+    },
+    "crop_tomato": {
+        "icon": "assets/images/icons/sprout_items/crop_research_items/tomato_seeds.png",
+        "default_name": "Tomato",
+        "language_specific_name": {
+            "cpp": "SeedType::TomatoSeeds\nCropType::Tomato",
+            "csharp": "SeedType.TomatoSeeds\nCropType.Tomato",
+            "java": "SeedType.TOMATO_SEEDS\nCropType.TOMATO",
+            "javascript": "SeedType.TOMATO_SEEDS\nCropType.TOMATO",
+            "python": "SeedType.TOMATO_SEEDS\nCropType.TOMATO"
+        },
+        "description": "Grows in 15 seconds. Gives 1-4 per harvest.",
+        "predecessor_ids": ["crop_lettuce"],
+        "requirements": {
+            "onion": 85,
+            "lettuce": 95
+        },
+        "item_unlocks": ["tomato_seeds", "tomato"],
+        "plant_enabled": ["tomato_seeds"],
+        "harvest_enabled": ["tomato"],
+        "item_purchases": ["tomato_seeds"],
+        "purchase_amount": 24,
+        "experience_gain_points": 25
+    },
+    "crop_garlic": {
+        "icon": "assets/images/icons/sprout_items/crop_research_items/garlic_seeds.png",
+        "default_name": "Garlic",
+        "language_specific_name": {
+            "cpp": "SeedType::GarlicSeeds\nCropType::Garlic",
+            "csharp": "SeedType.GarlicSeeds\nCropType.Garlic",
+            "java": "SeedType.GARLIC_SEEDS\nCropType.GARLIC",
+            "javascript": "SeedType.GARLIC_SEEDS\nCropType.GARLIC",
+            "python": "SeedType.GARLIC_SEEDS\nCropType.GARLIC"
+        },
+        "description": "Grows in 20 seconds.",
+        "predecessor_ids": ["crop_tomato"],
+        "requirements": {
+            "lettuce": 85,
+            "tomato": 150
+        },
+        "item_unlocks": ["garlic_seeds", "garlic"],
+        "plant_enabled": ["garlic_seeds"],
+        "harvest_enabled": ["garlic"],
+        "item_purchases": ["garlic_seeds"],
+        "purchase_amount": 28,
+        "experience_gain_points": 30
     }
 }

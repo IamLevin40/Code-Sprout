@@ -1,5 +1,6 @@
 /// Centralized validation functions for account-related fields
 /// Used across login, register, settings, and admin config pages
+library;
 
 class AccountValidation {
   /// Validates username field

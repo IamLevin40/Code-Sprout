@@ -1,142 +1,201 @@
 {
     "func_move": {
-        "icon": "assets/images/icons/sprout_items/function_items/move.png",
+        "icon": "assets/images/icons/sprout_items/functions_research_items/move.png",
         "name": "move(direction)",
         "language_specific_description": {
-            "cpp": "move(Direction::North)\nmove(Direction::South)\nmove(Direction::East)\nmove(Direction::West)\n\nMoves drone by 1 tile toward the given direction.",
-            "csharp": "move(Direction.North)\nmove(Direction.South)\nmove(Direction.East)\nmove(Direction.West)\n\nMoves drone by 1 tile toward the given direction.",
-            "java": "move(Direction.NORTH)\nmove(Direction.SOUTH)\nmove(Direction.EAST)\nmove(Direction.WEST)\n\nMoves drone by 1 tile toward the given direction.",
-            "javascript": "move(Direction.NORTH)\nmove(Direction.SOUTH)\nmove(Direction.EAST)\nmove(Direction.WEST)\n\nMoves drone by 1 tile toward the given direction.",
-            "python": "move(Direction.NORTH)\nmove(Direction.SOUTH)\nmove(Direction.EAST)\nmove(Direction.WEST)\n\nMoves drone by 1 tile toward the given direction."
+            "cpp": "move(Direction::North)\nmove(Direction::South)\nmove(Direction::East)\nmove(Direction::West)\n\nMoves the drone by 1 tile toward the given direction.",
+            "csharp": "move(Direction.North)\nmove(Direction.South)\nmove(Direction.East)\nmove(Direction.West)\n\nMoves the drone by 1 tile toward the given direction.",
+            "java": "move(Direction.NORTH)\nmove(Direction.SOUTH)\nmove(Direction.EAST)\nmove(Direction.WEST)\n\nMoves the drone by 1 tile toward the given direction.",
+            "javascript": "move(Direction.NORTH)\nmove(Direction.SOUTH)\nmove(Direction.EAST)\nmove(Direction.WEST)\n\nMoves the drone by 1 tile toward the given direction.",
+            "python": "move(Direction.NORTH)\nmove(Direction.SOUTH)\nmove(Direction.EAST)\nmove(Direction.WEST)\n\nMoves the drone by 1 tile toward the given direction."
         },
         "predecessor_ids": [],
         "requirements": {},
         "functions_unlocked": ["move(direction)"]
     },
+
     "func_till": {
-        "icon": "assets/images/icons/sprout_items/function_items/till.png",
+        "icon": "assets/images/icons/sprout_items/functions_research_items/till.png",
         "name": "till()",
         "language_specific_description": {
-            "cpp": "till()\n\nTills the soil at current position for planting preparation.",
-            "csharp": "till()\n\nTills the soil at current position for planting preparation.",
-            "java": "till()\n\nTills the soil at current position for planting preparation.",
-            "javascript": "till()\n\nTills the soil at current position for planting preparation.",
-            "python": "till()\n\nTills the soil at current position for planting preparation."
+            "cpp": "till()\n\nTills the soil at the drone's current position to prepare for planting.",
+            "csharp": "till()\n\nTills the soil at the drone's current position to prepare for planting.",
+            "java": "till()\n\nTills the soil at the drone's current position to prepare for planting.",
+            "javascript": "till()\n\nTills the soil at the drone's current position to prepare for planting.",
+            "python": "till()\n\nTills the soil at the drone's current position to prepare for planting."
         },
         "predecessor_ids": [],
         "requirements": {},
         "functions_unlocked": ["till()"]
     },
+
     "func_water": {
-        "icon": "assets/images/icons/sprout_items/function_items/water.png",
+        "icon": "assets/images/icons/sprout_items/functions_research_items/water.png",
         "name": "water()",
         "language_specific_description": {
-            "cpp": "water()\n\nWaters soil at current position.",
-            "csharp": "water()\n\nWaters soil at current position.",
-            "java": "water()\n\nWaters soil at current position.",
-            "javascript": "water()\n\nWaters soil at current position.",
-            "python": "water()\n\nWaters soil at current position."
+            "cpp": "water()\n\nWaters the soil at the drone's current position.",
+            "csharp": "water()\n\nWaters the soil at the drone's current position.",
+            "java": "water()\n\nWaters the soil at the drone's current position.",
+            "javascript": "water()\n\nWaters the soil at the drone's current position.",
+            "python": "water()\n\nWaters the soil at the drone's current position."
         },
         "predecessor_ids": [],
         "requirements": {},
         "functions_unlocked": ["water()"]
     },
+
     "func_plant": {
-        "icon": "assets/images/icons/sprout_items/function_items/plant.png",
-        "name": "plant(crop)",
+        "icon": "assets/images/icons/sprout_items/functions_research_items/plant.png",
+        "name": "plant(seedType)",
         "language_specific_description": {
-            "cpp": "plant(CropType::Wheat)\n\nPlants the given crop type at current position.",
-            "csharp": "plant(CropType.Wheat)\n\nPlants the given crop type at current position.",
-            "java": "plant(CropType.WHEAT)\n\nPlants the given crop type at current position.",
-            "javascript": "plant(CropType.WHEAT)\n\nPlants the given crop type at current position.",
-            "python": "plant(CropType.WHEAT)\n\nPlants the given crop type at current position."
+            "cpp": "plant(SeedType::WheatSeeds)\n\nPlants the specified seed type at the drone's current position.",
+            "csharp": "plant(SeedType.WheatSeeds)\n\nPlants the specified seed type at the drone's current position.",
+            "java": "plant(SeedType.WHEAT_SEEDS)\n\nPlants the specified seed type at the drone's current position.",
+            "javascript": "plant(SeedType.WHEAT_SEEDS)\n\nPlants the specified seed type at the drone's current position.",
+            "python": "plant(SeedType.WHEAT_SEEDS)\n\nPlants the specified seed type at the drone's current position."
         },
-        "predecessor_ids": [],
+        "predecessor_ids": ["func_till"],
         "requirements": {},
         "functions_unlocked": ["plant(seedType)"]
     },
+
     "func_harvest": {
-        "icon": "assets/images/icons/sprout_items/function_items/harvest.png",
+        "icon": "assets/images/icons/sprout_items/functions_research_items/harvest.png",
         "name": "harvest()",
         "language_specific_description": {
-            "cpp": "harvest()\n\nHarvests crops from the current position.",
-            "csharp": "harvest()\n\nHarvests crops from the current position.",
-            "java": "harvest()\n\nHarvests crops from the current position.",
-            "javascript": "harvest()\n\nHarvests crops from the current position.",
-            "python": "harvest()\n\nHarvests crops from the current position."
-        },
-        "predecessor_ids": [],
-        "requirements": {},
-        "functions_unlocked": ["harvest()"]
-    },
-    "func_sleep": {
-        "icon": "assets/images/icons/sprout_items/function_items/sleep.png",
-        "name": "sleep(duration)",
-        "language_specific_description": {
-            "cpp": "sleep(2)\n\nPauses drone operation for the given duration in seconds.",
-            "csharp": "sleep(2)\n\nPauses drone operation for the given duration in seconds.",
-            "java": "sleep(2)\n\nPauses drone operation for the given duration in seconds.",
-            "javascript": "sleep(2)\n\nPauses drone operation for the given duration in seconds.",
-            "python": "sleep(2)\n\nPauses drone operation for the given duration in seconds."
-        },
-        "predecessor_ids": [],
-        "requirements": {},
-        "functions_unlocked": ["sleep(duration)"]
-    },
-    "func_getters": {
-        "icon": "assets/images/icons/sprout_items/function_items/getters.png",
-        "name": "Getter Functions",
-        "language_specific_description": {
-            "cpp": "getPositionX(), getPositionY(), getPlotGridX(), getPlotGridY()\n\nReturns position and grid information.",
-            "csharp": "getPositionX(), getPositionY(), getPlotGridX(), getPlotGridY()\n\nReturns position and grid information.",
-            "java": "getPositionX(), getPositionY(), getPlotGridX(), getPlotGridY()\n\nReturns position and grid information.",
-            "javascript": "getPositionX(), getPositionY(), getPlotGridX(), getPlotGridY()\n\nReturns position and grid information.",
-            "python": "get_position_x(), get_position_y(), get_plot_grid_x(), get_plot_grid_y()\n\nReturns position and grid information."
-        },
-        "predecessor_ids": ["func_move"],
-        "requirements": {},
-        "functions_unlocked": ["getPositionX()", "getPositionY()", "getPlotGridX()", "getPlotGridY()"]
-    },
-    "func_state_checkers": {
-        "icon": "assets/images/icons/sprout_items/function_items/checkers.png",
-        "name": "State Checker Functions",
-        "language_specific_description": {
-            "cpp": "getPlotState(), getCropType(), isCropGrown()\n\nReturns current plot and crop state information.",
-            "csharp": "getPlotState(), getCropType(), isCropGrown()\n\nReturns current plot and crop state information.",
-            "java": "getPlotState(), getCropType(), isCropGrown()\n\nReturns current plot and crop state information.",
-            "javascript": "getPlotState(), getCropType(), isCropGrown()\n\nReturns current plot and crop state information.",
-            "python": "get_plot_state(), get_crop_type(), is_crop_grown()\n\nReturns current plot and crop state information."
-        },
-        "predecessor_ids": ["func_getters"],
-        "requirements": {},
-        "functions_unlocked": ["getPlotState()", "getCropType()", "isCropGrown()"]
-    },
-    "func_can_checkers": {
-        "icon": "assets/images/icons/sprout_items/function_items/can_checkers.png",
-        "name": "Action Validator Functions",
-        "language_specific_description": {
-            "cpp": "canTill(), canWater(), canPlant(), canHarvest()\n\nChecks if actions can be performed at current position.",
-            "csharp": "canTill(), canWater(), canPlant(), canHarvest()\n\nChecks if actions can be performed at current position.",
-            "java": "canTill(), canWater(), canPlant(), canHarvest()\n\nChecks if actions can be performed at current position.",
-            "javascript": "canTill(), canWater(), canPlant(), canHarvest()\n\nChecks if actions can be performed at current position.",
-            "python": "can_till(), can_water(), can_plant(), can_harvest()\n\nChecks if actions can be performed at current position."
-        },
-        "predecessor_ids": ["func_state_checkers"],
-        "requirements": {},
-        "functions_unlocked": ["canTill()", "canWater()", "canPlant()", "canHarvest()"]
-    },
-    "func_inventory": {
-        "icon": "assets/images/icons/sprout_items/function_items/inventory.png",
-        "name": "Inventory Functions",
-        "language_specific_description": {
-            "cpp": "hasSeed(SeedType), getSeedInventoryCount(SeedType), getCropInventoryCount(CropType)\n\nChecks and retrieves inventory information.",
-            "csharp": "hasSeed(SeedType), getSeedInventoryCount(SeedType), getCropInventoryCount(CropType)\n\nChecks and retrieves inventory information.",
-            "java": "hasSeed(SeedType), getSeedInventoryCount(SeedType), getCropInventoryCount(CropType)\n\nChecks and retrieves inventory information.",
-            "javascript": "hasSeed(SeedType), getSeedInventoryCount(SeedType), getCropInventoryCount(CropType)\n\nChecks and retrieves inventory information.",
-            "python": "has_seed(SeedType), get_seed_inventory_count(SeedType), get_crop_inventory_count(CropType)\n\nChecks and retrieves inventory information."
+            "cpp": "harvest()\n\nHarvests the crop at the drone's current position and adds it to inventory.",
+            "csharp": "harvest()\n\nHarvests the crop at the drone's current position and adds it to inventory.",
+            "java": "harvest()\n\nHarvests the crop at the drone's current position and adds it to inventory.",
+            "javascript": "harvest()\n\nHarvests the crop at the drone's current position and adds it to inventory.",
+            "python": "harvest()\n\nHarvests the crop at the drone's current position and adds it to inventory."
         },
         "predecessor_ids": ["func_plant"],
         "requirements": {},
+        "functions_unlocked": ["harvest()"]
+    },
+
+    "func_sleep": {
+        "icon": "assets/images/icons/sprout_items/functions_research_items/sleep.png",
+        "name": "sleep()",
+        "language_specific_description": {
+            "cpp": "sleep()\n\nPauses script execution for a given duration (seconds) to allow in-game time to advance.",
+            "csharp": "sleep()\n\nPauses script execution for a given duration (seconds) to allow in-game time to advance.",
+            "java": "sleep()\n\nPauses script execution for a given duration (seconds) to allow in-game time to advance.",
+            "javascript": "sleep()\n\nPauses script execution for a given duration (seconds) to allow in-game time to advance.",
+            "python": "sleep()\n\nPauses script execution for a given duration (seconds) to allow in-game time to advance."
+        },
+        "predecessor_ids": [],
+        "requirements": {
+            "carrot": 75
+        },
+        "functions_unlocked": ["sleep()"]
+    },
+
+    "func_get_drone_positions": {
+        "icon": "assets/images/icons/sprout_items/functions_research_items/get_drone_positions.png",
+        "name": "Get Drone Positions",
+        "language_specific_description": {
+            "cpp": "getPositionX(), getPositionY()\n\nReturns the drone's current X and Y coordinates, respectively, in world space.",
+            "csharp": "getPositionX(), getPositionY()\n\nReturns the drone's current X and Y coordinates, respectively, in world space.",
+            "java": "getPositionX(), getPositionY()\n\nReturns the drone's current X and Y coordinates, respectively, in world space.",
+            "javascript": "getPositionX(), getPositionY()\n\nReturns the drone's current X and Y coordinates, respectively, in world space.",
+            "python": "get_position_x(), get_position_y()\n\nReturns the drone's current X and Y coordinates, respectively, in world space."
+        },
+        "predecessor_ids": ["func_move"],
+        "requirements": {
+            "wheat": 55,
+            "potato": 45
+        },
+        "functions_unlocked": ["getPositionX()", "getPositionY()"]
+    },
+
+    "func_get_plot_grid_coordinates": {
+        "icon": "assets/images/icons/sprout_items/functions_research_items/get_plot_grid_coordinates.png",
+        "name": "Get Plot Grid Coordinates",
+        "language_specific_description": {
+            "cpp": "getPlotGridX(), getPlotGridY()\n\nReturns the current plot grid X/Y indices, respectively, the drone is standing on.",
+            "csharp": "getPlotGridX(), getPlotGridY()\n\nReturns the current plot grid X/Y indices, respectively, the drone is standing on.",
+            "java": "getPlotGridX(), getPlotGridY()\n\nReturns the current plot grid X/Y indices, respectively, the drone is standing on.",
+            "javascript": "getPlotGridX(), getPlotGridY()\n\nReturns the current plot grid X/Y, respectively, indices the drone is standing on.",
+            "python": "get_plot_grid_x(), get_plot_grid_y()\n\nReturns the current plot grid X/Y, respectively, indices the drone is standing on."
+        },
+        "predecessor_ids": ["func_move"],
+        "requirements": {
+            "carrot": 85,
+            "potato": 35
+        },
+        "functions_unlocked": ["getPlotGridX()", "getPlotGridY()"]
+    },
+
+    "func_plot_state_checker": {
+        "icon": "assets/images/icons/sprout_items/functions_research_items/plot_state_checker.png",
+        "name": "Plot State Checker",
+        "language_specific_description": {
+            "cpp": "getPlotState()\n\nReturns the current state of the plot (e.g., PlotState::Normal, PlotState::Tilled, PlotState::Watered).",
+            "csharp": "getPlotState()\n\nReturns the current state of the plot (e.g., PlotState.Normal, PlotState.Tilled, PlotState.Watered).",
+            "java": "getPlotState()\n\nReturns the current state of the plot (e.g., PlotState.NORMAL, PlotState.TILLED, PlotState.WATERED).",
+            "javascript": "getPlotState()\n\nReturns the current state of the plot (e.g., PlotState.NORMAL, PlotState.TILLED, PlotState.WATERED).",
+            "python": "get_plot_state()\n\nReturns the current state of the plot (e.g., PlotState.NORMAL, PlotState.TILLED, PlotState.WATERED)."
+        },
+        "predecessor_ids": ["func_get_plot_grid_coordinates"],
+        "requirements": {
+            "beetroot": 50
+        },
+        "functions_unlocked": ["getPlotState()"]
+    },
+
+    "func_crop_state_checker": {
+        "icon": "assets/images/icons/sprout_items/functions_research_items/crop_state_checker.png",
+        "name": "Crop State Checker",
+        "language_specific_description": {
+            "cpp": "getCropType(), isCropGrown()\n\nReturns the planted crop type and whether the crop has finished growing.",
+            "csharp": "getCropType(), isCropGrown()\n\nReturns the planted crop type and whether the crop has finished growing.",
+            "java": "getCropType(), isCropGrown()\n\nReturns the planted crop type and whether the crop has finished growing.",
+            "javascript": "getCropType(), isCropGrown()\n\nReturns the planted crop type and whether the crop has finished growing.",
+            "python": "get_crop_type(), is_crop_grown()\n\nReturns the planted crop type and whether the crop has finished growing."
+        },
+        "predecessor_ids": ["func_plot_state_checker"],
+        "requirements": {
+            "beetroot": 60,
+            "radish": 40
+        },
+        "functions_unlocked": ["getCropType()", "isCropGrown()"]
+    },
+
+    "func_can_checkers": {
+        "icon": "assets/images/icons/sprout_items/functions_research_items/can_checkers.png",
+        "name": "Validators for the Drone",
+        "language_specific_description": {
+            "cpp": "canTill(), canWater(), canPlant(), canHarvest()\n\nValidators that return, either true or false, whether the corresponding action is allowed at the current position.",
+            "csharp": "canTill(), canWater(), canPlant(), canHarvest()\n\nValidators that return, either true or false, whether the corresponding action is allowed at the current position.",
+            "java": "canTill(), canWater(), canPlant(), canHarvest()\n\nValidators that return, either true or false, whether the corresponding action is allowed at the current position.",
+            "javascript": "canTill(), canWater(), canPlant(), canHarvest()\n\nValidators that return, either true or false, whether the corresponding action is allowed at the current position.",
+            "python": "can_till(), can_water(), can_plant(), can_harvest()\n\nValidators that return, either true or false, whether the corresponding action is allowed at the current position."
+        },
+        "predecessor_ids": ["func_crop_state_checker"],
+        "requirements": {
+            "wheat": 180,
+            "potato": 80,
+            "radish": 60
+        },
+        "functions_unlocked": ["canTill()", "canWater()", "canPlant()", "canHarvest()"]
+    },
+
+    "func_inventory_checkers": {
+        "icon": "assets/images/icons/sprout_items/functions_research_items/inventory_checkers.png",
+        "name": "Inventory Checkers",
+        "language_specific_description": {
+            "cpp": "hasSeed(SeedType), getSeedInventoryCount(SeedType), getCropInventoryCount(CropType)\n\nChecks and retrieves inventory information for seeds and crops.",
+            "csharp": "hasSeed(SeedType), getSeedInventoryCount(SeedType), getCropInventoryCount(CropType)\n\nChecks and retrieves inventory information for seeds and crops.",
+            "java": "hasSeed(SeedType), getSeedInventoryCount(SeedType), getCropInventoryCount(CropType)\n\nChecks and retrieves inventory information for seeds and crops.",
+            "javascript": "hasSeed(SeedType), getSeedInventoryCount(SeedType), getCropInventoryCount(CropType)\n\nChecks and retrieves inventory information for seeds and crops.",
+            "python": "has_seed(SeedType), get_seed_inventory_count(SeedType), get_crop_inventory_count(CropType)\n\nChecks and retrieves inventory information for seeds and crops."
+        },
+        "predecessor_ids": ["func_plant"],
+        "requirements": {
+            "carrot": 85,
+            "potato": 75
+        },
         "functions_unlocked": ["hasSeed(seedType)", "getSeedInventoryCount(seedType)", "getCropInventoryCount(cropType)"]
     }
 }

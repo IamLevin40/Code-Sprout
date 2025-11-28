@@ -15,12 +15,9 @@
                 "max": 1
             },
             "crop_stages": {
-                "1": "assets/images/farm/crops/wheat/stage_1.png",
-                "2": "assets/images/farm/crops/wheat/stage_2.png",
-                "3": "assets/images/farm/crops/wheat/stage_3.png",
-                "4": "assets/images/farm/crops/wheat/stage_4.png",
-                "5": "assets/images/farm/crops/wheat/stage_5.png",
-                "6": "assets/images/farm/crops/wheat/stage_6.png"
+                "1": "assets/images/crops/wheat/wheat_stage_1.png",
+                "2": "assets/images/crops/wheat/wheat_stage_2.png",
+                "3": "assets/images/crops/wheat/wheat_stage_3.png"
             }
         },
         "carrot": {
@@ -30,11 +27,9 @@
                 "max": 3
             },
             "crop_stages": {
-                "1": "assets/images/farm/crops/carrot/stage_1.png",
-                "2": "assets/images/farm/crops/carrot/stage_2.png",
-                "3": "assets/images/farm/crops/carrot/stage_3.png",
-                "4": "assets/images/farm/crops/carrot/stage_4.png",
-                "5": "assets/images/farm/crops/carrot/stage_5.png"
+                "1": "assets/images/crops/carrot/carrot_stage_1.png",
+                "2": "assets/images/crops/carrot/carrot_stage_2.png",
+                "3": "assets/images/crops/carrot/carrot_stage_3.png"
             }
         },
         "potato": {
@@ -44,12 +39,9 @@
                 "max": 1
             },
             "crop_stages": {
-                "1": "assets/images/farm/crops/potato/stage_1.png",
-                "2": "assets/images/farm/crops/potato/stage_2.png",
-                "3": "assets/images/farm/crops/potato/stage_3.png",
-                "4": "assets/images/farm/crops/potato/stage_4.png",
-                "5": "assets/images/farm/crops/potato/stage_5.png",
-                "6": "assets/images/farm/crops/potato/stage_6.png"
+                "1": "assets/images/crops/potato/potato_stage_1.png",
+                "2": "assets/images/crops/potato/potato_stage_2.png",
+                "3": "assets/images/crops/potato/potato_stage_3.png"
             }
         },
         "beetroot": {
@@ -59,11 +51,9 @@
                 "max": 1
             },
             "crop_stages": {
-                "1": "assets/images/farm/crops/beetroot/stage_1.png",
-                "2": "assets/images/farm/crops/beetroot/stage_2.png",
-                "3": "assets/images/farm/crops/beetroot/stage_3.png",
-                "4": "assets/images/farm/crops/beetroot/stage_4.png",
-                "5": "assets/images/farm/crops/beetroot/stage_5.png"
+                "1": "assets/images/crops/beetroot/beetroot_stage_1.png",
+                "2": "assets/images/crops/beetroot/beetroot_stage_2.png",
+                "3": "assets/images/crops/beetroot/beetroot_stage_3.png"
             }
         },
         "radish": {
@@ -73,10 +63,10 @@
                 "max": 1
             },
             "crop_stages": {
-                "1": "assets/images/farm/crops/radish/stage_1.png",
-                "2": "assets/images/farm/crops/radish/stage_2.png",
-                "3": "assets/images/farm/crops/radish/stage_3.png",
-                "4": "assets/images/farm/crops/radish/stage_4.png"
+                "1": "assets/images/crops/radish/radish_stage_1.png",
+                "2": "assets/images/crops/radish/radish_stage_2.png",
+                "3": "assets/images/crops/radish/radish_stage_3.png",
+                "4": "assets/images/crops/radish/radish_stage_4.png"
             }
         },
         "onion": {
@@ -86,26 +76,23 @@
                 "max": 1
             },
             "crop_stages": {
-                "1": "assets/images/farm/crops/onion/stage_1.png",
-                "2": "assets/images/farm/crops/onion/stage_2.png",
-                "3": "assets/images/farm/crops/onion/stage_3.png",
-                "4": "assets/images/farm/crops/onion/stage_4.png",
-                "5": "assets/images/farm/crops/onion/stage_5.png",
-                "6": "assets/images/farm/crops/onion/stage_6.png"
+                "1": "assets/images/crops/onion/onion_stage_1.png",
+                "2": "assets/images/crops/onion/onion_stage_2.png",
+                "3": "assets/images/crops/onion/onion_stage_3.png",
+                "4": "assets/images/crops/onion/onion_stage_4.png"
             }
         },
         "lettuce": {
-            "growth_duration": 5.0,
+            "growth_duration": 10.0,
             "harvest_quantity": {
                 "min": 1,
                 "max": 1
             },
             "crop_stages": {
-                "1": "assets/images/farm/crops/lettuce/stage_1.png",
-                "2": "assets/images/farm/crops/lettuce/stage_2.png",
-                "3": "assets/images/farm/crops/lettuce/stage_3.png",
-                "4": "assets/images/farm/crops/lettuce/stage_4.png",
-                "5": "assets/images/farm/crops/lettuce/stage_5.png"
+                "1": "assets/images/crops/lettuce/lettuce_stage_1.png",
+                "2": "assets/images/crops/lettuce/lettuce_stage_2.png",
+                "3": "assets/images/crops/lettuce/lettuce_stage_3.png",
+                "4": "assets/images/crops/lettuce/lettuce_stage_4.png"
             }
         },
         "tomato": {
@@ -115,13 +102,10 @@
                 "max": 4
             },
             "crop_stages": {
-                "1": "assets/images/farm/crops/tomato/stage_1.png",
-                "2": "assets/images/farm/crops/tomato/stage_2.png",
-                "3": "assets/images/farm/crops/tomato/stage_3.png",
-                "4": "assets/images/farm/crops/tomato/stage_4.png",
-                "5": "assets/images/farm/crops/tomato/stage_5.png",
-                "6": "assets/images/farm/crops/tomato/stage_6.png",
-                "7": "assets/images/farm/crops/tomato/stage_7.png"
+                "1": "assets/images/crops/tomato/tomato_stage_1.png",
+                "2": "assets/images/crops/tomato/tomato_stage_2.png",
+                "3": "assets/images/crops/tomato/tomato_stage_3.png",
+                "4": "assets/images/crops/tomato/tomato_stage_4.png"
             }
         },
         "garlic": {
@@ -131,11 +115,10 @@
                 "max": 1
             },
             "crop_stages": {
-                "1": "assets/images/farm/crops/garlic/stage_1.png",
-                "2": "assets/images/farm/crops/garlic/stage_2.png",
-                "3": "assets/images/farm/crops/garlic/stage_3.png",
-                "4": "assets/images/farm/crops/garlic/stage_4.png",
-                "5": "assets/images/farm/crops/garlic/stage_5.png"
+                "1": "assets/images/crops/garlic/garlic_stage_1.png",
+                "2": "assets/images/crops/garlic/garlic_stage_2.png",
+                "3": "assets/images/crops/garlic/garlic_stage_3.png",
+                "4": "assets/images/crops/garlic/garlic_stage_4.png"
             }
         }
     }

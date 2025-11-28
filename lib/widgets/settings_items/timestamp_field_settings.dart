@@ -132,7 +132,7 @@ class _TimestampFieldSettingsState extends State<TimestampFieldSettings> {
         boxShadow: [
           BoxShadow(
             color: (styles.getStyles('settings_page.section_card.shadow.color') as Color)
-                .withOpacity((styles.getStyles('settings_page.section_card.shadow.opacity') as double) / 100),
+                .withValues(alpha: (styles.getStyles('settings_page.section_card.shadow.opacity') as double) / 100),
             blurRadius: styles.getStyles('settings_page.section_card.shadow.blur_radius') as double,
           ),
         ],

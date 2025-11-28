@@ -258,6 +258,11 @@
                 "color": "--colors.dark_gray",
                 "font_size": "--font_sizes.regular",
                 "font_weight": "--font_weights.bold"
+            },
+            "progress_indicator": {
+                "width": 16,
+                "height": 16,
+                "stroke_weight": 2
             }
         },
         "register_link": {
@@ -379,6 +384,11 @@
                 "color": "--colors.dark_gray",
                 "font_size": "--font_sizes.regular",
                 "font_weight": "--font_weights.bold"
+            },
+            "progress_indicator": {
+                "width": 16,
+                "height": 16,
+                "stroke_weight": 2
             }
         },
         "login_link": {
@@ -3263,8 +3273,8 @@
                 "height": 64
             },
             "crop_size": {
-                "width": 64,
-                "height": 64
+                "width": 32,
+                "height": 32
             },
             "crop_placeholder": {
                 "color": "--colors.white",
@@ -3562,6 +3572,94 @@
                 },
                 "message_color": "--colors.dark_gray",
                 "progress_color": "#D9203B"
+            }
+        }
+    },
+    "terms_and_conditions_display": {
+        "border_radius": 16,
+        "border_width": 2,
+        "background_color": "--colors.ivory_white",
+        "stroke_color": {
+            "begin": {
+                "position": "top_left",
+                "color": "#87A1BF"
+            },
+            "end": {
+                "position": "bottom_right",
+                "color": "--colors.gray"
+            }
+        },
+        "icon": {
+            "image": "--images.logo",
+            "width": 64,
+            "height": 64
+        },
+        "title": {
+            "color": "--colors.dark_purple",
+            "font_size": "--font_sizes.subheading",
+            "font_weight": "--font_weights.bold"
+        },
+        "section_title_text": {
+            "color": "--colors.dark_gray",
+            "font_size": "--font_sizes.regular",
+            "font_weight": "--font_weights.bold"
+        },
+        "content_text": {
+            "color": "--colors.gray",
+            "font_size": "--font_sizes.regular",
+            "font_weight": "--font_weights.regular"
+        },
+        "decline_button": {
+            "width": 140,
+            "height": 48,
+            "border_radius": 8,
+            "border_width": 2,
+            "background_color": "--colors.ivory_white",
+            "stroke_color": {
+                "begin": {
+                    "position": "top_left",
+                    "color": "#EF7C8A"
+                },
+                "end": {
+                    "position": "bottom_right",
+                    "color": "#D64556"
+                }
+            },
+            "text": {
+                "color": "--colors.dark_gray",
+                "font_size": "--font_sizes.regular",
+                "font_weight": "--font_weights.bold"
+            }
+        },
+        "accept_button": {
+            "width": 140,
+            "height": 48,
+            "border_radius": 8,
+            "border_width": 2,
+            "background_color": {
+                "begin": {
+                    "position": "top_left",
+                    "color": "#A2C947"
+                },
+                "end": {
+                    "position": "bottom_right",
+                    "color": "#CAF562"
+                }
+            },
+            "stroke_color": {
+                "begin": {
+                    "position": "top_left",
+                    "color": "#C1EC5A"
+                },
+                "end": {
+                    "position": "bottom_right",
+                    "color": "#87A938"
+                }
+            },
+            "text": {
+                "color": "--colors.dark_gray",
+                "font_size": "--font_sizes.regular",
+                "font_weight": "--font_weights.bold"
             }
         }
     }

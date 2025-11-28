@@ -49,7 +49,7 @@ class FarmPlotWidget extends StatelessWidget {
           // Crop display
           if (plot.crop != null)
             Positioned(
-              bottom: 16,
+              bottom: 32,
               left: 0,
               right: 0,
               child: Center(

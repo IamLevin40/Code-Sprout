@@ -15,6 +15,7 @@ dependencies:
   firebase_auth: ^6.1.1
   cloud_firestore: ^6.0.3
   flutter_secure_storage: ^9.2.2
+  flutter_launcher_icons: ^0.14.1
 
 dev_dependencies:
   flutter_test:
@@ -26,16 +27,28 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - assets/images/crops/
+    - assets/images/crops/beetroot/
+    - assets/images/crops/carrot/
+    - assets/images/crops/garlic/
+    - assets/images/crops/lettuce/
+    - assets/images/crops/onion/
+    - assets/images/crops/potato/
+    - assets/images/crops/radish/
+    - assets/images/crops/tomato/
+    - assets/images/crops/wheat/
     - assets/images/icons/
     - assets/images/icons/languages/
     - assets/images/icons/module_items/
-    - assets/images/icons/navbuttons/
+    - assets/images/icons/nav_buttons/
     - assets/images/icons/on_cards/
     - assets/images/icons/sprout_items/
-    - assets/images/icons/sprout_items/crop_items/
+    - assets/images/icons/sprout_items/crop_research_items/
     - assets/images/icons/sprout_items/farm_items/
+    - assets/images/icons/sprout_items/farm_research_items/
+    - assets/images/icons/sprout_items/functions_research_items/
+    - assets/images/icons/sprout_items/inventory_items/
     - assets/images/icons/sprout_items/miscellaneous/
-    - assets/images/icons/sprout_items/seed_items/
     - assets/references/
     - assets/schemas/
     - assets/schemas/courses/
@@ -77,3 +90,18 @@ flutter:
           weight: 800
         - asset: fonts/Poppins-Black.ttf
           weight: 900
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logo.png"
+  min_sdk_android: 21
+  web:
+    generate: true
+    image_path: "assets/images/logo.png"
+  windows:
+    generate: true
+    image_path: "assets/images/logo.png"
+  macos:
+    generate: true
+    image_path: "assets/images/logo.png"
